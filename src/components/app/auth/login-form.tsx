@@ -78,7 +78,7 @@ export const LoginForm = () => {
   return (
     <AuthLayout
       hiddenApp
-      title="¡Bienvenido! Inicia sesión en tu cuenta"
+      title="¡Bienvenido!"
       subTitle="Ingresa tus credenciales para acceder a tu cuenta. Descubre las novedades que tenemos para ti."
       backgroundImage={configImages.BACKGROUND_DEFAULT.src}
     >

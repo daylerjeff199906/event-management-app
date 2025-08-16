@@ -103,11 +103,11 @@ export function AuthLayout({
 
         {/* Content */}
         <div className="fixed bottom-8 right-8 text-white max-w-xl z-10">
-          <h1 className="text-4xl font-extrabold mb-4">{title}</h1>
+          <h1 className="text-3xl mb-4">{title}</h1>
           {subTitle ? (
-            <p className="text-lg opacity-90">{subTitle}</p>
+            <p className="text-lg text-gray-300">{subTitle}</p>
           ) : (
-            <p className="text-lg opacity-90">{DESCRIPTION}</p>
+            <p className="text-lg text-gray-300">{DESCRIPTION}</p>
           )}
         </div>
       </div>

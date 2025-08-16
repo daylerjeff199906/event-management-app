@@ -26,7 +26,8 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { toast } from 'react-toastify'
-import Image from 'next/image'
+import { AuthLayout } from '../miscellaneous/auth-layout'
+import { APP_URL } from '@/data/config-app-url'
 
 const registerSchema = z
   .object({
@@ -84,316 +85,261 @@ export const RegisterForm = () => {
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Formulario (25% del ancho) */}
-      <div className="w-1/3 p-8 overflow-y-auto bg-white">
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">
-              Bienvenido a Joinnus
-            </h1>
+    <AuthLayout
+      logoSize={120}
+      title="Crea tu cuenta"
+      subTitle="Estas a un paso de unirte a nuestra comunidad. Descubre las novedades que tenemos para ti."
+      hiddenName
+    >
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Bienvenido</h1>
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                {/* Name Fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="firstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
-                          Nombre
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="JOSE JEFFERSON"
-                            className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                      Nombre
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="JOSE JEFFERSON"
+                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                  <FormField
-                    control={form.control}
-                    name="lastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
-                          Apellido
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="SANTOS PANAFO"
-                            className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                      Apellido
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="SANTOS PANAFO"
+                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-                {/* Email Fields */}
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="jose.santos@gmail.com"
-                          className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                          {...field}
-                        />
-                      </FormControl>
+            {/* Email Fields */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="jose.santos@gmail.com"
+                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirmEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Repetir correo electrónico"
+                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Location Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger className="border-gray-200 w-full">
+                          <SelectValue placeholder="País" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="peru">Perú</SelectItem>
+                          <SelectItem value="colombia">Colombia</SelectItem>
+                          <SelectItem value="mexico">México</SelectItem>
+                          <SelectItem value="argentina">Argentina</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger className="border-gray-200 w-full">
+                          <SelectValue placeholder="Ciudad" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="lima">Lima</SelectItem>
+                          <SelectItem value="pasco">Pasco</SelectItem>
+                          <SelectItem value="arequipa">Arequipa</SelectItem>
+                          <SelectItem value="cusco">Cusco</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Gender */}
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex space-x-6"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="male" id="male" />
+                        <Label htmlFor="male" className="text-sm">
+                          Hombre
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="female" id="female" />
+                        <Label htmlFor="female" className="text-sm">
+                          Mujer
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Checkboxes */}
+            <div className="space-y-3">
+              <FormField
+                control={form.control}
+                name="acceptTerms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="flex space-x-1 flex-col">
+                      <Label className="text-xs text-gray-600 text-nowrap">
+                        Acepto los{' '}
+                        <Link href="#" className="text-primary hover:underline">
+                          Términos y Condiciones
+                        </Link>{' '}
+                        y la{' '}
+                        <Link href="#" className="text-primary hover:underline">
+                          Política de Privacidad
+                        </Link>
+                      </Label>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Repetir correo electrónico"
-                          className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Location Fields */}
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="border-gray-200 focus:border-teal-500 focus:ring-teal-500">
-                              <SelectValue placeholder="País" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="peru">Perú</SelectItem>
-                              <SelectItem value="colombia">Colombia</SelectItem>
-                              <SelectItem value="mexico">México</SelectItem>
-                              <SelectItem value="argentina">
-                                Argentina
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="border-gray-200 focus:border-teal-500 focus:ring-teal-500">
-                              <SelectValue placeholder="Ciudad" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="lima">Lima</SelectItem>
-                              <SelectItem value="pasco">Pasco</SelectItem>
-                              <SelectItem value="arequipa">Arequipa</SelectItem>
-                              <SelectItem value="cusco">Cusco</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Gender */}
-                <FormField
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="flex space-x-6"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem
-                              value="male"
-                              id="male"
-                              className="border-teal-500 text-teal-500"
-                            />
-                            <Label htmlFor="male" className="text-sm">
-                              Hombre
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem
-                              value="female"
-                              id="female"
-                              className="border-teal-500 text-teal-500"
-                            />
-                            <Label htmlFor="female" className="text-sm">
-                              Mujer
-                            </Label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Checkboxes */}
-                <div className="space-y-3">
-                  <FormField
-                    control={form.control}
-                    name="acceptTerms"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="border-teal-500 data-[state=checked]:bg-teal-500"
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <Label className="text-sm">
-                            He leído y acepto los{' '}
-                            <Link
-                              href="#"
-                              className="text-teal-600 hover:underline"
-                            >
-                              Términos y Condiciones
-                            </Link>{' '}
-                            y la{' '}
-                            <Link
-                              href="#"
-                              className="text-teal-600 hover:underline"
-                            >
-                              Política de Privacidad
-                            </Link>
-                          </Label>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="acceptPromotions"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="border-teal-500 data-[state=checked]:bg-teal-500"
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <Label className="text-sm">
-                            Doy mi consentimiento para recibir notificaciones y
-                            disfrutar de los beneficios, promociones y
-                            descuentos creados para mí.
-                          </Label>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="text-xs text-gray-500">
-                  * Campos obligatorios
-                </div>
-
-                {/* reCAPTCHA placeholder */}
-                <div className="bg-gray-50 border border-gray-200 rounded p-4 flex items-center justify-center">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 border-2 border-gray-300 rounded"></div>
-                    <span className="text-sm text-gray-600">
-                      No soy un robot
-                    </span>
-                    <div className="ml-4">
-                      <div className="w-8 h-8 bg-blue-500 rounded"></div>
                     </div>
-                  </div>
-                </div>
+                  </FormItem>
+                )}
+              />
 
-                <Button
-                  type="submit"
-                  className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 rounded-lg font-medium"
-                  disabled={isLoading}
+              <FormField
+                control={form.control}
+                name="acceptPromotions"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <Label className="text-xs text-gray-600">
+                        Doy mi consentimiento para recibir notificaciones y
+                        disfrutar de los beneficios, promociones y descuentos
+                        creados para mí.
+                      </Label>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="text-xs text-gray-500">* Campos obligatorios</div>
+
+            {/* reCAPTCHA placeholder */}
+            {/*end reCAPTCHA placeholder */}
+
+            <Button
+              type="submit"
+              className="w-full  text-white py-3 rounded-lg font-medium"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Creando cuenta...' : 'Ingresar'}
+            </Button>
+            <div className="flex flex-col items-center">
+              <span className="text-gray-500 text-sm mb-2">
+                <Link
+                  href={APP_URL.AUTH.LOGIN}
+                  className="text-primary hover:underline font-semibold"
                 >
-                  {isLoading ? 'Creando cuenta...' : 'Ingresar'}
-                </Button>
-              </form>
-            </Form>
-
-            <div className="mt-6 text-center">
-              <div className="text-xs text-gray-500 mb-2">Powered by</div>
-              <div className="text-sm font-semibold text-gray-700">JOINNUS</div>
+                  Volver al inicio de sesión
+                </Link>
+              </span>
             </div>
-          </div>
-        </div>
+          </form>
+        </Form>
       </div>
-
-      {/* Imagen (75% del ancho) */}
-      <div className="w-2/3 bg-gray-100 flex items-center justify-center">
-        {/* Reemplaza con tu imagen real */}
-        <div className="relative w-full h-full">
-          <Image
-            src="/register-background.jpg" // Reemplaza con tu ruta de imagen
-            alt="Background"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-            <div className="text-center p-8 text-white">
-              <h2 className="text-4xl font-bold mb-4">
-                Únete a nuestra comunidad
-              </h2>
-              <p className="text-xl max-w-2xl">
-                Descubre los mejores eventos y experiencias que tenemos
-                preparados para ti
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </AuthLayout>
   )
 }
