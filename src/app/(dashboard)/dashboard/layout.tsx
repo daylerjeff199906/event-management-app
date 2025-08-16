@@ -30,7 +30,7 @@ export default function Layout(props: IProps) {
             {
               menu: {
                 id: 2,
-                name: 'Descubre los eventos',
+                name: 'Eventos',
                 url: APP_URL.DASHBOARD.EVENTS.BASE,
                 icon: TicketIcon
               },

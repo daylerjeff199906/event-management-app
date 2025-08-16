@@ -28,7 +28,7 @@ export default function AdminPanelLayout({
       <main
         className={cn(
           'min-h-screen bg-slate-100 dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 relative',
-          !settings.disabled && (!getOpenState() ? 'lg:ml-[90px]' : 'lg:ml-72')
+          !settings.disabled && (!getOpenState() ? 'lg:ml-[90px]' : 'lg:ml-60')
         )}
       >
         <NavBarCustom email={email} menuItems={menuItems} person={personData} />

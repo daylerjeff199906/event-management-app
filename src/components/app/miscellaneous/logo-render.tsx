@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-import IMAGE_BRAND from '@/assets/brands/festify_logo.svg'
+// import IMAGE_BRAND from '@/assets/brands/festify_logo.svg'
+import IMAGE_BRAND_DARK from '@/assets/brands/festify_logo_dark.svg'
 
 export const LogoRender = ({
   href,
@@ -35,7 +36,7 @@ export const LogoRender = ({
           >
             <div className="flex flex-col items-start justify-center w-full">
               <Image
-                src={IMAGE_BRAND}
+                src={IMAGE_BRAND_DARK}
                 alt="logo-festify"
                 className="w-32 h-8"
                 width={1400}

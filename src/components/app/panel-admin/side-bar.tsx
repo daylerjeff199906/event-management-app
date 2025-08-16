@@ -22,15 +22,15 @@ export const SideBar = (props: SideBarProps) => {
   return (
     <aside
       className={cn(
-        `fixed top-0 left-0 z-10 h-screen -translate-x-full lg:translate-x-0 transition-[width] ease-in-out duration-300 w-72 text-white bg-gray-900 dark:bg-zinc-900 shadow-md dark:shadow-zinc-800`,
-        !getOpenState() ? 'w-[90px]' : 'w-72',
+        `fixed top-0 left-0 z-10 h-screen -translate-x-full lg:translate-x-0 transition-[width] ease-in-out duration-300 w-72 text-gray-900 dark:text-gray-200  bg-orange-50 dark:bg-zinc-800 shadow-md dark:shadow-zinc-800`,
+        !getOpenState() ? 'w-[90px]' : 'w-60',
         settings.disabled && 'hidden'
       )}
     >
       <div
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        className="relative h-full flex flex-col px-3 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800 w-full"
+        className="relative h-full flex flex-col px-2 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800 w-full"
       >
         <div
           className={cn(

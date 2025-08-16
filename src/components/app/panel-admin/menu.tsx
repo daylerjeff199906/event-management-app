@@ -33,7 +33,7 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
             .map(({ section, menus }, index) => (
               <li className={cn('w-full', section ? 'pt-5' : '')} key={index}>
                 {(isOpen && section) || isOpen === undefined ? (
-                  <p className="text-sm font-medium text-gray-400 px-4 pb-2 max-w-[248px] truncate">
+                  <p className="text-sm font-light text-gray-500 dark:text-gray-200 px-4 pb-2 max-w-[248px] truncate">
                     {section?.name}
                   </p>
                 ) : !isOpen && isOpen !== undefined && section ? (
@@ -64,10 +64,10 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                                 isActive(menu.url ?? '') ? 'default' : 'ghost'
                               }
                               className={cn(
-                                'w-full justify-start h-10 mb-1',
+                                'w-full justify-start h-9 mb-1',
                                 isActive(menu.url ?? '')
                                   ? 'font-bold text-white'
-                                  : 'text-gray-300'
+                                  : 'text-gray-900 dark:text-gray-200'
                               )}
                               asChild
                             >
