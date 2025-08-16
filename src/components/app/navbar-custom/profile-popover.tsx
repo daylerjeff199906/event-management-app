@@ -10,13 +10,13 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { LoadingAbsolute } from '../loading-absolute'
+import { LoadingAbsolute } from '../miscellaneous/loading-absolute'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
-import { getInitials } from '@/utils'
-import { MenuProfileProps } from '@/types'
+import { getInitials } from '@/utils/utils'
+import { MenuProfileProps } from './interfaces.profile.popover'
 
 export const ProfilePopover = ({
   profileData,
@@ -25,7 +25,7 @@ export const ProfilePopover = ({
   showProgress = true,
   showBorders = true,
   avatarClassName,
-  contentClassName,
+  contentClassName
 }: MenuProfileProps) => {
   const [loading, setLoading] = useState(false)
 
@@ -43,10 +43,7 @@ export const ProfilePopover = ({
         <DropdownMenuTrigger>
           <div className="flex items-center gap-4">
             <Avatar className={cn(avatarBorderClass, avatarClassName)}>
-              <AvatarImage
-                className="object-cover"
-                src={profileData?.photo}
-              />
+              <AvatarImage className="object-cover" src={profileData?.photo} />
               <AvatarFallback className="text-gray-700">
                 {getInitials(profileData?.names)}
               </AvatarFallback>
@@ -88,10 +85,7 @@ export const ProfilePopover = ({
                     </span>
                     <span className="font-medium">{progressValue}%</span>
                   </div>
-                  <Progress
-                    value={progressValue}
-                    className="h-2"
-                  />
+                  <Progress value={progressValue} className="h-2" />
                   <div className="flex items-center gap-1 text-xs">
                     {isProfileComplete ? (
                       <>
@@ -120,10 +114,7 @@ export const ProfilePopover = ({
                 <DropdownMenuLabel>{section.label}</DropdownMenuLabel>
               )}
               {section.items.map((item, itemIndex) => (
-                <DropdownMenuItem
-                  key={itemIndex}
-                  asChild={!!item.href}
-                >
+                <DropdownMenuItem key={itemIndex} asChild={!!item.href}>
                   {item.href ? (
                     <Link href={item.href}>{item.label}</Link>
                   ) : (
@@ -145,11 +136,7 @@ export const ProfilePopover = ({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      <LoadingAbsolute
-        show={loading}
-        blurAmount="xl"
-        label="Cerrar sesión"
-      />
+      <LoadingAbsolute show={loading} blurAmount="xl" label="Cerrar sesión" />
     </>
   )
 }
