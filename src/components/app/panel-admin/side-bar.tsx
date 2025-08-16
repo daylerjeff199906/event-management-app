@@ -3,17 +3,17 @@ import React from 'react'
 import { Menu } from './menu'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useStore } from '@/hooks/use-store'
-import { SectionElement, MenuConfigApps } from '@/types'
+import { SectionElement } from '@/types'
 import { LogoRender } from '../logo-render'
 import { APP_URL } from '@/config/urls-data/student.urls.config'
 
 interface SideBarProps {
-  app?: MenuConfigApps
+  // app?: MenuConfigApps
   menuItems?: SectionElement[]
 }
 
 export const SideBar = (props: SideBarProps) => {
-  const { app, menuItems } = props
+  const { menuItems } = props
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
   const { getOpenState, setIsHover, settings } = sidebar
@@ -37,11 +37,7 @@ export const SideBar = (props: SideBarProps) => {
           href={APP_URL.HOME.URL_BASE}
           className="w-full max-w-36"
         />
-        <Menu
-          isOpen={getOpenState()}
-          app={app}
-          menuItems={menuItems}
-        />
+        {/* <Menu isOpen={getOpenState()} app={app} menuItems={menuItems} /> */}
       </div>
     </aside>
   )
