@@ -30,7 +30,7 @@ export const SideBar = (props: SideBarProps) => {
       <div
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        className="relative h-full flex flex-col px-2 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800 w-full"
+        className="relative h-full flex flex-col px-2 py-4 overflow-y-auto w-full border-r border-gray-200 dark:border-gray-700"
       >
         <div
           className={cn(

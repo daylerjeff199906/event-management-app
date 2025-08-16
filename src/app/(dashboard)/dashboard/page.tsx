@@ -1,4 +1,10 @@
-import { HeroPage, MainActions, QuickFilters } from '@/modules/dashboard/pages'
+import {
+  EventCards,
+  EventInspiration,
+  HeroPage,
+  MainActions,
+  QuickFilters
+} from '@/modules/dashboard/pages'
 
 export default function HomePage() {
   return (
@@ -7,7 +13,8 @@ export default function HomePage() {
         <HeroPage />
         <MainActions />
         <QuickFilters />
-        {/* <EventCards /> */}
+        <EventCards />
+        <EventInspiration />
       </div>
     </>
   )
