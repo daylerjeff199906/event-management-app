@@ -4,8 +4,8 @@ import { Menu } from './menu'
 import { useSidebar } from '@/hooks/use-sidebar'
 import { useStore } from '@/hooks/use-store'
 import { SectionElement } from '@/types'
-import { LogoRender } from '../logo-render'
-import { APP_URL } from '@/config/urls-data/student.urls.config'
+import { LogoRender } from '../miscellaneous/logo-render'
+import { APP_URL } from '@/data/config-app-url'
 
 interface SideBarProps {
   // app?: MenuConfigApps
@@ -32,12 +32,12 @@ export const SideBar = (props: SideBarProps) => {
         className="relative h-full flex flex-col px-3 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800 w-full"
       >
         <LogoRender
-          nameApp="SIGAE"
-          subtitle="Estudiante"
-          href={APP_URL.HOME.URL_BASE}
+          nameApp="Tu panel"
+          subtitle="Bienvenido"
+          href={APP_URL.DASHBOARD.BASE}
           className="w-full max-w-36"
         />
-        {/* <Menu isOpen={getOpenState()} app={app} menuItems={menuItems} /> */}
+        <Menu isOpen={getOpenState()} menuItems={menuItems} />
       </div>
     </aside>
   )

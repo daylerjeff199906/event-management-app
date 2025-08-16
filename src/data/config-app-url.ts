@@ -5,5 +5,8 @@ export const APP_URL = {
   },
   AUTH: {
     LOGIN: '/auth/login'
+  },
+  DASHBOARD: {
+    BASE: '/dashboard'
   }
 }
