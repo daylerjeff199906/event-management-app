@@ -11,8 +11,8 @@ export interface MenuElement {
 export interface SubmenuElement {
   id: number
   name: string
-  description: string
-  icon: null | string
+  description?: string
+  icon?: null | string
   url: null | string
 }
 
