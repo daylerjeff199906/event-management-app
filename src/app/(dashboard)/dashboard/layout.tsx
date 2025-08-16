@@ -1,5 +1,7 @@
+'use client'
 import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
 import { APP_URL } from '@/data/config-app-url'
+import { HomeIcon } from 'lucide-react'
 
 interface IProps {
   children: React.ReactNode
@@ -20,7 +22,8 @@ export default function Layout(props: IProps) {
               menu: {
                 id: 1,
                 name: 'Inicio',
-                url: APP_URL.DASHBOARD.BASE
+                url: APP_URL.DASHBOARD.BASE,
+                icon: HomeIcon
               },
               submenus: []
             },
@@ -31,15 +34,7 @@ export default function Layout(props: IProps) {
                 url: APP_URL.DASHBOARD.EVENTS.BASE
               },
               submenus: []
-            }
-          ]
-        },
-        {
-          section: {
-            id: 2,
-            name: 'Sección anclados'
-          },
-          menus: [
+            },
             {
               menu: {
                 id: 3,

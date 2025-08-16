@@ -14,6 +14,7 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip'
 import { SectionElement } from '@/types'
+import { icons } from 'lucide-react'
 
 interface MenuProps {
   isOpen: boolean | undefined
@@ -79,16 +80,7 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                                     )}
                                   >
                                     {menu.icon && (
-                                      <span
-                                        className={cn(
-                                          isActive(menu.url ?? '')
-                                            ? 'text-white'
-                                            : 'text-gray-300'
-                                        )}
-                                        dangerouslySetInnerHTML={{
-                                          __html: menu.icon
-                                        }}
-                                      />
+                                      <menu.icon className={cn('h-5 w-5')} />
                                     )}
                                   </span>
                                   <p
