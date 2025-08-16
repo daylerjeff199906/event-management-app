@@ -1,7 +1,7 @@
 'use client'
 import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
 import { APP_URL } from '@/data/config-app-url'
-import { HomeIcon } from 'lucide-react'
+import { HomeIcon, Settings, Star, TicketIcon, UserIcon } from 'lucide-react'
 
 interface IProps {
   children: React.ReactNode
@@ -31,7 +31,8 @@ export default function Layout(props: IProps) {
               menu: {
                 id: 2,
                 name: 'Descubre los eventos',
-                url: APP_URL.DASHBOARD.EVENTS.BASE
+                url: APP_URL.DASHBOARD.EVENTS.BASE,
+                icon: TicketIcon
               },
               submenus: []
             },
@@ -39,7 +40,8 @@ export default function Layout(props: IProps) {
               menu: {
                 id: 3,
                 name: 'Mis favoritos',
-                url: APP_URL.DASHBOARD.FAVORITES
+                url: APP_URL.DASHBOARD.FAVORITES,
+                icon: Star
               },
               submenus: []
             }
@@ -55,7 +57,8 @@ export default function Layout(props: IProps) {
               menu: {
                 id: 4,
                 name: 'Perfil',
-                url: APP_URL.DASHBOARD.PROFILE
+                url: APP_URL.DASHBOARD.PROFILE,
+                icon: UserIcon
               },
               submenus: []
             },
@@ -63,7 +66,8 @@ export default function Layout(props: IProps) {
               menu: {
                 id: 5,
                 name: 'Configuración',
-                url: APP_URL.DASHBOARD.SETTINGS
+                url: APP_URL.DASHBOARD.SETTINGS,
+                icon: Settings
               },
               submenus: []
             }

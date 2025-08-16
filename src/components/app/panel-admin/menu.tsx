@@ -14,7 +14,6 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip'
 import { SectionElement } from '@/types'
-import { icons } from 'lucide-react'
 
 interface MenuProps {
   isOpen: boolean | undefined
