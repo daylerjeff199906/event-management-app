@@ -4,7 +4,9 @@ export const APP_URL = {
     ACCOUNT: '/profile/account'
   },
   AUTH: {
-    LOGIN: '/auth/login'
+    LOGIN: '/login',
+    FORGOT_PASSWORD: '/forgot-password',
+    REGISTER: '/sign-in'
   },
   DASHBOARD: {
     BASE: '/dashboard',
