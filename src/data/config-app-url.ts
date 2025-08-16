@@ -6,7 +6,7 @@ export const APP_URL = {
   AUTH: {
     LOGIN: '/login',
     FORGOT_PASSWORD: '/forgot-password',
-    REGISTER: '/sign-in'
+    REGISTER: '/sign-up'
   },
   DASHBOARD: {
     BASE: '/dashboard',
