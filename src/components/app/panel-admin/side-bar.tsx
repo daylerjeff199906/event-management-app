@@ -6,6 +6,7 @@ import { useStore } from '@/hooks/use-store'
 import { SectionElement } from '@/types'
 import { LogoRender } from '../miscellaneous/logo-render'
 import { APP_URL } from '@/data/config-app-url'
+import { PanelLeftDashed } from 'lucide-react'
 
 interface SideBarProps {
   // app?: MenuConfigApps
@@ -16,7 +17,7 @@ export const SideBar = (props: SideBarProps) => {
   const { menuItems } = props
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
-  const { getOpenState, setIsHover, settings } = sidebar
+  const { getOpenState, setIsHover, settings, setIsOpen, isOpen } = sidebar
 
   return (
     <aside
@@ -31,12 +32,22 @@ export const SideBar = (props: SideBarProps) => {
         onMouseLeave={() => setIsHover(false)}
         className="relative h-full flex flex-col px-3 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800 w-full"
       >
-        <LogoRender
-          nameApp="Tu panel"
-          subtitle="Bienvenido"
-          href={APP_URL.DASHBOARD.BASE}
-          className="w-full max-w-36"
-        />
+        <div
+          className={cn(
+            'flex items-center',
+            isOpen ? 'justify-between' : 'justify-center'
+          )}
+        >
+          <LogoRender
+            nameApp="Tu panel"
+            subtitle="Bienvenido"
+            href={APP_URL.DASHBOARD.BASE}
+            className="w-full max-w-36"
+          />
+          <button onClick={() => setIsOpen(!isOpen)}>
+            <PanelLeftDashed />
+          </button>
+        </div>
         <Menu isOpen={getOpenState()} menuItems={menuItems} />
       </div>
     </aside>

@@ -9,7 +9,7 @@
 //   Tooltip,
 //   TooltipContent,
 //   TooltipTrigger,
-//   TooltipProvider,
+//   TooltipProvider
 // } from '@/components/ui/tooltip'
 
 // export function ModeToggle() {
