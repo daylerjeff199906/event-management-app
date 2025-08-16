@@ -23,6 +23,54 @@ export default function Layout(props: IProps) {
                 url: APP_URL.DASHBOARD.BASE
               },
               submenus: []
+            },
+            {
+              menu: {
+                id: 2,
+                name: 'Descubre los eventos',
+                url: APP_URL.DASHBOARD.EVENTS.BASE
+              },
+              submenus: []
+            }
+          ]
+        },
+        {
+          section: {
+            id: 2,
+            name: 'Sección anclados'
+          },
+          menus: [
+            {
+              menu: {
+                id: 3,
+                name: 'Mis favoritos',
+                url: APP_URL.DASHBOARD.FAVORITES
+              },
+              submenus: []
+            }
+          ]
+        },
+        {
+          section: {
+            id: 3,
+            name: 'Mi perfil'
+          },
+          menus: [
+            {
+              menu: {
+                id: 4,
+                name: 'Perfil',
+                url: APP_URL.DASHBOARD.PROFILE
+              },
+              submenus: []
+            },
+            {
+              menu: {
+                id: 5,
+                name: 'Configuración',
+                url: APP_URL.DASHBOARD.SETTINGS
+              },
+              submenus: []
             }
           ]
         }

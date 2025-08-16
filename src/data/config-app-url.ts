@@ -7,6 +7,12 @@ export const APP_URL = {
     LOGIN: '/auth/login'
   },
   DASHBOARD: {
-    BASE: '/dashboard'
+    BASE: '/dashboard',
+    EVENTS: {
+      BASE: '/dashboard/events'
+    },
+    FAVORITES: '/dashboard/favorites',
+    PROFILE: '/dashboard/profile',
+    SETTINGS: '/dashboard/settings'
   }
 }
