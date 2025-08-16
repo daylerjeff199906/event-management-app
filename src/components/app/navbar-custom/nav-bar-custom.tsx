@@ -7,7 +7,7 @@ import { IMoreApp } from './interface.navbar'
 import { SectionElement } from '@/types'
 import { useStore } from 'zustand'
 // import { Grip } from 'lucide-react'
-import { MENU_PROFILE } from '@/config/profile-menu'
+import { MENU_PROFILE } from './profile-menu'
 import { IPerson } from '@/types'
 import { ProfilePopover } from './profile-popover'
 // import { Breadcrumb } from '@/components/ui/breadcrumb'
@@ -21,7 +21,7 @@ interface NavBarCustomProps {
 }
 
 export const NavBarCustom = (props: NavBarCustomProps) => {
-  const { app, person, email, menuItems } = props
+  const { person, email, menuItems } = props
 
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null

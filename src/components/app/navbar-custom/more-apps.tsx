@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,10 +14,9 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
+  TooltipTrigger
 } from '@/components/ui/tooltip'
-
-import type { IMoreApp } from '@/types/index'
+import { IMoreApp } from './interface.navbar'
 import { ExternalLink, Grid3X3, List, Grip } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -35,7 +34,7 @@ export const MoreApps = ({
   className,
   title = 'Servicios del Sistema',
   viewMode = 'grid',
-  showBadges = false,
+  showBadges = false
 }: MoreAppsProps) => {
   const [currentViewMode, setCurrentViewMode] = React.useState<'grid' | 'list'>(
     viewMode
@@ -121,21 +120,11 @@ export const MoreApps = ({
             )}
           >
             {apps.map((app, index) => (
-              <DropdownMenuItem
-                key={index}
-                asChild
-                className="p-0 h-auto"
-              >
+              <DropdownMenuItem key={index} asChild className="p-0 h-auto">
                 {currentViewMode === 'grid' ? (
-                  <AppGridItem
-                    app={app}
-                    showBadges={showBadges}
-                  />
+                  <AppGridItem app={app} showBadges={showBadges} />
                 ) : (
-                  <AppListItem
-                    app={app}
-                    showBadges={showBadges}
-                  />
+                  <AppListItem app={app} showBadges={showBadges} />
                 )}
               </DropdownMenuItem>
             ))}
@@ -155,7 +144,7 @@ export const MoreApps = ({
 
 const AppGridItem = ({
   app,
-  showBadges,
+  showBadges
 }: {
   app: IMoreApp
   showBadges: boolean
@@ -213,7 +202,7 @@ const AppGridItem = ({
 
 const AppListItem = ({
   app,
-  showBadges,
+  showBadges
 }: {
   app: IMoreApp
   showBadges: boolean

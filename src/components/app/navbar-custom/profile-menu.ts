@@ -1,7 +1,7 @@
 'use client'
 import { MenuSection } from './interfaces.profile.popover'
 import { APP_URL } from '@/data/config-app-url'
-import { handleLogout } from '@/lib/logout'
+import { handleLogout } from '@/utils/logout'
 
 export const MENU_PROFILE_USER: MenuSection[] = [
   {
