@@ -32,7 +32,7 @@ export default function AdminPanelLayout({
         )}
       >
         <NavBarCustom email={email} menuItems={menuItems} person={personData} />
-        <main className="w-full container mx-auto py-4 bg-slate-100 zoom-adjust">
+        <main className="w-full container mx-auto py-4 bg-slate-100 zoom-adjust px-4 md:px-6">
           {children}
         </main>
       </main>
