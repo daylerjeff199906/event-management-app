@@ -78,7 +78,7 @@ export const ForgotPassword = (props: IProps) => {
       title="Cambiar contraseña"
       subTitle="Recupera el acceso a tu cuenta. Ingresa tu correo y espera el código de verificación."
     >
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-sm mx-auto">
         <h2 className="text-2xl font-bold">Cambiar contraseña</h2>
         <p className="text-sm text-gray-600">
           Por favor, ingresa tu correo electrónico y tu nueva contraseña.
