@@ -13,6 +13,7 @@ export const APP_URL = {
     },
     FAVORITES: '/dashboard/favorites',
     PROFILE: '/dashboard/profile',
-    SETTINGS: '/dashboard/settings'
+    SETTINGS: '/dashboard/settings',
+    TICKETS: '/dashboard/tickets'
   }
 }

@@ -1,17 +1,14 @@
 'use client'
 import { SheetMenu } from './sheet-menu'
-// import { SidebarToggle } from './sidebar-toggle'
 import { useSidebar } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { IMoreApp } from './interface.navbar'
 import { SectionElement } from '@/types'
 import { useStore } from 'zustand'
-// import { Grip } from 'lucide-react'
 import { MENU_PROFILE } from './profile-menu'
 import { IPerson } from '@/types'
 import { ProfilePopover } from './profile-popover'
-// import { Breadcrumb } from '@/components/ui/breadcrumb'
-import { BreadcrumbCustom } from '../panel-admin/bread-crumb-custom'
+import { SearchBar } from '../miscellaneous/search-bar'
 
 interface NavBarCustomProps {
   moreApps?: Array<IMoreApp>
@@ -34,9 +31,11 @@ export const NavBarCustom = (props: NavBarCustomProps) => {
       )}
     >
       <div className="px-4 sm:px-6 md:px-7 flex h-16 items-center">
-        <div className="flex items-center space-x-4 lg:space-x-0 sm:gap-3">
+        <div className="flex items-center space-x-4 lg:space-x-0 sm:gap-3 w-full">
           <SheetMenu title="Tu panel" menuItems={menuItems} />
-          <BreadcrumbCustom />
+          <div className="w-full flex items-center justify-between gap-2 max-w-2xl mx-auto">
+            <SearchBar showSmartButton={false} />
+          </div>
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
           {/*Menu de perfil*/}

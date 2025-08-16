@@ -27,7 +27,6 @@ interface EventCardProps {
   onLike: (eventId: number) => void
   viewMode?: 'grid' | 'list'
   primaryButtonLabel?: string
-  secondaryButtonLabel?: string
   showLikeButton?: boolean
   showRating?: boolean
   showAttendees?: boolean
@@ -38,21 +37,20 @@ export function EventCard({
   onLike,
   viewMode = 'grid',
   primaryButtonLabel = 'Ver detalles',
-  secondaryButtonLabel = 'Más info',
   showLikeButton = true,
   showRating = true,
   showAttendees = true
 }: EventCardProps) {
   if (viewMode === 'list') {
     return (
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow py-0">
+      <Card className="overflow-hidden py-0 shadow-none group">
         <div className="flex">
-          <div className="relative w-48 h-32 flex-shrink-0">
+          <div className="relative w-48 flex-shrink-0">
             <Image
               src={event.image || PLACEHOLDER.src}
               alt={event.title}
               fill
-              className="object-cover"
+              className="object-cover h-full w-full rounded-tl-lg rounded-bl-lg group-hover:scale-105 transition-transform duration-300"
             />
             {showLikeButton && (
               <Button
@@ -134,13 +132,13 @@ export function EventCard({
   }
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow group py-0">
+    <Card className="overflow-hidden group py-0 shadow-none">
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
           src={event.image || PLACEHOLDER.src}
           alt={event.title}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-xl"
         />
         {showLikeButton && (
           <Button
@@ -171,7 +169,7 @@ export function EventCard({
           {event.title}
         </h3>
 
-        <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+        <p className="text-muted-foreground text-xs mb-3 line-clamp-2">
           {event.description}
         </p>
 

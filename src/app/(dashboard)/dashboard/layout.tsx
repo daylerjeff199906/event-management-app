@@ -1,7 +1,7 @@
 'use client'
 import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
 import { APP_URL } from '@/data/config-app-url'
-import { HomeIcon, Settings, Star, TicketIcon, UserIcon } from 'lucide-react'
+import { Dock, HomeIcon, Settings, Star, TicketIcon, UserIcon } from 'lucide-react'
 
 interface IProps {
   children: React.ReactNode
@@ -53,6 +53,15 @@ export default function Layout(props: IProps) {
             name: 'Mi perfil'
           },
           menus: [
+            {
+              menu: {
+                id: 1,
+                name: 'Mis tickets',
+                url: APP_URL.DASHBOARD.TICKETS,
+                icon: Dock
+              },
+              submenus: []
+            },
             {
               menu: {
                 id: 4,
