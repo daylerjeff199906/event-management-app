@@ -20,12 +20,16 @@ import {
   insertInterestsAndNotifications
 } from '@/services/user.services'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
+import { useRouter } from 'next/navigation'
+import { APP_URL } from '@/data/config-app-url'
+import { LoadingAbsolute } from '@/components/app/miscellaneous/loading-absolute'
 
 const STORAGE_KEY = 'eventify-onboarding-progress'
 
 const stepTitles = ['Perfil', 'Intereses', 'Configuración']
 
 export default function OnboardingPage() {
+  const [loading, setLoading] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [onboardingData, setOnboardingData] = useState<
     Partial<CompleteOnboarding>
@@ -45,6 +49,8 @@ export default function OnboardingPage() {
     profileVisibility: 'public',
     showLocation: false
   })
+
+  const router = useRouter()
 
   // Cargar progreso guardado al montar el componente
   useEffect(() => {
@@ -115,6 +121,7 @@ export default function OnboardingPage() {
   }
 
   const handleStepThreeNext = async (data: Notifications) => {
+    setLoading(true)
     const completeData = { ...onboardingData, ...data }
     setOnboardingData(completeData)
 
@@ -157,11 +164,13 @@ export default function OnboardingPage() {
       // Simular redirección a la app principal
       setTimeout(() => {
         toast.info('Redirigiendo a la aplicación principal...')
+        router.push(APP_URL.DASHBOARD.BASE)
       }, 2000)
     } catch (error) {
       toast.error('Error al completar el onboarding. Inténtalo de nuevo.')
       console.error('Error saving user profile:', error)
     }
+    setLoading(false)
   }
 
   return (
@@ -228,6 +237,7 @@ export default function OnboardingPage() {
                       onboardingData.profileVisibility || 'public',
                     showLocation: onboardingData.showLocation ?? false
                   }}
+                  disableNext={loading}
                   onNext={handleStepThreeNext}
                   onBack={handleBack}
                   onSkip={handleSkip}
@@ -237,6 +247,7 @@ export default function OnboardingPage() {
           </div>
         </div>
       </div>
+      <LoadingAbsolute show={loading} label="Configurando espacio ..." />
     </div>
   )
 }

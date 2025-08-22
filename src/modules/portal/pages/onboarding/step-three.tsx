@@ -21,9 +21,16 @@ interface StepThreeProps {
   onNext: (data: Notifications) => void
   onBack: () => void
   onSkip: () => void
+  disableNext: boolean
 }
 
-export function StepThree({ data, onNext, onBack, onSkip }: StepThreeProps) {
+export function StepThree({
+  data,
+  onNext,
+  onBack,
+  onSkip,
+  disableNext
+}: StepThreeProps) {
   const form = useForm<Notifications>({
     resolver: zodResolver(notificationsSchema),
     defaultValues: data
@@ -176,7 +183,7 @@ export function StepThree({ data, onNext, onBack, onSkip }: StepThreeProps) {
               >
                 Omitir
               </Button>
-              <Button type="submit" className="flex-1 ">
+              <Button type="submit" className="flex-1 " disabled={disableNext}>
                 ¡Comenzar a usar Eventify!
               </Button>
             </div>
