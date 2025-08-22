@@ -8,15 +8,6 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import {
   Form,
   FormControl,
@@ -28,59 +19,72 @@ import {
 import { toast } from 'react-toastify'
 import { AuthLayout } from '../miscellaneous/auth-layout'
 import { APP_URL } from '@/data/config-app-url'
+import { createClient } from '@/utils/supabase/client'
 
-const registerSchema = z
-  .object({
-    firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-    lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
-    email: z.string().email('Ingresa un email válido'),
-    confirmEmail: z.string().email('Ingresa un email válido'),
-    country: z.string().min(1, 'Selecciona un país'),
-    city: z.string().min(1, 'Selecciona una ciudad'),
-    gender: z.enum(['male', 'female'], {
-      error: 'Selecciona un género'
-    }),
-    acceptTerms: z.boolean().refine((val) => val === true, {
-      message: 'Debes aceptar los términos y condiciones'
-    }),
-    acceptPromotions: z.boolean().optional()
-  })
-  .refine((data) => data.email === data.confirmEmail, {
-    message: 'Los emails no coinciden',
-    path: ['confirmEmail']
-  })
+const registerSchema = z.object({
+  username: z
+    .string()
+    .min(3, 'El nombre de usuario debe tener al menos 3 caracteres'),
+  email: z.string().email('Ingresa un email válido')
+})
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
 export const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false)
-
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      confirmEmail: '',
-      country: '',
-      city: '',
-      gender: undefined,
-      acceptTerms: false,
-      acceptPromotions: false
-    }
+    defaultValues: { username: '', email: '' }
   })
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      toast.success('Cuenta creada exitosamente!')
-      console.log('Register data:', data)
+      const supabase = createClient()
+      const origin = window.location.origin
+      // Tras confirmar el email, pasamos por /auth/confirm y luego iremos a /onboarding
+      const next = encodeURIComponent('/onboarding')
+      const emailRedirectTo = `${origin}/auth/confirm?next=${next}`
+
+      // Magic link: si el usuario no existe, lo crea y envía link al correo. :contentReference[oaicite:5]{index=5}
+      const { error } = await supabase.auth.signInWithOtp({
+        email: data.email,
+        options: { emailRedirectTo }
+      })
+
+      if (error) throw error
+
+      // Guardamos temporalmente el username para aplicarlo tras el login
+      localStorage.setItem('pending_username', data.username)
+
+      toast.success(
+        'Te enviamos un enlace a tu correo para completar el acceso.'
+      )
     } catch {
-      toast.error('Error al crear la cuenta. Inténtalo de nuevo.')
+      toast.error('Error al crear la cuenta.')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGoogle = async () => {
+    try {
+      const supabase = createClient()
+      const origin = window.location.origin
+      // Guardamos el username que haya escrito (si lo hubiera) para onboarding
+      const u = form.getValues('username')
+      if (u) localStorage.setItem('pending_username', u)
+
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(
+            '/onboarding'
+          )}`
+        }
+      }) // Redirige a Google automáticamente. :contentReference[oaicite:6]{index=6}
+    } catch {
+      toast.error('Error al iniciar sesión con Google.')
     }
   }
 
@@ -96,55 +100,36 @@ export const RegisterForm = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
-                      Nombre
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="JOSE JEFFERSON"
-                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Nombre de usuario */}
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                    Nombre de usuario
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="josejefferson"
+                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
-                      Apellido
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="SANTOS PANAFO"
-                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Email Fields */}
+            {/* Correo */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                    Correo electrónico
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -158,175 +143,25 @@ export const RegisterForm = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="confirmEmail"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Repetir correo electrónico"
-                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Location Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="border-gray-200 w-full">
-                          <SelectValue placeholder="País" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="peru">Perú</SelectItem>
-                          <SelectItem value="colombia">Colombia</SelectItem>
-                          <SelectItem value="mexico">México</SelectItem>
-                          <SelectItem value="argentina">Argentina</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="border-gray-200 w-full">
-                          <SelectValue placeholder="Ciudad" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="lima">Lima</SelectItem>
-                          <SelectItem value="pasco">Pasco</SelectItem>
-                          <SelectItem value="arequipa">Arequipa</SelectItem>
-                          <SelectItem value="cusco">Cusco</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Gender */}
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex space-x-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <Label htmlFor="male" className="text-sm">
-                          Hombre
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <Label htmlFor="female" className="text-sm">
-                          Mujer
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Checkboxes */}
-            <div className="space-y-3">
-              <FormField
-                control={form.control}
-                name="acceptTerms"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="flex space-x-1 flex-col">
-                      <Label className="text-xs text-gray-600 text-nowrap">
-                        Acepto los{' '}
-                        <Link href="#" className="text-primary hover:underline">
-                          Términos y Condiciones
-                        </Link>{' '}
-                        y la{' '}
-                        <Link href="#" className="text-primary hover:underline">
-                          Política de Privacidad
-                        </Link>
-                      </Label>
-                      <FormMessage />
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="acceptPromotions"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <Label className="text-xs text-gray-600">
-                        Doy mi consentimiento para recibir notificaciones y
-                        disfrutar de los beneficios, promociones y descuentos
-                        creados para mí.
-                      </Label>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="text-xs text-gray-500">* Campos obligatorios</div>
-
-            {/* reCAPTCHA placeholder */}
-            {/*end reCAPTCHA placeholder */}
-
+            {/* Botón principal */}
             <Button
               type="submit"
-              className="w-full  text-white py-3 rounded-lg font-medium"
+              className="w-full text-white py-3 rounded-lg font-medium"
               disabled={isLoading}
             >
-              {isLoading ? 'Creando cuenta...' : 'Ingresar'}
+              {isLoading ? 'Creando cuenta...' : 'Crear cuenta / Enviar enlace'}
             </Button>
+
+            {/* Google */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGoogle}
+              className="w-full py-3 rounded-lg font-medium"
+            >
+              Continuar con Google
+            </Button>
+
             <div className="flex flex-col items-center">
               <span className="text-gray-500 text-sm mb-2">
                 <Link
