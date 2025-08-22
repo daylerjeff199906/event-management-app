@@ -1,12 +1,11 @@
 'use client'
-
-import { useState } from 'react'
+// import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Camera } from 'lucide-react'
+// import { Camera } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+// import { Label } from '@/components/ui/label'
 import {
   Card,
   CardContent,
@@ -14,7 +13,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+// import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Form,
   FormField,
@@ -34,44 +33,44 @@ interface StepOneProps {
 }
 
 export function StepOne({ data, onNext }: StepOneProps) {
-  const [imagePreview, setImagePreview] = useState<string>(
-    data.profileImage || ''
-  )
+  // const [imagePreview, setImagePreview] = useState<string>(
+  //   data.profileImage || ''
+  // )
   const form = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: data
   })
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
-        setImagePreview(result)
-        form.setValue('profileImage', result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
+  // const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0]
+  //   if (file) {
+  //     const reader = new FileReader()
+  //     reader.onloadend = () => {
+  //       const result = reader.result as string
+  //       setImagePreview(result)
+  //       form.setValue('profileImage', result)
+  //     }
+  //     reader.readAsDataURL(file)
+  //   }
+  // }
 
   const onSubmit = (data: PersonalInfo) => {
-    onNext({ ...data, profileImage: imagePreview })
+    onNext({ ...data })
   }
 
-  const watchedValues = form.watch()
+  // const watchedValues = form.watch()
 
   return (
     <div className="animate-fade-in-up">
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">¡Bienvenido!</CardTitle>
-          <CardDescription className="text-lg">
-            Cuéntanos un poco sobre ti para personalizar tu experiencia
+          <CardDescription className="text-lg max-w-md mx-auto">
+            Registra tu información personal. Completa los campos obligatorios
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex flex-col items-center space-y-4">
+          {/* <div className="flex flex-col items-center space-y-4">
             <div className="relative">
               <Avatar className="w-24 h-24">
                 <AvatarImage
@@ -100,7 +99,7 @@ export function StepOne({ data, onNext }: StepOneProps) {
             <p className="text-sm text-muted-foreground">
               Haz clic en la cámara para subir tu foto
             </p>
-          </div>
+          </div> */}
 
           <Form {...form}>
             <form
