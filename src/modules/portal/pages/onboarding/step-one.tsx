@@ -25,6 +25,7 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { personalInfoSchema, type PersonalInfo } from '../../lib/validations'
+import { InputPhone } from '@/components/app/miscellaneous/input-phone'
 
 interface StepOneProps {
   data: PersonalInfo
@@ -102,7 +103,10 @@ export function StepOne({ data, onNext }: StepOneProps) {
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="grid gap-4 md:gap-6"
+            >
               <FormField
                 control={form.control}
                 name="firstName"
@@ -120,9 +124,6 @@ export function StepOne({ data, onNext }: StepOneProps) {
                         }
                       />
                     </FormControl>
-                    <FormDescription>
-                      Introduce tu primer nombre
-                    </FormDescription>
                     <FormMessage>
                       {form.formState.errors.firstName?.message}
                     </FormMessage>
@@ -147,7 +148,6 @@ export function StepOne({ data, onNext }: StepOneProps) {
                         }
                       />
                     </FormControl>
-                    <FormDescription>Introduce tu apellido</FormDescription>
                     <FormMessage>
                       {form.formState.errors.lastName?.message}
                     </FormMessage>
@@ -162,19 +162,8 @@ export function StepOne({ data, onNext }: StepOneProps) {
                   <FormItem>
                     <FormLabel>Teléfono *</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Tu teléfono"
-                        {...field}
-                        className={
-                          form.formState.errors.phone
-                            ? 'border-destructive'
-                            : ''
-                        }
-                      />
+                      <InputPhone {...field} />
                     </FormControl>
-                    <FormDescription>
-                      Introduce tu número de teléfono
-                    </FormDescription>
                     <FormMessage>
                       {form.formState.errors.phone?.message}
                     </FormMessage>
@@ -208,9 +197,6 @@ export function StepOne({ data, onNext }: StepOneProps) {
                         }
                       />
                     </FormControl>
-                    <FormDescription>
-                      Introduce tu fecha de nacimiento
-                    </FormDescription>
                     <FormMessage>
                       {form.formState.errors.birthDate?.message}
                     </FormMessage>
