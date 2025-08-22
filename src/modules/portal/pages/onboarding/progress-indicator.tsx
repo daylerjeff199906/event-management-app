@@ -13,7 +13,7 @@ export function ProgressIndicator({
   stepTitles
 }: ProgressIndicatorProps) {
   return (
-    <div className="w-full max-w-2xl mx-auto mb-8">
+    <div className="w-full max-w-lg mx-auto mb-8">
       <div className="flex items-center justify-between">
         {Array.from({ length: totalSteps }, (_, index) => {
           const stepNumber = index + 1
@@ -39,7 +39,6 @@ export function ProgressIndicator({
                 <span
                   className={cn(
                     'mt-2 text-xs font-medium text-center max-w-20',
-                    isCurrent && 'text-accent',
                     isCompleted && 'text-primary',
                     !isCompleted && !isCurrent && 'text-muted-foreground'
                   )}

@@ -211,7 +211,7 @@ export function StepTwo({ data, onNext, onBack, onSkip }: StepTwoProps) {
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-accent hover:bg-accent/90"
+                className="flex-1"
                 disabled={
                   watchedInterests.length === 0 ||
                   watchedEventTypes.length === 0

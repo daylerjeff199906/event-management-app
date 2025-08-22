@@ -1,11 +1,9 @@
 'use client'
 
-import type React from 'react'
-
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User, Camera } from 'lucide-react'
+import { Camera } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,6 +15,15 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormLabel,
+  FormDescription,
+  FormMessage
+} from '@/components/ui/form'
 import { personalInfoSchema, type PersonalInfo } from '../../lib/validations'
 
 interface StepOneProps {
@@ -25,11 +32,10 @@ interface StepOneProps {
   onSkip: () => void
 }
 
-export function StepOne({ data, onNext, onSkip }: StepOneProps) {
+export function StepOne({ data, onNext }: StepOneProps) {
   const [imagePreview, setImagePreview] = useState<string>(
     data.profileImage || ''
   )
-
   const form = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: data
@@ -58,12 +64,7 @@ export function StepOne({ data, onNext, onSkip }: StepOneProps) {
     <div className="animate-fade-in-up">
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-primary" />
-          </div>
-          <CardTitle className="text-2xl font-bold">
-            ¡Bienvenido a Eventify!
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">¡Bienvenido!</CardTitle>
           <CardDescription className="text-lg">
             Cuéntanos un poco sobre ti para personalizar tu experiencia
           </CardDescription>
@@ -83,7 +84,7 @@ export function StepOne({ data, onNext, onSkip }: StepOneProps) {
               </Avatar>
               <Label
                 htmlFor="profile-image"
-                className="absolute -bottom-2 -right-2 bg-accent hover:bg-accent/90 text-accent-foreground rounded-full p-2 cursor-pointer transition-colors"
+                className="absolute -bottom-2 -right-2 text-accent-foreground rounded-full p-2 cursor-pointer transition-colors"
               >
                 <Camera className="w-4 h-4" />
               </Label>
@@ -100,59 +101,157 @@ export function StepOne({ data, onNext, onSkip }: StepOneProps) {
             </p>
           </div>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Nombre *</Label>
-                <Input
-                  id="firstName"
-                  placeholder="Tu nombre"
-                  {...form.register('firstName')}
-                  className={
-                    form.formState.errors.firstName ? 'border-destructive' : ''
-                  }
-                />
-                {form.formState.errors.firstName && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.firstName.message}
-                  </p>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Tu nombre"
+                        {...field}
+                        className={
+                          form.formState.errors.firstName
+                            ? 'border-destructive'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Introduce tu primer nombre
+                    </FormDescription>
+                    <FormMessage>
+                      {form.formState.errors.firstName?.message}
+                    </FormMessage>
+                  </FormItem>
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Apellido *</Label>
-                <Input
-                  id="lastName"
-                  placeholder="Tu apellido"
-                  {...form.register('lastName')}
-                  className={
-                    form.formState.errors.lastName ? 'border-destructive' : ''
-                  }
-                />
-                {form.formState.errors.lastName && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.lastName.message}
-                  </p>
-                )}
-              </div>
-            </div>
+              />
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onSkip}
-                className="flex-1 bg-transparent"
-              >
-                Omitir por ahora
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1 bg-accent hover:bg-accent/90"
-              >
-                Continuar
-              </Button>
-            </div>
-          </form>
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Apellido *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Tu apellido"
+                        {...field}
+                        className={
+                          form.formState.errors.lastName
+                            ? 'border-destructive'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>Introduce tu apellido</FormDescription>
+                    <FormMessage>
+                      {form.formState.errors.lastName?.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teléfono *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Tu teléfono"
+                        {...field}
+                        className={
+                          form.formState.errors.phone
+                            ? 'border-destructive'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Introduce tu número de teléfono
+                    </FormDescription>
+                    <FormMessage>
+                      {form.formState.errors.phone?.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="birthDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fecha de nacimiento *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        value={
+                          field.value
+                            ? typeof field.value === 'string'
+                              ? field.value
+                              : field.value instanceof Date
+                              ? field.value.toISOString().slice(0, 10)
+                              : ''
+                            : ''
+                        }
+                        className={
+                          form.formState.errors.birthDate
+                            ? 'border-destructive'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Introduce tu fecha de nacimiento
+                    </FormDescription>
+                    <FormMessage>
+                      {form.formState.errors.birthDate?.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>País *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Tu país"
+                        {...field}
+                        className={
+                          form.formState.errors.country
+                            ? 'border-destructive'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Introduce tu país de residencia
+                    </FormDescription>
+                    <FormMessage>
+                      {form.formState.errors.country?.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                <Button type="submit" className="flex-1 animate-pulse">
+                  Continuar
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

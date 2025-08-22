@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Settings, Bell, Shield, Eye, MapPin } from 'lucide-react'
+import { Settings, Bell, Shield, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -110,22 +110,6 @@ export function StepThree({ data, onNext, onBack, onSkip }: StepThreeProps) {
                       }
                     />
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="weekly-digest">Resumen semanal</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Recibe un resumen de eventos cada semana
-                      </p>
-                    </div>
-                    <Switch
-                      id="weekly-digest"
-                      checked={form.watch('weeklyDigest')}
-                      onCheckedChange={(checked) =>
-                        form.setValue('weeklyDigest', checked)
-                      }
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -171,25 +155,6 @@ export function StepThree({ data, onNext, onBack, onSkip }: StepThreeProps) {
                       </div>
                     </RadioGroup>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        <Label htmlFor="show-location">Mostrar ubicación</Label>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Permite que otros vean tu ciudad
-                      </p>
-                    </div>
-                    <Switch
-                      id="show-location"
-                      checked={form.watch('showLocation')}
-                      onCheckedChange={(checked) =>
-                        form.setValue('showLocation', checked)
-                      }
-                    />
-                  </div>
                 </div>
               </div>
             </div>
@@ -211,10 +176,7 @@ export function StepThree({ data, onNext, onBack, onSkip }: StepThreeProps) {
               >
                 Omitir
               </Button>
-              <Button
-                type="submit"
-                className="flex-1 bg-accent hover:bg-accent/90"
-              >
+              <Button type="submit" className="flex-1 ">
                 ¡Comenzar a usar Eventify!
               </Button>
             </div>

@@ -6,7 +6,6 @@ import {
   ProgressIndicator,
   StepOne,
   StepTwo,
-  ProfilePreview,
   StepThree
 } from '@/modules/portal/pages'
 import type {
@@ -15,6 +14,7 @@ import type {
   Notifications,
   CompleteOnboarding
 } from '@/modules/portal/lib/validations'
+import { LogoRender } from '@/components/app/miscellaneous/logo-render'
 
 const STORAGE_KEY = 'eventify-onboarding-progress'
 
@@ -28,6 +28,9 @@ export default function OnboardingPage() {
     firstName: '',
     lastName: '',
     profileImage: '',
+    birthDate: new Date(),
+    country: '',
+    phone: '',
     interests: [],
     eventTypes: [],
     emailNotifications: true,
@@ -131,12 +134,14 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-card to-background">
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-primary mb-2">Eventify</h1>
+          <div className="flex flex-col items-center justify-center text-center mb-8 w-full">
+            <div className="mb-2">
+              <LogoRender href="#" size={220} />
+            </div>
             <p className="text-muted-foreground">
               Configura tu perfil en solo unos minutos
             </p>
@@ -150,7 +155,7 @@ export default function OnboardingPage() {
           />
 
           {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-8">
             {/* Steps */}
             <div className="lg:col-span-2">
               {currentStep === 1 && (
@@ -158,7 +163,10 @@ export default function OnboardingPage() {
                   data={{
                     firstName: onboardingData.firstName || '',
                     lastName: onboardingData.lastName || '',
-                    profileImage: onboardingData.profileImage || ''
+                    profileImage: onboardingData.profileImage || '',
+                    country: onboardingData.country || '',
+                    birthDate: onboardingData.birthDate || new Date(),
+                    phone: onboardingData.phone || ''
                   }}
                   onNext={handleStepOneNext}
                   onSkip={handleSkip}
@@ -194,13 +202,6 @@ export default function OnboardingPage() {
                   onSkip={handleSkip}
                 />
               )}
-            </div>
-
-            {/* Profile Preview */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8">
-                <ProfilePreview data={onboardingData} />
-              </div>
             </div>
           </div>
         </div>
