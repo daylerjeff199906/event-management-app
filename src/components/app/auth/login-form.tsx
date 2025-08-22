@@ -23,6 +23,7 @@ import { toast } from 'react-toastify'
 import { ToastCustom } from '../miscellaneous/toast-custom'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AuthLayout } from '../miscellaneous/auth-layout'
+import { signIn } from 'next-auth/react'
 
 const loginSchema = z.object({
   username: z.string().min(1, 'El usuario es requerido'),
@@ -181,6 +182,12 @@ export const LoginForm = () => {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </Button>
+              <button
+                onClick={() => signIn('google')}
+                className="border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100"
+              >
+                Iniciar sesión con Google
+              </button>
             </form>
           </Form>
 
