@@ -15,6 +15,11 @@ import type {
   CompleteOnboarding
 } from '@/modules/portal/lib/validations'
 import { LogoRender } from '@/components/app/miscellaneous/logo-render'
+import {
+  insertUserData,
+  insertInterestsAndNotifications
+} from '@/services/user.services'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 const STORAGE_KEY = 'eventify-onboarding-progress'
 
@@ -28,7 +33,7 @@ export default function OnboardingPage() {
     firstName: '',
     lastName: '',
     profileImage: '',
-    birthDate: new Date(),
+    birthDate: '',
     country: '',
     phone: '',
     interests: [],
@@ -82,30 +87,6 @@ export default function OnboardingPage() {
     toast.success('Intereses guardados')
   }
 
-  const handleStepThreeNext = async (data: Notifications) => {
-    const completeData = { ...onboardingData, ...data }
-    setOnboardingData(completeData)
-
-    try {
-      // Aquí enviarías los datos a tu API/Supabase
-      // await saveUserProfile(completeData)
-
-      // Limpiar el progreso guardado
-      localStorage.removeItem(STORAGE_KEY)
-
-      toast.success('¡Onboarding completado! Bienvenido a Eventify')
-
-      // Simular redirección a la app principal
-      setTimeout(() => {
-        // window.location.href = "/dashboard"
-        toast.info('Redirigiendo a la aplicación principal...')
-      }, 2000)
-    } catch (error) {
-      toast.error('Error al completar el onboarding. Inténtalo de nuevo.')
-      console.error('Error saving user profile:', error)
-    }
-  }
-
   const handleSkip = () => {
     if (currentStep < 3) {
       const nextStep = currentStep + 1
@@ -130,6 +111,56 @@ export default function OnboardingPage() {
       const prevStep = currentStep - 1
       setCurrentStep(prevStep)
       saveProgress(onboardingData, prevStep)
+    }
+  }
+
+  const handleStepThreeNext = async (data: Notifications) => {
+    const completeData = { ...onboardingData, ...data }
+    setOnboardingData(completeData)
+
+    try {
+      // Guardar datos personales
+      await insertUserData({
+        birthDate: completeData.birthDate || '',
+        firstName: completeData.firstName || '',
+        lastName: completeData.lastName || '',
+        profileImage: completeData.profileImage || '',
+        country: completeData.country || '',
+        phone: completeData.phone || ''
+      })
+      // Guardar intereses y notificaciones
+      await insertInterestsAndNotifications(
+        {
+          interests: completeData.interests || [],
+          eventTypes: completeData.eventTypes || []
+        },
+        {
+          emailNotifications: completeData.emailNotifications ?? true,
+          pushNotifications: completeData.pushNotifications ?? true,
+          eventReminders: completeData.eventReminders ?? true,
+          weeklyDigest: completeData.weeklyDigest ?? false,
+          profileVisibility: completeData.profileVisibility || 'public',
+          showLocation: completeData.showLocation ?? false
+        }
+      )
+
+      // Limpiar el progreso guardado
+      localStorage.removeItem(STORAGE_KEY)
+
+      toast.success(
+        <ToastCustom
+          title="¡Onboarding completado! Bienvenido a Eventify"
+          description="Tu perfil ha sido configurado exitosamente."
+        />
+      )
+
+      // Simular redirección a la app principal
+      setTimeout(() => {
+        toast.info('Redirigiendo a la aplicación principal...')
+      }, 2000)
+    } catch (error) {
+      toast.error('Error al completar el onboarding. Inténtalo de nuevo.')
+      console.error('Error saving user profile:', error)
     }
   }
 
@@ -165,7 +196,7 @@ export default function OnboardingPage() {
                     lastName: onboardingData.lastName || '',
                     profileImage: onboardingData.profileImage || '',
                     country: onboardingData.country || '',
-                    birthDate: onboardingData.birthDate || new Date(),
+                    birthDate: onboardingData.birthDate || '',
                     phone: onboardingData.phone || ''
                   }}
                   onNext={handleStepOneNext}

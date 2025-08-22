@@ -8,12 +8,10 @@ export const personalInfoSchema = z.object({
     .string()
     .min(3, 'El país debe tener al menos 3 caracteres')
     .optional(),
-  birthDate: z
-    .date()
-    .refine(
-      (date) => date < new Date(),
-      'La fecha de nacimiento no puede ser en el futuro'
-    ),
+  birthDate: z.string().refine((date) => {
+    const parsedDate = new Date(date)
+    return !isNaN(parsedDate.getTime()) && parsedDate < new Date()
+  }, 'La fecha de nacimiento no puede ser en el futuro'),
   phone: z
     .string()
     .min(10, 'El número de teléfono debe tener al menos 10 caracteres')

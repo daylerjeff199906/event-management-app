@@ -180,15 +180,6 @@ export function StepOne({ data, onNext }: StepOneProps) {
                       <Input
                         type="date"
                         {...field}
-                        value={
-                          field.value
-                            ? typeof field.value === 'string'
-                              ? field.value
-                              : field.value instanceof Date
-                              ? field.value.toISOString().slice(0, 10)
-                              : ''
-                            : ''
-                        }
                         className={
                           form.formState.errors.birthDate
                             ? 'border-destructive'
