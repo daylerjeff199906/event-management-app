@@ -23,46 +23,84 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
+import { updateUserData } from '@/services/user.services'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 interface ProfileEditorProps {
+  userId?: string
   initialData?: Partial<PersonalInfo>
   email?: string
-  onSave?: (data: PersonalInfo) => void
 }
 
 export function ProfileEditor({
   initialData,
   email,
-  onSave
+  userId
 }: ProfileEditorProps) {
   const [profileProgress] = useState(75) // Ejemplo de progreso
 
   const form = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      firstName: initialData?.firstName || '',
-      lastName: initialData?.lastName || '',
-      profileImage: initialData?.profileImage || '',
+      first_name: initialData?.first_name || '',
+      last_name: initialData?.last_name || '',
+      profile_image: initialData?.profile_image || '',
       country: initialData?.country || '',
-      birthDate: initialData?.birthDate || '',
+      birth_date: initialData?.birth_date || '',
       phone: initialData?.phone || '',
-      gender: initialData?.gender || undefined
+      gender: initialData?.gender || undefined,
+      username: initialData?.username || undefined
     }
   })
 
-  const firstName = form.watch('firstName')
-  const lastName = form.watch('lastName')
-  const profileImage = form.watch('profileImage')
+  const isDirty = form.formState.isDirty
+
+  const first_name = form.watch('first_name')
+  const last_name = form.watch('last_name')
+  const profile_image = form.watch('profile_image')
 
   const getInitials = () => {
-    if (firstName && lastName) {
-      return `${firstName[0]}${lastName[0]}`.toUpperCase()
+    if (first_name && last_name) {
+      return `${first_name[0]}${last_name[0]}`.toUpperCase()
     }
     return 'U'
   }
 
-  const onSubmit = (data: PersonalInfo) => {
-    onSave?.(data)
+  const onSubmit = async (data: PersonalInfo) => {
+    try {
+      const response = await updateUserData({
+        id: String(userId),
+        dataForm: data
+      })
+      if (response.data) {
+        toast.success(
+          <ToastCustom
+            title="Perfil actualizado"
+            description="Tu perfil se ha actualizado con éxito."
+          />
+        )
+        form.reset(data) // Resetea el estado "sucio" del formulario
+      } else {
+        toast.error(
+          <ToastCustom
+            title="Error al actualizar el perfil"
+            description="No se pudo actualizar el perfil."
+          />
+        )
+      }
+    } catch (error) {
+      const errorMessage =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message || 'Error desconocido'
+          : 'Error desconocido'
+      toast.error(
+        <ToastCustom
+          title="Error al actualizar el perfil"
+          description={errorMessage}
+        />
+      )
+    }
   }
 
   return (
@@ -89,7 +127,7 @@ export function ProfileEditor({
             <CardContent className="p-6 text-center">
               <Avatar className="w-32 h-32 mx-auto mb-4">
                 <AvatarImage
-                  src={profileImage || '/placeholder.svg'}
+                  src={profile_image || '/placeholder.svg'}
                   alt="Perfil"
                 />
                 <AvatarFallback className="text-2xl bg-pink-500 text-white">
@@ -110,7 +148,7 @@ export function ProfileEditor({
                   const file = e.target.files?.[0]
                   if (file) {
                     const url = URL.createObjectURL(file)
-                    form.setValue('profileImage', url)
+                    form.setValue('profile_image', url)
                   }
                 }}
               />
@@ -136,7 +174,7 @@ export function ProfileEditor({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="firstName"
+                      name="first_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-slate-600">
@@ -155,7 +193,7 @@ export function ProfileEditor({
                     />
                     <FormField
                       control={form.control}
-                      name="lastName"
+                      name="last_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-slate-600">
@@ -178,7 +216,7 @@ export function ProfileEditor({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="userName"
+                      name="username"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-slate-600">
@@ -187,8 +225,9 @@ export function ProfileEditor({
                           <FormControl>
                             <Input
                               {...field}
+                              value={field.value || ''}
                               className="mt-1 bg-gray-100 border-0"
-                              placeholder="jose.santos33090"
+                              placeholder="Ingrese su usuario"
                             />
                           </FormControl>
                           <FormMessage />
@@ -270,7 +309,7 @@ export function ProfileEditor({
                     />
                     <FormField
                       control={form.control}
-                      name="birthDate"
+                      name="birth_date"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-slate-600">
@@ -293,7 +332,7 @@ export function ProfileEditor({
                   <div className="pt-4">
                     <Button
                       type="submit"
-                      disabled={form.formState.isSubmitting}
+                      disabled={form.formState.isSubmitting || !isDirty}
                       className="w-full md:w-auto px-8"
                     >
                       {form.formState.isSubmitting

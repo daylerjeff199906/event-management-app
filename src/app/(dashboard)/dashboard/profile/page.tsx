@@ -17,16 +17,17 @@ export default async function Page() {
   return (
     <>
       <ProfileEditor
+        userId={dataProfile.id}
         email={dataProfile.email}
         initialData={{
-          birthDate: dataProfile.birth_date || undefined,
-          firstName: dataProfile.first_name,
-          lastName: dataProfile.last_name,
+          birth_date: dataProfile.birth_date || undefined,
+          first_name: dataProfile.first_name,
+          last_name: dataProfile.last_name,
           phone: dataProfile.phone,
-          profileImage: dataProfile.profile_image || undefined,
+          profile_image: dataProfile.profile_image || undefined,
           country: dataProfile.country || undefined,
           gender: dataProfile.gender as 'male' | 'female' | 'other' | undefined,
-          userName: dataProfile.userName || undefined
+          username: dataProfile.userName || undefined
         }}
       />
     </>

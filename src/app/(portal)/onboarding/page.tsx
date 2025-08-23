@@ -34,10 +34,10 @@ export default function OnboardingPage() {
   const [onboardingData, setOnboardingData] = useState<
     Partial<CompleteOnboarding>
   >({
-    firstName: '',
-    lastName: '',
-    profileImage: '',
-    birthDate: '',
+    first_name: '',
+    last_name: '',
+    profile_image: '',
+    birth_date: '',
     country: '',
     phone: '',
     interests: [],
@@ -131,10 +131,10 @@ export default function OnboardingPage() {
     try {
       // Guardar datos personales
       await insertUserData({
-        birthDate: completeData.birthDate || '',
-        firstName: completeData.firstName || '',
-        lastName: completeData.lastName || '',
-        profileImage: completeData.profileImage || '',
+        birth_date: completeData.birth_date || '',
+        first_name: completeData.first_name || '',
+        last_name: completeData.last_name || '',
+        profile_image: completeData.profile_image || '',
         country: completeData.country || '',
         phone: completeData.phone || ''
       })
@@ -214,11 +214,11 @@ export default function OnboardingPage() {
               {currentStep === 1 && (
                 <StepOne
                   data={{
-                    firstName: onboardingData.firstName || '',
-                    lastName: onboardingData.lastName || '',
-                    profileImage: onboardingData.profileImage || '',
+                    first_name: onboardingData.first_name || '',
+                    last_name: onboardingData.last_name || '',
+                    profile_image: onboardingData.profile_image || '',
                     country: onboardingData.country || '',
-                    birthDate: onboardingData.birthDate || '',
+                    birth_date: onboardingData.birth_date || '',
                     phone: onboardingData.phone || ''
                   }}
                   onNext={handleStepOneNext}

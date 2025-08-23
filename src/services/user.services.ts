@@ -14,8 +14,8 @@ export async function insertUserData(formData: PersonalInfo) {
     const { data, error } = await supabase.from('users').upsert([
       {
         id: user.user?.id, // Asociamos el UUID del usuario autenticado
-        first_name: formData.firstName,
-        last_name: formData.lastName,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
         profile_image: null,
         country: null,
         birth_date: null,
@@ -93,6 +93,7 @@ export async function updateUserData({
     .from('users')
     .update(dataForm)
     .eq('id', id)
+  console.log('Respuesta de Supabase:', { error, data, status, statusText })
 
   return { error, data, status, statusText }
 }
