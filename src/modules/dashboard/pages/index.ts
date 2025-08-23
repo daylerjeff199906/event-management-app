@@ -17,3 +17,5 @@ export {
   EventsFilters,
   EventsHeader
 }
+
+export * from './profile'
