@@ -1,6 +1,5 @@
 import {
   EventCards,
-  EventInspiration,
   HeroPage,
   MainActions,
   QuickFilters
@@ -14,7 +13,7 @@ export default function HomePage() {
         <MainActions />
         <QuickFilters />
         <EventCards />
-        <EventInspiration />
+        {/* <EventInspiration /> */}
       </div>
     </>
   )

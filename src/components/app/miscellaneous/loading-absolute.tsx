@@ -7,7 +7,7 @@ interface LoadingAbsoluteProps {
 export const LoadingAbsolute = ({
   show,
   blurAmount = 'xl',
-  label = 'Loading...',
+  label = 'Loading...'
 }: LoadingAbsoluteProps) => {
   if (!show) return null
 
@@ -15,19 +15,19 @@ export const LoadingAbsolute = ({
 
   return (
     <div
-      className={`absolute flex items-center justify-center z-50 bg-slate-900 ${blurClass} top-0 bottom-0 right-0 left-0`}
+      className={`absolute flex items-center justify-center z-50 bg-orange-200 ${blurClass} top-0 bottom-0 right-0 left-0`}
       style={{
         position: 'fixed',
         top: -32,
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 9999,
+        zIndex: 9999
       }}
     >
       <div className="flex flex-col items-center">
         <svg
-          className="animate-spin h-8 w-8 text-white mb-2"
+          className="animate-spin h-8 w-8 text-primary mb-2"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
