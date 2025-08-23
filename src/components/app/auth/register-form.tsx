@@ -101,7 +101,6 @@ export const RegisterForm = () => {
           }
         }
       })
-      console.log('authData', authData)
       if (error) {
         toast.error(
           <ToastCustom

@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/form'
 import { personalInfoSchema, type PersonalInfo } from '../../lib/validations'
 import { InputPhone } from '@/components/app/miscellaneous/input-phone'
+import { ArrowRight, Lock } from 'lucide-react'
 
 interface StepOneProps {
   data: PersonalInfo
@@ -112,11 +113,8 @@ export function StepOne({ data, onNext }: StepOneProps) {
                 />
 
                 <div className="pt-4">
-                  <Button
-                    type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
-                  >
-                    Continuar →
+                  <Button type="submit" className="w-full h-12 rounded-full">
+                    Continuar <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </form>
@@ -124,7 +122,8 @@ export function StepOne({ data, onNext }: StepOneProps) {
 
             <div className="text-center mt-6">
               <p className="text-xs text-gray-500">
-                Tu información está segura con nosotros 🔒
+                Tu información está segura con nosotros{' '}
+                <Lock className="inline ml-1 h-4 w-4" />
               </p>
             </div>
           </CardContent>

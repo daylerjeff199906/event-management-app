@@ -5,10 +5,10 @@ import { SideBar } from './side-bar'
 import { IPerson, SectionElement } from '@/types'
 import { NavBarCustom } from '../navbar-custom/nav-bar-custom'
 import { Footer } from './footer'
+import { menuDashboard } from '@/app/(dashboard)/dashboard/const'
 
 export default function AdminPanelLayout({
   children,
-  menuItems,
   email,
   personData
 }: {
@@ -23,7 +23,7 @@ export default function AdminPanelLayout({
 
   return (
     <>
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuDashboard} />
 
       <main
         className={cn(
@@ -31,7 +31,11 @@ export default function AdminPanelLayout({
           !settings.disabled && (!getOpenState() ? 'lg:ml-[90px]' : 'lg:ml-60')
         )}
       >
-        <NavBarCustom email={email} menuItems={menuItems} person={personData} />
+        <NavBarCustom
+          email={email}
+          menuItems={menuDashboard}
+          person={personData}
+        />
         <main className="w-full container mx-auto py-4 zoom-adjust px-4 md:px-6">
           {children}
         </main>

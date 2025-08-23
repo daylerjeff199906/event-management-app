@@ -2,7 +2,14 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Settings, Bell, Shield, Eye } from 'lucide-react'
+import {
+  Settings,
+  Bell,
+  Shield,
+  Eye,
+  ArrowLeft,
+  ArrowRight
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -166,25 +173,33 @@ export function StepThree({
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="flex flex-col gap-3 pt-4">
+              <div className="flex flex-row gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onBack}
+                  className="flex-1 bg-transparent h-12 rounded-full"
+                >
+                  <ArrowLeft className="mr-2 h-5 w-5" />
+                  Anterior
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 h-12 rounded-full font-bold"
+                  disabled={disableNext}
+                >
+                  ¡Comenzar a usar!
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
               <Button
                 type="button"
-                variant="outline"
-                onClick={onBack}
-                className="flex-1 bg-transparent"
-              >
-                Anterior
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
                 onClick={onSkip}
+                variant="ghost"
                 className="flex-1 bg-transparent"
               >
                 Omitir
-              </Button>
-              <Button type="submit" className="flex-1 " disabled={disableNext}>
-                ¡Comenzar a usar Eventify!
               </Button>
             </div>
           </form>

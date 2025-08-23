@@ -60,7 +60,12 @@ export default function OnboardingPage() {
         const parsed = JSON.parse(savedData)
         setOnboardingData(parsed.data || {})
         setCurrentStep(parsed.currentStep || 1)
-        toast.info('Progreso restaurado desde donde lo dejaste')
+        toast.info(
+          <ToastCustom
+            title="Progreso restaurado"
+            description="Has vuelto a cargar tu progreso guardado."
+          />
+        )
       } catch (error) {
         console.error('Error loading saved progress:', error)
       }
@@ -82,7 +87,6 @@ export default function OnboardingPage() {
     setOnboardingData(updatedData)
     setCurrentStep(2)
     saveProgress(updatedData, 2)
-    toast.success('Información personal guardada')
   }
 
   const handleStepTwoNext = (data: Interests) => {
@@ -90,7 +94,6 @@ export default function OnboardingPage() {
     setOnboardingData(updatedData)
     setCurrentStep(3)
     saveProgress(updatedData, 3)
-    toast.success('Intereses guardados')
   }
 
   const handleSkip = () => {
@@ -163,11 +166,21 @@ export default function OnboardingPage() {
 
       // Simular redirección a la app principal
       setTimeout(() => {
-        toast.info('Redirigiendo a la aplicación principal...')
+        toast.info(
+          <ToastCustom
+            title="Redirigiendo a la aplicación principal"
+            description="Por favor espera un momento."
+          />
+        )
         router.push(APP_URL.DASHBOARD.BASE)
       }, 2000)
     } catch (error) {
-      toast.error('Error al completar el onboarding. Inténtalo de nuevo.')
+      toast.error(
+        <ToastCustom
+          title="Error al completar el onboarding"
+          description="Por favor intenta nuevamente."
+        />
+      )
       console.error('Error saving user profile:', error)
     }
     setLoading(false)

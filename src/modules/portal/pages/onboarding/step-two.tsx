@@ -10,7 +10,9 @@ import {
   Utensils,
   Plane,
   BookOpen,
-  Dumbbell
+  Dumbbell,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -192,32 +194,37 @@ export function StepTwo({ data, onNext, onBack, onSkip }: StepTwoProps) {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="flex flex-col  pt-4 gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onBack}
+                  className="flex-1 bg-transparent h-12 rounded-full"
+                >
+                  <ArrowLeft className="mr-2 h-5 w-5" />
+                  Anterior
+                </Button>
+
+                <Button
+                  type="submit"
+                  className="flex-1 h-12 rounded-full"
+                  disabled={
+                    watchedInterests.length === 0 ||
+                    watchedEventTypes.length === 0
+                  }
+                >
+                  Continuar
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
               <Button
                 type="button"
-                variant="outline"
-                onClick={onBack}
-                className="flex-1 bg-transparent"
-              >
-                Anterior
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
+                variant="link"
                 onClick={onSkip}
                 className="flex-1 bg-transparent"
               >
                 Omitir
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1"
-                disabled={
-                  watchedInterests.length === 0 ||
-                  watchedEventTypes.length === 0
-                }
-              >
-                Continuar
               </Button>
             </div>
           </form>
