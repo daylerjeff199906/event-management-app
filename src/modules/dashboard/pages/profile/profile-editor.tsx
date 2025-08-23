@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Progress } from '@/components/ui/progress'
 import { InputPhone } from '@/components/app/miscellaneous/input-phone'
@@ -24,6 +23,7 @@ import {
 import { updateUserData } from '@/services/user.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
+import { AvatarUploadPage } from '../../components'
 
 interface ProfileEditorProps {
   userId?: string
@@ -51,17 +51,6 @@ export function ProfileEditor({
   })
 
   const isDirty = form.formState.isDirty
-
-  const first_name = form.watch('first_name')
-  const last_name = form.watch('last_name')
-  const profile_image = form.watch('profile_image')
-
-  const getInitials = () => {
-    if (first_name && last_name) {
-      return `${first_name[0]}${last_name[0]}`.toUpperCase()
-    }
-    return 'U'
-  }
 
   const onSubmit = async (data: PersonalInfo) => {
     try {
@@ -99,6 +88,41 @@ export function ProfileEditor({
     }
   }
 
+  const onAvatarChange = async (url: string) => {
+    try {
+      const response = await updateUserData({
+        id: String(userId),
+        dataForm: {
+          ...form.getValues(),
+          profile_image: url
+        }
+      })
+      if (response.data) {
+        toast.success(
+          <ToastCustom
+            title="Perfil actualizado"
+            description="Tu perfil se ha actualizado con éxito."
+          />
+        )
+        form.reset({
+          ...form.getValues(),
+          profile_image: url
+        }) // Reset form state
+      }
+    } catch (error) {
+      const errorMessage =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message || 'Error desconocido'
+          : 'Error desconocido'
+      toast.error(
+        <ToastCustom
+          title="Error al actualizar el avatar"
+          description={errorMessage}
+        />
+      )
+    }
+  }
+
   function calculateProfileEmpty(data: Partial<PersonalInfo>): number {
     const fields: (keyof PersonalInfo)[] = [
       'first_name',
@@ -128,42 +152,21 @@ export function ProfileEditor({
 
       {/* Progress Bar */}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Left Column - Profile Image & Social */}
 
         <div className="space-y-6">
           {/* Profile Image */}
-          <Card className="shadow-none bg-white">
-            <CardContent className="p-6 text-center">
-              <Avatar className="w-32 h-32 mx-auto mb-4">
-                <AvatarImage
-                  src={profile_image || '/placeholder.svg'}
-                  alt="Perfil"
-                />
-                <AvatarFallback className="text-2xl bg-pink-500 text-white">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
-              <p className="text-sm text-muted-foreground mb-2">
-                Arrastra aquí tu imagen de perfil
-              </p>
-              <Button variant="link" className="text-blue-500 p-0">
-                o sube una foto
-              </Button>
-              <Input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) {
-                    const url = URL.createObjectURL(file)
-                    form.setValue('profile_image', url)
-                  }
-                }}
-              />
-            </CardContent>
-          </Card>
+          <div
+            className="border-2 border-dashed px-6 rounded-lg py-20 bg-white "
+            style={{ borderWidth: '3px' }}
+          >
+            <AvatarUploadPage
+              username={form.getValues().username}
+              onAvatarChange={onAvatarChange}
+              urlImage={form.getValues().profile_image}
+            />
+          </div>
         </div>
 
         {/* Right Column - Form */}
