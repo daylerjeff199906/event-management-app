@@ -95,7 +95,7 @@ export default function AvatarUpload({
       const response = await fetch(selectedImage)
       const blob = await response.blob()
 
-      const file = new File([blob], 'avatar.jpg', {
+      const file = new File([blob], `${username}-avatar.jpg`, {
         type: 'image/jpeg'
       })
 

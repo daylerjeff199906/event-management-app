@@ -2,18 +2,7 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Heart,
-  Music,
-  Camera,
-  Gamepad2,
-  Utensils,
-  Plane,
-  BookOpen,
-  Dumbbell,
-  ArrowRight,
-  ArrowLeft
-} from 'lucide-react'
+import { Heart, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -25,6 +14,10 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { interestsSchema, type Interests } from '../../lib/validations'
+import {
+  eventTypeOptions,
+  interestOptions
+} from '@/data/interest-events-options'
 
 interface StepTwoProps {
   data: Interests
@@ -32,28 +25,6 @@ interface StepTwoProps {
   onBack: () => void
   onSkip: () => void
 }
-
-const interestOptions = [
-  { id: 'music', label: 'Música', icon: Music },
-  { id: 'photography', label: 'Fotografía', icon: Camera },
-  { id: 'gaming', label: 'Gaming', icon: Gamepad2 },
-  { id: 'food', label: 'Gastronomía', icon: Utensils },
-  { id: 'travel', label: 'Viajes', icon: Plane },
-  { id: 'books', label: 'Lectura', icon: BookOpen },
-  { id: 'fitness', label: 'Fitness', icon: Dumbbell },
-  { id: 'art', label: 'Arte', icon: Heart }
-]
-
-const eventTypeOptions = [
-  { id: 'concerts', label: 'Conciertos' },
-  { id: 'workshops', label: 'Talleres' },
-  { id: 'networking', label: 'Networking' },
-  { id: 'sports', label: 'Deportes' },
-  { id: 'cultural', label: 'Eventos Culturales' },
-  { id: 'tech', label: 'Tecnología' },
-  { id: 'food-events', label: 'Eventos Gastronómicos' },
-  { id: 'outdoor', label: 'Actividades al Aire Libre' }
-]
 
 export function StepTwo({ data, onNext, onBack, onSkip }: StepTwoProps) {
   const form = useForm<Interests>({

@@ -30,9 +30,10 @@ export function StepOne({ data, onNext }: StepOneProps) {
 
   const onSubmit = (data: PersonalInfo) => {
     onNext({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phone: data.phone
+      first_name: data.first_name,
+      last_name: data.last_name,
+      phone: data.phone,
+      username: data.username
     } as PersonalInfo)
   }
 
@@ -58,7 +59,27 @@ export function StepOne({ data, onNext }: StepOneProps) {
               >
                 <FormField
                   control={form.control}
-                  name="firstName"
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Usuario
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Escribe tu usuario"
+                          {...field}
+                          className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg transition-colors"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-sm" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="first_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-700">
@@ -78,7 +99,7 @@ export function StepOne({ data, onNext }: StepOneProps) {
 
                 <FormField
                   control={form.control}
-                  name="lastName"
+                  name="last_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-gray-700">

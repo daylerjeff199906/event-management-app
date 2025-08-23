@@ -98,3 +98,18 @@ export async function updateUserData({
 
   return { error, data, status, statusText }
 }
+
+export async function updateInterest(id: string, dataForm: Partial<Interests>) {
+  const supabase = await getSupabase()
+  console.log('ID del interés a actualizar:', id)
+  const { error, data, status, statusText } = await supabase
+    .from('interests')
+    .update({
+      interests: dataForm.interests,
+      event_types: dataForm.eventTypes
+    })
+    .eq('user_id', id)
+    .select()
+
+  return { error, data, status, statusText }
+}

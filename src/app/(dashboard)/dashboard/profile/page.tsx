@@ -14,6 +14,12 @@ export default async function Page() {
 
   const dataProfile: IUser = profile
 
+  const { data: interests } = await supabase
+    .from('interests')
+    .select('*')
+    .eq('user_id', user.user?.id)
+    .single()
+
   return (
     <>
       <ProfileEditor
@@ -28,6 +34,10 @@ export default async function Page() {
           country: dataProfile.country || undefined,
           gender: dataProfile.gender as 'male' | 'female' | 'other' | undefined,
           username: dataProfile.username || undefined
+        }}
+        interestsData={{
+          interests: interests?.interests || [],
+          eventTypes: interests?.event_types || []
         }}
       />
     </>

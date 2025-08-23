@@ -14,7 +14,6 @@ export const personalInfoSchema = z.object({
   username: z
     .string()
     .min(2, 'El nombre de usuario debe tener al menos 2 caracteres')
-    .optional()
 })
 
 export const interestsSchema = z.object({

@@ -131,6 +131,7 @@ export default function OnboardingPage() {
     try {
       // Guardar datos personales
       await insertUserData({
+        username: completeData.username || '',
         birth_date: completeData.birth_date || '',
         first_name: completeData.first_name || '',
         last_name: completeData.last_name || '',
@@ -214,6 +215,7 @@ export default function OnboardingPage() {
               {currentStep === 1 && (
                 <StepOne
                   data={{
+                    username: onboardingData.username || '',
                     first_name: onboardingData.first_name || '',
                     last_name: onboardingData.last_name || '',
                     profile_image: onboardingData.profile_image || '',

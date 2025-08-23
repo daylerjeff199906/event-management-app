@@ -23,16 +23,21 @@ import {
 import { updateUserData } from '@/services/user.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
-import { AvatarUploadPage } from '../../components'
+import { AvatarUploadPage, InterestForm } from '../../components'
 
 interface ProfileEditorProps {
   userId?: string
   initialData?: Partial<PersonalInfo>
   email?: string
+  interestsData?: {
+    interests: string[]
+    eventTypes: string[]
+  }
 }
 
 export function ProfileEditor({
   initialData,
+  interestsData,
   email,
   userId
 }: ProfileEditorProps) {
@@ -158,7 +163,7 @@ export function ProfileEditor({
         <div className="space-y-6">
           {/* Profile Image */}
           <div
-            className="border-2 border-dashed px-6 rounded-lg py-20 bg-white "
+            className="border-2 border-dashed px-6 rounded-lg py-20 bg-white sticky top-24"
             style={{ borderWidth: '3px' }}
           >
             <AvatarUploadPage
@@ -367,6 +372,14 @@ export function ProfileEditor({
               </Form>
             </CardContent>
           </Card>
+
+          <InterestForm
+            data={{
+              eventTypes: interestsData?.eventTypes || [],
+              interests: interestsData?.interests || []
+            }}
+            idUser={String(userId)}
+          />
         </div>
       </div>
     </div>
