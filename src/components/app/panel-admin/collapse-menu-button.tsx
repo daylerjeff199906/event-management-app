@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+  CollapsibleTrigger
 } from '@/components/ui/collapsible'
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-  TooltipProvider,
+  TooltipProvider
 } from '@/components/ui/tooltip'
 import {
   DropdownMenu,
@@ -22,7 +22,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuSeparator,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import { usePathname } from 'next/navigation'
 import { SubmenuElement } from '@/types'
@@ -40,7 +40,7 @@ export function CollapseMenuButton({
   icon: Icon,
   label,
   submenus,
-  isOpen,
+  isOpen
 }: CollapseMenuButtonProps) {
   const pathname = usePathname()
   const isSubmenuActive = submenus.some((submenu) => submenu.url === pathname)
@@ -168,29 +168,18 @@ export function CollapseMenuButton({
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent
-            side="right"
-            align="start"
-            alignOffset={2}
-          >
+          <TooltipContent side="right" align="start" alignOffset={2}>
             {label}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DropdownMenuContent
-        side="right"
-        sideOffset={25}
-        align="start"
-      >
+      <DropdownMenuContent side="right" sideOffset={25} align="start">
         <DropdownMenuLabel className="max-w-[190px] truncate">
           {label}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {submenus.map(({ url, name }, index) => (
-          <DropdownMenuItem
-            key={index}
-            asChild
-          >
+          <DropdownMenuItem key={index} asChild>
             <Link
               // className={`cursor-pointer ${
               //   ((active === undefined && pathname === url) || active) &&

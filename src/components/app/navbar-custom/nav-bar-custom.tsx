@@ -22,7 +22,6 @@ export const NavBarCustom = (props: NavBarCustomProps) => {
 
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
-  // const { isOpen, toggleOpen } = sidebar
 
   return (
     <header

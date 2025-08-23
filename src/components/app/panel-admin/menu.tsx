@@ -64,7 +64,7 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                                 isActive(menu.url ?? '') ? 'default' : 'ghost'
                               }
                               className={cn(
-                                'w-full justify-start h-9 mb-1',
+                                'w-full justify-start h-9',
                                 isActive(menu.url ?? '')
                                   ? 'font-bold text-white'
                                   : 'text-gray-900 dark:text-gray-200'
@@ -72,7 +72,14 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                               asChild
                             >
                               {menu.url && (
-                                <Link href={menu.url}>
+                                <Link
+                                  href={menu.url}
+                                  className={
+                                    isOpen === false
+                                      ? 'flex justify-center flex-col items-center w-full'
+                                      : ''
+                                  }
+                                >
                                   <span
                                     className={cn(
                                       isOpen === false ? '' : 'mr-4'

@@ -18,12 +18,14 @@ export const SideBar = (props: SideBarProps) => {
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
   const { getOpenState, setIsHover, settings, setIsOpen, isOpen } = sidebar
+  const isCurrentlyOpen = getOpenState()
 
   return (
     <aside
       className={cn(
         `fixed top-0 left-0 z-10 h-screen -translate-x-full lg:translate-x-0 transition-[width] ease-in-out duration-300 w-72 text-gray-900 dark:text-gray-200  bg-orange-50 dark:bg-zinc-800 shadow-none`,
         !getOpenState() ? 'w-[90px]' : 'w-60',
+        isCurrentlyOpen ? 'w-60' : 'w-[90px]',
         settings.disabled && 'hidden'
       )}
     >

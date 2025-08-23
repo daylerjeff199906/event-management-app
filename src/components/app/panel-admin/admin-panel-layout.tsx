@@ -22,6 +22,7 @@ export default function AdminPanelLayout({
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
   const { getOpenState, settings } = sidebar
+  const isCurrentlyOpen = getOpenState()
 
   return (
     <>
@@ -30,7 +31,7 @@ export default function AdminPanelLayout({
       <main
         className={cn(
           'min-h-screen bg-background dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 relative',
-          !settings.disabled && (!getOpenState() ? 'lg:ml-[90px]' : 'lg:ml-60')
+          !settings.disabled && (isCurrentlyOpen ? 'lg:ml-60' : 'lg:ml-[90px]')
         )}
       >
         <NavBarCustom
