@@ -20,6 +20,7 @@ import { AuthLayout } from '../miscellaneous/auth-layout'
 import { APP_URL } from '@/data/config-app-url'
 import { createClient } from '@/utils/supabase/client'
 import { Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react'
+import { ToastCustom } from '../miscellaneous/toast-custom'
 
 // Esquema de validación con Zod
 const registerSchema = z
@@ -101,12 +102,19 @@ export const RegisterForm = () => {
         }
       })
       console.log('authData', authData)
-      if (error) throw error
+      if (error) {
+        toast.error(
+          <ToastCustom
+            title="Error al crear la cuenta"
+            description={error.message}
+          />
+        )
+        return
+      }
 
       // Redirigir a completar perfil
       if (authData.user) {
         window.location.href = '/onboarding'
-      } else {
         toast.success(
           '¡Cuenta creada! Por favor revisa tu email para confirmar tu cuenta.'
         )
