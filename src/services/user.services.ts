@@ -5,11 +5,7 @@ import {
   Interests,
   Notifications
 } from '@/modules/portal/lib/validations'
-
-async function getSupabase() {
-  const supabase = createClient()
-  return supabase
-}
+import { getSupabase } from './core.supabase'
 
 export async function insertUserData(formData: PersonalInfo) {
   const supabase = await getSupabase()
@@ -21,9 +17,9 @@ export async function insertUserData(formData: PersonalInfo) {
         id: user.user?.id, // Asociamos el UUID del usuario autenticado
         first_name: formData.firstName,
         last_name: formData.lastName,
-        profile_image: formData.profileImage,
-        country: formData.country,
-        birth_date: formData.birthDate,
+        profile_image: null,
+        country: null,
+        birth_date: null,
         phone: formData.phone,
         email: user.user?.email // Guardamos el email del usuario autenticado
       }

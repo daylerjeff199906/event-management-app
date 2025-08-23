@@ -1,7 +1,8 @@
 export const APP_URL = {
   PROFILE: {
     URL_BASE: '/profile',
-    ACCOUNT: '/profile/account'
+    ACCOUNT: '/profile/account',
+    ONBOARDING: '/onboarding'
   },
   AUTH: {
     LOGIN: '/login',
