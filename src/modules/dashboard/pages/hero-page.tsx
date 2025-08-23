@@ -16,7 +16,7 @@ export const HeroPage = () => {
                 Estás usando el plan
                 <span className="text-orange-700 font-semibold"> Free </span>
               </h3>
-              <p className="text-slate-400 text-sm">
+              <p className="text-gray-500 text-sm">
                 Actualiza para desbloquear funciones premium y obtener más
                 recursos
               </p>

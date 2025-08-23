@@ -1,5 +1,12 @@
 import { APP_URL } from '@/data/config-app-url'
-import { Dock, HomeIcon, Star, TicketIcon, UserIcon } from 'lucide-react'
+import {
+  // Dock,
+  HomeIcon,
+  Settings,
+  Star,
+  TicketIcon,
+  UserIcon
+} from 'lucide-react'
 
 export const menuDashboard = [
   {
@@ -43,15 +50,15 @@ export const menuDashboard = [
       name: 'Mi perfil'
     },
     menus: [
-      {
-        menu: {
-          id: 1,
-          name: 'Mis tickets',
-          url: APP_URL.DASHBOARD.TICKETS,
-          icon: Dock
-        },
-        submenus: []
-      },
+      // {
+      //   menu: {
+      //     id: 1,
+      //     name: 'Mis tickets',
+      //     url: APP_URL.DASHBOARD.TICKETS,
+      //     icon: Dock
+      //   },
+      //   submenus: []
+      // },
       {
         menu: {
           id: 4,
@@ -60,16 +67,16 @@ export const menuDashboard = [
           icon: UserIcon
         },
         submenus: []
+      },
+      {
+        menu: {
+          id: 5,
+          name: 'Configuración',
+          url: APP_URL.DASHBOARD.SETTINGS,
+          icon: Settings
+        },
+        submenus: []
       }
-      // {
-      //   menu: {
-      //     id: 5,
-      //     name: 'Configuración',
-      //     url: APP_URL.DASHBOARD.SETTINGS,
-      //     icon: Settings
-      //   },
-      //   submenus: []
-      // }
     ]
   }
 ]

@@ -64,12 +64,12 @@ export async function insertInterestsAndNotifications(
       .upsert([
         {
           user_id: user.id, // Asociamos el UUID del usuario
-          email_notifications: notificationsData.emailNotifications,
-          push_notifications: notificationsData.pushNotifications,
-          event_reminders: notificationsData.eventReminders,
-          weekly_digest: notificationsData.weeklyDigest,
-          profile_visibility: notificationsData.profileVisibility,
-          show_location: notificationsData.showLocation
+          email_notifications: notificationsData.email_notifications,
+          push_notifications: notificationsData.push_notifications,
+          event_reminders: notificationsData.event_reminders,
+          weekly_digest: notificationsData.weekly_digest,
+          profile_visibility: notificationsData.profile_visibility,
+          show_location: notificationsData.show_location
         }
       ])
 
@@ -107,6 +107,31 @@ export async function updateInterest(id: string, dataForm: Partial<Interests>) {
     .update({
       interests: dataForm.interests,
       event_types: dataForm.eventTypes
+    })
+    .eq('user_id', id)
+    .select()
+
+  return { error, data, status, statusText }
+}
+
+export async function updateNotifications({
+  id,
+  dataForm
+}: {
+  id: string
+  dataForm: Partial<Notifications>
+}) {
+  const supabase = await getSupabase()
+  console.log('ID de las notificaciones a actualizar:', id)
+  const { error, data, status, statusText } = await supabase
+    .from('notifications')
+    .update({
+      email_notifications: dataForm.email_notifications,
+      push_notifications: dataForm.push_notifications,
+      event_reminders: dataForm.event_reminders,
+      weekly_digest: dataForm.weekly_digest,
+      profile_visibility: dataForm.profile_visibility,
+      show_location: dataForm.show_location
     })
     .eq('user_id', id)
     .select()

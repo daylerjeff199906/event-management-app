@@ -24,12 +24,12 @@ export const interestsSchema = z.object({
 })
 
 export const notificationsSchema = z.object({
-  emailNotifications: z.boolean(),
-  pushNotifications: z.boolean(),
-  eventReminders: z.boolean(),
-  weeklyDigest: z.boolean(),
-  profileVisibility: z.enum(['public', 'friends', 'private']),
-  showLocation: z.boolean()
+  email_notifications: z.boolean(),
+  push_notifications: z.boolean(),
+  event_reminders: z.boolean(),
+  weekly_digest: z.boolean(),
+  profile_visibility: z.enum(['public', 'friends', 'private']),
+  show_location: z.boolean()
 })
 
 export const completeOnboardingSchema = personalInfoSchema

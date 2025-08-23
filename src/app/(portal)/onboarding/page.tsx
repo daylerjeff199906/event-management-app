@@ -42,12 +42,12 @@ export default function OnboardingPage() {
     phone: '',
     interests: [],
     eventTypes: [],
-    emailNotifications: true,
-    pushNotifications: true,
-    eventReminders: true,
-    weeklyDigest: false,
-    profileVisibility: 'public',
-    showLocation: false
+    email_notifications: true,
+    push_notifications: true,
+    event_reminders: true,
+    weekly_digest: false,
+    profile_visibility: 'public',
+    show_location: false
   })
 
   const router = useRouter()
@@ -105,12 +105,12 @@ export default function OnboardingPage() {
     } else {
       // Omitir el último paso
       handleStepThreeNext({
-        emailNotifications: true,
-        pushNotifications: true,
-        eventReminders: true,
-        weeklyDigest: false,
-        profileVisibility: 'public',
-        showLocation: false
+        email_notifications: true,
+        push_notifications: true,
+        event_reminders: true,
+        weekly_digest: false,
+        profile_visibility: 'public',
+        show_location: false
       })
     }
   }
@@ -146,12 +146,12 @@ export default function OnboardingPage() {
           eventTypes: completeData.eventTypes || []
         },
         {
-          emailNotifications: completeData.emailNotifications ?? true,
-          pushNotifications: completeData.pushNotifications ?? true,
-          eventReminders: completeData.eventReminders ?? true,
-          weeklyDigest: completeData.weeklyDigest ?? false,
-          profileVisibility: completeData.profileVisibility || 'public',
-          showLocation: completeData.showLocation ?? false
+          email_notifications: completeData.email_notifications ?? true,
+          push_notifications: completeData.push_notifications ?? true,
+          event_reminders: completeData.event_reminders ?? true,
+          weekly_digest: completeData.weekly_digest ?? false,
+          profile_visibility: completeData.profile_visibility || 'public',
+          show_location: completeData.show_location ?? false
         }
       )
 
@@ -243,14 +243,15 @@ export default function OnboardingPage() {
               {currentStep === 3 && (
                 <StepThree
                   data={{
-                    emailNotifications:
-                      onboardingData.emailNotifications ?? true,
-                    pushNotifications: onboardingData.pushNotifications ?? true,
-                    eventReminders: onboardingData.eventReminders ?? true,
-                    weeklyDigest: onboardingData.weeklyDigest ?? false,
-                    profileVisibility:
-                      onboardingData.profileVisibility || 'public',
-                    showLocation: onboardingData.showLocation ?? false
+                    email_notifications:
+                      onboardingData.email_notifications ?? true,
+                    push_notifications:
+                      onboardingData.push_notifications ?? true,
+                    event_reminders: onboardingData.event_reminders ?? true,
+                    weekly_digest: onboardingData.weekly_digest ?? false,
+                    profile_visibility:
+                      onboardingData.profile_visibility || 'public',
+                    show_location: onboardingData.show_location ?? false
                   }}
                   disableNext={loading}
                   onNext={handleStepThreeNext}
