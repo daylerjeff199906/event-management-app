@@ -11,10 +11,10 @@ export const MENU_PROFILE_USER: MenuSection[] = [
         label: 'Perfil',
         href: APP_URL.PROFILE.URL_BASE
       },
-      {
-        label: 'Mi cuenta',
-        href: APP_URL.PROFILE.ACCOUNT
-      },
+      // {
+      //   label: 'Configuración',
+      //   href: APP_URL.PROFILE.SETTINGS
+      // },
       {
         label: 'Cerrar sesión',
         onClick: () => {
