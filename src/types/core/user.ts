@@ -10,5 +10,5 @@ export interface IUser {
   created_at: Date
   updated_at: Date
   gender: string | null
-  userName?: string
+  username?: string
 }

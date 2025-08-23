@@ -27,7 +27,7 @@ export default async function Page() {
           profile_image: dataProfile.profile_image || undefined,
           country: dataProfile.country || undefined,
           gender: dataProfile.gender as 'male' | 'female' | 'other' | undefined,
-          username: dataProfile.userName || undefined
+          username: dataProfile.username || undefined
         }}
       />
     </>

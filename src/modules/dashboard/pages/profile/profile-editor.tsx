@@ -1,6 +1,4 @@
 'use client'
-
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -38,8 +36,6 @@ export function ProfileEditor({
   email,
   userId
 }: ProfileEditorProps) {
-  const [profileProgress] = useState(75) // Ejemplo de progreso
-
   const form = useForm<PersonalInfo>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
@@ -47,7 +43,7 @@ export function ProfileEditor({
       last_name: initialData?.last_name || '',
       profile_image: initialData?.profile_image || '',
       country: initialData?.country || '',
-      birth_date: initialData?.birth_date || '',
+      birth_date: initialData?.birth_date || null,
       phone: initialData?.phone || '',
       gender: initialData?.gender || undefined,
       username: initialData?.username || undefined
@@ -103,24 +99,38 @@ export function ProfileEditor({
     }
   }
 
+  function calculateProfileEmpty(data: Partial<PersonalInfo>): number {
+    const fields: (keyof PersonalInfo)[] = [
+      'first_name',
+      'last_name',
+      'profile_image',
+      'country',
+      'birth_date',
+      'phone',
+      'gender',
+      'username'
+    ]
+    const filled = fields.filter((key) => {
+      const value = data[key]
+      return value !== undefined && value !== null && value !== ''
+    }).length
+    return Math.round(((fields.length - filled) / fields.length) * 100)
+  }
+
+  const profileEmpty = calculateProfileEmpty(form.getValues())
+
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-foreground">Editar perfil</h1>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>Completa tu perfil y obtén</span>
-          <span className="font-semibold text-green-600">300₽</span>
-        </div>
+        <h1 className="text-2xl font-bold text-foreground">Editar perfil</h1>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full">
-        <Progress value={profileProgress} className="h-2" />
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Profile Image & Social */}
+
         <div className="space-y-6">
           {/* Profile Image */}
           <Card className="shadow-none bg-white">
@@ -157,7 +167,16 @@ export function ProfileEditor({
         </div>
 
         {/* Right Column - Form */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="w-full col-span-1 md:col-span-2">
+            <div>
+              <p className="text-xs text-muted-foreground italic text-end pb-2">
+                Completa tu perfil y manténlo actualizado para obtener una mejor
+                experiencia.
+              </p>
+              <Progress value={100 - profileEmpty} className="h-2" />
+            </div>
+          </div>
           <Card className="shadow-none bg-white">
             <CardHeader>
               <CardTitle className="text-xl text-slate-700">
@@ -319,6 +338,7 @@ export function ProfileEditor({
                             <Input
                               type="date"
                               {...field}
+                              value={field.value || ''}
                               className="mt-1 bg-gray-100 border-0"
                             />
                           </FormControl>

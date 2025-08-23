@@ -93,7 +93,8 @@ export async function updateUserData({
     .from('users')
     .update(dataForm)
     .eq('id', id)
-  console.log('Respuesta de Supabase:', { error, data, status, statusText })
+    .select()
+    .single()
 
   return { error, data, status, statusText }
 }

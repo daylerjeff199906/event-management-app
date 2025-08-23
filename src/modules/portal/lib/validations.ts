@@ -5,7 +5,7 @@ export const personalInfoSchema = z.object({
   last_name: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
   profile_image: z.string().optional(),
   country: z.string().optional(),
-  birth_date: z.string().optional(),
+  birth_date: z.string().optional().nullable(),
   phone: z
     .string()
     .min(10, 'El número de teléfono debe tener al menos 10 caracteres')
