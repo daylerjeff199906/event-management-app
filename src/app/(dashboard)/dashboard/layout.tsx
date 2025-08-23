@@ -11,7 +11,6 @@ export default async function Layout(props: IProps) {
   const { children } = props
   const supabase = await getSupabase()
   const { data: user } = await supabase.auth.getUser()
-  console.log('Usuario autenticado:', user)
 
   if (!user) {
     // Si no hay usuario, redirigir a la página de login
