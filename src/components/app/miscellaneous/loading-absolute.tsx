@@ -15,7 +15,7 @@ export const LoadingAbsolute = ({
 
   return (
     <div
-      className={`absolute flex items-center justify-center z-50 bg-orange-200 ${blurClass} top-0 bottom-0 right-0 left-0`}
+      className={`absolute flex items-center justify-center z-50 bg-orange-50 ${blurClass} top-0 bottom-0 right-0 left-0`}
       style={{
         position: 'fixed',
         top: -32,
@@ -46,7 +46,7 @@ export const LoadingAbsolute = ({
             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
           />
         </svg>
-        <span className="text-white font-bold text-lg animate-pulse">
+        <span className="text-primary font-bold text-lg animate-pulse">
           {label}
         </span>
       </div>
