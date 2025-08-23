@@ -150,7 +150,7 @@ export const RegisterForm = () => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="josejefferson"
+                      placeholder="JHONDOE"
                       className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
                       {...field}
                     />

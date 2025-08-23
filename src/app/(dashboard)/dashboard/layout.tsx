@@ -24,8 +24,6 @@ export default async function Layout(props: IProps) {
     .eq('id', user.user?.id)
     .maybeSingle()
 
-  console.log('Perfil del usuario:', profile)
-
   if (!profile?.email) {
     // Si el perfil no tiene email, redirigir a la página de onboarding
     redirect(APP_URL.PROFILE.ONBOARDING)

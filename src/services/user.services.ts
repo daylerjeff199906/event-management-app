@@ -20,7 +20,8 @@ export async function insertUserData(formData: PersonalInfo) {
         country: null,
         birth_date: null,
         phone: formData.phone,
-        email: user.user?.email // Guardamos el email del usuario autenticado
+        email: user.user?.email, // Guardamos el email del usuario autenticado
+        gender: null
       }
     ])
     if (error) {
@@ -78,4 +79,20 @@ export async function insertInterestsAndNotifications(
       console.log('Notificaciones insertadas:', notifications)
     }
   }
+}
+
+export async function updateUserData({
+  id,
+  dataForm
+}: {
+  id: string
+  dataForm: Partial<PersonalInfo>
+}) {
+  const supabase = await getSupabase()
+  const { error, data, status, statusText } = await supabase
+    .from('users')
+    .update(dataForm)
+    .eq('id', id)
+
+  return { error, data, status, statusText }
 }

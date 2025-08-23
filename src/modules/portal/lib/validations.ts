@@ -10,7 +10,11 @@ export const personalInfoSchema = z.object({
     .string()
     .min(10, 'El número de teléfono debe tener al menos 10 caracteres')
     .optional(),
-  gender: z.enum(['male', 'female', 'other']).optional()
+  gender: z.enum(['male', 'female', 'other']).optional(),
+  userName: z
+    .string()
+    .min(2, 'El nombre de usuario debe tener al menos 2 caracteres')
+    .optional()
 })
 
 export const interestsSchema = z.object({
