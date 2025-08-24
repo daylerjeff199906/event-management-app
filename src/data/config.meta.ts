@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadataBase: Metadata = {
-  title: 'VamoYa',
+  title: 'VamoYa | Eventos cerca de ti',
   description:
     'Descubre qué habrá en tu ciudad y disfruta de los mejores eventos con VamoYa. Encuentra, registra y vive experiencias únicas cerca de ti.',
   openGraph: {
