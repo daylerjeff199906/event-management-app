@@ -129,7 +129,7 @@ export const RegisterForm = () => {
 
   return (
     <AuthLayout
-      logoSize={120}
+      logoSize={140}
       title="Crea tu cuenta"
       subTitle="Estas a un paso de unirte a nuestra comunidad. Descubre las novedades que tenemos para ti."
       hiddenName

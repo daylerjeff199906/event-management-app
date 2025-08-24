@@ -1,3 +1,4 @@
+import { APP_CONFIG } from '@/data/config.app'
 import { configImages } from '@/data/config.images'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -26,7 +27,7 @@ export function AuthLayout({
   subTitle = DESCRIPTION,
   backgroundImage = configImages.BACKGROUND_DEFAULT.src,
   gradientOpacity = 1,
-  logoUrl = configImages.LOGO_DEFAULT.src,
+  logoUrl = APP_CONFIG.logos.logoHorizontalDefault,
   logoAlt = 'Eventify',
   logoSize = 35,
   homeUrl = '#',
