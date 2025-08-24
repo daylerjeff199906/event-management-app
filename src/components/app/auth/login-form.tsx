@@ -104,7 +104,7 @@ export const LoginForm = () => {
   return (
     <AuthLayout
       hiddenName
-      logoSize={140}
+      logoSize={160}
       title="¡Bienvenido!"
       subTitle="Ingresa tus credenciales para acceder a tu cuenta. Descubre las novedades que tenemos para ti."
       backgroundImage={configImages.BACKGROUND_DEFAULT.src}
