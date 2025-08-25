@@ -18,15 +18,16 @@ interface IProps {
 
 export const ForgotPassword = (props: IProps) => {
   const { email: defaultEmail } = props
-  const { control, handleSubmit, watch, formState } =
+  const { control, handleSubmit, watch, formState, setValue } =
     useForm<ForgotPasswordForm>({
       defaultValues: {
-        email: defaultEmail
+        email: defaultEmail,
+        code: ''
       }
     })
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
-  const [showCodeField, setShowCodeField] = useState(false)
+  const [codeSent, setCodeSent] = useState(false)
 
   const router = useRouter()
   const supabase = createClient()
@@ -59,7 +60,7 @@ export const ForgotPassword = (props: IProps) => {
         description="Revisa tu correo electrónico para obtener el código de verificación."
       />
     )
-    setShowCodeField(true)
+    setCodeSent(true)
     setIsLoading(false)
     return true
   }
@@ -79,7 +80,7 @@ export const ForgotPassword = (props: IProps) => {
 
     setIsLoading(true)
 
-    if (!showCodeField) {
+    if (!codeSent) {
       // Primero enviar el código
       await handleSendCode(email)
       return
@@ -97,8 +98,7 @@ export const ForgotPassword = (props: IProps) => {
       return
     }
 
-    // Con Supabase, el código se verifica automáticamente al redirigir
-    // pero para este flujo necesitamos usar updateUser
+    // Actualizar la contraseña
     const { error } = await supabase.auth.updateUser({
       password: newPassword
     })
@@ -124,6 +124,30 @@ export const ForgotPassword = (props: IProps) => {
     setIsLoading(false)
   }
 
+  // Función para extraer el código de la URL si viene del callback
+  const extractCodeFromUrl = () => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const code = urlParams.get('code')
+      if (code) {
+        setValue('code', code)
+        setCodeSent(true)
+
+        // Limpiar la URL
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        )
+      }
+    }
+  }
+
+  // Ejecutar al cargar el componente
+  useState(() => {
+    extractCodeFromUrl()
+  })
+
   return (
     <AuthLayout
       hiddenName
@@ -134,7 +158,7 @@ export const ForgotPassword = (props: IProps) => {
       <div className="space-y-6 max-w-sm mx-auto">
         <h2 className="text-2xl font-bold">Cambiar contraseña</h2>
         <p className="text-sm text-gray-600">
-          {showCodeField
+          {codeSent
             ? 'Ingresa el código que recibiste por correo y tu nueva contraseña.'
             : 'Por favor, ingresa tu correo electrónico para recibir un código de verificación.'}
         </p>
@@ -178,7 +202,7 @@ export const ForgotPassword = (props: IProps) => {
                 {...field}
                 type="email"
                 placeholder="Correo electrónico"
-                disabled={showCodeField}
+                disabled={codeSent}
               />
             )}
           />
@@ -188,7 +212,7 @@ export const ForgotPassword = (props: IProps) => {
             </p>
           )}
 
-          {showCodeField && (
+          {codeSent && (
             <>
               <Controller
                 name="code"
@@ -260,7 +284,7 @@ export const ForgotPassword = (props: IProps) => {
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <LoaderIcon className="animate-spin mr-2" />}
-            {showCodeField ? 'Cambiar contraseña' : 'Enviar código'}
+            {codeSent ? 'Cambiar contraseña' : 'Enviar código'}
           </Button>
 
           <Button
