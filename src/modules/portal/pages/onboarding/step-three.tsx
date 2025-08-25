@@ -82,9 +82,9 @@ export function StepThree({
                     </div>
                     <Switch
                       id="email-notifications"
-                      checked={form.watch('emailNotifications')}
+                      checked={form.watch('email_notifications')}
                       onCheckedChange={(checked) =>
-                        form.setValue('emailNotifications', checked)
+                        form.setValue('email_notifications', checked)
                       }
                     />
                   </div>
@@ -100,9 +100,9 @@ export function StepThree({
                     </div>
                     <Switch
                       id="push-notifications"
-                      checked={form.watch('pushNotifications')}
+                      checked={form.watch('push_notifications')}
                       onCheckedChange={(checked) =>
-                        form.setValue('pushNotifications', checked)
+                        form.setValue('push_notifications', checked)
                       }
                     />
                   </div>
@@ -118,15 +118,14 @@ export function StepThree({
                     </div>
                     <Switch
                       id="event-reminders"
-                      checked={form.watch('eventReminders')}
+                      checked={form.watch('event_reminders')}
                       onCheckedChange={(checked) =>
-                        form.setValue('eventReminders', checked)
+                        form.setValue('event_reminders', checked)
                       }
                     />
                   </div>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
@@ -140,10 +139,10 @@ export function StepThree({
                       <Label>Visibilidad del perfil</Label>
                     </div>
                     <RadioGroup
-                      value={form.watch('profileVisibility')}
+                      value={form.watch('profile_visibility')}
                       onValueChange={(value) =>
                         form.setValue(
-                          'profileVisibility',
+                          'profile_visibility',
                           value as 'public' | 'friends' | 'private'
                         )
                       }
