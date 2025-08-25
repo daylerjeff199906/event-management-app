@@ -87,12 +87,13 @@ export const LoginForm = () => {
   }
 
   const handleGoogleLogin = async () => {
-    const supabase = createClient() // Usamos el cliente de Supabase
+    const supabase = createClient()
     try {
       await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${redirectUrl}`
+          // Esta debe ser EXACTAMENTE la misma URL que tienes en Google Cloud Console
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       })
     } catch (error) {
@@ -210,6 +211,7 @@ export const LoginForm = () => {
               </Button>
               <button
                 onClick={handleGoogleLogin}
+                type="button"
                 className="border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100 w-full mt-4"
               >
                 Iniciar sesión con Google

@@ -1,6 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LoaderIcon, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useForm, Controller } from 'react-hook-form'
@@ -18,7 +18,7 @@ interface IProps {
 
 export const ForgotPassword = (props: IProps) => {
   const { email: defaultEmail } = props
-  const { control, handleSubmit, watch, formState, setValue } =
+  const { control, handleSubmit, watch, formState } =
     useForm<ForgotPasswordForm>({
       defaultValues: {
         email: defaultEmail,
@@ -34,11 +34,41 @@ export const ForgotPassword = (props: IProps) => {
 
   const { errors: formErrors } = formState
 
+  // Función para analizar los parámetros del fragmento de la URL
+  const parseFragmentParams = () => {
+    if (typeof window !== 'undefined') {
+      const fragment = window.location.hash.substring(1)
+      const params = new URLSearchParams(fragment)
+
+      const error = params.get('error')
+      const errorDescription = params.get('error_description')
+
+      if (error) {
+        const errorMessage = errorDescription
+          ? `${error}: ${errorDescription.replace(/\+/g, ' ')}`
+          : 'Ha ocurrido un error inesperado'
+
+        toast.error(<ToastCustom title="Error" description={errorMessage} />)
+
+        // Limpiar el fragmento de la URL
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname + window.location.search
+        )
+      }
+    }
+  }
+
+  useEffect(() => {
+    parseFragmentParams()
+  }, [])
+
   const handleSendCode = async (email: string) => {
     setIsLoading(true)
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback`
+      redirectTo: `${window.location.origin}/forgot-password`
     })
 
     if (error) {
@@ -123,30 +153,6 @@ export const ForgotPassword = (props: IProps) => {
 
     setIsLoading(false)
   }
-
-  // Función para extraer el código de la URL si viene del callback
-  const extractCodeFromUrl = () => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search)
-      const code = urlParams.get('code')
-      if (code) {
-        setValue('code', code)
-        setCodeSent(true)
-
-        // Limpiar la URL
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        )
-      }
-    }
-  }
-
-  // Ejecutar al cargar el componente
-  useState(() => {
-    extractCodeFromUrl()
-  })
 
   return (
     <AuthLayout
