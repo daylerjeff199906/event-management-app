@@ -198,12 +198,12 @@ export const LoginForm = () => {
                   )}
                 />
 
-                <Link
+                {/* <Link
                   href={APP_URL.AUTH.FORGOT_PASSWORD}
                   className="text-sm hover:underline text-primary"
                 >
                   ¿Olvidaste tu contraseña?
-                </Link>
+                </Link> */}
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
@@ -229,6 +229,12 @@ export const LoginForm = () => {
                 Regístrate gratis
               </Link>
             </span>
+            <Link
+              href={APP_URL.PORTAL.BASE}
+              className="text-primary hover:underline text-sm mt-4"
+            >
+              Ir a la página de inicio
+            </Link>
           </div>
         </div>
       </div>

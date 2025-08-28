@@ -1,4 +1,7 @@
 export const APP_URL = {
+  PORTAL: {
+    BASE: '/'
+  },
   PROFILE: {
     URL_BASE: '/profile',
     SETTINGS: '/profile/settings',
