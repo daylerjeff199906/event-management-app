@@ -42,7 +42,7 @@ export function AuthLayout({
   return (
     <div className="flex min-h-screen">
       {/* Left side - Form content */}
-      <div className="w-full lg:w-1/3 flex items-center justify-center p-8 bg-white">
+      <div className="w-full lg:w-1/3 flex items-center justify-center p-8 bg-white dark:bg-dark">
         <div className="w-full max-w-md space-y-8">{children}</div>
       </div>
       {/* Rigth side - Background with gradient overlay */}
@@ -63,7 +63,7 @@ export function AuthLayout({
 
         {/* Gradient overlay */}
         <div
-          className="absolute inset-0 -z-10 bg-black/65"
+          className="absolute inset-0 -z-10 bg-black/65 dark:bg-black/80"
           style={{ opacity: safeGradientOpacity }}
         />
 
@@ -81,7 +81,7 @@ export function AuthLayout({
         {/* Logo and system name */}
         {!hiddenApp && (
           <Link href={homeUrl} className="hover:cursor-pointer z-10">
-            <div className="flex items-center gap-2 text-white">
+            <div className="flex items-center gap-2 text-white dark:text-gray-100">
               <Image
                 src={logoUrl}
                 alt={logoAlt}
