@@ -1,4 +1,4 @@
-import { Link } from 'lucide-react'
+import Link from 'next/link'
 import React from 'react'
 
 export const Footer = () => {
@@ -21,7 +21,7 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
-                  href="/eventos"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Explorar eventos
@@ -29,7 +29,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/categorias"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Categorías
@@ -37,7 +37,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/ciudades"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Ciudades
@@ -45,7 +45,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/crear-evento"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Crear evento
@@ -58,7 +58,7 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
-                  href="/ayuda"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Centro de ayuda
@@ -66,7 +66,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/contacto"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Contacto
@@ -74,7 +74,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/privacidad"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Privacidad
@@ -82,7 +82,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/terminos"
+                  href="#"
                   className="hover:text-foreground transition-colors"
                 >
                   Términos
@@ -92,7 +92,10 @@ export const Footer = () => {
           </div>
         </div>
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 EventosES. Todos los derechos reservados.</p>
+          <p>
+            &copy; {new Date().getFullYear()} VamoYA. Todos los derechos
+            reservados.
+          </p>
         </div>
       </div>
     </footer>

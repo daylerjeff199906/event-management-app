@@ -5,6 +5,7 @@ import Carousel from 'react-multi-carousel'
 import 'react-multi-carousel/lib/styles.css'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { ArrowRight, Calendar, Star, Users } from 'lucide-react'
 
 import {
   SLIDER_BANNER_1,
@@ -17,36 +18,44 @@ interface CarouselSlide {
   title: string
   subtitle: string
   buttonText: string
+  secondaryButtonText?: string
   backgroundImage: string
   buttonAction?: () => void
+  secondaryButtonAction?: () => void
 }
 
 interface MusicCarouselProps {
   slides?: CarouselSlide[]
   className?: string
   deviceType?: string
+  onSignUp?: () => void
+  onLogin?: () => void
 }
 
 const defaultSlides: CarouselSlide[] = [
   {
     id: '1',
     title: 'PARTICIPA EN LA NOCHE',
-    subtitle: 'DESCUBRE EVENTOS CULTURALES Y ACTIVIDADES NOCTURNAS',
-    buttonText: 'Descubre qué hacer esta noche',
+    subtitle: 'Descubre eventos culturales y actividades nocturnas exclusivas',
+    buttonText: 'Crear cuenta gratis',
+    secondaryButtonText: 'Ver eventos',
     backgroundImage: SLIDER_BANNER_1.src
   },
   {
     id: '2',
     title: 'EXPLORA LA CULTURA',
-    subtitle: 'CONFERENCIAS RELEVANTES Y EXPERIENCIAS ÚNICAS',
-    buttonText: 'Participa en conferencias',
+    subtitle:
+      'Encuentra conferencias relevantes y experiencias únicas cerca de ti',
+    buttonText: 'Registrarse ahora',
+    secondaryButtonText: 'Explorar sin cuenta',
     backgroundImage: SLIDER_BANNER_2.src
   },
   {
     id: '3',
     title: 'VIVE LA DIVERSIÓN',
-    subtitle: 'EVENTOS CULTURALES Y NOCHES INOLVIDABLES',
-    buttonText: 'Descubre eventos culturales',
+    subtitle: 'Eventos culturales y noches inolvidables te esperan',
+    buttonText: 'Unirse a la comunidad',
+    secondaryButtonText: 'Más información',
     backgroundImage: SLIDER_BANNER_3.src
   }
 ]
@@ -69,10 +78,12 @@ const responsive = {
 export const BannerCarousel = ({
   slides = defaultSlides,
   className,
-  deviceType
+  deviceType,
+  onSignUp,
+  onLogin
 }: MusicCarouselProps) => {
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full rounded-lg', className)}>
       <Carousel
         swipeable={true}
         draggable={true}
@@ -81,10 +92,10 @@ export const BannerCarousel = ({
         ssr={true}
         infinite={true}
         autoPlay={deviceType !== 'mobile'}
-        autoPlaySpeed={4000}
+        autoPlaySpeed={5000}
         keyBoardControl={true}
-        customTransition="all .5"
-        transitionDuration={500}
+        customTransition="all .7"
+        transitionDuration={700}
         containerClass="carousel-container"
         removeArrowOnDeviceType={['tablet', 'mobile']}
         deviceType={deviceType}
@@ -94,37 +105,65 @@ export const BannerCarousel = ({
         {slides.map((slide) => (
           <div
             key={slide.id}
-            className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-2xl"
+            className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden"
             style={{
               backgroundImage: `url(${slide.backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}
           >
-            <div className="absolute inset-0 bg-black/40" />
-            <div className="relative z-10 flex flex-col justify-center items-start h-full px-8 md:px-16 lg:px-20">
-              <div className="max-w-2xl">
-                <div className="inline-block bg-purple-200 text-black px-4 py-2 rounded-full text-sm font-medium mb-4">
-                  {slide.title}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40" />
+
+            <div className="relative z-10 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24">
+              <div className="max-w-2xl space-y-6">
+                <div className="inline-flex items-center space-x-2  text-white px-4 py-2 rounded-full text-sm font-medium">
+                  <Star className="h-4 w-4" />
+                  <span>{slide.title}</span>
                 </div>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                  <span className="bg-blue-500 px-2 py-1 inline-block mb-2">
-                    {slide.subtitle.split('TO')[0] || ''}
-                  </span>
-                  <br />
-                  <span className="bg-pink-400 px-2 py-1 inline-block">
-                    {slide.subtitle.split('TO')[1]
-                      ? 'TO' + slide.subtitle.split('TO')[1]
-                      : ''}
-                  </span>
+
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                  {slide.subtitle}
                 </h1>
-                <Button
-                  size="lg"
-                  className="bg-white text-black hover:bg-gray-100 rounded-full px-8 py-3 text-lg font-medium"
-                  onClick={slide.buttonAction}
-                >
-                  {slide.buttonText}
-                </Button>
+
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                  <Button
+                    size="lg"
+                    className=" rounded-full px-8 py-6 text-base font-medium transition-all hover:scale-105"
+                    onClick={onSignUp || slide.buttonAction}
+                  >
+                    {slide.buttonText}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+
+                  {slide.secondaryButtonText && (
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-white rounded-full px-8 py-6 text-base font-medium"
+                      onClick={onLogin || slide.secondaryButtonAction}
+                    >
+                      {slide.secondaryButtonText}
+                    </Button>
+                  )}
+                </div>
+
+                {/* Beneficios destacados */}
+                <div className="flex flex-wrap gap-6 mt-10">
+                  <div className="flex items-center text-white/90">
+                    <Users className="h-5 w-5 mr-2" />
+                    <span className="text-sm">Comunidad activa</span>
+                  </div>
+                  <div className="flex items-center text-white/90">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    <span className="text-sm">Eventos exclusivos</span>
+                  </div>
+                  <div className="flex items-center text-white/90">
+                    <Star className="h-5 w-5 mr-2" />
+                    <span className="text-sm">
+                      Recomendaciones personalizadas
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
