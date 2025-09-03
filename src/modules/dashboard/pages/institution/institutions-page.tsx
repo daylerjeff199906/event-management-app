@@ -78,7 +78,7 @@ export default function InstitutionsPage({
                           .slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute right-4 top-4 p-1 rounded-full group-hover:bg-accent/50 transition-colors group-hover:scale-150">
+                    <div className="absolute right-4 top-4 p-1 rounded-full group-hover:bg-accent/50 transition-colors group-hover:scale-150 duration-200">
                       <ChevronRight className="h-4 w-4" />
                     </div>
 
