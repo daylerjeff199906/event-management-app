@@ -7,6 +7,8 @@ import {
   SuccessMessage
 } from '@/modules/portal/pages/institution'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 type Step = 'search' | 'register' | 'success'
 
@@ -25,9 +27,12 @@ export default function HomePage() {
 
   const handleInstitutionFound = (institution: InstitutionForm) => {
     setFoundInstitution(institution)
-    // En este caso, podrías mostrar información de que ya está registrada
-    // Por ahora, volvemos a la búsqueda
-    alert(`La institución ${institution.institution_name} ya está registrada.`)
+    toast.info(
+      <ToastCustom
+        title="Institución ya registrada"
+        description={`La institución ${institution.institution_name} ya está registrada.`}
+      />
+    )
   }
 
   const handleRegistrationSuccess = () => {

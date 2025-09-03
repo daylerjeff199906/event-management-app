@@ -10,6 +10,8 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { InstitutionForm } from '../../lib/register.institution'
+import Link from 'next/link'
+import { APP_URL } from '@/data/config-app-url'
 
 interface SuccessMessageProps {
   onStartOver: () => void
@@ -57,7 +59,9 @@ export function SuccessMessage({
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <Mail className="h-4 w-4 mt-0.5 text-blue-500" />
+            <div>
+              <Mail className="h-4 w-4 mt-0.5 text-blue-500" />
+            </div>
             <div>
               <p className="font-medium text-foreground">
                 Confirmación por correo
@@ -70,7 +74,9 @@ export function SuccessMessage({
           </div>
 
           <div className="flex items-start gap-3">
-            <Clock className="h-4 w-4 mt-0.5 text-orange-500" />
+            <div>
+              <Clock className="h-4 w-4 mt-0.5 text-orange-500" />
+            </div>
             <div>
               <p className="font-medium text-foreground">Proceso de revisión</p>
               <p>
@@ -81,7 +87,7 @@ export function SuccessMessage({
           </div>
         </div>
 
-        <div className="pt-4 border-t">
+        <div className="pt-4 border-t flex flex-col gap-3">
           <Button
             onClick={onStartOver}
             variant="outline"
@@ -89,6 +95,12 @@ export function SuccessMessage({
           >
             Registrar Otra Institución
           </Button>
+          <Link
+            href={APP_URL.PORTAL.BASE}
+            className="text-sm text-muted-foreground text-center w-full block"
+          >
+            Volver a Inicio
+          </Link>
         </div>
       </CardContent>
     </Card>
