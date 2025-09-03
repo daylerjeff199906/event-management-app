@@ -25,6 +25,7 @@ import {
   type SearchInstitution,
   type InstitutionForm
 } from '../../lib/register.institution'
+import { searchInstitutionFunction } from '@/services/institution.services'
 
 interface InstitutionSearchProps {
   onInstitutionNotFound: (searchTerm: string) => void
@@ -46,21 +47,28 @@ export function InstitutionSearch({
     }
   })
 
-  const onSubmit = async (data: SearchInstitution) => {
+  const onSubmit = async (query: SearchInstitution) => {
     setIsSearching(true)
     setHasSearched(true)
 
     try {
       // Simular búsqueda en la base de datos
       // En producción, esto sería una llamada a la API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const { data, error } = await searchInstitutionFunction(query.search_term)
+
+      if (error) {
+        console.error('Error al buscar institución:', error)
+        return
+      }
+
+      setSearchResults(data)
 
       // Simular que no se encontraron resultados para demostrar el flujo
       const results: InstitutionForm[] = []
       setSearchResults(results)
 
       if (results.length === 0) {
-        onInstitutionNotFound(data.search_term)
+        onInstitutionNotFound(query.search_term)
       }
     } catch (error) {
       console.error('Error al buscar institución:', error)
