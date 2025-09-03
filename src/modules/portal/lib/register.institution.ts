@@ -8,7 +8,7 @@ export const institutionSchema = z.object({
     .min(2, 'El nombre de la institución debe tener al menos 2 caracteres'),
   institution_type: z.string().min(1, 'Selecciona el tipo de institución'),
   description: z.string().optional(),
-  contact_email: z.string().email('Ingresa un correo electrónico válido'),
+  institution_email: z.string('Ingresa un correo electrónico válido'),
   contact_phone: z.string().optional(),
   address: z.string().optional(),
   documents: z.any().optional(), // jsonb field
@@ -56,9 +56,12 @@ export const requestInstitutionSchema = z.object({
     .string()
     .min(2, 'El nombre de la institución debe tener al menos 2 caracteres'),
   institution_type: z.string().min(1, 'Selecciona el tipo de institución'),
-  institution_uuid: z.string().optional(),
   institution_email: z.string('Ingresa un correo electrónico válido'),
   contact_phone: z.string().optional(),
+  description: z
+    .string()
+    .min(2, 'La descripción debe tener al menos 2 caracteres')
+    .optional(),
   contact_person: z
     .string()
     .min(2, 'El nombre de contacto debe tener al menos 2 caracteres'),

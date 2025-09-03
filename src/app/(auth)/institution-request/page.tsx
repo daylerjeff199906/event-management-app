@@ -53,7 +53,8 @@ export default function HomePage() {
           <strong>Nombre:</strong> {foundInstitution.institution_name}
         </p>
         <p className="mb-4">
-          <strong>Correo de contacto:</strong> {foundInstitution.contact_email}
+          <strong>Correo de contacto:</strong>{' '}
+          {foundInstitution.institution_email}
         </p>
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
           <p>

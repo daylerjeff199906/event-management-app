@@ -37,7 +37,9 @@ export function InstitutionSearch({
   onInstitutionFound
 }: InstitutionSearchProps) {
   const [isSearching, setIsSearching] = useState(false)
-  const [searchResults, setSearchResults] = useState<InstitutionForm[]>([])
+  const [searchResults, setSearchResults] = useState<InstitutionForm | null>(
+    null
+  )
   const [hasSearched, setHasSearched] = useState(false)
 
   const form = useForm<SearchInstitution>({
@@ -61,15 +63,12 @@ export function InstitutionSearch({
         return
       }
 
-      setSearchResults(data)
-
       // Simular que no se encontraron resultados para demostrar el flujo
-      const results: InstitutionForm[] = []
-      setSearchResults(results)
-
-      if (results.length === 0) {
+      if (!data) {
         onInstitutionNotFound(query.search_term)
       }
+
+      setSearchResults(data)
     } catch (error) {
       console.error('Error al buscar institución:', error)
     } finally {
@@ -116,31 +115,29 @@ export function InstitutionSearch({
           </form>
         </Form>
 
-        {hasSearched && searchResults.length === 0 && !isSearching && (
+        {hasSearched && searchResults === null && !isSearching && (
           <div className="mt-4 text-center text-sm text-muted-foreground">
             No se encontraron instituciones con ese nombre.
           </div>
         )}
 
-        {searchResults.length > 0 && (
+        {searchResults && (
           <div className="mt-4 space-y-2">
             <h3 className="text-sm font-medium">Instituciones encontradas:</h3>
-            {searchResults.map((institution) => (
-              <Card
-                key={institution.id}
-                className="cursor-pointer hover:bg-accent"
-                onClick={() => onInstitutionFound(institution)}
-              >
-                <CardContent className="p-3">
-                  <div className="font-medium">
-                    {institution.institution_name}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {institution.contact_email}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <Card
+              key={searchResults.id}
+              className="cursor-pointer hover:bg-accent"
+              onClick={() => onInstitutionFound(searchResults)}
+            >
+              <CardContent className="p-3">
+                <div className="font-medium">
+                  {searchResults.institution_name}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {searchResults.institution_email}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </CardContent>

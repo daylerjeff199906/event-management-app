@@ -10,8 +10,10 @@ export async function searchInstitutionFunction(query: string) {
   const { data, error } = await supabase
     .from('institutions')
     .select('*')
-    .or(`institution_name.ilike.%${query}%,contact_email.eq.${query}`)
+    .or(`institution_name.ilike.%${query}%,institution_email.eq.${query}`)
     .order('institution_name')
+    .select()
+    .single()
 
   if (error) {
     console.error('Error buscando institución:', error)

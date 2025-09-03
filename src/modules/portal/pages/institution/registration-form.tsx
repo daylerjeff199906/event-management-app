@@ -3,15 +3,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  ArrowLeft,
-  Building2,
-  Mail,
-  Phone,
-  User,
-  MapPin,
-  FileText
-} from 'lucide-react'
+import { ArrowLeft, Building2, Mail, Phone, User, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -69,9 +61,12 @@ export function RegistrationForm({
       institution_name: initialName || '',
       institution_type: '',
       contact_email: '',
-      contact_phone: ''
+      contact_phone: '',
+      request_status: 'pending'
     }
   })
+
+  console.log('Form errors:', form.formState.errors)
 
   const onSubmit = async (formData: RegistrationInstitutionForm) => {
     setIsSubmitting(true)
@@ -82,10 +77,9 @@ export function RegistrationForm({
       const { data: responseInstitution, error } = await createInstitution({
         institution_name: formData.institution_name,
         institution_type: formData.institution_type,
-        contact_email: formData.contact_email,
-        // address: formData.address,
-        // description: formData.description,
+        institution_email: formData.institution_email,
         contact_phone: formData.contact_phone,
+        description: formData.description,
         validation_status: 'pending'
       })
 
@@ -101,12 +95,12 @@ export function RegistrationForm({
 
       const { data: requestData, error: requestError } =
         await registrationRequestFunction({
-          institution_name: formData.institution_name,
+          institution_uuid: responseInstitution?.id,
+          institution_name: responseInstitution?.institution_name,
+          institution_type: responseInstitution?.institution_type,
           contact_email: formData.contact_email,
           contact_phone: formData.contact_phone,
-          contact_person: formData.contact_person,
-          institution_type: formData.institution_type,
-          institution_uuid: responseInstitution?.id
+          contact_person: formData.contact_person
         })
 
       if (requestError) {
@@ -122,9 +116,11 @@ export function RegistrationForm({
       toast.success(
         <ToastCustom
           title="Solicitud de registro creada"
-          description={`La solicitud de registro se ha creado correctamente`}
+          description={`La solicitud ${requestData?.id} se ha creado correctamente`}
         />
       )
+      onInstitutionCreated(responseInstitution as InstitutionForm)
+      onSuccess()
     } catch (error) {
       console.error('Error al enviar solicitud:', error)
     } finally {
@@ -200,10 +196,9 @@ export function RegistrationForm({
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
-                name="contact_email"
+                name="institution_email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
@@ -222,6 +217,39 @@ export function RegistrationForm({
                 )}
               />
 
+              <div className="col-span-1 md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Descripción (Opcional)
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Breve descripción de la institución y sus actividades"
+                          className="min-h-[100px] "
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="col-span-1 md:col-span-2 pt-4">
+                <h3 className="text-lg font-semibold">
+                  Información de Contacto
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Proporciona la información de contacto de la institución para
+                  facilitar la comunicación.
+                </p>
+              </div>
+
               <FormField
                 control={form.control}
                 name="contact_person"
@@ -232,7 +260,11 @@ export function RegistrationForm({
                       Persona de Contacto
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Nombre completo" {...field} />
+                      <Input
+                        {...field}
+                        placeholder="Nombre completo"
+                        value={field.value || ''}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -255,48 +287,30 @@ export function RegistrationForm({
                   </FormItem>
                 )}
               />
-            </div>
-            {/* 
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Dirección (Opcional)
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Dirección completa de la institución"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
 
-            {/* <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Descripción (Opcional)
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Breve descripción de la institución y sus actividades"
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
+              <div className="col-span-1 md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="contact_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Correo Electrónico
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="contacto@institucion.edu"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <div className="flex gap-4 pt-4">
               <Button
