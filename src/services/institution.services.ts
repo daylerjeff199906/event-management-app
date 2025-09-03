@@ -94,13 +94,13 @@ export async function createInstitutionWithRequest(
         {
           institution_name: formData.institution_name,
           institution_type: formData.institution_type,
-          contact_email: formData.institution_email,
+          institution_email: formData.institution_email,
           contact_phone: formData.contact_phone,
           description: formData.description,
           validation_status: 'pending' // Estado por defecto para la institución
         }
       ])
-      .select('id, institution_name, institution_type, contact_email')
+      .select('id, institution_name, institution_type, institution_email')
       .single()
 
     if (institutionError) {
@@ -126,7 +126,7 @@ export async function createInstitutionWithRequest(
           contact_email: formData.contact_email,
           contact_phone: formData.contact_phone,
           contact_person: formData.contact_person,
-          status: formData.request_status || 'pending' // Usar el status del form o 'pending' por defecto
+          request_status: formData.request_status || 'pending' // Usar el status del form o 'pending' por defecto
         }
       ])
       .select()

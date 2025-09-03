@@ -23,10 +23,10 @@ export function SuccessMessage({
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-          <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-600 dark:bg-green-900/20">
+          <CheckCircle className="h-8 w-8 text-green-200 dark:text-green-100" />
         </div>
-        <CardTitle className="text-xl text-green-700 dark:text-green-400">
+        <CardTitle className="text-xl text-green-700 dark:text-green-400 font-bold">
           ¡Solicitud Enviada!
         </CardTitle>
         <CardDescription className="text-balance">
@@ -35,12 +35,26 @@ export function SuccessMessage({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3 text-sm text-muted-foreground">
-          <div>
-            <p className="font-medium text-foreground">
+          <div className="border border-border rounded-md p-3 bg-secondary/50">
+            <p className="font-medium text-foreground mb-2 text-xs">
               Datos de la Institución
             </p>
-            <p>{dataInstitution?.institution_name}</p>
-            <p>{dataInstitution?.institution_type}</p>
+            <div className="flex flex-col gap-1">
+              <span>
+                <span className="font-semibold">Nombre: </span>
+                {dataInstitution?.institution_name || (
+                  <span className="text-muted-foreground ">
+                    No especificado
+                  </span>
+                )}
+              </span>
+              <span>
+                <span className="font-semibold">Tipo: </span>
+                {dataInstitution?.institution_type || (
+                  <span className="text-muted-foreground">No especificado</span>
+                )}
+              </span>
+            </div>
           </div>
           <div className="flex items-start gap-3">
             <Mail className="h-4 w-4 mt-0.5 text-blue-500" />

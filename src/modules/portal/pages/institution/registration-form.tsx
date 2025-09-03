@@ -99,7 +99,7 @@ export function RegistrationForm({
         onInstitutionCreated({
           id: result.institution.id,
           institution_name: result.institution.institution_name,
-          institution_email: result.institution.contact_email,
+          institution_email: result.institution.institution_email,
           institution_type: result.institution.institution_type
         })
       }
