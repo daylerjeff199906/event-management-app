@@ -15,6 +15,8 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [foundInstitution, setFoundInstitution] =
     useState<InstitutionForm | null>(null)
+  const [institutionCreated, setInstitutionCreated] =
+    useState<InstitutionForm | null>(null)
 
   const handleInstitutionNotFound = (term: string) => {
     setSearchTerm(term)
@@ -86,11 +88,15 @@ export default function HomePage() {
             initialName={searchTerm}
             onBack={handleBack}
             onSuccess={handleRegistrationSuccess}
+            onInstitutionCreated={setInstitutionCreated}
           />
         )}
 
         {currentStep === 'success' && (
-          <SuccessMessage onStartOver={handleStartOver} />
+          <SuccessMessage
+            onStartOver={handleStartOver}
+            dataInstitution={institutionCreated || undefined}
+          />
         )}
       </div>
     </div>

@@ -42,17 +42,22 @@ import {
   institutionTypes,
   registrationFormSchema
 } from '../../lib/register.institution'
+import { createInstitution } from '@/services/institution.services'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 interface RegistrationFormProps {
   initialName?: string
   onBack: () => void
   onSuccess: () => void
+  onInstitutionCreated: (data: InstitutionForm) => void
 }
 
 export function RegistrationForm({
   initialName,
   onBack,
-  onSuccess
+  onSuccess,
+  onInstitutionCreated
 }: RegistrationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -69,16 +74,31 @@ export function RegistrationForm({
     }
   })
 
-  const onSubmit = async (data: InstitutionForm) => {
+  const onSubmit = async (formData: InstitutionForm) => {
     setIsSubmitting(true)
 
     try {
       // Simular envío de solicitud
       // En producción, esto sería una llamada a la API para crear la registration_request
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const { data, error } = await createInstitution(formData)
 
-      console.log('Datos de registro:', data)
-      onSuccess()
+      if (error) {
+        toast.error(
+          <ToastCustom
+            title="Error al crear institución"
+            description={`Error: No se puede registrar la institucion o ya se encuentra registrada`}
+          />
+        )
+      } else {
+        toast.success(
+          <ToastCustom
+            title="Institución creada con éxito"
+            description={`La institución ${data?.institution_name} ha sido registrada correctamente.`}
+          />
+        )
+        onInstitutionCreated(data)
+        onSuccess()
+      }
     } catch (error) {
       console.error('Error al enviar solicitud:', error)
     } finally {

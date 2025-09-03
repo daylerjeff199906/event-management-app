@@ -19,3 +19,20 @@ export async function searchInstitutionFunction(query: string) {
 
   return { data, error: null }
 }
+
+export async function createInstitution(institutionData: InstitutionForm) {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase
+    .from('institutions')
+    .insert([institutionData])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creando institución:', error)
+    throw new Error(`Error al crear institución: ${error.message}`)
+  }
+
+  return { data, error: null }
+}

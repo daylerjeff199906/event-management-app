@@ -9,12 +9,17 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { InstitutionForm } from '../../lib/register.institution'
 
 interface SuccessMessageProps {
   onStartOver: () => void
+  dataInstitution?: InstitutionForm
 }
 
-export function SuccessMessage({ onStartOver }: SuccessMessageProps) {
+export function SuccessMessage({
+  onStartOver,
+  dataInstitution
+}: SuccessMessageProps) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
@@ -30,6 +35,13 @@ export function SuccessMessage({ onStartOver }: SuccessMessageProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3 text-sm text-muted-foreground">
+          <div>
+            <p className="font-medium text-foreground">
+              Datos de la Institución
+            </p>
+            <p>{dataInstitution?.institution_name}</p>
+            <p>{dataInstitution?.institution_type}</p>
+          </div>
           <div className="flex items-start gap-3">
             <Mail className="h-4 w-4 mt-0.5 text-blue-500" />
             <div>
