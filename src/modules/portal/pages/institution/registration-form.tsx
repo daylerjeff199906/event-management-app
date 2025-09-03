@@ -95,7 +95,14 @@ export function RegistrationForm({
       )
 
       // Llama a tus callbacks de éxito
-      onInstitutionCreated(result.institution as InstitutionForm)
+      if (result.institution) {
+        onInstitutionCreated({
+          id: result.institution.id,
+          institution_name: result.institution.institution_name,
+          institution_email: result.institution.contact_email,
+          institution_type: result.institution.institution_type
+        })
+      }
       onSuccess()
     } catch (error) {
       console.error('Error inesperado:', error)
