@@ -60,7 +60,7 @@ export function InstitutionSearch({
 
       if (error) {
         console.error('Error al buscar institución:', error)
-        return
+        onInstitutionNotFound(query.search_term)
       }
 
       // Simular que no se encontraron resultados para demostrar el flujo
@@ -69,6 +69,7 @@ export function InstitutionSearch({
       }
 
       setSearchResults(data)
+      onInstitutionFound(data)
     } catch (error) {
       console.error('Error al buscar institución:', error)
     } finally {
@@ -122,22 +123,35 @@ export function InstitutionSearch({
         )}
 
         {searchResults && (
-          <div className="mt-4 space-y-2">
-            <h3 className="text-sm font-medium">Instituciones encontradas:</h3>
-            <Card
-              key={searchResults.id}
-              className="cursor-pointer hover:bg-accent"
-              onClick={() => onInstitutionFound(searchResults)}
-            >
-              <CardContent className="p-3">
-                <div className="font-medium">
-                  {searchResults.institution_name}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {searchResults.institution_email}
-                </div>
-              </CardContent>
-            </Card>
+          <div className="mt-6 space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                Institución encontrada
+              </span>
+              <h3 className="text-base font-semibold text-primary">
+                {searchResults.institution_name}
+              </h3>
+              <span className="text-sm text-muted-foreground">
+                {searchResults.institution_email}
+              </span>
+            </div>
+            <div className="rounded-lg bg-yellow-50 p-4 text-center text-sm text-yellow-800 border border-yellow-200">
+              Ya existe una cuenta para esta institución.
+              <br />
+              No puedes solicitar la creación de una nueva cuenta.
+              <br />
+              Por favor, contacta a los propietarios de la institución o al
+              soporte para más información.
+            </div>
+            <div className="flex justify-center">
+              <Button
+                variant="outline"
+                className="mt-2"
+                onClick={() => window.open('mailto:soporte@tudominio.com')}
+              >
+                Contactar Soporte
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
