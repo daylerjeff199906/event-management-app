@@ -95,7 +95,7 @@ export function RegistrationForm({
       )
 
       // Llama a tus callbacks de éxito
-      onInstitutionCreated(result.institution)
+      onInstitutionCreated(result.institution as InstitutionForm)
       onSuccess()
     } catch (error) {
       console.error('Error inesperado:', error)
