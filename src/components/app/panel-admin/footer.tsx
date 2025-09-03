@@ -1,9 +1,23 @@
+import { useSidebar, useStore } from '@/hooks'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import React from 'react'
 
 export const Footer = () => {
+  const sidebar = useStore(useSidebar, (x) => x)
+  if (!sidebar) return null
+  const { getOpenState } = sidebar
+  const isCurrentlyOpen = getOpenState()
+
   return (
-    <footer className="bg-card border-t py-12">
+    <footer
+      className={cn(
+        'bg-card border-t py-12',
+        isCurrentlyOpen
+          ? 'max-w-[calc(100vw-16rem)] ml-auto'
+          : 'max-w-[calc(100vw-6.3rem)] ml-auto'
+      )}
+    >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
