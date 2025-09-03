@@ -40,9 +40,11 @@ import {
 import {
   InstitutionForm,
   institutionTypes,
-  registrationFormSchema
+  RegistrationInstitutionForm,
+  requestInstitutionSchema
 } from '../../lib/register.institution'
 import { createInstitution } from '@/services/institution.services'
+import { registrationRequestFunction } from '@/services/institution.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
@@ -62,25 +64,30 @@ export function RegistrationForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm({
-    resolver: zodResolver(registrationFormSchema),
+    resolver: zodResolver(requestInstitutionSchema),
     defaultValues: {
       institution_name: initialName || '',
       institution_type: '',
       contact_email: '',
-      contact_phone: '',
-      contact_person: '',
-      address: '',
-      description: ''
+      contact_phone: ''
     }
   })
 
-  const onSubmit = async (formData: InstitutionForm) => {
+  const onSubmit = async (formData: RegistrationInstitutionForm) => {
     setIsSubmitting(true)
 
     try {
       // Simular envío de solicitud
       // En producción, esto sería una llamada a la API para crear la registration_request
-      const { data, error } = await createInstitution(formData)
+      const { data: responseInstitution, error } = await createInstitution({
+        institution_name: formData.institution_name,
+        institution_type: formData.institution_type,
+        contact_email: formData.contact_email,
+        // address: formData.address,
+        // description: formData.description,
+        contact_phone: formData.contact_phone,
+        validation_status: 'pending'
+      })
 
       if (error) {
         toast.error(
@@ -89,16 +96,35 @@ export function RegistrationForm({
             description={`Error: No se puede registrar la institucion o ya se encuentra registrada`}
           />
         )
-      } else {
-        toast.success(
+        return
+      }
+
+      const { data: requestData, error: requestError } =
+        await registrationRequestFunction({
+          institution_name: formData.institution_name,
+          contact_email: formData.contact_email,
+          contact_phone: formData.contact_phone,
+          contact_person: formData.contact_person,
+          institution_type: formData.institution_type,
+          institution_uuid: responseInstitution?.id
+        })
+
+      if (requestError) {
+        toast.error(
           <ToastCustom
-            title="Institución creada con éxito"
-            description={`La institución ${data?.institution_name} ha sido registrada correctamente.`}
+            title="Error al crear solicitud de registro"
+            description={`Error: No se puede crear la solicitud de registro`}
           />
         )
-        onInstitutionCreated(data)
-        onSuccess()
+        return
       }
+
+      toast.success(
+        <ToastCustom
+          title="Solicitud de registro creada"
+          description={`La solicitud de registro se ha creado correctamente`}
+        />
+      )
     } catch (error) {
       console.error('Error al enviar solicitud:', error)
     } finally {
@@ -158,7 +184,7 @@ export function RegistrationForm({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Selecciona el tipo" />
                         </SelectTrigger>
                       </FormControl>
@@ -170,23 +196,6 @@ export function RegistrationForm({
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="contact_person"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Persona de Contacto
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre completo" {...field} />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -215,6 +224,23 @@ export function RegistrationForm({
 
               <FormField
                 control={form.control}
+                name="contact_person"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Persona de Contacto
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nombre completo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="contact_phone"
                 render={({ field }) => (
                   <FormItem>
@@ -230,7 +256,7 @@ export function RegistrationForm({
                 )}
               />
             </div>
-
+            {/* 
             <FormField
               control={form.control}
               name="address"
@@ -249,9 +275,9 @@ export function RegistrationForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
@@ -270,7 +296,7 @@ export function RegistrationForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <div className="flex gap-4 pt-4">
               <Button

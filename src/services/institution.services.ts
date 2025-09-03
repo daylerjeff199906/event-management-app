@@ -1,6 +1,7 @@
 'use server'
 import { getSupabase } from './core.supabase'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
+import { RegistrationRequestForm } from '@/modules/portal/lib/register.institution'
 
 // Función de búsqueda combinada (por nombre o email)
 export async function searchInstitutionFunction(query: string) {
@@ -32,6 +33,25 @@ export async function createInstitution(institutionData: InstitutionForm) {
   if (error) {
     console.error('Error creando institución:', error)
     throw new Error(`Error al crear institución: ${error.message}`)
+  }
+
+  return { data, error: null }
+}
+
+export async function registrationRequestFunction(
+  institutionData: RegistrationRequestForm
+) {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase
+    .from('registration_requests')
+    .insert([institutionData])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creando solicitud de registro:', error)
+    throw new Error(`Error al crear solicitud de registro: ${error.message}`)
   }
 
   return { data, error: null }
