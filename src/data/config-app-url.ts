@@ -1,6 +1,7 @@
 export const APP_URL = {
   PORTAL: {
-    BASE: '/'
+    BASE: '/',
+    INSTITUTION_REQUEST: '/institution-request'
   },
   PROFILE: {
     URL_BASE: '/profile',

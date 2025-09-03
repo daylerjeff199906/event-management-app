@@ -9,6 +9,8 @@ import {
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
+import InstitutionFound from '@/modules/portal/pages/institution/institution-found'
+import { APP_URL } from '@/data/config-app-url'
 
 type Step = 'search' | 'register' | 'success'
 
@@ -52,29 +54,14 @@ export default function HomePage() {
   if (foundInstitution) {
     // Si se encontró una institución, se muestra su información y un mensaje de contacto
     return (
-      <div className="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
-        <h2 className="text-xl font-semibold mb-2">Institución encontrada</h2>
-        <p className="mb-1">
-          <strong>Nombre:</strong> {foundInstitution.institution_name}
-        </p>
-        <p className="mb-4">
-          <strong>Correo de contacto:</strong>{' '}
-          {foundInstitution.institution_email}
-        </p>
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
-          <p>
-            No puedes crear una nueva cuenta para esta institución porque ya
-            está registrada. Por favor, contacta al responsable o a los
-            responsables de la institución para obtener acceso o resolver
-            cualquier duda.
-          </p>
-        </div>
-        <button
-          className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          onClick={handleStartOver}
-        >
-          Volver a buscar otra institución
-        </button>
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
+        <InstitutionFound
+          searchResults={{
+            institution_email: foundInstitution.institution_email,
+            institution_name: foundInstitution.institution_name
+          }}
+          backUrl={APP_URL.PORTAL.INSTITUTION_REQUEST}
+        />
       </div>
     )
   }
