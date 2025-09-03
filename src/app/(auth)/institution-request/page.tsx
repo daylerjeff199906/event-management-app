@@ -60,7 +60,9 @@ export default function HomePage() {
             institution_email: foundInstitution.institution_email,
             institution_name: foundInstitution.institution_name
           }}
-          backUrl={APP_URL.PORTAL.INSTITUTION_REQUEST}
+          onBack={() =>
+            window.location.replace(APP_URL.PORTAL.INSTITUTION_REQUEST)
+          }
         />
       </div>
     )
