@@ -42,6 +42,35 @@ export default function HomePage() {
     setCurrentStep('search')
   }
 
+  if (foundInstitution) {
+    // Si se encontró una institución, se muestra su información y un mensaje de contacto
+    return (
+      <div className="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
+        <h2 className="text-xl font-semibold mb-2">Institución encontrada</h2>
+        <p className="mb-1">
+          <strong>Nombre:</strong> {foundInstitution.institution_name}
+        </p>
+        <p className="mb-4">
+          <strong>Correo de contacto:</strong> {foundInstitution.contact_email}
+        </p>
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
+          <p>
+            No puedes crear una nueva cuenta para esta institución porque ya
+            está registrada. Por favor, contacta al responsable o a los
+            responsables de la institución para obtener acceso o resolver
+            cualquier duda.
+          </p>
+        </div>
+        <button
+          className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={handleStartOver}
+        >
+          Volver a buscar otra institución
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
