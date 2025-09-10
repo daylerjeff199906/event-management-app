@@ -1,3 +1,4 @@
+'use client'
 import { APP_URL } from '@/data/config-app-url'
 import {
   // Dock,

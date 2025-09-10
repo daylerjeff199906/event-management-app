@@ -6,36 +6,15 @@ import { SectionElement } from '@/types'
 import { NavBarCustom } from '../navbar-custom/nav-bar-custom'
 import { Footer } from './footer'
 import { menuDashboard } from '@/app/(dashboard)/dashboard/const'
-import { APP_URL } from '@/data/config-app-url'
-import { Layers } from 'lucide-react'
 
 // SubmenuElement
-
-const subMenuElementInstitucional = {
-  section: {
-    id: 3,
-    name: 'Institucional'
-  },
-  menus: [
-    {
-      menu: {
-        id: 4,
-        name: 'Instituciones',
-        url: APP_URL.DASHBOARD.INSTITUTION.BASE,
-        icon: Layers,
-        isExternal: true
-      },
-      submenus: []
-    }
-  ]
-}
 
 export default function AdminPanelLayout({
   children,
   email,
   urlPhoto,
   userName,
-  isInstitutional
+  menuItems
 }: {
   children: React.ReactNode
   menuItems?: SectionElement[]
@@ -49,13 +28,9 @@ export default function AdminPanelLayout({
   const { getOpenState, settings } = sidebar
   const isCurrentlyOpen = getOpenState()
 
-  const menuDashboardFinal = isInstitutional
-    ? [...menuDashboard, subMenuElementInstitucional]
-    : menuDashboard
-
   return (
     <>
-      <SideBar menuItems={menuDashboardFinal} />
+      <SideBar menuItems={menuItems} />
 
       <main
         className={cn(
