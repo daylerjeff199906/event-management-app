@@ -1,14 +1,40 @@
 'use client'
+
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CalendarDays, MapPin, Clock } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import {
+  CalendarDays,
+  MapPin,
+  Clock,
+  MoreVertical,
+  Edit,
+  ImageIcon,
+  ToggleLeft
+} from 'lucide-react'
 import { Event } from '@/types'
+import { cn } from '@/lib/utils'
 
 interface EventCardProps {
   event: Event
+  onEdit?: (event: Event) => void
+  onChangeImage?: (event: Event) => void
+  onToggleStatus?: (event: Event) => void
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({
+  event,
+  onEdit,
+  onChangeImage,
+  onToggleStatus
+}: EventCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-ES', {
@@ -43,78 +69,75 @@ export function EventCard({ event }: EventCardProps) {
   }
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border bg-card shadow-none pt-0">
-      <CardHeader className="pb-3 flex items-start gap-4">
-        {event.cover_image_url && (
+    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border bg-card overflow-hidden pt-0 shadow-none">
+      {event.cover_image_url && (
+        <div className="relative h-48 overflow-hidden">
           <img
-            src={event.cover_image_url}
+            src={event.cover_image_url || '/placeholder.svg'}
             alt={event.event_name}
-            className="w-20 h-20 object-cover rounded-lg border border-border mr-4"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
-        )}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg text-card-foreground group-hover:text-primary transition-colors text-balance">
-            {event.event_name}
-          </h3>
-          {event.description && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2 text-pretty">
-              {event.description}
-            </p>
-          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         </div>
-        <div className="flex flex-col items-end gap-2">
-          {event.status && (
-            <Badge
-              variant="secondary"
-              className={`${getStatusColor(
-                event.status
-              )} shrink-0 rounded-full`}
-            >
-              {event.status}
-            </Badge>
-          )}
-          <div className="flex gap-2 mt-2">
-            <button
-              type="button"
-              title="Editar"
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-              onClick={() => {
-                /* handle edit */
-              }}
-            >
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
+      )}
+
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-lg text-card-foreground group-hover:text-primary transition-colors text-balance">
+              {event.event_name}
+            </h3>
+            {event.description && (
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-2 text-pretty">
+                {event.description}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {event.status && (
+              <Badge
+                variant="secondary"
+                className={cn('rounded-full', getStatusColor(event.status))}
               >
-                <path d="M12 20h9" />
-                <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              title="Ver detalles"
-              className="p-2 rounded-full hover:bg-muted transition-colors"
-              onClick={() => {
-                /* handle view details */
-              }}
-            >
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4" />
-                <path d="M12 8h.01" />
-              </svg>
-            </button>
+                {event.status}
+              </Badge>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                  <span className="sr-only">Abrir menú de acciones</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => onEdit?.(event)}
+                  className="cursor-pointer"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar evento
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => onChangeImage?.(event)}
+                  className="cursor-pointer"
+                >
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Cambiar imagen
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => onToggleStatus?.(event)}
+                  className="cursor-pointer"
+                >
+                  <ToggleLeft className="h-4 w-4 mr-2" />
+                  Cambiar estado
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>
