@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { ChevronRight, Mail, Phone, Search } from 'lucide-react'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import Link from 'next/link'
+import { APP_URL } from '@/data/config-app-url'
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -63,7 +64,12 @@ export default function InstitutionsPage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6">
           {institutionsList.map((institution) => (
-            <Link key={institution.id} href={`/institutions/${institution.id}`}>
+            <Link
+              key={institution.id}
+              href={APP_URL.DASHBOARD.INSTITUTION.DETAIL(
+                String(institution.id)
+              )}
+            >
               <Card className="shadow-none border border-border relative group hover:bg-accent/50 transition-colors hover:cursor-pointer">
                 <CardContent className="p-3">
                   <div className="flex items-start gap-4">
@@ -78,7 +84,7 @@ export default function InstitutionsPage({
                           .slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute right-4 top-4 p-1 rounded-full group-hover:bg-accent/50 transition-colors group-hover:scale-150 duration-200">
+                    <div className="absolute right-4 top-4 p-1 rounded-full group-hover:bg-accent/50 transition-colors group-hover:scale-150 duration-200 ease-in-out ">
                       <ChevronRight className="h-4 w-4" />
                     </div>
 

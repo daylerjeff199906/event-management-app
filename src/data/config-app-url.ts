@@ -21,6 +21,16 @@ export const APP_URL = {
     FAVORITES: '/dashboard/favorites',
     PROFILE: '/dashboard/profile',
     SETTINGS: '/dashboard/settings',
-    TICKETS: '/dashboard/tickets'
+    TICKETS: '/dashboard/tickets',
+    INSTITUTION: {
+      BASE: '/dashboard/institutions',
+      DETAIL: (id: string) => `/dashboard/institutions/${id}`,
+      CONFIG: (id: string) => `/dashboard/institutions/${id}/config`,
+      CREATE_EVENT: (id: string) =>
+        `/dashboard/institutions/${id}/create-event`,
+      EDIT_EVENT: (id: string, eventId: string) =>
+        `/dashboard/institutions/${id}/events/${eventId}/edit`,
+      EVENTS: (id: string) => `/dashboard/institutions/${id}/events`
+    }
   }
 }

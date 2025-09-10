@@ -1,3 +1,4 @@
+'use client'
 import { useSidebar, useStore } from '@/hooks'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
