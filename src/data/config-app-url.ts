@@ -21,7 +21,9 @@ export const APP_URL = {
     FAVORITES: '/dashboard/favorites',
     PROFILE: '/dashboard/profile',
     SETTINGS: '/dashboard/settings',
-    TICKETS: '/dashboard/tickets',
+    TICKETS: '/dashboard/tickets'
+  },
+  ORGANIZATION: {
     INSTITUTION: {
       BASE: '/dashboard/institutions',
       DETAIL: (id: string) => `/dashboard/institutions/${id}`,

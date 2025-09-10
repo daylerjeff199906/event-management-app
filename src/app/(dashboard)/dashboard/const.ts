@@ -2,6 +2,7 @@ import { APP_URL } from '@/data/config-app-url'
 import {
   // Dock,
   HomeIcon,
+  Layers,
   Settings,
   Star,
   TicketIcon,
@@ -65,6 +66,54 @@ export const menuDashboard = [
           name: 'Configuración',
           url: APP_URL.DASHBOARD.SETTINGS,
           icon: Settings
+        },
+        submenus: []
+      }
+    ]
+  }
+]
+
+export const subMenuElementInstitucional = {
+  section: {
+    id: 3,
+    name: 'Institucional'
+  },
+  menus: [
+    {
+      menu: {
+        id: 4,
+        name: 'Instituciones',
+        url: APP_URL.ORGANIZATION.INSTITUTION.BASE,
+        icon: Layers,
+        isExternal: true
+      },
+      submenus: []
+    }
+  ]
+}
+
+export const menuOrganization = [
+  {
+    section: {
+      id: 1,
+      name: 'Opciones generales'
+    },
+    menus: [
+      {
+        menu: {
+          id: 1,
+          name: 'Inicio',
+          url: APP_URL.ORGANIZATION.INSTITUTION.BASE,
+          icon: HomeIcon
+        },
+        submenus: []
+      },
+      {
+        menu: {
+          id: 2,
+          name: 'Eventos',
+          url: APP_URL.ORGANIZATION.INSTITUTION.EVENTS,
+          icon: TicketIcon
         },
         submenus: []
       }
