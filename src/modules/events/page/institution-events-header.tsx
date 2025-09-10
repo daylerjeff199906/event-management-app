@@ -14,13 +14,16 @@ import {
 import { Search, Filter, Eye, EyeOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EventStatus } from '@/types'
+import { APP_URL } from '@/data/config-app-url'
 
 interface InstitutionEventsHeaderProps {
   className?: string
+  institutionId?: string
 }
 
 export const InstitutionEventsHeader = ({
-  className
+  className,
+  institutionId
 }: InstitutionEventsHeaderProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -112,24 +115,18 @@ export const InstitutionEventsHeader = ({
             Gestiona y visualiza todos los eventos de tu institución
           </p>
         </div>
-
-        <Button
-          onClick={handleToggleDeleted}
-          variant={showDeleted ? 'default' : 'outline'}
-          size="sm"
-        >
-          {showDeleted ? (
-            <>
-              <EyeOff className="w-4 h-4 mr-2" />
-              Ocultar eliminados
-            </>
-          ) : (
-            <>
-              <Eye className="w-4 h-4 mr-2" />
-              Ver eliminados
-            </>
-          )}
-        </Button>
+        <div>
+          <Button
+            onClick={() =>
+              router.push(
+                APP_URL.DASHBOARD.INSTITUTION.CREATE_EVENT(institutionId!)
+              )
+            }
+            className="flex items-center gap-2"
+          >
+            Agregar Evento
+          </Button>
+        </div>
       </div>
 
       {/* Filtros */}
@@ -174,6 +171,7 @@ export const InstitutionEventsHeader = ({
           <Button
             onClick={handleSearchSubmit}
             className="flex items-center gap-2"
+            variant="secondary"
           >
             <Search className="w-4 h-4" />
             Buscar
@@ -189,6 +187,23 @@ export const InstitutionEventsHeader = ({
               Limpiar
             </Button>
           )}
+          <Button
+            onClick={handleToggleDeleted}
+            variant={showDeleted ? 'default' : 'outline'}
+            size="sm"
+          >
+            {showDeleted ? (
+              <>
+                <EyeOff className="w-4 h-4 mr-2" />
+                Ocultar eliminados
+              </>
+            ) : (
+              <>
+                <Eye className="w-4 h-4 mr-2" />
+                Ver eliminados
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
