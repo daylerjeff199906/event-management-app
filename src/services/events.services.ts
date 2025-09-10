@@ -19,7 +19,9 @@ export async function fetchEventsByInstitution(
     page = 1,
     pageSize = 10,
     institution_id,
-    user_id
+    user_id,
+    exclude_status,
+    status
   } = filter
 
   try {
@@ -47,6 +49,16 @@ export async function fetchEventsByInstitution(
     // Apply user_id filter if provided
     if (user_id) {
       query = query.eq('user_id', user_id)
+    }
+
+    // Apply status filter if provided
+    if (status) {
+      query = query.eq('status', status)
+    }
+
+    // Apply exclude_status filter if provided
+    if (exclude_status) {
+      query = query.neq('status', exclude_status)
     }
 
     const { data, error, count } = await query

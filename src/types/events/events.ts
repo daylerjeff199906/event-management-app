@@ -25,6 +25,8 @@ export interface EventFilterByInstitution extends Pagination {
   institution_id: string
   user_id?: string | null
   searchQuery?: string
+  status?: EventStatus | null
+  exclude_status?: EventStatus | null
 }
 
 export interface EventsFilters extends Pagination {

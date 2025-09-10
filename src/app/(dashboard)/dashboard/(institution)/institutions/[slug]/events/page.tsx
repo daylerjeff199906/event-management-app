@@ -1,6 +1,6 @@
 import { InstitutionEventsPage } from '@/modules/events/page'
 import { fetchEventsByInstitution } from '@/services/events.services'
-import { Params, SearchParams } from '@/types'
+import { EventStatus, Params, SearchParams } from '@/types'
 
 interface PageProps {
   params: Params
@@ -13,23 +13,21 @@ export default async function Page(props: PageProps) {
   const slug = params.slug
 
   const id_institution = String(slug)
+  const deleted = searchParams.deleted === 'true' ? EventStatus.DELETE : null
 
   const response = await fetchEventsByInstitution({
     institution_id: id_institution,
     // page: searchParams.pageSize ? Number(searchParams.pageSize) : 10,
     searchQuery: searchParams.searchQuery
       ? searchParams.searchQuery.toString()
-      : undefined
+      : undefined,
+    status: searchParams?.status?.toString() as EventStatus | undefined,
+    exclude_status: deleted || undefined
   })
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between md:gap-0 gap-4">
-        <h3 className="text-lg font-semibold text-foreground">
-          Últimos eventos creados por la institución
-        </h3>
-      </div>
+    <>
       <InstitutionEventsPage eventsList={response.data?.data || []} />
-    </div>
+    </>
   )
 }
