@@ -1,6 +1,11 @@
 'use server'
 import { getSupabase } from './core.supabase'
-import { Event, EventFilterByInstitution, ResponsePagination } from '@/types'
+import {
+  Event,
+  EventFilterByInstitution,
+  ResponsePagination,
+  EventsFilters
+} from '@/types'
 
 export async function fetchEventsByInstitution(
   filter: EventFilterByInstitution
@@ -62,5 +67,42 @@ export async function fetchEventsByInstitution(
   } catch (err) {
     console.error('Unexpected error fetching institution:', err)
     return { data: null, error: err as Error }
+  }
+}
+
+export async function fetchEventList(): Promise<{
+  filters: EventsFilters
+  data: ResponsePagination<Event> | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  const filters: EventsFilters = {
+    page: 1,
+    pageSize: 10
+  }
+  try {
+    const page = filters.page ?? 1
+    const pageSize = filters.pageSize ?? 10
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+    const { data, error, count } = await supabase
+      .from('events')
+      .select('*', { count: 'exact' })
+      .order('event_name')
+      .range(from, to)
+    if (error) {
+      console.error('Error fetching events:', error)
+      return { filters, data: null, error }
+    }
+    const response: ResponsePagination<Event> = {
+      data: data as Event[],
+      total: count ?? 0,
+      page: filters.page ?? 1,
+      pageSize: filters.pageSize ?? 10
+    }
+    return { filters, data: response, error: null }
+  } catch (err) {
+    console.error('Unexpected error fetching events:', err)
+    return { filters, data: null, error: err as Error }
   }
 }
