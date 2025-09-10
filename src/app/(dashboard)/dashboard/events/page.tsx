@@ -1,4 +1,4 @@
-import ComingSoon from '@/components/app/miscellaneous/coming-soon'
+import { UserEventsPage } from '@/modules/events/page'
 
 export default function HomePage() {
   return (
@@ -9,7 +9,7 @@ export default function HomePage() {
           <EventsGrid />
         </main>
       </div> */}
-      <ComingSoon showNotifyButton={false} estimatedDate="Muy pronto" />
+      <UserEventsPage />
     </>
   )
 }
