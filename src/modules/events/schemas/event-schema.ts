@@ -18,7 +18,8 @@ export const eventSchema = z
       .optional(),
     category: z.number().optional(),
     institution_id: z.string().uuid().optional(),
-    user_id: z.string().uuid().optional()
+    user_id: z.string().uuid().optional(),
+    author_id: z.string().uuid().optional()
   })
   .refine(
     (data) => {

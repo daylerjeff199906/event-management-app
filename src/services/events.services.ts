@@ -7,6 +7,8 @@ import {
   EventsFilters
 } from '@/types'
 
+import { EventFormData } from '@/modules/events/schemas'
+
 export async function fetchEventsByInstitution(
   filter: EventFilterByInstitution
 ): Promise<{
@@ -139,6 +141,29 @@ export async function fetchEventList(filter: EventsFilters): Promise<{
     return { data: response, error: null }
   } catch (err) {
     console.error('Unexpected error fetching events:', err)
+    return { data: null, error: err as Error }
+  }
+}
+
+export async function createEvent(eventData: EventFormData): Promise<{
+  data: Event | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .insert(eventData)
+      .select()
+      .single()
+    if (error) {
+      console.error('Error creating event:', error)
+      return { data: null, error }
+    }
+
+    return { data: data as Event, error: null }
+  } catch (err) {
+    console.error('Unexpected error creating event:', err)
     return { data: null, error: err as Error }
   }
 }

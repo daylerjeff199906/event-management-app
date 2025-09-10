@@ -3,7 +3,14 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarIcon, MapPinIcon, GlobeIcon, ClockIcon } from 'lucide-react'
+import {
+  CalendarIcon,
+  MapPinIcon,
+  GlobeIcon,
+  ClockIcon,
+  ExternalLink,
+  Loader
+} from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -43,6 +50,11 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { eventSchema, type EventFormData } from '@/modules/events/schemas'
 import { EventStatus } from '@/types'
+import Link from 'next/link'
+import { createEvent } from '@/services/events.services'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
+import { useRouter } from 'next/navigation'
 
 const locationTypes = [
   {
@@ -65,8 +77,17 @@ const locationTypes = [
   }
 ]
 
-export const EventsCreateForm = () => {
+interface EventsCreateFormProps {
+  institutionId?: string
+  authorId?: string
+  urlReturn?: string
+}
+
+export const EventsCreateForm = (props: EventsCreateFormProps) => {
+  const { institutionId, urlReturn, authorId } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const router = useRouter()
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -86,9 +107,41 @@ export const EventsCreateForm = () => {
       // Aquí iría la lógica para enviar los datos al servidor
       console.log('Datos del evento:', data)
       // Simular envío
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await createEvent({
+        ...data,
+        institution_id: institutionId,
+        author_id: authorId
+      })
+
+      if (response.error) {
+        toast.error(
+          <ToastCustom
+            title="Error"
+            description={`No se pudo crear el evento: ${response.error.message}`}
+            variant="destructive"
+          />
+        )
+      } else {
+        toast.success(
+          <ToastCustom
+            title="Éxito"
+            description="El evento ha sido creado exitosamente."
+          />
+        )
+        form.reset()
+        if (urlReturn) {
+          router.push(urlReturn)
+        }
+      }
     } catch (error) {
       console.error('Error al crear evento:', error)
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description="Ocurrió un error inesperado al crear el evento."
+          variant="destructive"
+        />
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -100,14 +153,15 @@ export const EventsCreateForm = () => {
     <div className="max-w-2xl mx-auto p-6 space-y-8">
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-balance">
-          Create an event with AI
+          Crea tu evento al instante
         </h1>
         <p className="text-muted-foreground text-pretty">
-          Answer a few questions about your event and our AI creation tool will
-          use internal data to build an event page. You can still{' '}
-          <Button variant="link" className="p-0 h-auto text-blue-600">
-            create an event without AI
-          </Button>
+          Completa los datos básicos de tu evento y personaliza cada detalle. Si
+          lo prefieres, puedes{' '}
+          <Link href={'#'} className="p-0 h-auto text-blue-600 hover:underline">
+            generar el evento automáticamente con IA{' '}
+            <ExternalLink className="inline-block h-4 w-4 mb-1" />
+          </Link>
           .
         </p>
       </div>
@@ -115,13 +169,13 @@ export const EventsCreateForm = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Nombre del evento */}
-          <Card>
+          <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
-              <CardTitle>What's the name of your event?</CardTitle>
+              <CardTitle>¿Cuál es el nombre de tu evento?</CardTitle>
               <CardDescription>
-                This will be your event's title. Your title will be used to help
-                create your event's summary, description, category, and tags -
-                so be specific!
+                Este será el título de tu evento. El título se usará para crear
+                el resumen, la descripción, la categoría y las etiquetas de tu
+                evento, así que ¡sé específico!
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -132,7 +186,7 @@ export const EventsCreateForm = () => {
                   <FormItem>
                     <FormControl>
                       <Input
-                        placeholder="Event title *"
+                        placeholder="Título del evento *"
                         className="text-lg"
                         {...field}
                       />
@@ -145,12 +199,12 @@ export const EventsCreateForm = () => {
           </Card>
 
           {/* Descripción */}
-          <Card>
+          <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
-              <CardTitle>Event Description</CardTitle>
+              <CardTitle>Descripción del evento</CardTitle>
               <CardDescription>
-                Provide more details about your event to help attendees
-                understand what to expect.
+                Proporciona más detalles sobre tu evento para ayudar a los
+                asistentes a entender qué pueden esperar.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -161,7 +215,7 @@ export const EventsCreateForm = () => {
                   <FormItem>
                     <FormControl>
                       <Textarea
-                        placeholder="Tell people more about your event..."
+                        placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
                         {...field}
                       />
@@ -174,9 +228,9 @@ export const EventsCreateForm = () => {
           </Card>
 
           {/* Fechas */}
-          <Card>
+          <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
-              <CardTitle>When does your event start and end?</CardTitle>
+              <CardTitle>¿Cuándo inicia y termina tu evento?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -185,7 +239,7 @@ export const EventsCreateForm = () => {
                   name="start_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Start Date *</FormLabel>
+                      <FormLabel>Fecha de inicio *</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -201,7 +255,7 @@ export const EventsCreateForm = () => {
                                   locale: es
                                 })
                               ) : (
-                                <span>15/10/2025 — 23/10/2025</span>
+                                <span>Selecciona la fecha de inicio</span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -229,7 +283,7 @@ export const EventsCreateForm = () => {
                   name="end_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>End Date</FormLabel>
+                      <FormLabel>Fecha de finalización</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -245,7 +299,7 @@ export const EventsCreateForm = () => {
                                   locale: es
                                 })
                               ) : (
-                                <span>Select end date</span>
+                                <span>Selecciona la fecha de finalización</span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -275,9 +329,9 @@ export const EventsCreateForm = () => {
           </Card>
 
           {/* Ubicación */}
-          <Card>
+          <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
-              <CardTitle>Where is it located?</CardTitle>
+              <CardTitle>¿Dónde se llevará a cabo tu evento?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -372,11 +426,13 @@ export const EventsCreateForm = () => {
           </Card>
 
           {/* URL de imagen de portada */}
-          <Card>
+          <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
-              <CardTitle>Cover Image</CardTitle>
+              <CardTitle>Agrega una imagen de portada para tu evento</CardTitle>
               <CardDescription>
-                Add a cover image to make your event more attractive (optional).
+                Esta imagen se utilizará en la página del evento y en las
+                promociones. Asegúrate de que sea atractiva y relevante.
+                (Opcional)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -393,7 +449,7 @@ export const EventsCreateForm = () => {
                       />
                     </FormControl>
                     <FormDescription>
-                      Provide a URL to an image that represents your event.
+                      Debe ser una URL válida que termine en .jpg, .png, etc.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -403,9 +459,11 @@ export const EventsCreateForm = () => {
           </Card>
 
           {/* Estado del evento */}
-          <Card>
+          <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
-              <CardTitle>Event Status</CardTitle>
+              <CardTitle>
+                ¿Quieres publicar el evento ahora o guardarlo como borrador?
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <FormField
@@ -419,20 +477,32 @@ export const EventsCreateForm = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select event status" />
+                          <SelectValue
+                            placeholder="Selecciona el estado del evento"
+                            className="w-full"
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="DRAFT">
+                        <SelectItem value={EventStatus.DRAFT}>
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary">Draft</Badge>
-                            <span>Save as draft</span>
+                            <Badge className="bg-amber-50 text-amber-700 hover:bg-amber-100 focus:ring-amber-200">
+                              Borrador
+                            </Badge>
+                            <span>
+                              Guarda el evento como borrador para publicarlo más
+                              tarde
+                            </span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="PUBLISHED">
+                        <SelectItem value={EventStatus.PUBLIC}>
                           <div className="flex items-center gap-2">
-                            <Badge variant="default">Published</Badge>
-                            <span>Publish immediately</span>
+                            <Badge className="bg-green-700 text-green-100 hover:bg-green-600 focus:ring-green-700">
+                              Publicado
+                            </Badge>
+                            <span>
+                              Publica el evento inmediatamente y hazlo visible
+                            </span>
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -452,10 +522,11 @@ export const EventsCreateForm = () => {
               className="flex-1 bg-transparent"
               onClick={() => form.reset()}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" className="flex-1" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Event'}
+              {isSubmitting ? 'Creando...' : 'Crear Evento'}{' '}
+              {isSubmitting && <Loader className="ml-2 h-4 w-4 animate-spin" />}
             </Button>
           </div>
         </form>
