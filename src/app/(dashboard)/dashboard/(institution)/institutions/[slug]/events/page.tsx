@@ -1,22 +1,25 @@
-import { APP_URL } from '@/data/config-app-url'
 import { InstitutionEventsPage } from '@/modules/events/page'
 import { fetchEventsByInstitution } from '@/services/events.services'
-import { Params } from '@/types'
-import Link from 'next/link'
+import { Params, SearchParams } from '@/types'
 
 interface PageProps {
   params: Params
+  searchParams: SearchParams
 }
 
 export default async function Page(props: PageProps) {
   const params = await props.params
+  const searchParams = await props.searchParams
   const slug = params.slug
 
   const id_institution = String(slug)
 
   const response = await fetchEventsByInstitution({
     institution_id: id_institution,
-    pageSize: 4
+    page: searchParams.pageSize ? Number(searchParams.pageSize) : 10,
+    searchQuery: searchParams.searchQuery
+      ? searchParams.searchQuery.toString()
+      : undefined
   })
 
   return (
@@ -25,12 +28,6 @@ export default async function Page(props: PageProps) {
         <h3 className="text-lg font-semibold text-foreground">
           Últimos eventos creados por la institución
         </h3>
-        <Link
-          className="text-sm text-primary hover:underline"
-          href={APP_URL.DASHBOARD.INSTITUTION.EVENTS(slug?.toString() || '')}
-        >
-          Ver todos los eventos
-        </Link>
       </div>
       <InstitutionEventsPage eventsList={response.data?.data || []} />
     </div>
