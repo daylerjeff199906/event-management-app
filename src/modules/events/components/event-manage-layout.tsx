@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Menu, X, ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
 
 interface MenuItem {
   id: string
@@ -21,7 +22,7 @@ interface EventManageLayoutProps {
   title?: string
   activeItem?: string
   onItemClick?: (itemId: string) => void
-  onBack?: () => void
+  urlBack?: string
   backLabel?: string
 }
 
@@ -31,7 +32,7 @@ export function EventManageLayout({
   title = 'Event Management',
   activeItem,
   onItemClick,
-  onBack,
+  urlBack,
   backLabel = 'Volver'
 }: EventManageLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -65,14 +66,16 @@ export function EventManageLayout({
       >
         <div className="flex h-full flex-col">
           <div className="p-6">
-            {onBack && (
+            {urlBack && (
               <Button
                 variant="ghost"
-                onClick={onBack}
                 className="mb-6 p-0 h-auto text-blue-600 hover:text-blue-700 hover:bg-transparent font-normal"
+                asChild
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                {backLabel}
+                <Link href={urlBack} className="flex items-center">
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  {backLabel}
+                </Link>
               </Button>
             )}
 

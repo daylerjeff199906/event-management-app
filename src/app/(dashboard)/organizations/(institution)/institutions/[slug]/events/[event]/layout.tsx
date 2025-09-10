@@ -11,5 +11,9 @@ export default async function Layout(props: LayoutProps) {
   const params = await props.params
   const institutionId = params?.slug?.toString()
 
-  return <EventManageLayout menuItems={[]}>{children}</EventManageLayout>
+  return (
+    <EventManageLayout backLabel="Volver a eventos" menuItems={[]}>
+      {children}
+    </EventManageLayout>
+  )
 }
