@@ -166,3 +166,21 @@ export async function createInstitutionWithRequest(
     }
   }
 }
+
+export async function getInstitutionById(id: string): Promise<{
+  data: InstitutionForm | null
+  error: string | null
+}> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('institutions')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (error) {
+    console.error('Error obteniendo institución por ID:', error)
+    return { data: null, error: error.message }
+  }
+  return { data, error: null }
+}

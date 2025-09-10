@@ -14,7 +14,8 @@ export const institutionSchema = z.object({
   documents: z.any().optional(), // jsonb field
   validation_status: z.enum(['pending', 'approved', 'rejected']).optional(),
   created_at: z.date().optional(),
-  updated_at: z.date().optional()
+  updated_at: z.date().optional(),
+  status: z.enum(['ACTIVE', 'INACTIVE']).optional()
 })
 
 // Esquema para el formulario de búsqueda
