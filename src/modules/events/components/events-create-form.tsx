@@ -85,7 +85,7 @@ interface EventsCreateFormProps {
 }
 
 export const EventsCreateForm = (props: EventsCreateFormProps) => {
-  const { institutionId, urlReturn, authorId } = props
+  const { institutionId, urlReturn, authorId, categories } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const router = useRouter()
@@ -98,16 +98,15 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
       location: '',
       location_type: 'venue',
       cover_image_url: '',
-      status: EventStatus.DRAFT
+      status: EventStatus.DRAFT,
+      category: undefined
     }
   })
 
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true)
     try {
-      // Aquí iría la lógica para enviar los datos al servidor
-      console.log('Datos del evento:', data)
-      // Simular envío
+      // Enviar datos al servicio de creación de eventos
       const response = await createEvent({
         ...data,
         institution_id: institutionId,
@@ -326,6 +325,50 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Categoría */}
+          <Card className="shadow-none border border-gray-200 bg-white">
+            <CardHeader>
+              <CardTitle>Selecciona una categoría para tu evento</CardTitle>
+              <CardDescription>
+                Ayuda a los asistentes a encontrar tu evento eligiendo la
+                categoría más relevante.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categoría</FormLabel>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {categories?.map((cat) => {
+                        const isSelected = field.value === Number(cat.id)
+                        return (
+                          <Badge
+                            key={cat.id}
+                            className={cn(
+                              'cursor-pointer px-4 py-2 rounded-full transition-colors',
+                              isSelected
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/80'
+                                : 'bg-gray-100 text-gray-700 hover:bg-blue-100'
+                            )}
+                            onClick={() =>
+                              field.onChange(isSelected ? undefined : cat.id)
+                            }
+                          >
+                            {cat.name}
+                          </Badge>
+                        )
+                      })}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 
