@@ -102,7 +102,7 @@ export function CollapseMenuButton({
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-        {submenus.map(({ name, url }, index) => {
+        {submenus.map(({ name, url, isExternal }, index) => {
           const isActive = url === pathname
           return (
             <Button
@@ -113,7 +113,7 @@ export function CollapseMenuButton({
               }`}
               asChild
             >
-              <Link href={url ?? '#'}>
+              <Link href={url ?? '#'} target={isExternal ? '_blank' : '_self'}>
                 <span className="mr-4 ml-2">
                   <Dot size={18} />
                 </span>
@@ -178,7 +178,7 @@ export function CollapseMenuButton({
           {label}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {submenus.map(({ url, name }, index) => (
+        {submenus.map(({ url, name, isExternal }, index) => (
           <DropdownMenuItem key={index} asChild>
             <Link
               // className={`cursor-pointer ${
@@ -186,6 +186,7 @@ export function CollapseMenuButton({
               //   'bg-secondary'
               // }`}
               href={url ?? '#'}
+              target={isExternal ? '_blank' : '_self'}
             >
               <p className="max-w-[180px] truncate">{name}</p>
             </Link>

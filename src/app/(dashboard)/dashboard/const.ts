@@ -50,15 +50,6 @@ export const menuDashboard = [
       name: 'Mi perfil'
     },
     menus: [
-      // {
-      //   menu: {
-      //     id: 1,
-      //     name: 'Mis tickets',
-      //     url: APP_URL.DASHBOARD.TICKETS,
-      //     icon: Dock
-      //   },
-      //   submenus: []
-      // },
       {
         menu: {
           id: 4,

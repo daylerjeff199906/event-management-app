@@ -74,6 +74,7 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                               {menu.url && (
                                 <Link
                                   href={menu.url}
+                                  target={menu?.isExternal ? '_blank' : '_self'}
                                   className={
                                     isOpen === false
                                       ? 'flex justify-center flex-col items-center w-full'

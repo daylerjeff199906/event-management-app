@@ -29,17 +29,24 @@ export default async function Layout(props: IProps) {
     redirect(APP_URL.PROFILE.ONBOARDING)
   }
 
+  const { data: institutions } = await supabase
+    .from('user_roles')
+    .select('institution_id')
+    .eq('user_id', user.user?.id)
+
   const profileData = (await profile) as {
     first_name: string | null
     email: string
     profile_image: string | null
   }
 
+  const hasInstitution = institutions && institutions.length > 0 ? true : false
   return (
     <AdminPanelLayout
       userName={profileData?.first_name || 'Usuario'}
       email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
+      isInstitutional={hasInstitution}
     >
       {children}
     </AdminPanelLayout>
