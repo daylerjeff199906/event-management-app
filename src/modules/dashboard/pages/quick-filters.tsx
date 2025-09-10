@@ -1,17 +1,16 @@
 import { Button } from '@/components/ui/button'
+import { Category } from '@/types'
 
-const filters = [
-  'Para ti',
-  'Conciertos',
-  'Deportes',
-  'Teatro',
-  'Conferencias',
-  'Gastronomía',
-  'Arte',
-  'Otros'
-]
+const filters = ['Para ti']
 
-export function QuickFilters() {
+interface QuickFiltersProps {
+  categories: Category[]
+}
+
+export function QuickFilters({ categories }: QuickFiltersProps) {
+  const categoryNames = categories.map((category) => category.name)
+  filters.push(...categoryNames)
+
   return (
     <div className="mb-8">
       <h2 className="text-xl font-semibold mb-4">Categorías populares</h2>
