@@ -26,7 +26,10 @@ export default async function Page(props: PageProps) {
 
   return (
     <>
-      <InstitutionEventsPage eventsList={response.data?.data || []} />
+      <InstitutionEventsPage
+        institutionId={id_institution}
+        eventsList={response.data?.data || []}
+      />
     </>
   )
 }
