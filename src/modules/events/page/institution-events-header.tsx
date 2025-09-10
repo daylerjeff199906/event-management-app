@@ -110,7 +110,7 @@ export const InstitutionEventsHeader = ({
       {/* Título y acciones principales */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Eventos de la Institución</h1>
+          <h1 className="text-xl font-semibold">Eventos de la Institución</h1>
           <p className="text-muted-foreground text-sm">
             Gestiona y visualiza todos los eventos de tu institución
           </p>

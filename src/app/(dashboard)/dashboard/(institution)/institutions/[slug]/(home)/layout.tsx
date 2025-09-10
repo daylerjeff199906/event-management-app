@@ -32,7 +32,7 @@ export default async function Layout(props: LayoutProps) {
             </Badge>
           </h1>
         </div>
-        <hr className="border-border/50 mb-4" />
+        <hr className="mb-4 border border-gray-200" />
       </div>
       {children}
     </>

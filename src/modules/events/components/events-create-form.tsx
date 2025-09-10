@@ -49,7 +49,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { eventSchema, type EventFormData } from '@/modules/events/schemas'
-import { EventStatus } from '@/types'
+import { Category, EventStatus } from '@/types'
 import Link from 'next/link'
 import { createEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
@@ -81,6 +81,7 @@ interface EventsCreateFormProps {
   institutionId?: string
   authorId?: string
   urlReturn?: string
+  categories?: Category[]
 }
 
 export const EventsCreateForm = (props: EventsCreateFormProps) => {
@@ -476,7 +477,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue
                             placeholder="Selecciona el estado del evento"
                             className="w-full"

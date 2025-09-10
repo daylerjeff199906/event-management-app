@@ -4,7 +4,8 @@ import {
   Event,
   EventFilterByInstitution,
   ResponsePagination,
-  EventsFilters
+  EventsFilters,
+  EventStatus
 } from '@/types'
 
 import { EventFormData } from '@/modules/events/schemas'
@@ -22,7 +23,6 @@ export async function fetchEventsByInstitution(
     pageSize = 10,
     institution_id,
     user_id,
-    exclude_status,
     status
   } = filter
 
@@ -53,14 +53,16 @@ export async function fetchEventsByInstitution(
       query = query.eq('user_id', user_id)
     }
 
-    // Apply status filter if provided
-    if (status) {
-      query = query.eq('status', status)
-    }
-
-    // Apply exclude_status filter if provided
-    if (exclude_status) {
-      query = query.neq('status', exclude_status)
+    // Only show deleted if status === 'deleted'
+    if (status === EventStatus.DELETE) {
+      query = query.eq('status', EventStatus.DELETE)
+    } else {
+      // Otherwise, show only public and draft
+      query = query.in('status', [EventStatus.PUBLIC, EventStatus.DRAFT])
+      // If status filter is provided and not 'deleted', filter by it
+      if (status) {
+        query = query.eq('status', status)
+      }
     }
 
     const { data, error, count } = await query

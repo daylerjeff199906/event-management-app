@@ -21,8 +21,7 @@ export default async function Page(props: PageProps) {
     searchQuery: searchParams.search
       ? searchParams.search.toString()
       : undefined,
-    status: searchParams?.status?.toString() as EventStatus | undefined,
-    exclude_status: deleted || undefined
+    status: deleted ? deleted : (searchParams.status as EventStatus) || null
   })
 
   return (
