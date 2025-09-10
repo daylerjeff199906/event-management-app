@@ -29,7 +29,7 @@ export const APP_URL = {
       CREATE_EVENT: (id: string) =>
         `/dashboard/institutions/${id}/create-event`,
       EDIT_EVENT: (id: string, eventId: string) =>
-        `/dashboard/institutions/${id}/events/${eventId}/edit`,
+        `/dashboard/institutions/${id}/events/${eventId}`,
       EVENTS: (id: string) => `/dashboard/institutions/${id}/events`
     }
   }
