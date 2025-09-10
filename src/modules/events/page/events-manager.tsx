@@ -1,86 +1,18 @@
 // 'use client'
 
 // import { useState, useEffect } from 'react'
+// import { useRouter, useSearchParams } from 'next/navigation'
 // import type { Event, ResponsePagination } from '@/types'
 // import { EventsList } from './events-list'
 // import { Button } from '@/components/ui/button'
 // import { Plus, Filter } from 'lucide-react'
-
-// // Mock data para demostración - reemplaza con tu API real
-// const mockEvents: Event[] = [
-//   {
-//     id: '1',
-//     event_name: 'Conferencia de Tecnología 2024',
-//     description:
-//       'Una conferencia sobre las últimas tendencias en tecnología y desarrollo de software.',
-//     start_date: '2024-03-15T09:00:00Z',
-//     end_date: '2024-03-15T18:00:00Z',
-//     location: 'Centro de Convenciones, Ciudad de México',
-//     status: 'PUBLIC' as const,
-//     cover_image_url: '/tech-conference.png',
-//     created_at: '2024-01-15T10:00:00Z',
-//     user_id: 'user1'
-//   },
-//   {
-//     id: '2',
-//     event_name: 'Workshop de Diseño UX/UI',
-//     description:
-//       'Aprende los fundamentos del diseño de experiencia de usuario y interfaces.',
-//     start_date: '2024-03-20T14:00:00Z',
-//     end_date: '2024-03-20T17:00:00Z',
-//     location: 'Espacio Creativo, Guadalajara',
-//     status: 'DRAFT' as const,
-//     cover_image_url: '/collaborative-design-workshop.png',
-//     created_at: '2024-01-20T15:00:00Z',
-//     user_id: 'user1'
-//   },
-//   {
-//     id: '3',
-//     event_name: 'Hackathon Innovación 2024',
-//     description:
-//       'Evento de 48 horas para desarrollar soluciones innovadoras a problemas reales.',
-//     start_date: '2024-04-05T18:00:00Z',
-//     end_date: '2024-04-07T18:00:00Z',
-//     location: 'Universidad Tecnológica, Monterrey',
-//     status: 'PUBLIC' as const,
-//     cover_image_url: '/hackathon-coding.jpg',
-//     created_at: '2024-02-01T12:00:00Z',
-//     user_id: 'user1'
-//   },
-//   {
-//     id: '4',
-//     event_name: 'Meetup de Desarrolladores',
-//     description:
-//       'Encuentro mensual de la comunidad de desarrolladores locales.',
-//     start_date: '2024-03-25T19:00:00Z',
-//     location: 'Café Tech, Ciudad de México',
-//     status: 'PUBLIC' as const,
-//     created_at: '2024-02-10T09:00:00Z',
-//     user_id: 'user1'
-//   }
-// ]
-
-// // Función mock para simular la API - reemplaza con tu API real
-// const fetchEvents = async (
-//   page = 1,
-//   pageSize = 12
-// ): Promise<ResponsePagination<Event>> => {
-//   // Simular delay de red
-//   await new Promise((resolve) => setTimeout(resolve, 1000))
-
-//   const startIndex = (page - 1) * pageSize
-//   const endIndex = startIndex + pageSize
-//   const paginatedEvents = mockEvents.slice(startIndex, endIndex)
-
-//   return {
-//     data: paginatedEvents,
-//     total: mockEvents.length,
-//     page,
-//     pageSize
-//   }
-// }
+// import { fetchEventList } from '@/services/events.services'
 
 // export default function UserEventsPage() {
+//   const router = useRouter()
+//   const searchParams = useSearchParams()
+//   const currentPage = parseInt(searchParams.get('page') || '1')
+
 //   const [initialData, setInitialData] = useState<
 //     ResponsePagination<Event> | undefined
 //   >()
@@ -89,8 +21,11 @@
 //   useEffect(() => {
 //     const loadInitialData = async () => {
 //       try {
-//         const data = await fetchEvents(1, 12)
-//         setInitialData(data)
+//         const data = await fetchEventList({
+//           page: currentPage,
+//           pageSize: 12
+//         })
+//         setInitialData(data.data?.data ? data.data : undefined)
 //       } catch (error) {
 //         console.error('Error loading initial events:', error)
 //       } finally {
@@ -99,12 +34,39 @@
 //     }
 
 //     loadInitialData()
-//   }, [])
+//   }, [currentPage])
 
 //   const handleLoadMore = async (
 //     page: number
-//   ): Promise<ResponsePagination<Event>> => {
-//     return await fetchEvents(page, 12)
+//   ): Promise<{
+//     data: Event[]
+//     total: number
+//     error: Error | null
+//   }> => {
+//     try {
+//       // Actualizar la URL con el nuevo número de página
+//       const params = new URLSearchParams(searchParams.toString())
+//       params.set('page', page.toString())
+//       router.push(`?${params.toString()}`, { scroll: false })
+
+//       const response = await fetchEventList({
+//         page,
+//         pageSize: 10
+//       })
+
+//       return {
+//         data: response.data?.data || [],
+//         total: response.data?.total || 0,
+//         error: null
+//       }
+//     } catch (error) {
+//       console.error('Error loading more events:', error)
+//       return {
+//         data: [],
+//         total: 0,
+//         error: error instanceof Error ? error : new Error('Unknown error')
+//       }
+//     }
 //   }
 
 //   const handleViewDetails = (eventId: string) => {
@@ -160,6 +122,7 @@
 //         initialData={initialData}
 //         onLoadMore={handleLoadMore}
 //         onViewDetails={handleViewDetails}
+//         currentPage={currentPage}
 //       />
 //     </div>
 //   )

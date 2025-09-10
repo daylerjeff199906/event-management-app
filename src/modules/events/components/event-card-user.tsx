@@ -1,7 +1,7 @@
 'use client'
 
 import { type Event, EventStatus } from '@/types/events'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CalendarDays, MapPin, Eye } from 'lucide-react'
@@ -11,6 +11,7 @@ import { es } from 'date-fns/locale'
 interface EventCardProps {
   event: Event
   onViewDetails: (eventId: string) => void
+  hiddenStatus?: boolean
 }
 
 const getStatusColor = (status?: EventStatus) => {
@@ -39,12 +40,16 @@ const getStatusText = (status?: EventStatus) => {
   }
 }
 
-export function EventCardUser({ event, onViewDetails }: EventCardProps) {
+export function EventCardUser({
+  event,
+  onViewDetails,
+  hiddenStatus
+}: EventCardProps) {
   const startDate = new Date(event.start_date)
   const endDate = event.end_date ? new Date(event.end_date) : null
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+    <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden pt-0 shadow-none border">
       <div className="relative">
         {event.cover_image_url ? (
           <img
@@ -57,20 +62,18 @@ export function EventCardUser({ event, onViewDetails }: EventCardProps) {
             <CalendarDays className="w-16 h-16 text-primary/40" />
           </div>
         )}
-        <div className="absolute top-3 right-3">
-          <Badge className={getStatusColor(event.status)}>
-            {getStatusText(event.status)}
-          </Badge>
-        </div>
+        {!hiddenStatus && (
+          <div className="absolute top-3 right-3">
+            <Badge className={getStatusColor(event.status)}>
+              {getStatusText(event.status)}
+            </Badge>
+          </div>
+        )}
       </div>
-
-      <CardHeader className="pb-3">
-        <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+      <CardContent className="space-y-3">
+        <h3 className="font-semibold text-lg lg:text-xl line-clamp-2 group-hover:text-primary transition-colors">
           {event.event_name}
         </h3>
-      </CardHeader>
-
-      <CardContent className="space-y-3">
         {event.description && (
           <p className="text-muted-foreground text-sm line-clamp-3">
             {event.description}
@@ -99,7 +102,7 @@ export function EventCardUser({ event, onViewDetails }: EventCardProps) {
       <CardFooter>
         <Button
           onClick={() => onViewDetails(event.id)}
-          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors hover:cursor-pointer rounded-full"
           variant="outline"
         >
           <Eye className="w-4 h-4 mr-2" />

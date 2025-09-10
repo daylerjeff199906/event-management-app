@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import type { Event, ResponsePagination } from '@/types'
+import { EventStatus, type Event, type ResponsePagination } from '@/types'
 import { EventsList } from './events-list'
-import { Button } from '@/components/ui/button'
-import { Plus, Filter } from 'lucide-react'
 import { fetchEventList } from '@/services/events.services'
 
 export default function UserEventsPage() {
@@ -23,7 +21,8 @@ export default function UserEventsPage() {
       try {
         const data = await fetchEventList({
           page: currentPage,
-          pageSize: 12
+          pageSize: 12,
+          status: EventStatus.PUBLIC
         })
         setInitialData(data.data?.data ? data.data : undefined)
       } catch (error) {
@@ -75,12 +74,6 @@ export default function UserEventsPage() {
     // router.push(`/events/${eventId}`)
   }
 
-  const handleCreateEvent = () => {
-    // Implementar navegación a página de creación
-    console.log('Crear nuevo evento')
-    // router.push('/events/create')
-  }
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -103,17 +96,6 @@ export default function UserEventsPage() {
           <p className="text-muted-foreground mt-2">
             Gestiona y visualiza todos tus eventos creados
           </p>
-        </div>
-
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filtros
-          </Button>
-          <Button onClick={handleCreateEvent} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Nuevo Evento
-          </Button>
         </div>
       </div>
 

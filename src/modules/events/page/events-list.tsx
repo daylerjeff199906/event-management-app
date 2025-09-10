@@ -65,7 +65,8 @@ export function EventsList({
         <Calendar className="w-16 h-16 text-muted-foreground mb-4" />
         <h3 className="text-xl font-semibold mb-2">No hay eventos</h3>
         <p className="text-muted-foreground max-w-md">
-          Aún no tienes eventos creados. Crea tu primer evento para comenzar.
+          No se han encontrado eventos. Intenta ajustar tus filtros. Recarga la
+          página para ver si hay nuevos eventos.
         </p>
       </div>
     )
@@ -80,6 +81,7 @@ export function EventsList({
             key={event.id}
             event={event}
             onViewDetails={onViewDetails}
+            hiddenStatus
           />
         ))}
       </div>
