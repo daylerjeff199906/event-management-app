@@ -66,7 +66,7 @@ export default function InstitutionsPage({
           {institutionsList.map((institution) => (
             <Link
               key={institution.id}
-              href={APP_URL.DASHBOARD.INSTITUTION.DETAIL(
+              href={APP_URL.ORGANIZATION.INSTITUTION.DETAIL(
                 String(institution.id)
               )}
             >

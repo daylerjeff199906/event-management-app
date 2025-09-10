@@ -76,7 +76,7 @@ export const menuDashboard = [
 
 export const subMenuElementInstitucional = {
   section: {
-    id: 3,
+    id: 4,
     name: 'Institucional'
   },
   menus: [
@@ -104,17 +104,8 @@ export const menuOrganization = [
         menu: {
           id: 1,
           name: 'Inicio',
-          url: APP_URL.ORGANIZATION.INSTITUTION.BASE,
+          url: APP_URL.ORGANIZATION.BASE,
           icon: HomeIcon
-        },
-        submenus: []
-      },
-      {
-        menu: {
-          id: 2,
-          name: 'Eventos',
-          url: APP_URL.ORGANIZATION.INSTITUTION.EVENTS,
-          icon: TicketIcon
         },
         submenus: []
       }

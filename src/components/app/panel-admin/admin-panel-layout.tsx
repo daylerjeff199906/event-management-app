@@ -5,7 +5,6 @@ import { SideBar } from './side-bar'
 import { SectionElement } from '@/types'
 import { NavBarCustom } from '../navbar-custom/nav-bar-custom'
 import { Footer } from './footer'
-import { menuDashboard } from '@/app/(dashboard)/dashboard/const'
 
 // SubmenuElement
 
@@ -14,7 +13,9 @@ export default function AdminPanelLayout({
   email,
   urlPhoto,
   userName,
-  menuItems
+  menuItems,
+  menuOptional,
+  isInstitutional = false
 }: {
   children: React.ReactNode
   menuItems?: SectionElement[]
@@ -22,15 +23,20 @@ export default function AdminPanelLayout({
   urlPhoto?: string
   userName?: string
   isInstitutional?: boolean
+  menuOptional?: SectionElement[]
 }) {
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
   const { getOpenState, settings } = sidebar
   const isCurrentlyOpen = getOpenState()
 
+  const menuDashboardFinal = isInstitutional
+    ? [...(menuItems ?? []), ...(menuOptional ?? [])]
+    : menuItems ?? []
+
   return (
     <>
-      <SideBar menuItems={menuItems} />
+      <SideBar menuItems={menuDashboardFinal} />
 
       <main
         className={cn(
@@ -42,7 +48,7 @@ export default function AdminPanelLayout({
           urlPhoto={urlPhoto}
           email={email}
           userName={userName}
-          menuItems={menuDashboard}
+          menuItems={menuDashboardFinal}
         />
         <main className="w-full container mx-auto py-4 zoom-adjust px-4 md:px-6">
           {children}

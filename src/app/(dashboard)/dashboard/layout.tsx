@@ -43,17 +43,14 @@ export default async function Layout(props: IProps) {
 
   const hasInstitution = institutions && institutions.length > 0 ? true : false
 
-  const menuItems = hasInstitution
-    ? [...menuDashboard, subMenuElementInstitucional]
-    : menuDashboard
-
   return (
     <AdminPanelLayout
       userName={profileData?.first_name || 'Usuario'}
       email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
       isInstitutional={hasInstitution}
-      menuItems={menuItems}
+      menuItems={menuDashboard}
+      menuOptional={[subMenuElementInstitucional]}
     >
       {children}
     </AdminPanelLayout>

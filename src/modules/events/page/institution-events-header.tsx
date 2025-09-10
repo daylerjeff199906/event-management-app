@@ -119,7 +119,7 @@ export const InstitutionEventsHeader = ({
           <Button
             onClick={() =>
               router.push(
-                APP_URL.DASHBOARD.INSTITUTION.CREATE_EVENT(institutionId!)
+                APP_URL.ORGANIZATION.INSTITUTION.CREATE_EVENT(institutionId!)
               )
             }
             className="flex items-center gap-2"

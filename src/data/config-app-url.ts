@@ -24,15 +24,16 @@ export const APP_URL = {
     TICKETS: '/dashboard/tickets'
   },
   ORGANIZATION: {
+    BASE: '/organizations',
     INSTITUTION: {
-      BASE: '/dashboard/institutions',
-      DETAIL: (id: string) => `/dashboard/institutions/${id}`,
-      CONFIG: (id: string) => `/dashboard/institutions/${id}/config`,
+      BASE: '/organizations/institutions',
+      DETAIL: (id: string) => `/organizations/institutions/${id}`,
+      CONFIG: (id: string) => `/organizations/institutions/${id}/config`,
       CREATE_EVENT: (id: string) =>
-        `/dashboard/institutions/${id}/create-event`,
+        `/organizations/institutions/${id}/create-event`,
       EDIT_EVENT: (id: string, eventId: string) =>
-        `/dashboard/institutions/${id}/events/${eventId}`,
-      EVENTS: (id: string) => `/dashboard/institutions/${id}/events`
+        `/organizations/institutions/${id}/events/${eventId}`,
+      EVENTS: (id: string) => `/organizations/institutions/${id}/events`
     }
   }
 }

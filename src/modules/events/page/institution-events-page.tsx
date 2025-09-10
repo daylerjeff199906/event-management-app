@@ -16,7 +16,7 @@ export const InstitutionEventsPage = ({
 
   const handleEventClick = (eventId: string) => {
     router.push(
-      APP_URL.DASHBOARD.INSTITUTION.EDIT_EVENT(institutionId || '', eventId)
+      APP_URL.ORGANIZATION.INSTITUTION.EDIT_EVENT(institutionId || '', eventId)
     )
   }
 

@@ -27,7 +27,7 @@ export default async function Page(props: PageProps) {
         </h3>
         <Link
           className="text-sm text-primary hover:underline"
-          href={APP_URL.DASHBOARD.INSTITUTION.EVENTS(slug?.toString() || '')}
+          href={APP_URL.ORGANIZATION.INSTITUTION.EVENTS(slug?.toString() || '')}
         >
           Ver todos los eventos
         </Link>

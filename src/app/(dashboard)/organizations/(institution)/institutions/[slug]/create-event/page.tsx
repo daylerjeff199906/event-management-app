@@ -21,7 +21,7 @@ export default async function Page(props: PageProps) {
       <EventsCreateForm
         authorId={user?.user?.id}
         institutionId={institutionId!}
-        urlReturn={APP_URL.DASHBOARD.INSTITUTION.EVENTS(institutionId!)}
+        urlReturn={APP_URL.ORGANIZATION.INSTITUTION.EVENTS(institutionId!)}
         categories={categories || []}
       />
     </>

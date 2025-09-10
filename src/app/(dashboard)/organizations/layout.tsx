@@ -2,6 +2,7 @@ import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
+import { menuOrganization } from '../dashboard/const'
 
 interface IProps {
   children: React.ReactNode
@@ -46,6 +47,7 @@ export default async function Layout(props: IProps) {
       userName={profileData?.first_name || 'Usuario'}
       email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
+      menuItems={menuOrganization}
       isInstitutional={hasInstitution}
     >
       {children}
