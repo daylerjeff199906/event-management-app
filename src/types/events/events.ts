@@ -30,4 +30,5 @@ export interface EventFilterByInstitution extends Pagination {
 export interface EventsFilters extends Pagination {
   user_id?: string | null
   status?: EventStatus | null
+  exclude_status?: EventStatus | null
 }

@@ -16,7 +16,7 @@ export default async function Page(props: PageProps) {
 
   const response = await fetchEventsByInstitution({
     institution_id: id_institution,
-    page: searchParams.pageSize ? Number(searchParams.pageSize) : 10,
+    // page: searchParams.pageSize ? Number(searchParams.pageSize) : 10,
     searchQuery: searchParams.searchQuery
       ? searchParams.searchQuery.toString()
       : undefined

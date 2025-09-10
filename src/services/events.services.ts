@@ -75,7 +75,13 @@ export async function fetchEventList(filter: EventsFilters): Promise<{
   error: Error | null
 }> {
   const supabase = await getSupabase()
-  const { page = 1, pageSize = 10, searchQuery = '', status } = filter
+  const {
+    page = 1,
+    pageSize = 10,
+    searchQuery,
+    status,
+    exclude_status
+  } = filter
 
   try {
     const from = (page - 1) * pageSize
@@ -97,6 +103,11 @@ export async function fetchEventList(filter: EventsFilters): Promise<{
     // Apply status filter if provided
     if (status) {
       query = query.eq('status', status)
+    }
+
+    // Apply exclude_status filter if provided
+    if (exclude_status) {
+      query = query.neq('status', exclude_status)
     }
 
     const { data, error, count } = await query
