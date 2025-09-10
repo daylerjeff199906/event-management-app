@@ -1,15 +1,12 @@
 import { Button } from '@/components/ui/button'
 import { Category } from '@/types'
 
-const filters = ['Para ti']
-
 interface QuickFiltersProps {
   categories: Category[]
 }
 
 export function QuickFilters({ categories }: QuickFiltersProps) {
-  const categoryNames = categories.map((category) => category.name)
-  filters.push(...categoryNames)
+  const filters = ['Para ti', ...categories.map((category) => category.name)]
 
   return (
     <div className="mb-8">
