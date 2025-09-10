@@ -91,12 +91,9 @@ export default function UserEventsPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-balance">Mis Eventos</h1>
-          <p className="text-muted-foreground mt-2">
-            Gestiona y visualiza todos tus eventos creados
-          </p>
-        </div>
+        <h1 className="text-2xl text-foreground">
+          ¿Qué evento quieres descubrir hoy?
+        </h1>
       </div>
 
       {/* Events List */}

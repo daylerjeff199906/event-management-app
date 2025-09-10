@@ -32,9 +32,9 @@ export const HeroPage = () => {
       </div>
 
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl text-foreground">
+        <h3 className="text-2xl text-foreground">
           ¿Qué evento quieres descubrir hoy?
-        </h1>
+        </h3>
         <Button variant="outline" className="px-6 bg-transparent">
           Cómo buscar eventos
         </Button>
