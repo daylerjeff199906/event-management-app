@@ -14,14 +14,10 @@ export default async function Page(props: PageProps) {
     eventId?.toString() || ''
   )
 
-  if (eventsDeatails?.data === null || !eventsDeatails) {
-    return <div>Error loading event data.</div>
-  }
-
   return (
     <div>
       <EventDetailsEditForm
-        initialData={eventsDeatails?.data}
+        initialData={eventsDeatails?.data || undefined}
         eventId={eventId?.toString() || ''}
       />
     </div>

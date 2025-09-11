@@ -54,7 +54,7 @@ export function EventManageLayout({
       return activeItem === itemId
     }
 
-    return pathname.includes(itemId)
+    return pathname === itemId
   }
 
   return (
