@@ -34,6 +34,9 @@ import {
   eventDetailsSchema,
   type EventDetailsFormData
 } from '../schemas/events-details-schema'
+import { upsertInstitutionDetails } from '@/services/events.info.services'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 // Configuración de secciones
 const sections = [
@@ -83,13 +86,11 @@ const sections = [
 interface EventDetailsEditFormProps {
   eventId: string
   initialData?: Partial<EventDetailsFormData>
-  onSubmit?: (data: EventDetailsFormData) => Promise<void>
 }
 
 export const EventDetailsEditForm = ({
   eventId,
-  initialData,
-  onSubmit
+  initialData
 }: EventDetailsEditFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -108,10 +109,28 @@ export const EventDetailsEditForm = ({
   const handleSubmit = async (data: EventDetailsFormData) => {
     setIsSubmitting(true)
     try {
-      if (onSubmit) {
-        await onSubmit(data)
+      const response = await upsertInstitutionDetails({
+        eventId: eventId,
+        details: data
+      })
+
+      if (response.error) {
+        toast.error(
+          <ToastCustom
+            title="Error"
+            variant="destructive"
+            description={response.error}
+          />
+        )
+      } else {
+        toast.success(
+          <ToastCustom
+            title="Éxito"
+            description="Detalles del evento guardados correctamente"
+          />
+        )
+        form.reset(data) // Resetea el formulario con los datos actuales
       }
-      console.log('Datos del formulario:', data)
     } catch (error) {
       console.error('Error al guardar:', error)
     } finally {
@@ -167,7 +186,10 @@ export const EventDetailsEditForm = ({
         </CardHeader>
         <CardContent className="space-y-4">
           {fields.map((field, index) => (
-            <div key={field.key} className="flex gap-2 items-start">
+            <div
+              key={`${field.id}-${index}`}
+              className="flex gap-2 items-start"
+            >
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormField
                   control={form.control}
