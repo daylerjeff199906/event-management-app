@@ -1,4 +1,5 @@
 import { EventsEditForm } from '@/modules/events'
+import { fetchCategories } from '@/services/categories.services'
 import { fetchEventById } from '@/services/events.services'
 import { Params } from '@/types'
 
@@ -9,16 +10,23 @@ interface PageProps {
 export default async function Page(props: PageProps) {
   const params = await props.params
   const eventId = await params.event
+  const institutionId = params?.slug?.toString()
+
+  const categories = await fetchCategories()
 
   const response = await fetchEventById(eventId?.toString() || '')
-  console.log('Event data:', response.data)
+
   if (response.error || !response.data) {
     return <div>Error loading event data.</div>
   }
 
   return (
     <div>
-      <EventsEditForm eventData={response.data} />
+      <EventsEditForm
+        institutionId={institutionId!}
+        categories={categories}
+        eventData={response.data}
+      />
     </div>
   )
 }

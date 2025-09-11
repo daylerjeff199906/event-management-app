@@ -26,21 +26,20 @@ export const APP_URL = {
   ORGANIZATION: {
     BASE: '/organizations',
     INSTITUTION: {
-      BASE: '/organizations/institutions',
-      DETAIL: (id: string) => `/organizations/institutions/${id}`,
-      CONFIG: (id: string) => `/organizations/institutions/${id}/config`,
-      CREATE_EVENT: (id: string) =>
-        `/organizations/institutions/${id}/create-event`,
+      BASE: '/organizations',
+      DETAIL: (id: string) => `/organizations/${id}`,
+      CONFIG: (id: string) => `/organizations/${id}/config`,
+      CREATE_EVENT: (id: string) => `/organizations/${id}/create-event`,
       EDIT_EVENT: (id: string, eventId: string) =>
-        `/organizations/institutions/${id}/events/${eventId}`,
+        `/organizations/${id}/events/${eventId}`,
       ADD_SCHEDULE: (id: string, eventId: string) =>
-        `/organizations/institutions/${id}/events/${eventId}/schedule`,
+        `/organizations/${id}/events/${eventId}/schedule`,
       ADD_TICKET: (id: string, eventId: string) =>
-        `/organizations/institutions/${id}/events/${eventId}/ticket`,
+        `/organizations/${id}/events/${eventId}/ticket`,
       EVENT_INFO: (id: string, eventId: string) =>
-        `/organizations/institutions/${id}/events/${eventId}/info`,
+        `/organizations/${id}/events/${eventId}/info`,
 
-      EVENTS: (id: string) => `/organizations/institutions/${id}/events`
+      EVENTS: (id: string) => `/organizations/${id}/events`
     }
   }
 }

@@ -52,7 +52,6 @@ import { Category, Event, EventStatus } from '@/types'
 import { updateEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
-import { useRouter } from 'next/navigation'
 
 const locationTypes = [
   {
@@ -87,14 +86,12 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const { institutionId, urlReturn, authorId, categories, eventData } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const router = useRouter()
-
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       event_name: eventData?.event_name || '',
       description: eventData?.description || '',
-      author_id: eventData?.author_id || authorId || '',
+      author_id: String(eventData?.author_id),
       start_date: eventData?.start_date
         ? new Date(eventData.start_date)
         : undefined,
@@ -106,6 +103,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       status: eventData?.status || EventStatus.DRAFT
     }
   })
+
+  const isDirty = form.formState.isDirty
 
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true)
@@ -134,7 +133,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         )
         form.reset()
         if (urlReturn) {
-          router.push(urlReturn)
+          window.location.href = urlReturn
+        } else {
+          window.location.reload()
         }
       }
     } catch (error) {
@@ -564,8 +565,12 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             >
               Cancelar
             </Button>
-            <Button type="submit" className="flex-1" disabled={isSubmitting}>
-              {isSubmitting ? 'Creando...' : 'Crear Evento'}{' '}
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={isSubmitting || !isDirty}
+            >
+              {isSubmitting ? 'Editando...' : 'Editar evento'}
               {isSubmitting && <Loader className="ml-2 h-4 w-4 animate-spin" />}
             </Button>
           </div>
