@@ -32,7 +32,10 @@ export default async function Page(props: PageProps) {
           Ver todos los eventos
         </Link>
       </div>
-      <InstitutionEventsPage eventsList={response.data?.data || []} />
+      <InstitutionEventsPage
+        institutionId={id_institution}
+        eventsList={response.data?.data || []}
+      />
     </div>
   )
 }
