@@ -474,7 +474,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="relative">
+                        <div className="flex flex-col gap-2">
                           <SearchLocation
                             className="w-full"
                             onSelect={(address, lat, lon) => {
@@ -483,6 +483,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               form.setValue('lon', lon)
                             }}
                           />
+                          <p className="text-sm text-muted-foreground">
+                            Dirección seleccionada: {form.getValues('location')}
+                          </p>
                         </div>
                       </FormControl>
                       <FormMessage />
