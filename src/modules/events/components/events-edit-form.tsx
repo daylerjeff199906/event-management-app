@@ -8,7 +8,8 @@ import {
   MapPinIcon,
   GlobeIcon,
   ClockIcon,
-  Loader
+  Loader,
+  Pin
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -471,31 +472,54 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
 
               {selectedLocationType === 'venue' && (
                 <>
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="flex flex-col gap-2 relative">
-                            <SearchLocation
-                              className="w-full"
-                              onSelect={(address, lat, lon) => {
-                                field.onChange(address)
-                                form.setValue('lat', lat)
-                                form.setValue('lon', lon)
-                              }}
-                            />
-                            <p className="text-sm text-muted-foreground">
-                              Dirección seleccionada:{' '}
-                              {form.getValues('location')}
-                            </p>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600"
+                    onClick={() =>
+                      setShowMoreLocationOptions(!showMoreLocationOptions)
+                    }
+                  >
+                    {showMoreLocationOptions ? (
+                      <>
+                        <Pin />
+                        Buscar localidad
+                      </>
+                    ) : (
+                      <>
+                        <MapPinIcon className="h-4 w-4 mr-1" />
+                        Add location details
+                      </>
                     )}
-                  />
+                  </Button>
+                  {!showMoreLocationOptions && (
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="flex flex-col gap-2 relative">
+                              <SearchLocation
+                                className="w-full"
+                                onSelect={(address, lat, lon) => {
+                                  field.onChange(address)
+                                  form.setValue('lat', lat)
+                                  form.setValue('lon', lon)
+                                }}
+                              />
+                              <p className="text-sm text-muted-foreground">
+                                Dirección seleccionada:{' '}
+                                {form.getValues('location')}
+                              </p>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </>
               )}
 
@@ -525,37 +549,28 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
 
               {selectedLocationType === 'venue' && (
                 <div className="space-y-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-600"
-                    onClick={() =>
-                      setShowMoreLocationOptions(!showMoreLocationOptions)
-                    }
-                  >
-                    <MapPinIcon className="h-4 w-4 mr-1" />
-                    Add location details
-                  </Button>
-
-                  {/* Placeholder para el mapa */}
-                  {form.watch('lat') && form.watch('lon') ? (
-                    <iframe
-                      title="Ubicación en el mapa"
-                      src={`https://maps.google.com/maps?q=${form.watch(
-                        'lat'
-                      )},${form.watch('lon')}&z=15&output=embed`}
-                      className="w-full h-48 rounded-lg border"
-                      allowFullScreen
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
-                        <p>Map will appear here</p>
-                      </div>
-                    </div>
+                  {!showMoreLocationOptions && (
+                    <>
+                      {/* Placeholder para el mapa */}
+                      {form.watch('lat') && form.watch('lon') ? (
+                        <iframe
+                          title="Ubicación en el mapa"
+                          src={`https://maps.google.com/maps?q=${form.watch(
+                            'lat'
+                          )},${form.watch('lon')}&z=15&output=embed`}
+                          className="w-full h-48 rounded-lg border"
+                          allowFullScreen
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
+                          <div className="text-center text-muted-foreground">
+                            <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
+                            <p>Map will appear here</p>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {showMoreLocationOptions && <AddressForm />}
