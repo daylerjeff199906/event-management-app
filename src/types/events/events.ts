@@ -24,6 +24,7 @@ export interface Event {
   location_type?: 'venue' | 'online' | 'tba' | null
   lon: number | null
   lat: number | null
+  link_meeting?: string | null
 }
 
 export interface Coordinates {

@@ -18,9 +18,9 @@ export const eventSchema = z
       .optional(),
     category: z.number().optional(),
     institution_id: z.string().uuid().optional(),
+    link_meeting: z.string().url().optional(),
     user_id: z.string().uuid().optional(),
     author_id: z.string().uuid().optional(),
-    coodinates: z.string().optional(),
     lat: z.number().nullable().optional(),
     lon: z.number().nullable().optional()
   })

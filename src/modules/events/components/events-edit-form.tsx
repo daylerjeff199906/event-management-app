@@ -24,6 +24,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -101,7 +102,10 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       location_type: eventData?.location_type || 'venue',
       cover_image_url: eventData?.cover_image_url || '',
       category: eventData?.category || undefined,
-      status: eventData?.status || EventStatus.DRAFT
+      status: eventData?.status || EventStatus.DRAFT,
+      lat: eventData?.lat || null,
+      lon: eventData?.lon || null,
+      link_meeting: eventData?.link_meeting || ''
     }
   })
 
@@ -471,11 +475,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          {/* <Input
-                            placeholder="Location *"
-                            className="pl-10"
-                            {...field}
-                          /> */}
                           <SearchLocation
                             className="w-full"
                             onSelect={(address, lat, lon) => {
@@ -495,16 +494,22 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               {selectedLocationType === 'online' && (
                 <FormField
                   control={form.control}
-                  name="location"
+                  name="link_meeting"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <Input
-                          placeholder="Meeting link or platform details"
+                          placeholder="Solo si el evento tiene link de acceso en línea"
                           {...field}
                         />
                       </FormControl>
                       <FormMessage />
+                      <FormDescription className="mt-1">
+                        Si el evento es en línea tendrá más de un enlace de
+                        acceso (Zoom, Google Meet, YouTube, etc.), despues
+                        podrás agregar los enlaces en la descripción del evento
+                        (Más Información).
+                      </FormDescription>
                     </FormItem>
                   )}
                 />
@@ -523,12 +528,24 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   </Button>
 
                   {/* Placeholder para el mapa */}
-                  <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
-                      <p>Map will appear here</p>
+                  {form.watch('lat') && form.watch('lon') ? (
+                    <iframe
+                      title="Ubicación en el mapa"
+                      src={`https://maps.google.com/maps?q=${form.watch(
+                        'lat'
+                      )},${form.watch('lon')}&z=15&output=embed`}
+                      className="w-full h-48 rounded-lg border"
+                      allowFullScreen
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
+                      <div className="text-center text-muted-foreground">
+                        <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
+                        <p>Map will appear here</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </CardContent>
