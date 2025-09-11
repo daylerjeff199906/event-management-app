@@ -56,19 +56,19 @@ import ImageUpload from './image-upload'
 const locationTypes = [
   {
     value: 'venue',
-    label: 'Venue',
+    label: 'Presencial',
     icon: MapPinIcon,
     description: 'Evento presencial en una ubicación específica'
   },
   {
     value: 'online',
-    label: 'Online event',
+    label: 'En línea',
     icon: GlobeIcon,
     description: 'Evento virtual o en línea'
   },
   {
     value: 'tba',
-    label: 'To be announced',
+    label: 'Por anunciar',
     icon: ClockIcon,
     description: 'Ubicación por anunciar'
   }
