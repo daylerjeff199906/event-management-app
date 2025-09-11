@@ -247,7 +247,7 @@ export default function ImageUpload({
             ) : (
               <div className="space-y-4">
                 <div className="relative flex justify-center">
-                  <Cropper className="h-64 w-full" image={selectedImage}>
+                  <Cropper className="h-64 w-96" image={selectedImage}>
                     <CropperImage />
                     <CropperCropArea />
                   </Cropper>
