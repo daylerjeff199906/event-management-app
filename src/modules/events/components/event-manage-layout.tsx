@@ -4,16 +4,18 @@ import type React from 'react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Menu, X, ChevronLeft } from 'lucide-react'
+import { X, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface MenuItem {
   id: string
   label: string
   description?: string
   icon?: React.ReactNode
-  completed?: boolean
+  disabled?: boolean
   onClick?: () => void
+  href?: string
 }
 
 interface EventManageLayoutProps {
@@ -29,13 +31,13 @@ interface EventManageLayoutProps {
 export function EventManageLayout({
   children,
   menuItems,
-  title = 'Event Management',
   activeItem,
   onItemClick,
   urlBack,
   backLabel = 'Volver'
 }: EventManageLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const pathname = usePathname()
 
   const handleItemClick = (item: MenuItem) => {
     if (item.onClick) {
@@ -47,8 +49,16 @@ export function EventManageLayout({
     setSidebarOpen(false)
   }
 
+  const isActiveItem = (itemId: string) => {
+    if (activeItem) {
+      return activeItem === itemId
+    }
+
+    return pathname.includes(itemId)
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Overlay para móvil */}
       {sidebarOpen && (
         <div
@@ -80,28 +90,31 @@ export function EventManageLayout({
             )}
 
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-4">Steps</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-4">
+                Opciones
+              </h3>
               <div className="space-y-4">
-                {menuItems.map((item, index) => {
-                  const isActive = activeItem === item.id
-                  const isCompleted = item.completed
+                {menuItems.map((item) => {
+                  const isActive = isActiveItem(item.id)
+                  const isCompleted = !item.disabled
 
                   return (
-                    <button
+                    <Link
                       key={item.id}
                       onClick={() => handleItemClick(item)}
-                      className="w-full text-left group"
+                      className="w-full text-left group p-2 hover:cursor-pointer"
+                      href={item.href || '#'}
                     >
                       <div className="flex items-start gap-3">
                         <div
                           className={cn(
                             'w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0',
-                            isActive || isCompleted
+                            isActive
                               ? 'bg-blue-600 border-blue-600'
                               : 'border-gray-300 bg-white'
                           )}
                         >
-                          {(isActive || isCompleted) && (
+                          {isActive && (
                             <div className="w-2 h-2 bg-white rounded-full" />
                           )}
                         </div>
@@ -125,7 +138,7 @@ export function EventManageLayout({
                           )}
                         </div>
                       </div>
-                    </button>
+                    </Link>
                   )
                 })}
               </div>
@@ -146,21 +159,7 @@ export function EventManageLayout({
       </aside>
 
       {/* Contenido principal */}
-      <div className="lg:ml-80">
-        <header className="sticky top-0 z-30 flex items-center gap-4 bg-white/95 backdrop-blur border-b border-gray-200 px-4 py-3 lg:hidden">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-          <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
-        </header>
-
-        {/* Contenido */}
-        <main className="p-4 lg:p-6">{children}</main>
-      </div>
+      <main className="p-4 lg:p-6">{children}</main>
     </div>
   )
 }
