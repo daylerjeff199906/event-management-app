@@ -110,7 +110,7 @@ export function EventManageLayout({
                           className={cn(
                             'w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0',
                             isActive
-                              ? 'bg-blue-600 border-blue-600'
+                              ? 'bg-primary border-primary'
                               : 'border-gray-300 bg-white'
                           )}
                         >
