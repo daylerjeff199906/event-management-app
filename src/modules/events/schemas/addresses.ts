@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 // Addresses schema based on the provided SQL table
-export const addressSchema = z.object({
+export const addressSchemaForm = z.object({
   created_at: z.string(), // ISO timestamp
   address_line1: z.string().nullable(),
   address_line2: z.string().nullable(),
@@ -13,4 +13,4 @@ export const addressSchema = z.object({
   longitude: z.string().nullable()
 })
 
-export type Address = z.infer<typeof addressSchema>
+export type Address = z.infer<typeof addressSchemaForm>

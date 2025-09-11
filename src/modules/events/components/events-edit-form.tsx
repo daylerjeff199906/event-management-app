@@ -54,6 +54,7 @@ import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
 import SearchLocation from '@/components/app/miscellaneous/search-location'
+import { AddressForm } from './address-form'
 
 const locationTypes = [
   {
@@ -469,30 +470,33 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               />
 
               {selectedLocationType === 'venue' && (
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="flex flex-col gap-2 relative">
-                          <SearchLocation
-                            className="w-full"
-                            onSelect={(address, lat, lon) => {
-                              field.onChange(address)
-                              form.setValue('lat', lat)
-                              form.setValue('lon', lon)
-                            }}
-                          />
-                          <p className="text-sm text-muted-foreground">
-                            Dirección seleccionada: {form.getValues('location')}
-                          </p>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <>
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex flex-col gap-2 relative">
+                            <SearchLocation
+                              className="w-full"
+                              onSelect={(address, lat, lon) => {
+                                field.onChange(address)
+                                form.setValue('lat', lat)
+                                form.setValue('lon', lon)
+                              }}
+                            />
+                            <p className="text-sm text-muted-foreground">
+                              Dirección seleccionada:{' '}
+                              {form.getValues('location')}
+                            </p>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
               )}
 
               {selectedLocationType === 'online' && (
@@ -526,6 +530,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                     variant="ghost"
                     size="sm"
                     className="text-blue-600"
+                    onClick={() =>
+                      setShowMoreLocationOptions(!showMoreLocationOptions)
+                    }
                   >
                     <MapPinIcon className="h-4 w-4 mr-1" />
                     Add location details
@@ -550,6 +557,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                       </div>
                     </div>
                   )}
+
+                  {showMoreLocationOptions && <AddressForm />}
                 </div>
               )}
             </CardContent>

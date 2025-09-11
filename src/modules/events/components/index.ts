@@ -4,6 +4,7 @@ import { EventsCreateForm } from './events-create-form'
 import { EventManageLayout } from './event-manage-layout'
 import { EventsEditForm } from './events-edit-form'
 import { EventDetailsEditForm } from './events-details-edit-form'
+import { AddressForm } from './address-form'
 
 export {
   EventCard,
@@ -11,5 +12,6 @@ export {
   EventsCreateForm,
   EventManageLayout,
   EventsEditForm,
-  EventDetailsEditForm
+  EventDetailsEditForm,
+  AddressForm
 }
