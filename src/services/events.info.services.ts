@@ -1,4 +1,5 @@
 'use server'
+import { revalidatePath } from 'next/cache'
 import { getSupabase } from './core.supabase'
 import { EventDetails } from '@/types'
 
@@ -104,6 +105,7 @@ export async function upsertInstitutionDetails({
         .insert([{ ...details, event_id: eventId }])
         .select('*')
         .single()
+      revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/info')
       return {
         data: data as EventDetails | null,
         error: error ? error.message : ''
@@ -116,6 +118,8 @@ export async function upsertInstitutionDetails({
         .eq('event_id', eventId)
         .select('*')
         .single()
+
+      revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/info')
       return {
         data: data as EventDetails | null,
         error: error ? error.message : ''
