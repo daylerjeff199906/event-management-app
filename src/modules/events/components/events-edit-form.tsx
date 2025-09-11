@@ -87,6 +87,7 @@ interface EventsCreateFormProps {
 export const EventsEditForm = (props: EventsCreateFormProps) => {
   const { institutionId, urlReturn, authorId, categories, eventData } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showMoreLocationOptions, setShowMoreLocationOptions] = useState(false)
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),

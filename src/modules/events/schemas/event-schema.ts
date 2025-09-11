@@ -22,7 +22,8 @@ export const eventSchema = z
     user_id: z.string().uuid().optional(),
     author_id: z.string().uuid().optional(),
     lat: z.number().nullable().optional(),
-    lon: z.number().nullable().optional()
+    lon: z.number().nullable().optional(),
+    adress_uuid: z.string().uuid().optional()
   })
   .refine(
     (data) => {
