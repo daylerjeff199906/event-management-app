@@ -12,8 +12,11 @@ export const eventDetailsSchema = z.object({
   media: z.array(keyValueSchema).optional(),
   sponsors: z.array(keyValueSchema).optional(),
   faqs: z.array(keyValueSchema).optional(),
-  content: z.array(keyValueSchema).optional(),
   event_id: z.string().uuid('ID de evento inválido')
+})
+
+export const detailsContentSchema = eventDetailsSchema.extend({
+  content: z.string().min(1, 'El contenido es requerido')
 })
 
 export type EventDetailsFormData = z.infer<typeof eventDetailsSchema>

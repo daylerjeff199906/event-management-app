@@ -10,7 +10,6 @@ import {
   ImageIcon,
   UsersIcon,
   HelpCircleIcon,
-  FileTextIcon,
   Loader
 } from 'lucide-react'
 
@@ -72,14 +71,6 @@ const sections = [
     icon: HelpCircleIcon,
     keyPlaceholder: 'Pregunta',
     valuePlaceholder: 'Respuesta'
-  },
-  {
-    name: 'content' as const,
-    title: 'Contenido Adicional',
-    description: 'Información extra, agenda, requisitos, etc.',
-    icon: FileTextIcon,
-    keyPlaceholder: 'Título del contenido',
-    valuePlaceholder: 'Descripción o detalles'
   }
 ]
 
@@ -101,8 +92,7 @@ export const EventDetailsEditForm = ({
       social_links: initialData?.social_links || [],
       media: initialData?.media || [],
       sponsors: initialData?.sponsors || [],
-      faqs: initialData?.faqs || [],
-      content: initialData?.content || []
+      faqs: initialData?.faqs || []
     }
   })
 
@@ -141,7 +131,7 @@ export const EventDetailsEditForm = ({
   // Componente para manejar arrays de key-value
   type SectionName = keyof Pick<
     EventDetailsFormData,
-    'social_links' | 'media' | 'sponsors' | 'faqs' | 'content'
+    'social_links' | 'media' | 'sponsors' | 'faqs'
   >
 
   interface KeyValueSectionProps {

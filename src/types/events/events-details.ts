@@ -9,6 +9,6 @@ export interface EventDetails {
   media?: Array<KeyValue>
   sponsors?: Array<KeyValue>
   faqs?: Array<KeyValue>
-  content?: Array<KeyValue>
+  content?: string
   event_id: string
 }

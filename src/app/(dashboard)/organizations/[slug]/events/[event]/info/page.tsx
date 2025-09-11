@@ -14,8 +14,6 @@ export default async function Page(props: PageProps) {
     eventId?.toString() || ''
   )
 
-  console.log('eventsDeatails', eventsDeatails)
-
   return (
     <div>
       <EventDetailsEditForm
