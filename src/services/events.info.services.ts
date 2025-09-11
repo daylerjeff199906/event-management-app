@@ -10,7 +10,7 @@ export async function getEventDetailsByIdEvent(
     const { data, error } = await supabase
       .from('events_details')
       .select('*')
-      .eq('id', eventId)
+      .eq('event_id', eventId)
       .single()
 
     return {
