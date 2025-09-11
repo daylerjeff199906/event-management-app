@@ -1,6 +1,6 @@
 export interface Address {
-  id: string
-  created_at: string
+  id?: string
+  created_at?: string
   address_line1?: string | null
   address_line2?: string | null
   city?: string | null

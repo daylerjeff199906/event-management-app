@@ -25,6 +25,7 @@ export interface Event {
   lon: number | null
   lat: number | null
   link_meeting?: string | null
+  adress_uuid?: string | null
 }
 
 export interface Coordinates {

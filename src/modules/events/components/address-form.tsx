@@ -9,14 +9,17 @@ import { cn } from '@/lib/utils'
 interface AddressFormProps {
   defaultValues?: Partial<Address>
   className?: string
+  onChange?: (address: Address) => void
+  onChangeEdit?: (value: boolean) => void
 }
 
 export function AddressForm({
   defaultValues = {},
-  className
+  className,
+  onChange,
+  onChangeEdit
 }: AddressFormProps) {
   const [address, setAddress] = useState<Address>({
-    created_at: new Date().toISOString(),
     address_line1: '',
     address_line2: '',
     city: '',
@@ -30,10 +33,15 @@ export function AddressForm({
 
   const handleChange =
     (field: keyof Address) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setAddress((prev) => ({
-        ...prev,
+      const newAddress = {
+        ...address,
         [field]: e.target.value
-      }))
+      }
+      setAddress(newAddress)
+      if (onChange) {
+        onChange(newAddress)
+        if (onChangeEdit) onChangeEdit(true)
+      }
     }
 
   return (

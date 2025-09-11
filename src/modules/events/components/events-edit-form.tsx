@@ -49,8 +49,9 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { eventSchema, type EventFormData } from '@/modules/events/schemas'
-import { Category, Event, EventStatus } from '@/types'
+import { Address, Category, Event, EventStatus } from '@/types'
 import { updateEvent, updateEventField } from '@/services/events.services'
+import { upsertAddress } from '@/services/address.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
@@ -84,12 +85,24 @@ interface EventsCreateFormProps {
   urlReturn?: string
   categories?: Category[]
   eventData: Event
+  eventAddress?: Address | null
 }
 
 export const EventsEditForm = (props: EventsCreateFormProps) => {
-  const { institutionId, urlReturn, authorId, categories, eventData } = props
+  const {
+    institutionId,
+    urlReturn,
+    authorId,
+    categories,
+    eventData,
+    eventAddress
+  } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showMoreLocationOptions, setShowMoreLocationOptions] = useState(true)
+  const [addressSaved, setAddressSaved] = useState<Address | null>(
+    eventAddress || null
+  )
+  const [addressEditMode, setAddressEditMode] = useState(false)
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -116,12 +129,36 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
 
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true)
+    let uuidAdreess = eventData?.adress_uuid || null
+
     try {
+      if (data.location_type === 'venue' && addressEditMode) {
+        // Si la dirección está en modo edición, guardarla primero
+        const { data: addressData } = await upsertAddress(
+          eventData?.adress_uuid || null,
+          {
+            address_line1: addressSaved?.address_line1 || '',
+            address_line2: addressSaved?.address_line2 || '',
+            city: addressSaved?.city || '',
+            state: addressSaved?.state || '',
+            postal_code: addressSaved?.postal_code || '',
+            country: addressSaved?.country || '',
+            latitude: addressSaved?.latitude || null,
+            longitude: addressSaved?.longitude || null
+          }
+        )
+
+        if (addressData) {
+          uuidAdreess = addressData.id?.toString() || null
+        }
+      }
+
       // Enviar datos al servicio de creación de eventos
       const response = await updateEvent(eventData.id, {
         ...data,
         institution_id: institutionId,
-        author_id: authorId
+        author_id: authorId,
+        adress_uuid: uuidAdreess?.toString()
       })
 
       if (response.error) {
@@ -573,7 +610,12 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                     </>
                   )}
 
-                  {showMoreLocationOptions && <AddressForm />}
+                  {showMoreLocationOptions && (
+                    <AddressForm
+                      onChange={setAddressSaved}
+                      onChangeEdit={setAddressEditMode}
+                    />
+                  )}
                 </div>
               )}
             </CardContent>

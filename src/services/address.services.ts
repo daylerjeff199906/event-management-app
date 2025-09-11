@@ -25,7 +25,7 @@ export async function createAddress(
 }
 
 export async function updateAddress(
-  id: number,
+  id: string,
   address: Partial<Address>
 ): Promise<{ data: Address | null; error: Error | null }> {
   try {
@@ -48,7 +48,7 @@ export async function updateAddress(
 }
 
 export async function getAddressById(
-  id: number
+  id: string
 ): Promise<{ data: Address | null; error: Error | null }> {
   try {
     const supabase = await getSupabase()
@@ -65,12 +65,11 @@ export async function getAddressById(
 }
 
 export async function upsertAddress(
-  id: number,
+  id: string | null,
   address: Address
 ): Promise<{ data: Address | null; error: Error | null }> {
   try {
-    const existing = await getAddressById(id)
-    if (existing.data) {
+    if (id) {
       return await updateAddress(id, address)
     } else {
       return await createAddress(address)

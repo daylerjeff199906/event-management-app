@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // Addresses schema based on the provided SQL table
 export const addressSchemaForm = z.object({
-  created_at: z.string(), // ISO timestamp
+  created_at: z.string().optional(),
   address_line1: z.string().nullable(),
   address_line2: z.string().nullable(),
   city: z.string().nullable(),
