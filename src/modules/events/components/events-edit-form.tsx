@@ -613,7 +613,13 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   {showMoreLocationOptions && (
                     <AddressForm
                       onChange={setAddressSaved}
-                      onChangeEdit={setAddressEditMode}
+                      onChangeEdit={() => {
+                        setAddressEditMode(true)
+                        form.setValue(
+                          'location',
+                          addressSaved?.address_line1 || ''
+                        )
+                      }}
                     />
                   )}
                 </div>
