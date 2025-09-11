@@ -217,3 +217,34 @@ export async function updateEvent(
     return { data: null, error: err as Error }
   }
 }
+
+export async function updateEventField({
+  eventId,
+  fieldName,
+  fieldValue
+}: {
+  eventId: string
+  fieldName: keyof Event
+  fieldValue: string | number | boolean | null
+}): Promise<{
+  data: Event | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .update({ [fieldName]: fieldValue })
+      .eq('id', eventId)
+      .select()
+      .single()
+    if (error) {
+      console.error('Error updating event field:', error)
+      return { data: null, error }
+    }
+    return { data: data as Event, error: null }
+  } catch (err) {
+    console.error('Unexpected error updating event field:', err)
+    return { data: null, error: err as Error }
+  }
+}

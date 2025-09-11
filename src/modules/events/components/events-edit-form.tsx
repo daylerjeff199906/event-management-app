@@ -24,7 +24,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -49,9 +48,10 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { eventSchema, type EventFormData } from '@/modules/events/schemas'
 import { Category, Event, EventStatus } from '@/types'
-import { updateEvent } from '@/services/events.services'
+import { updateEvent, updateEventField } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
+import ImageUpload from './image-upload'
 
 const locationTypes = [
   {
@@ -120,7 +120,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         toast.error(
           <ToastCustom
             title="Error"
-            description={`No se pudo crear el evento: ${response.error.message}`}
+            description={`No se pudo editar el evento: ${response.error.message}`}
             variant="destructive"
           />
         )
@@ -128,7 +128,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         toast.success(
           <ToastCustom
             title="Éxito"
-            description="El evento ha sido creado exitosamente."
+            description="El evento ha sido editado correctamente."
           />
         )
         form.reset()
@@ -139,16 +139,52 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         }
       }
     } catch (error) {
-      console.error('Error al crear evento:', error)
+      console.error('Error al editar evento:', error)
       toast.error(
         <ToastCustom
           title="Error"
-          description="Ocurrió un error inesperado al crear el evento."
+          description="Ocurrió un error inesperado al editar el evento."
           variant="destructive"
         />
       )
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const onImageChange = async (imageUrl: string) => {
+    form.setValue('cover_image_url', imageUrl, { shouldDirty: true })
+    try {
+      const response = await updateEventField({
+        eventId: eventData.id,
+        fieldName: 'cover_image_url',
+        fieldValue: imageUrl
+      })
+
+      if (response.error) {
+        toast.error(
+          <ToastCustom
+            title="Error"
+            description={`No se pudo actualizar la imagen del evento: ${response.error.message}`}
+            variant="destructive"
+          />
+        )
+      } else {
+        toast.success(
+          <ToastCustom
+            title="Éxito"
+            description="La imagen del evento ha sido actualizada correctamente."
+          />
+        )
+      }
+    } catch {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description="Ocurrió un error inesperado al actualizar la imagen del evento."
+          variant="destructive"
+        />
+      )
     }
   }
 
@@ -177,24 +213,10 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <FormField
-                control={form.control}
-                name="cover_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="https://example.com/image.jpg"
-                        type="url"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Debe ser una URL válida que termine en .jpg, .png, etc.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <ImageUpload
+                showExamples={false}
+                urlImage={form.getValues('cover_image_url')}
+                onImageChange={onImageChange}
               />
             </CardContent>
           </Card>
