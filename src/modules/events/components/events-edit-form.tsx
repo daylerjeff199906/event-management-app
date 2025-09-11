@@ -474,7 +474,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 relative">
                           <SearchLocation
                             className="w-full"
                             onSelect={(address, lat, lon) => {
