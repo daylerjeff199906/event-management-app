@@ -52,6 +52,7 @@ import { updateEvent, updateEventField } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
+import SearchLocation from '@/components/app/miscellaneous/search-location'
 
 const locationTypes = [
   {
@@ -470,11 +471,18 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                     <FormItem>
                       <FormControl>
                         <div className="relative">
-                          <MapPinIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input
+                          {/* <Input
                             placeholder="Location *"
                             className="pl-10"
                             {...field}
+                          /> */}
+                          <SearchLocation
+                            className="w-full"
+                            onSelect={(address, lat, lon) => {
+                              field.onChange(address)
+                              form.setValue('lat', lat)
+                              form.setValue('lon', lon)
+                            }}
                           />
                         </div>
                       </FormControl>
@@ -504,7 +512,12 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
 
               {selectedLocationType === 'venue' && (
                 <div className="space-y-2">
-                  <Button variant="ghost" size="sm" className="text-blue-600">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600"
+                  >
                     <MapPinIcon className="h-4 w-4 mr-1" />
                     Add location details
                   </Button>

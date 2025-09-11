@@ -12,7 +12,6 @@ export interface Event {
   description?: string | null
   start_date: string // ISO 8601 format
   end_date?: string | null // ISO 8601 format
-  location?: string | null
   created_at?: string | null // ISO 8601 format
   updated_at?: string | null // ISO 8601 format
   institution_id?: string | null
@@ -21,7 +20,15 @@ export interface Event {
   status?: EventStatus
   category?: number | null
   author_id?: string | null
+  location?: string | null
   location_type?: 'venue' | 'online' | 'tba' | null
+  lon: number | null
+  lat: number | null
+}
+
+export interface Coordinates {
+  lat: number
+  lon: number
 }
 
 export interface EventFilterByInstitution extends Pagination {
