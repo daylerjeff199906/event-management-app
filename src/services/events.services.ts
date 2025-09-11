@@ -86,6 +86,28 @@ export async function fetchEventsByInstitution(
   }
 }
 
+export async function fetchEventById(eventId: string): Promise<{
+  data: Event | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', eventId)
+      .single()
+    if (error) {
+      console.error('Error fetching event by ID:', error)
+      return { data: null, error }
+    }
+    return { data: data as Event, error: null }
+  } catch (err) {
+    console.error('Unexpected error fetching event by ID:', err)
+    return { data: null, error: err as Error }
+  }
+}
+
 export async function fetchEventList(filter: EventsFilters): Promise<{
   data: ResponsePagination<Event> | null
   error: Error | null
@@ -166,6 +188,32 @@ export async function createEvent(eventData: EventFormData): Promise<{
     return { data: data as Event, error: null }
   } catch (err) {
     console.error('Unexpected error creating event:', err)
+    return { data: null, error: err as Error }
+  }
+}
+
+export async function updateEvent(
+  eventId: string,
+  eventData: EventFormData
+): Promise<{
+  data: Event | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .update(eventData)
+      .eq('id', eventId)
+      .select()
+      .single()
+    if (error) {
+      console.error('Error updating event:', error)
+      return { data: null, error }
+    }
+    return { data: data as Event, error: null }
+  } catch (err) {
+    console.error('Unexpected error updating event:', err)
     return { data: null, error: err as Error }
   }
 }

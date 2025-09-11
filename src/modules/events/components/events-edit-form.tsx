@@ -8,7 +8,6 @@ import {
   MapPinIcon,
   GlobeIcon,
   ClockIcon,
-  ExternalLink,
   Loader
 } from 'lucide-react'
 import { format } from 'date-fns'
@@ -50,8 +49,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { eventSchema, type EventFormData } from '@/modules/events/schemas'
 import { Category, Event, EventStatus } from '@/types'
-import Link from 'next/link'
-import { createEvent } from '@/services/events.services'
+import { updateEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
@@ -86,7 +84,7 @@ interface EventsCreateFormProps {
 }
 
 export const EventsEditForm = (props: EventsCreateFormProps) => {
-  const { institutionId, urlReturn, authorId, categories } = props
+  const { institutionId, urlReturn, authorId, categories, eventData } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const router = useRouter()
@@ -94,13 +92,18 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      event_name: '',
-      description: '',
-      location: '',
-      location_type: 'venue',
-      cover_image_url: '',
-      status: EventStatus.DRAFT,
-      category: undefined
+      event_name: eventData?.event_name || '',
+      description: eventData?.description || '',
+      author_id: eventData?.author_id || authorId || '',
+      start_date: eventData?.start_date
+        ? new Date(eventData.start_date)
+        : undefined,
+      end_date: eventData?.end_date ? new Date(eventData.end_date) : undefined,
+      location: eventData?.location || '',
+      location_type: eventData?.location_type || 'venue',
+      cover_image_url: eventData?.cover_image_url || '',
+      category: eventData?.category || undefined,
+      status: eventData?.status || EventStatus.DRAFT
     }
   })
 
@@ -108,7 +111,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     setIsSubmitting(true)
     try {
       // Enviar datos al servicio de creación de eventos
-      const response = await createEvent({
+      const response = await updateEvent(eventData.id, {
         ...data,
         institution_id: institutionId,
         author_id: authorId
@@ -151,24 +154,49 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const selectedLocationType = form.watch('location_type')
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-balance">
-          Crea tu evento al instante
-        </h1>
-        <p className="text-muted-foreground text-pretty">
-          Completa los datos básicos de tu evento y personaliza cada detalle. Si
-          lo prefieres, puedes{' '}
-          <Link href={'#'} className="p-0 h-auto text-blue-600 hover:underline">
-            generar el evento automáticamente con IA{' '}
-            <ExternalLink className="inline-block h-4 w-4 mb-1" />
-          </Link>
-          .
+    <div className="p-6 space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold">Edita los detalles de tu evento</h1>
+        <p className="text-gray-600">
+          Completa el formulario para actualizar la información de tu evento.
+          Puedes cambiar estos detalles más tarde si es necesario.
         </p>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* URL de imagen de portada */}
+          <Card className="shadow-none border border-gray-200 bg-white">
+            <CardHeader>
+              <CardTitle>Agrega una imagen de portada para tu evento</CardTitle>
+              <CardDescription>
+                Esta imagen se utilizará en la página del evento y en las
+                promociones. Asegúrate de que sea atractiva y relevante.
+                (Opcional)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="cover_image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/image.jpg"
+                        type="url"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Debe ser una URL válida que termine en .jpg, .png, etc.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
           {/* Nombre del evento */}
           <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
@@ -467,39 +495,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          {/* URL de imagen de portada */}
-          <Card className="shadow-none border border-gray-200 bg-white">
-            <CardHeader>
-              <CardTitle>Agrega una imagen de portada para tu evento</CardTitle>
-              <CardDescription>
-                Esta imagen se utilizará en la página del evento y en las
-                promociones. Asegúrate de que sea atractiva y relevante.
-                (Opcional)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="cover_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="https://example.com/image.jpg"
-                        type="url"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Debe ser una URL válida que termine en .jpg, .png, etc.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </CardContent>
           </Card>
 

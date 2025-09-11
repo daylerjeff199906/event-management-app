@@ -37,6 +37,9 @@ export const APP_URL = {
         `/organizations/institutions/${id}/events/${eventId}/schedule`,
       ADD_TICKET: (id: string, eventId: string) =>
         `/organizations/institutions/${id}/events/${eventId}/ticket`,
+      EVENT_INFO: (id: string, eventId: string) =>
+        `/organizations/institutions/${id}/events/${eventId}/info`,
+
       EVENTS: (id: string) => `/organizations/institutions/${id}/events`
     }
   }

@@ -102,8 +102,13 @@ export function EventManageLayout({
                     <Link
                       key={item.id}
                       onClick={() => handleItemClick(item)}
-                      className="w-full text-left group p-2 hover:cursor-pointer"
-                      href={item.href || '#'}
+                      className={cn(
+                        'w-full text-left group p-2 ',
+                        item.disabled
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'hover:cursor-pointer'
+                      )}
+                      href={item.disabled ? '#' : item.href || '#'}
                     >
                       <div className="flex items-start gap-3">
                         <div
@@ -159,7 +164,15 @@ export function EventManageLayout({
       </aside>
 
       {/* Contenido principal */}
-      <main className="p-4 lg:p-6">{children}</main>
+      <main
+        className={cn(
+          'flex-1 p-6 lg:pl-8 lg:pr-12 lg:py-8',
+          sidebarOpen ? 'opacity-50 pointer-events-none' : 'opacity-100',
+          'max-w-4xl mx-auto w-full'
+        )}
+      >
+        {children}
+      </main>
     </div>
   )
 }

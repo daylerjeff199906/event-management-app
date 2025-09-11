@@ -30,6 +30,18 @@ export default async function Layout(props: LayoutProps) {
           )
         },
         {
+          id: APP_URL.ORGANIZATION.INSTITUTION.EVENT_INFO(
+            institutionId || '',
+            eventId || ''
+          ),
+          label: 'Más información',
+          description: 'Información adicional del evento',
+          href: APP_URL.ORGANIZATION.INSTITUTION.EVENT_INFO(
+            institutionId || '',
+            eventId || ''
+          )
+        },
+        {
           id: APP_URL.ORGANIZATION.INSTITUTION.ADD_SCHEDULE(
             institutionId || '',
             eventId || ''
@@ -39,7 +51,8 @@ export default async function Layout(props: LayoutProps) {
           href: APP_URL.ORGANIZATION.INSTITUTION.ADD_SCHEDULE(
             institutionId || '',
             eventId || ''
-          )
+          ),
+          disabled: true
         },
         {
           id: APP_URL.ORGANIZATION.INSTITUTION.ADD_TICKET(
@@ -51,7 +64,8 @@ export default async function Layout(props: LayoutProps) {
           href: APP_URL.ORGANIZATION.INSTITUTION.ADD_TICKET(
             institutionId || '',
             eventId || ''
-          )
+          ),
+          disabled: true
         }
       ]}
       urlBack={APP_URL.ORGANIZATION.INSTITUTION.EVENTS(institutionId || '')}

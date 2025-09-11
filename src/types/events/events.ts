@@ -21,7 +21,7 @@ export interface Event {
   status?: EventStatus
   category?: number | null
   author_id?: string | null
-  location_type?: string | null
+  location_type?: 'venue' | 'online' | 'tba' | null
 }
 
 export interface EventFilterByInstitution extends Pagination {
