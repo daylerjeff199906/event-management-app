@@ -5,7 +5,8 @@ import {
   EventFilterByInstitution,
   ResponsePagination,
   EventsFilters,
-  EventStatus
+  EventStatus,
+  EventItemDetails
 } from '@/types'
 
 import { EventFormData } from '@/modules/events/schemas'
@@ -245,6 +246,28 @@ export async function updateEventField({
     return { data: data as Event, error: null }
   } catch (err) {
     console.error('Unexpected error updating event field:', err)
+    return { data: null, error: err as Error }
+  }
+}
+
+export async function fetchEventFullDetails(eventId: string): Promise<{
+  data: EventItemDetails | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*, categorydata(*), institution(*), userdata(*), author(*)')
+      .eq('id', eventId)
+      .single()
+    if (error) {
+      console.error('Error fetching event full details:', error)
+      return { data: null, error }
+    }
+    return { data: data as EventItemDetails, error: null }
+  } catch (err) {
+    console.error('Unexpected error fetching event full details:', err)
     return { data: null, error: err as Error }
   }
 }

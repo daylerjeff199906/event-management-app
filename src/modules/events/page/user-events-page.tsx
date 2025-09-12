@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { EventStatus, type Event, type ResponsePagination } from '@/types'
 import { EventsList } from './events-list'
 import { fetchEventList } from '@/services/events.services'
+import { APP_URL } from '@/data/config-app-url'
 
 export default function UserEventsPage() {
   const router = useRouter()
@@ -70,9 +71,8 @@ export default function UserEventsPage() {
 
   const handleViewDetails = (eventId: string) => {
     // Implementar navegación a página de detalles
-    console.log('Ver detalles del evento:', eventId)
-    // router.push(`/events/${eventId}`)
-  }
+   
+    router.push(APP_URL.DASHBOARD.EVENTS.DETAIL(eventId))
 
   if (loading) {
     return (

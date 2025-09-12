@@ -16,7 +16,8 @@ export const APP_URL = {
   DASHBOARD: {
     BASE: '/dashboard',
     EVENTS: {
-      BASE: '/dashboard/events'
+      BASE: '/dashboard/events',
+      DETAIL: (uuid: string) => `/dashboard/events/${uuid}`
     },
     FAVORITES: '/dashboard/favorites',
     PROFILE: '/dashboard/profile',

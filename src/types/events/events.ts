@@ -1,4 +1,6 @@
-import { Pagination } from '../core'
+import { Address, InstitutionEvent, IUser, Pagination } from '../core'
+import { Category } from './categories'
+import { EventDetails } from './events-details'
 
 export enum EventStatus {
   DRAFT = 'DRAFT',
@@ -44,4 +46,15 @@ export interface EventsFilters extends Pagination {
   user_id?: string | null
   status?: EventStatus | null
   exclude_status?: EventStatus | null
+}
+
+export interface EventItemDetails extends Event {
+  categorydata: Category | null
+  institution: InstitutionEvent | null
+  userdata: IUser | null
+  author: IUser | null
+  // Database external key
+  adressdata: Address | null
+  // Extended details
+  infodata: EventDetails | null
 }
