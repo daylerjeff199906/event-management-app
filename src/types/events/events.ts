@@ -51,7 +51,7 @@ export interface EventsFilters extends Pagination {
 export interface EventItemDetails extends Event {
   categorydata: Category | null
   institution: InstitutionEvent | null
-  userdata: IUser | null
+  user: IUser | null
   author: IUser | null
   // Database external key
   adressdata: Address | null

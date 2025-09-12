@@ -258,13 +258,45 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
   try {
     const { data, error } = await supabase
       .from('events')
-      .select('*, categorydata(*), institution(*), userdata(*), author(*)')
+      .select(
+        '*, institution:institution_id(*), user:user_id(*), author:author_id(*), categorydata:category(*)'
+      )
       .eq('id', eventId)
       .single()
     if (error) {
       console.error('Error fetching event full details:', error)
       return { data: null, error }
     }
+
+    // Fetch additional details if main event fetch succeeded
+    if (data) {
+      // Fetch event_details by event_id
+      const { data: detailsData, error: detailsError } = await supabase
+        .from('events_details')
+        .select('*')
+        .eq('event_id', eventId)
+        .single()
+
+      // If not found, set details to null
+      data.details =
+        detailsError?.code === 'PGRST116' || !detailsData ? null : detailsData
+
+      // Fetch address by address_uuid from event_details
+      let addressData = null
+      if (detailsData?.address_uuid) {
+        const { data: addrData, error: addrError } = await supabase
+          .from('addresses')
+          .select('*')
+          .eq('id', detailsData.address_uuid)
+          .single()
+
+        // If not found, set address to null
+        addressData =
+          addrError?.code === 'PGRST116' || !addrData ? null : addrData
+      }
+      data.address = addressData
+    }
+
     return { data: data as EventItemDetails, error: null }
   } catch (err) {
     console.error('Unexpected error fetching event full details:', err)

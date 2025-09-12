@@ -71,8 +71,8 @@ export default function UserEventsPage() {
 
   const handleViewDetails = (eventId: string) => {
     // Implementar navegación a página de detalles
-   
     router.push(APP_URL.DASHBOARD.EVENTS.DETAIL(eventId))
+  }
 
   if (loading) {
     return (
