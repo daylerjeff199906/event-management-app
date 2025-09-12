@@ -526,87 +526,75 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               />
 
               {selectedLocationType === 'venue' && (
-                <>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-600"
-                    onClick={() =>
-                      setShowMoreLocationOptions(!showMoreLocationOptions)
-                    }
-                  >
-                    {showMoreLocationOptions ? (
-                      <>
-                        <Pin />
-                        Buscar localidad
-                      </>
-                    ) : (
-                      <>
-                        <MapPinIcon className="h-4 w-4 mr-1" />
-                        Add location details
-                      </>
-                    )}
-                  </Button>
-                  {!showMoreLocationOptions && (
-                    <FormField
-                      control={form.control}
-                      name="location"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <div className="flex flex-col gap-2 relative">
-                              <SearchLocation
-                                className="w-full"
-                                onSelect={(address, lat, lon) => {
-                                  field.onChange(address)
-                                  form.setValue('lat', lat)
-                                  form.setValue('lon', lon)
-                                }}
-                              />
-                              <p className="text-sm text-muted-foreground">
-                                Dirección seleccionada:{' '}
-                                {form.getValues('location')}
-                              </p>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </>
-              )}
-
-              {selectedLocationType === 'online' && (
-                <FormField
-                  control={form.control}
-                  name="link_meeting"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          placeholder="Solo si el evento tiene link de acceso en línea"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      <FormDescription className="mt-1">
-                        Si el evento es en línea tendrá más de un enlace de
-                        acceso (Zoom, Google Meet, YouTube, etc.), despues
-                        podrás agregar los enlaces en la descripción del evento
-                        (Más Información).
-                      </FormDescription>
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {selectedLocationType === 'venue' && (
-                <div className="space-y-2">
-                  {!showMoreLocationOptions && (
+                <div className="space-y-4">
+                  {/* Opción para ingresar dirección manualmente */}
+                  {showMoreLocationOptions ? (
                     <>
-                      {/* Placeholder para el mapa */}
+                      <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Dirección del evento</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Ingresa la dirección del evento"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Puedes escribir la dirección manualmente o
+                              buscarla en el mapa.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-blue-600"
+                        onClick={() => setShowMoreLocationOptions(false)}
+                      >
+                        <Pin className="mr-1" />
+                        Buscar y configurar dirección avanzada
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {/* Buscador y configuración avanzada de dirección */}
+                      <FormField
+                        control={form.control}
+                        name="location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Buscar dirección</FormLabel>
+                            <FormControl>
+                              <div className="flex flex-col gap-2 relative">
+                                <SearchLocation
+                                  className="w-full"
+                                  onSelect={(address, lat, lon) => {
+                                    field.onChange(address)
+                                    form.setValue('lat', lat)
+                                    form.setValue('lon', lon)
+                                  }}
+                                />
+                                <p className="text-sm text-muted-foreground">
+                                  Dirección seleccionada:{' '}
+                                  {form.getValues('location')}
+                                </p>
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              Busca la dirección en el mapa y podrás
+                              configurarla con más detalles.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {/* Mapa de ubicación */}
                       {form.watch('lat') && form.watch('lon') ? (
                         <iframe
                           title="Ubicación en el mapa"
@@ -621,21 +609,56 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                         <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
                           <div className="text-center text-muted-foreground">
                             <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
-                            <p>Map will appear here</p>
+                            <p>
+                              El mapa aparecerá aquí al seleccionar una
+                              dirección
+                            </p>
                           </div>
                         </div>
                       )}
+                      {/* Formulario avanzado para configurar información extra de la dirección */}
+                      <AddressForm
+                        defaultValues={eventAddress || undefined}
+                        onSubmit={(address) => onSubmitAddress(address)}
+                        isLoading={loadingAddress}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-blue-600 mt-2"
+                        onClick={() => setShowMoreLocationOptions(true)}
+                      >
+                        <MapPinIcon className="mr-1" />
+                        Volver a ingresar dirección manualmente
+                      </Button>
                     </>
                   )}
-
-                  {showMoreLocationOptions && (
-                    <AddressForm
-                      defaultValues={eventAddress || undefined}
-                      onSubmit={(address) => onSubmitAddress(address)}
-                      isLoading={loadingAddress}
-                    />
-                  )}
                 </div>
+              )}
+
+              {selectedLocationType === 'online' && (
+                <FormField
+                  control={form.control}
+                  name="link_meeting"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Enlace de acceso en línea</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ingresa el link de acceso (Zoom, Meet, etc.)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className="mt-1">
+                        Si el evento es en línea y tiene más de un enlace de
+                        acceso, puedes agregar los enlaces adicionales en la
+                        descripción del evento.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
             </CardContent>
           </Card>
