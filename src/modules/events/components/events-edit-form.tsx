@@ -98,7 +98,10 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     eventAddress
   } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showMoreLocationOptions, setShowMoreLocationOptions] = useState(true)
+  const [showMoreLocationOptions, setShowMoreLocationOptions] =
+    useState<boolean>(
+      eventData.location_type === 'venue' && !!eventAddress ? false : true
+    )
   const [loadingAddress, setLoadingAddress] = useState(false)
 
   const form = useForm<EventFormData>({
