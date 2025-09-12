@@ -8,7 +8,7 @@ interface PageProps {
 
 export default async function Page(props: PageProps) {
   const params = await props.params
-  const uuid = await params.uuid
+  const uuid = params.uuid
 
   const response = await fetchEventFullDetails(uuid?.toString() || '')
 
