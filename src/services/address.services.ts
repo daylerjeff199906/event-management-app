@@ -64,15 +64,29 @@ export async function getAddressById(
   }
 }
 
-export async function upsertAddress(
-  id: string | null,
+export async function upsertAddress({
+  id,
+  address,
+  eventId
+}: {
+  id: string | null
   address: Address
-): Promise<{ data: Address | null; error: Error | null }> {
+  eventId?: string // Add eventId as optional parameter
+}): Promise<{ data: Address | null; error: Error | null }> {
   try {
     if (id) {
       return await updateAddress(id, address)
     } else {
-      return await createAddress(address)
+      const result = await createAddress(address)
+      if (result.data && eventId) {
+        const supabase = await getSupabase()
+        const { error: eventError } = await supabase
+          .from('events')
+          .update({ address_uuid: result.data.id })
+          .eq('id', eventId)
+        if (eventError) throw eventError
+      }
+      return result
     }
   } catch (error) {
     return { data: null, error: error as Error }

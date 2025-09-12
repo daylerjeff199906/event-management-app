@@ -99,10 +99,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showMoreLocationOptions, setShowMoreLocationOptions] = useState(true)
-  const [addressSaved, setAddressSaved] = useState<Address | null>(
-    eventAddress || null
-  )
-  const [addressEditMode, setAddressEditMode] = useState(false)
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -129,36 +125,13 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
 
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true)
-    let uuidAdreess = eventData?.adress_uuid || null
 
     try {
-      if (data.location_type === 'venue' && addressEditMode) {
-        // Si la dirección está en modo edición, guardarla primero
-        const { data: addressData } = await upsertAddress(
-          eventData?.adress_uuid || null,
-          {
-            address_line1: addressSaved?.address_line1 || '',
-            address_line2: addressSaved?.address_line2 || '',
-            city: addressSaved?.city || '',
-            state: addressSaved?.state || '',
-            postal_code: addressSaved?.postal_code || '',
-            country: addressSaved?.country || '',
-            latitude: addressSaved?.latitude || null,
-            longitude: addressSaved?.longitude || null
-          }
-        )
-
-        if (addressData) {
-          uuidAdreess = addressData.id?.toString() || null
-        }
-      }
-
       // Enviar datos al servicio de creación de eventos
       const response = await updateEvent(eventData.id, {
         ...data,
         institution_id: institutionId,
-        author_id: authorId,
-        adress_uuid: uuidAdreess?.toString()
+        author_id: authorId
       })
 
       if (response.error) {
@@ -194,6 +167,48 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       )
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const onSubmitAddress = async (address: Address) => {
+    try {
+      const response = eventAddress?.id
+        ? await upsertAddress({
+            id: eventAddress.id,
+            address: address,
+            eventId: eventData.id
+          })
+        : await upsertAddress({
+            id: null,
+            address: address,
+            eventId: eventData.id
+          })
+
+      if (response.error) {
+        toast.error(
+          <ToastCustom
+            title="Error"
+            description={`No se pudo guardar la dirección: ${response.error.message}`}
+            variant="destructive"
+          />
+        )
+      } else {
+        toast.success(
+          <ToastCustom
+            title="Éxito"
+            description="La dirección ha sido guardada correctamente."
+          />
+        )
+      }
+    } catch (error) {
+      console.error('Error al guardar dirección:', error)
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description="Ocurrió un error inesperado al guardar la dirección."
+          variant="destructive"
+        />
+      )
     }
   }
 
@@ -612,14 +627,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
 
                   {showMoreLocationOptions && (
                     <AddressForm
-                      onChange={setAddressSaved}
-                      onChangeEdit={() => {
-                        setAddressEditMode(true)
-                        form.setValue(
-                          'location',
-                          addressSaved?.address_line1 || ''
-                        )
-                      }}
+                      defaultValues={eventAddress || undefined}
+                      onSubmit={(address) => onSubmitAddress(address)}
                     />
                   )}
                 </div>
