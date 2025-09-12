@@ -21,7 +21,8 @@ export default async function Page(props: PageProps) {
     return <div>Error loading event data.</div>
   }
 
-  const addressData = await getAddressById(response.data.adress_uuid || '')
+  const addressData = await getAddressById(response.data.address_uuid || '')
+  console.log('addressData', addressData)
 
   return (
     <div>

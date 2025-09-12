@@ -99,6 +99,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showMoreLocationOptions, setShowMoreLocationOptions] = useState(true)
+  const [loadingAddress, setLoadingAddress] = useState(false)
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -171,6 +172,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   }
 
   const onSubmitAddress = async (address: Address) => {
+    setLoadingAddress(true)
     try {
       const response = eventAddress?.id
         ? await upsertAddress({
@@ -210,6 +212,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         />
       )
     }
+    setLoadingAddress(false)
   }
 
   const onImageChange = async (imageUrl: string) => {
@@ -629,6 +632,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                     <AddressForm
                       defaultValues={eventAddress || undefined}
                       onSubmit={(address) => onSubmitAddress(address)}
+                      isLoading={loadingAddress}
                     />
                   )}
                 </div>
