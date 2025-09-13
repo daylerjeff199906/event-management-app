@@ -5,7 +5,8 @@ import Carousel from 'react-multi-carousel'
 import 'react-multi-carousel/lib/styles.css'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Calendar, Star, Users } from 'lucide-react'
+import { ArrowRight, Calendar, Users } from 'lucide-react'
+import { FireworksBackground } from '@/components/animate-ui/components/backgrounds/fireworks'
 
 import {
   SLIDER_BANNER_1,
@@ -79,96 +80,80 @@ export const BannerCarousel = ({
   slides = defaultSlides,
   className,
   deviceType,
-  onSignUp,
-  onLogin
+  onSignUp
 }: MusicCarouselProps) => {
   return (
-    <div className={cn('w-full rounded-2xl', className)}>
-      <Carousel
-        swipeable={true}
-        draggable={true}
-        showDots={true}
-        responsive={responsive}
-        ssr={true}
-        infinite={true}
-        autoPlay={deviceType !== 'mobile'}
-        autoPlaySpeed={5000}
-        keyBoardControl={true}
-        customTransition="all .7"
-        transitionDuration={700}
-        containerClass="carousel-container rounded-2xl"
-        removeArrowOnDeviceType={['tablet', 'mobile']}
-        deviceType={deviceType}
-        dotListClass="custom-dot-list-style"
-        itemClass="carousel-item-padding-40-px"
-      >
-        {slides.map((slide) => (
-          <div
-            key={slide.id}
-            className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden rounded-2xl"
-            style={{
-              backgroundImage: `url(${slide.backgroundImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 rounded-2xl" />
+    <>
+      <div className={cn('w-full rounded-2xl', className)}>
+        <Carousel
+          swipeable={true}
+          draggable={true}
+          showDots={true}
+          responsive={responsive}
+          ssr={true}
+          infinite={true}
+          autoPlay={deviceType !== 'mobile'}
+          autoPlaySpeed={5000}
+          keyBoardControl={true}
+          customTransition="all .7"
+          transitionDuration={700}
+          containerClass="carousel-container rounded-2xl"
+          removeArrowOnDeviceType={['tablet', 'mobile']}
+          deviceType={deviceType}
+          dotListClass="custom-dot-list-style"
+          itemClass="carousel-item-padding-40-px"
+        >
+          {slides.map((slide) => (
+            <div
+              key={slide.id}
+              className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden rounded-2xl"
+              style={{
+                backgroundImage: `url(${slide.backgroundImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 rounded-2xl" />
 
-            <div className="relative z-10 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24">
-              <div className="max-w-2xl space-y-6">
-                <div className="inline-flex items-center space-x-2  text-white px-4 py-2 rounded-full text-sm font-medium">
-                  <Star className="h-4 w-4" />
-                  <span>{slide.title}</span>
-                </div>
+              <div className="relative z-10 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24">
+                <div className="max-w-2xl space-y-6">
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                    {slide.subtitle}
+                  </h1>
 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                  {slide.subtitle}
-                </h1>
-
-                <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                  <Button
-                    size="lg"
-                    className=" rounded-full px-8 py-6 text-base font-medium transition-all hover:scale-105"
-                    onClick={onSignUp || slide.buttonAction}
-                  >
-                    {slide.buttonText}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-
-                  {slide.secondaryButtonText && (
+                  <div className="flex flex-col sm:flex-row gap-4 mt-8">
                     <Button
-                      variant="outline"
                       size="lg"
-                      className="border-white rounded-full px-8 py-6 text-base font-medium"
-                      onClick={onLogin || slide.secondaryButtonAction}
+                      className=" rounded-full px-8 py-6 text-base font-medium transition-all hover:scale-105"
+                      onClick={onSignUp || slide.buttonAction}
                     >
-                      {slide.secondaryButtonText}
+                      Ver todos los eventos
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
-                  )}
-                </div>
+                  </div>
 
-                {/* Beneficios destacados */}
-                <div className="flex flex-wrap gap-6 mt-10">
-                  <div className="flex items-center text-white/90">
-                    <Users className="h-5 w-5 mr-2" />
-                    <span className="text-sm">Comunidad activa</span>
-                  </div>
-                  <div className="flex items-center text-white/90">
-                    <Calendar className="h-5 w-5 mr-2" />
-                    <span className="text-sm">Eventos exclusivos</span>
-                  </div>
-                  <div className="flex items-center text-white/90">
-                    <Star className="h-5 w-5 mr-2" />
-                    <span className="text-sm">
-                      Recomendaciones personalizadas
-                    </span>
+                  {/* Beneficios destacados */}
+                  <div className="flex flex-wrap gap-6 mt-10">
+                    <div className="flex items-center text-white/90">
+                      <Users className="h-5 w-5 mr-2" />
+                      <span className="text-sm">Comunidad activa</span>
+                    </div>
+                    <div className="flex items-center text-white/90">
+                      <Calendar className="h-5 w-5 mr-2" />
+                      <span className="text-sm">Eventos exclusivos</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </Carousel>
-    </div>
+          ))}
+        </Carousel>
+      </div>
+
+      <FireworksBackground
+        className="absolute inset-0 flex items-center justify-center rounded-xl"
+        // color={theme === 'dark' ? 'white' : 'black'}
+      />
+    </>
   )
 }
