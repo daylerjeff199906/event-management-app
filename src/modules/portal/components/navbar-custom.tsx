@@ -1,8 +1,9 @@
 'use client'
-
-import { useState } from 'react'
+import type React from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,99 +17,129 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { Menu, ChevronDown } from 'lucide-react'
+import {
+  Menu,
+  ChevronDown,
+  MapPin,
+  Search,
+  User,
+  Settings,
+  LogOut
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { APP_URL } from '@/data/config-app-url'
 import { LogoRender } from '@/components/app/miscellaneous/logo-render'
+import { APP_URL } from '@/data/config-app-url'
+import { Category } from '@/types'
 
-export interface MenuItem {
-  label: string
-  href: string
-  subItems?: MenuItem[]
+export interface SearchConfig {
+  placeholder?: string
+  onSearch?: (query: string) => void
+  showSearchButton?: boolean
 }
 
-export interface NavbarProps {
-  // Logo props
-  logoText?: string
-  logoImage?: string
-  logoHref?: string
+export interface CategoryConfig {
+  label: string
+  options: string[]
+  onCategorySelect?: (category: string) => void
+}
 
-  // Menu props
-  menuItems: MenuItem[]
-
-  // Auth props
+export interface UserConfig {
   isLoggedIn?: boolean
   userName?: string
-  onLogin?: () => void
-  onSignUp?: () => void
+  userAvatar?: string
   onLogout?: () => void
+  onProfile?: () => void
+  onSettings?: () => void
+}
+
+export interface NavbarFeverProps {
+  // Logo props
+  logoText?: string
+  logoHref?: string
+
+  // Search configuration
+  searchConfig?: SearchConfig
+
+  // Category configuration
+  categoryConfig?: CategoryConfig
+
+  // User configuration
+  userConfig?: UserConfig
 
   // Style props
   className?: string
   variant?: 'default' | 'transparent'
+  categories?: Category[]
 }
 
 export function NavbarCustom({
   logoHref = '/',
-  menuItems = [],
-  isLoggedIn = false,
-  userName,
-  onSignUp,
-  onLogout,
+  searchConfig = {
+    placeholder: 'Descubrir eventos ...',
+    showSearchButton: true
+  },
+  userConfig = {
+    isLoggedIn: false
+  },
   className,
-  variant = 'default'
-}: NavbarProps) {
+  variant = 'default',
+  categories = []
+}: NavbarFeverProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [userLocation, setUserLocation] = useState<string>(
+    'Detectando ubicación...'
+  )
 
-  const renderMenuItem = (item: MenuItem, isMobile = false) => {
-    if (item.subItems && item.subItems.length > 0) {
-      return (
-        <DropdownMenu key={item.label}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className={cn(
-                'flex items-center gap-1',
-                isMobile && 'w-full justify-start'
-              )}
-            >
-              {item.label}
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align={isMobile ? 'start' : 'center'}>
-            {item.subItems.map((subItem) => (
-              <DropdownMenuItem key={subItem.label} asChild>
-                <Link href={subItem.href} className="w-full">
-                  {subItem.label}
-                </Link>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords
+            // Usando API de geocoding reverso para obtener la ciudad
+            const response = await fetch(
+              `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=es`
+            )
+            const data = await response.json()
+            const city =
+              data.city ||
+              data.locality ||
+              data.principalSubdivision ||
+              'Ubicación detectada'
+            setUserLocation(city)
+          } catch (error) {
+            console.error('Error obteniendo ubicación:', error)
+            setUserLocation('Ubicación no disponible')
+          }
+        },
+        (error) => {
+          console.error('Error de geolocalización:', error)
+          setUserLocation('Ubicación no disponible')
+        },
+        {
+          timeout: 10000,
+          enableHighAccuracy: false
+        }
       )
+    } else {
+      setUserLocation('Geolocalización no soportada')
     }
+  }, [])
 
-    return (
-      <Link
-        key={item.label}
-        href={item.href}
-        className={cn(
-          'text-foreground hover:text-primary transition-colors',
-          isMobile && 'block py-2'
-        )}
-        onClick={() => isMobile && setIsSheetOpen(false)}
-      >
-        {item.label}
-      </Link>
-    )
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchConfig.onSearch && searchQuery.trim()) {
+      searchConfig.onSearch(searchQuery.trim())
+    }
   }
 
   return (
     <nav
       className={cn(
-        'sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
-        variant === 'transparent' && 'bg-transparent border-transparent',
+        'sticky top-0 z-50 w-full border-b bg-white shadow-sm',
+        variant === 'transparent' &&
+          'bg-transparent border-transparent shadow-none',
         className
       )}
       style={{
@@ -116,153 +147,255 @@ export function NavbarCustom({
       }}
     >
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
-          <Link href={logoHref} className="flex items-center space-x-2">
-            <LogoRender href={logoHref} />
-          </Link>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
-            {menuItems.map((item) => renderMenuItem(item))}
+          <div className="flex items-center gap-4">
+            <LogoRender isOpened href={logoHref} />
+            <hr className="h-6 border-l border-gray-300" />
+            <div className="items-center gap-2 text-muted-foreground hidden md:flex">
+              <MapPin className="h-4 w-4" />
+              <span className="max-w-32 truncate text-sm">{userLocation}</span>
+            </div>
           </div>
 
-          {/* Auth Section */}
-          <div className="hidden md:flex items-center space-x-4">
-            {isLoggedIn ? (
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-6 max-w-4xl justify-center w-full">
+            {/* Categories */}
+            {categories.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                      {userName ? userName.charAt(0).toUpperCase() : 'U'}
-                    </div>
-                    {userName && (
-                      <span className="hidden lg:inline">{userName}</span>
-                    )}
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <span>Categorías</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/perfil">Mi Perfil</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/configuracion">Configuración</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onLogout}>
-                    Cerrar Sesión
-                  </DropdownMenuItem>
+                <DropdownMenuContent>
+                  {categories.map((category) => (
+                    <DropdownMenuItem key={category.id}>
+                      {category.name}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Button className="rounded-full" variant="ghost" asChild>
-                  <Link
-                    className="hover:cursor-pointer"
-                    href={APP_URL.AUTH.LOGIN}
-                  >
-                    Iniciar Sesión
-                  </Link>
-                </Button>
-                <Button onClick={onSignUp} className="rounded-full">
-                  <Link
-                    className="hover:cursor-pointer"
-                    href={APP_URL.AUTH.REGISTER}
-                  >
-                    Crear Cuenta
-                  </Link>
-                </Button>
-              </div>
             )}
+
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="w-full max-w-md">
+              <div className="relative ">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder={searchConfig.placeholder}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 bg-muted/50 border-0 focus:bg-background rounded-full"
+                />
+                {searchConfig.showSearchButton && (
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 px-7 rounded-full p-0"
+                  >
+                    <Search className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </form>
           </div>
 
-          {/* Mobile Menu Button */}
-          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                aria-label="Abrir menú"
-              >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-80">
-              <SheetHeader>
-                <SheetTitle className="text-left">Menú</SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 space-y-6">
-                {/* Mobile Menu Items */}
-                <div className="space-y-2">
-                  {menuItems.map((item) => renderMenuItem(item, true))}
-                </div>
-
-                {/* Mobile Auth Section */}
-                <div className="pt-4 border-t space-y-2">
-                  {isLoggedIn ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-3 py-2">
+          {/* Right Section */}
+          <div className="flex items-center space-x-2">
+            {/* User Section - Desktop */}
+            <div className="hidden md:block">
+              {userConfig.isLoggedIn ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2">
+                      {userConfig.userAvatar ? (
+                        <img
+                          src={userConfig.userAvatar || '/placeholder.svg'}
+                          alt="Avatar"
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : (
                         <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                          {userName ? userName.charAt(0).toUpperCase() : 'U'}
+                          {userConfig.userName
+                            ? userConfig.userName.charAt(0).toUpperCase()
+                            : 'U'}
                         </div>
-                        <span className="font-medium">
-                          {userName || 'Usuario'}
-                        </span>
-                      </div>
-                      <Link
-                        href="/perfil"
-                        className="block py-2 text-foreground hover:text-primary"
-                        onClick={() => setIsSheetOpen(false)}
-                      >
-                        Mi Perfil
-                      </Link>
-                      <Link
-                        href="/configuracion"
-                        className="block py-2 text-foreground hover:text-primary"
-                        onClick={() => setIsSheetOpen(false)}
-                      >
-                        Configuración
-                      </Link>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={userConfig.onProfile}>
+                      <User className="h-4 w-4 mr-2" />
+                      Mi Perfil
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={userConfig.onSettings}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configuración
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={userConfig.onLogout}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Cerrar Sesión
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    className="rounded-full text-sm"
+                    asChild
+                  >
+                    <Link href={APP_URL.AUTH.LOGIN}>Iniciar Sesión</Link>
+                  </Button>
+                  <Button className="rounded-full text-sm" asChild>
+                    <Link href={APP_URL.AUTH.REGISTER}>Registrarse</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  aria-label="Abrir menú"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <SheetHeader>
+                  <SheetTitle className="text-left">Menú</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-6">
+                  {/* Mobile Search */}
+                  <form onSubmit={handleSearch}>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder={searchConfig.placeholder}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </form>
+
+                  <div className="space-y-2">
+                    <h3 className="font-medium text-sm text-muted-foreground">
+                      Ubicación
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-4 w-4" />
+                      {userLocation}
+                    </div>
+                  </div>
+
+                  {/* Mobile Categories */}
+                  <div className="space-y-2">
+                    <h3 className="font-medium text-sm text-muted-foreground">
+                      Categorías
+                    </h3>
+                    {categories.map((category: Category) => (
                       <Button
+                        key={category.id}
                         variant="ghost"
-                        className="w-full justify-start p-2"
+                        className="w-full justify-start"
                         onClick={() => {
-                          onLogout?.()
+                          // If you want to call a callback, you can add it here
                           setIsSheetOpen(false)
                         }}
                       >
-                        Cerrar Sesión
+                        {category.name}
                       </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start"
-                        asChild
-                      >
-                        <Link
-                          className="hover:cursor-pointer"
-                          href={APP_URL.AUTH.LOGIN}
+                    ))}
+                  </div>
+
+                  {/* Mobile Auth Section */}
+                  <div className="pt-4 border-t space-y-2">
+                    {userConfig.isLoggedIn ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-3 py-2">
+                          {userConfig.userAvatar ? (
+                            <img
+                              src={userConfig.userAvatar || '/placeholder.svg'}
+                              alt="Avatar"
+                              className="h-8 w-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+                              {userConfig.userName
+                                ? userConfig.userName.charAt(0).toUpperCase()
+                                : 'U'}
+                            </div>
+                          )}
+                          <span className="font-medium">
+                            {userConfig.userName || 'Usuario'}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            userConfig.onProfile?.()
+                            setIsSheetOpen(false)
+                          }}
                         >
-                          Iniciar Sesión
-                        </Link>
-                      </Button>
-                      <Button className="w-full hover:cursor-pointer" asChild>
-                        <Link
-                          className="hover:cursor-pointer"
-                          href={APP_URL.AUTH.REGISTER}
+                          <User className="h-4 w-4 mr-2" />
+                          Mi Perfil
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            userConfig.onSettings?.()
+                            setIsSheetOpen(false)
+                          }}
                         >
-                          Crear Cuenta
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
+                          <Settings className="h-4 w-4 mr-2" />
+                          Configuración
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            userConfig.onLogout?.()
+                            setIsSheetOpen(false)
+                          }}
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Cerrar Sesión
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          asChild
+                        >
+                          <Link href={APP_URL.AUTH.LOGIN}>Iniciar Sesión</Link>
+                        </Button>
+                        <Button className="w-full" variant="default" asChild>
+                          <Link href={APP_URL.AUTH.REGISTER}>Registrarse</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </nav>

@@ -1,47 +1,28 @@
 import { Footer } from '@/components/app/panel-admin/footer'
+import { APP_URL } from '@/data/config-app-url'
 import { NavbarCustom } from '@/modules/portal/components'
-import { MenuItem } from '@/modules/portal/components/navbar-custom'
+import { fetchCategories } from '@/services/categories.services'
+import { getSupabase } from '@/services/core.supabase'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
-const menuItems: MenuItem[] = [
-  {
-    label: 'Inicio',
-    href: '/'
-  },
-  {
-    label: 'Productos',
-    href: '/productos',
-    subItems: [
-      { label: 'Categoría 1', href: '/productos/categoria-1' },
-      { label: 'Categoría 2', href: '/productos/categoria-2' },
-      { label: 'Ofertas', href: '/productos/ofertas' }
-    ]
-  },
-  {
-    label: 'Servicios',
-    href: '/servicios',
-    subItems: [
-      { label: 'Consultoría', href: '/servicios/consultoria' },
-      { label: 'Soporte', href: '/servicios/soporte' }
-    ]
-  },
-  {
-    label: 'Acerca de',
-    href: '/acerca'
-  },
-  {
-    label: 'Contacto',
-    href: '/contacto'
-  }
-]
+export default async function Layout({ children }: LayoutProps) {
+  const categories = await fetchCategories()
+  const supabase = await getSupabase()
+  const { data: user } = await supabase.auth.getUser()
 
-export default function Layout({ children }: LayoutProps) {
   return (
     <>
-      <NavbarCustom menuItems={menuItems} />
+      <NavbarCustom
+        categories={categories || []}
+        logoHref={APP_URL.PORTAL.BASE}
+        userConfig={{
+          userAvatar: user?.user?.user_metadata?.avatar_url || null,
+          userName: user?.user?.user_metadata?.full_name || 'Invitado'
+        }}
+      />
       {children}
       <Footer />
     </>

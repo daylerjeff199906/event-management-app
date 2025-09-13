@@ -9,13 +9,15 @@ import { APP_CONFIG } from '@/data/config.app'
 export const LogoRender = ({
   href,
   className,
-  size
+  size,
+  isOpened
 }: {
   nameApp?: string
   subtitle?: string
   href: string
   className?: string
   size?: number
+  isOpened?: boolean
 }) => {
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
@@ -23,7 +25,7 @@ export const LogoRender = ({
 
   return (
     <>
-      {getOpenState() && (
+      {(getOpenState() || isOpened) && (
         <section
           id="logo"
           className={cn(
