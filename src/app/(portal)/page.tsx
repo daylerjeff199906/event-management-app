@@ -1,3 +1,4 @@
+import { BG_CTA_EVENTS } from '@/assets/images'
 import {
   BannerCarousel,
   CategoryGrid,
@@ -11,7 +12,7 @@ export default function Page() {
       <BannerCarousel className="mx-auto max-w-7xl rounded-2xl lg:pt-8" />
       <EventsSection />
       <CategoryGrid className="py-12 md::py-16 lg:py-24" />
-      <EventsCTA />
+      <EventsCTA urlImageBackground={BG_CTA_EVENTS.src} />
       {/* <HeroSection /> */}
     </>
   )

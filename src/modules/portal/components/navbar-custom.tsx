@@ -46,6 +46,7 @@ export interface CategoryConfig {
 export interface UserConfig {
   isLoggedIn?: boolean
   userName?: string
+  email?: string
   userAvatar?: string
   onLogout?: () => void
   onProfile?: () => void
@@ -214,19 +215,32 @@ export function NavbarCustom({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center gap-2">
-                      {userConfig.userAvatar ? (
-                        <img
-                          src={userConfig.userAvatar || '/placeholder.svg'}
-                          alt="Avatar"
-                          className="h-8 w-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                          {userConfig.userName
-                            ? userConfig.userName.charAt(0).toUpperCase()
-                            : 'U'}
+                      <div className="flex items-center justify-center gap-2">
+                        {userConfig.userAvatar ? (
+                          <img
+                            src={userConfig.userAvatar || '/placeholder.svg'}
+                            alt="Avatar"
+                            className="h-8 w-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+                            {userConfig.userName
+                              ? userConfig.userName.charAt(0).toUpperCase()
+                              : 'U'}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <div className="flex flex-col leading-tight text-right">
+                            <div className="hidden sm:inline font-medium">
+                              {userConfig.userName || 'Usuario'}
+                            </div>
+                            <div className="hidden sm:inline text-xs text-muted-foreground">
+                              {userConfig.email || ''}
+                            </div>
+                          </div>
+                          <ChevronDown className="h-4 w-4 ml-1 text-muted-foreground" />
                         </div>
-                      )}
+                      </div>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

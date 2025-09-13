@@ -19,8 +19,10 @@ export default async function Layout({ children }: LayoutProps) {
         categories={categories || []}
         logoHref={APP_URL.PORTAL.BASE}
         userConfig={{
+          isLoggedIn: !!user?.user,
           userAvatar: user?.user?.user_metadata?.avatar_url || null,
-          userName: user?.user?.user_metadata?.full_name || 'Invitado'
+          userName: user?.user?.user_metadata?.full_name || 'Invitado',
+          email: user?.user?.email || ''
         }}
       />
       {children}
