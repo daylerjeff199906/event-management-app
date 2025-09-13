@@ -13,6 +13,8 @@ import {
   SLIDER_BANNER_2,
   SLIDER_BANNER_3
 } from '@/assets/images'
+import Link from 'next/link'
+import { APP_URL } from '@/data/config-app-url'
 
 interface CarouselSlide {
   id: string
@@ -29,7 +31,6 @@ interface MusicCarouselProps {
   slides?: CarouselSlide[]
   className?: string
   deviceType?: string
-  onSignUp?: () => void
   onLogin?: () => void
 }
 
@@ -79,81 +80,86 @@ const responsive = {
 export const BannerCarousel = ({
   slides = defaultSlides,
   className,
-  deviceType,
-  onSignUp
+  deviceType
 }: MusicCarouselProps) => {
   return (
-    <>
-      <div className={cn('w-full rounded-2xl', className)}>
-        <Carousel
-          swipeable={true}
-          draggable={true}
-          showDots={true}
-          responsive={responsive}
-          ssr={true}
-          infinite={true}
-          autoPlay={deviceType !== 'mobile'}
-          autoPlaySpeed={5000}
-          keyBoardControl={true}
-          customTransition="all .7"
-          transitionDuration={700}
-          containerClass="carousel-container rounded-2xl"
-          removeArrowOnDeviceType={['tablet', 'mobile']}
-          deviceType={deviceType}
-          dotListClass="custom-dot-list-style"
-          itemClass="carousel-item-padding-40-px"
-        >
-          {slides.map((slide) => (
-            <div
-              key={slide.id}
-              className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden rounded-2xl"
-              style={{
-                backgroundImage: `url(${slide.backgroundImage})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 rounded-2xl" />
+    <div className={cn('w-full rounded-2xl h-fit relative', className)}>
+      <Carousel
+        swipeable={true}
+        draggable={true}
+        showDots={true}
+        responsive={responsive}
+        ssr={true}
+        infinite={true}
+        autoPlay={deviceType !== 'mobile'}
+        autoPlaySpeed={5000}
+        keyBoardControl={true}
+        customTransition="all .7"
+        transitionDuration={700}
+        containerClass="carousel-container rounded-2xl"
+        removeArrowOnDeviceType={['tablet', 'mobile']}
+        deviceType={deviceType}
+        dotListClass="custom-dot-list-style"
+        itemClass="carousel-item-padding-40-px"
+      >
+        {slides.map((slide) => (
+          <div
+            key={slide.id}
+            className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden rounded-2xl"
+            style={{
+              backgroundImage: `url(${slide.backgroundImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
+            {/* Fireworks effect layer */}
+            <div className="absolute inset-0 pointer-events-none z-30 h-full w-full">
+              <FireworksBackground className="w-full h-full rounded-2xl" />
+            </div>
 
-              <div className="relative z-10 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24">
-                <div className="max-w-2xl space-y-6">
-                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                    {slide.subtitle}
-                  </h1>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 rounded-2xl z-20" />
 
-                  <div className="flex flex-col sm:flex-row gap-4 mt-8">
-                    <Button
-                      size="lg"
-                      className=" rounded-full px-8 py-6 text-base font-medium transition-all hover:scale-105"
-                      onClick={onSignUp || slide.buttonAction}
-                    >
+            <div className="relative z-30 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24">
+              <div className="max-w-2xl space-y-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                  {slide.subtitle}
+                </h1>
+
+                <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                  <Button
+                    size="lg"
+                    variant="ghost"
+                    className="rounded-full px-8 py-6 text-base font-medium transition-all hover:scale-105 animate-pulse-border text-white"
+                    asChild
+                    style={{
+                      zIndex: 9999
+                    }}
+                  >
+                    <Link href={APP_URL.PORTAL.EVENTS}>
                       Ver todos los eventos
                       <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
-                  </div>
+                    </Link>
+                  </Button>
+                </div>
 
-                  {/* Beneficios destacados */}
-                  <div className="flex flex-wrap gap-6 mt-10">
-                    <div className="flex items-center text-white/90">
-                      <Users className="h-5 w-5 mr-2" />
-                      <span className="text-sm">Comunidad activa</span>
-                    </div>
-                    <div className="flex items-center text-white/90">
-                      <Calendar className="h-5 w-5 mr-2" />
-                      <span className="text-sm">Eventos exclusivos</span>
-                    </div>
+                {/* Beneficios destacados */}
+                <div className="flex flex-wrap gap-6 mt-10">
+                  <div className="flex items-center text-white/90">
+                    <Users className="h-5 w-5 mr-2" />
+                    <span className="text-sm">
+                      Eventos para todos los gustos
+                    </span>
+                  </div>
+                  <div className="flex items-center text-white/90">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    <span className="text-sm">Eventos exclusivos</span>
                   </div>
                 </div>
               </div>
             </div>
-          ))}
-        </Carousel>
-      </div>
-
-      <FireworksBackground
-        className="absolute inset-0 flex items-center justify-center rounded-xl"
-        // color={theme === 'dark' ? 'white' : 'black'}
-      />
-    </>
+          </div>
+        ))}
+      </Carousel>
+    </div>
   )
 }

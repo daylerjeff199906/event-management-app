@@ -168,3 +168,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .animate-pulse-border {
+    --pulse-color: var(--color-ring, #3b82f6);
+    --duration: 1.5s;
+    animation: pulse-border var(--duration) ease-out infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% {
+      box-shadow: 0 0 0 0 var(--pulse-color);
+    }
+    50% {
+      box-shadow: 0 0 0 8px var(--pulse-color);
+    }
+  }
+}
