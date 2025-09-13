@@ -73,27 +73,31 @@ export function CategoryGrid({
   }
 
   return (
-    <section className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
-      <div className="text-center mb-10 md:mb-14">
-        <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">
-          {title}
-        </h2>
-        <p className="mt-3 text-base text-gray-600 max-w-2xl mx-auto">
-          {subtitle}
-        </p>
-      </div>
+    <div className="bg-amber-50 py-10 lg:py-16">
+      <section
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}
+      >
+        <div className="text-center mb-10 md:mb-14">
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">
+            {title}
+          </h2>
+          <p className="mt-3 text-base text-gray-600 max-w-2xl mx-auto">
+            {subtitle}
+          </p>
+        </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 justify-center">
-        {categories.map((category) => (
-          <CategoryItem
-            key={category.id}
-            category={category}
-            isSelected={selectedCategory === category.id}
-            onClick={() => handleCategoryClick(category)}
-          />
-        ))}
-      </div>
-    </section>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 justify-center">
+          {categories.map((category) => (
+            <CategoryItem
+              key={category.id}
+              category={category}
+              isSelected={selectedCategory === category.id}
+              onClick={() => handleCategoryClick(category)}
+            />
+          ))}
+        </div>
+      </section>
+    </div>
   )
 }
 
