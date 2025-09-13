@@ -28,6 +28,7 @@ export interface Event {
   lat: number | null
   link_meeting?: string | null
   address_uuid?: string | null
+  is_featured?: boolean | null
 }
 
 export interface Coordinates {
