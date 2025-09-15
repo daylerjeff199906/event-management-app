@@ -56,7 +56,17 @@ export default function HomePage() {
   if (foundInstitution) {
     // Si se encontró una institución, se muestra su información y un mensaje de contacto
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
+      <div className="relative min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted/20">
+        {/* Background image with dark overlay */}
+        <Image
+          src={BG_AUTH_INSTITUTION}
+          alt="Background"
+          layout="fill"
+          objectFit="cover"
+          className="absolute inset-0 z-0"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/60 z-10" />
         <InstitutionFound
           searchResults={{
             institution_email: foundInstitution.institution_email,
@@ -71,8 +81,19 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted/20">
+      {/* Background image with dark overlay */}
+      <Image
+        src={BG_AUTH_INSTITUTION}
+        alt="Background"
+        layout="fill"
+        objectFit="cover"
+        className="absolute inset-0 z-0"
+        priority
+      />
+      <div className="absolute inset-0 bg-black/60 z-10" />
+      {/* Form content */}
+      <div className="relative w-full max-w-4xl z-20">
         {currentStep === 'search' && (
           <InstitutionSearch
             onInstitutionNotFound={handleInstitutionNotFound}
@@ -96,12 +117,6 @@ export default function HomePage() {
           />
         )}
       </div>
-      <Image
-        src={BG_AUTH_INSTITUTION}
-        alt="Background"
-        width={1080}
-        height={1080}
-      />
     </div>
   )
 }

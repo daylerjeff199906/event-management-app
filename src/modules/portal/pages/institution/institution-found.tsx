@@ -21,7 +21,7 @@ export default function InstitutionFound({
   onBack
 }: InstitutionFoundProps) {
   return (
-    <div className="bg-background border rounded-lg p-6 max-w-md mx-auto shadow-sm">
+    <div className="bg-background border rounded-lg p-6 max-w-md mx-auto shadow-sm relative z-20">
       <div className="mb-4">
         {onBack ? (
           <button
