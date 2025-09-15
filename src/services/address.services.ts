@@ -82,7 +82,10 @@ export async function upsertAddress({
         const supabase = await getSupabase()
         const { error: eventError } = await supabase
           .from('events')
-          .update({ address_uuid: result.data.id })
+          .update({
+            address_uuid: result.data.id,
+            location: address.address_line1
+          })
           .eq('id', eventId)
         if (eventError) throw eventError
       }

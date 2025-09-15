@@ -58,7 +58,7 @@ export function EventCardComponent({
 
   return (
     <Card className="group border rounded-2xl overflow-hidden shadow-none transition-all duration-300 cursor-pointer pt-0">
-      <div className="relative h-56 lg:h-60 overflow-hidden">
+      <div className="relative h-44 overflow-hidden">
         {event.cover_image_url && (
           <>
             <div
@@ -96,7 +96,7 @@ export function EventCardComponent({
       </div>
 
       <CardContent className="px-5 pb-0">
-        <h3 className="font-bold text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2">
+        <h3 className="font-semibold text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2">
           {event.event_name}
         </h3>
 
