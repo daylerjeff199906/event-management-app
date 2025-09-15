@@ -12,7 +12,7 @@ import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import InstitutionFound from '@/modules/portal/pages/institution/institution-found'
 import { APP_URL } from '@/data/config-app-url'
 import Image from 'next/image'
-import { configImages } from '@/data/config.images'
+import { BG_AUTH_INSTITUTION } from '@/assets/images'
 
 type Step = 'search' | 'register' | 'success'
 
@@ -97,7 +97,7 @@ export default function HomePage() {
         )}
       </div>
       <Image
-        src={configImages.BACKGROUND_DEFAULT.src}
+        src={BG_AUTH_INSTITUTION}
         alt="Background"
         width={1080}
         height={1080}
