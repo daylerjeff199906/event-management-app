@@ -17,6 +17,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   InstitutionForm,
   institutionTypes,
@@ -53,6 +55,8 @@ export function RegistrationForm({
   onInstitutionCreated
 }: RegistrationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
   const form = useForm({
     resolver: zodResolver(requestInstitutionSchema),
@@ -66,6 +70,16 @@ export function RegistrationForm({
   })
 
   const onSubmit = async (formData: RegistrationInstitutionForm) => {
+    if (!termsAccepted || !privacyAccepted) {
+      toast.error(
+        <ToastCustom
+          title="Aceptación requerida"
+          description="Debes aceptar los términos y condiciones y la política de privacidad para continuar"
+        />
+      )
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -153,6 +167,9 @@ export function RegistrationForm({
                         {...field}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Por favor, ingresa el nombre completo de la institución.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -234,8 +251,13 @@ export function RegistrationForm({
                   Información de Contacto
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Proporciona la información de contacto de la institución para
-                  facilitar la comunicación.
+                  Proporciona la información de contacto principal de la
+                  institución. El contacto ingresado será registrado con el rol
+                  de <span className="font-semibold">Owner</span>, permitiéndole
+                  gestionar los eventos y la administración de la institución en
+                  el portal. Asegúrate de que los datos sean correctos, ya que
+                  este usuario será el responsable de la gestión institucional y
+                  la comunicación oficial.
                 </p>
               </div>
 
@@ -298,6 +320,56 @@ export function RegistrationForm({
                     </FormItem>
                   )}
                 />
+              </div>
+
+              {/* Checkboxes de Términos y Condiciones */}
+              <div className="col-span-1 md:col-span-2 space-y-4 pt-4">
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="terms"
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) =>
+                      setTermsAccepted(checked as boolean)
+                    }
+                  />
+                  <label
+                    htmlFor="terms"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Acepto los{' '}
+                    <a
+                      href="/terminos-y-condiciones"
+                      target="_blank"
+                      className="text-primary hover:underline"
+                    >
+                      Términos y Condiciones
+                    </a>{' '}
+                    del servicio
+                  </label>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="privacy"
+                    checked={privacyAccepted}
+                    onCheckedChange={(checked) =>
+                      setPrivacyAccepted(checked as boolean)
+                    }
+                  />
+                  <label
+                    htmlFor="privacy"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    He leído y acepto la{' '}
+                    <a
+                      href="/politica-de-privacidad"
+                      target="_blank"
+                      className="text-primary hover:underline"
+                    >
+                      Política de Privacidad
+                    </a>{' '}
+                    y el tratamiento de mis datos
+                  </label>
+                </div>
               </div>
             </div>
 
