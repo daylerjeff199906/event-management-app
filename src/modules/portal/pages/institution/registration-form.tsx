@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   InstitutionForm,
   institutionTypes,
@@ -54,6 +55,8 @@ export function RegistrationForm({
   onInstitutionCreated
 }: RegistrationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
   const form = useForm({
     resolver: zodResolver(requestInstitutionSchema),
@@ -67,6 +70,16 @@ export function RegistrationForm({
   })
 
   const onSubmit = async (formData: RegistrationInstitutionForm) => {
+    if (!termsAccepted || !privacyAccepted) {
+      toast.error(
+        <ToastCustom
+          title="Aceptación requerida"
+          description="Debes aceptar los términos y condiciones y la política de privacidad para continuar"
+        />
+      )
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -307,6 +320,56 @@ export function RegistrationForm({
                     </FormItem>
                   )}
                 />
+              </div>
+
+              {/* Checkboxes de Términos y Condiciones */}
+              <div className="col-span-1 md:col-span-2 space-y-4 pt-4">
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="terms"
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) =>
+                      setTermsAccepted(checked as boolean)
+                    }
+                  />
+                  <label
+                    htmlFor="terms"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Acepto los{' '}
+                    <a
+                      href="/terminos-y-condiciones"
+                      target="_blank"
+                      className="text-primary hover:underline"
+                    >
+                      Términos y Condiciones
+                    </a>{' '}
+                    del servicio
+                  </label>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="privacy"
+                    checked={privacyAccepted}
+                    onCheckedChange={(checked) =>
+                      setPrivacyAccepted(checked as boolean)
+                    }
+                  />
+                  <label
+                    htmlFor="privacy"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    He leído y acepto la{' '}
+                    <a
+                      href="/politica-de-privacidad"
+                      target="_blank"
+                      className="text-primary hover:underline"
+                    >
+                      Política de Privacidad
+                    </a>{' '}
+                    y el tratamiento de mis datos
+                  </label>
+                </div>
               </div>
             </div>
 
