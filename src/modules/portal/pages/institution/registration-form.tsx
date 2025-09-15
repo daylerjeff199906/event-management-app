@@ -17,6 +17,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -153,6 +154,9 @@ export function RegistrationForm({
                         {...field}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Por favor, ingresa el nombre completo de la institución.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
