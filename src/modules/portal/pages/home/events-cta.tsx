@@ -21,7 +21,7 @@ export default function EventsCTA({
   urlImageBackground
 }: EventsCTAProps) {
   return (
-    <div className="relative overflow-hidden mb-12 lg:mb-24">
+    <div className="relative overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -31,7 +31,7 @@ export default function EventsCTA({
       <div className="absolute inset-0 bg-black/60" />
 
       <div className="relative text-white py-16 px-6 lg:px-12">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl">
           <div className="flex flex-col lg:flex-row items-start justify-between gap-8">
             <div className="flex-1 space-y-6">
               <div className="space-y-2">
