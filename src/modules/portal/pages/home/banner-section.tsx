@@ -6,7 +6,6 @@ import 'react-multi-carousel/lib/styles.css'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Calendar, Users } from 'lucide-react'
-import { FireworksBackground } from '@/components/animate-ui/components/backgrounds/fireworks'
 
 import {
   SLIDER_BANNER_1,
@@ -112,11 +111,6 @@ export const BannerCarousel = ({
               backgroundPosition: 'center'
             }}
           >
-            {/* Fireworks effect layer */}
-            <div className="absolute inset-0 pointer-events-none z-30 h-full w-full">
-              <FireworksBackground className="w-full h-full rounded-2xl" />
-            </div>
-
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 rounded-2xl z-20" />
 
             <div className="relative z-30 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24">
