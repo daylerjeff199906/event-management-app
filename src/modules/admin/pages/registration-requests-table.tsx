@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table'
 import { Eye } from 'lucide-react'
 import type { RegistrationRequest } from '@/types'
+import { APP_URL } from '@/data/config-app-url'
 
 interface RegistrationRequestsTableProps {
   requests: RegistrationRequest[]
@@ -72,7 +73,7 @@ export function RegistrationRequestsTable({
   const router = useRouter()
 
   const handleViewDetails = (request: RegistrationRequest) => {
-    router.push(`/solicitudes/${request.id}`)
+    router.push(APP_URL.ADMIN.REQUESTS_APPROVAL.DETAILS(request.id))
   }
 
   return (

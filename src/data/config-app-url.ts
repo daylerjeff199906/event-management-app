@@ -46,7 +46,10 @@ export const APP_URL = {
   },
   ADMIN: {
     BASE: '/admin',
-    REQUESTS_APPROVAL: '/admin/requests-approval',
+    REQUESTS_APPROVAL: {
+      BASE: '/admin/requests-approval',
+      DETAILS: (id: string) => `/admin/requests-approval/${id}`
+    },
     USERS: {
       BASE: '/admin/users',
       DETAIL: (id: string) => `/admin/users/${id}`,

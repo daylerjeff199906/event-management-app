@@ -142,7 +142,7 @@ export const adminMenu = [
         menu: {
           id: 2,
           name: 'Solcitudes',
-          url: APP_URL.ADMIN.REQUESTS_APPROVAL,
+          url: APP_URL.ADMIN.REQUESTS_APPROVAL.BASE,
           icon: Layers
         },
         submenus: []
