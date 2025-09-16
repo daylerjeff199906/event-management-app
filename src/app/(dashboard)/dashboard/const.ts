@@ -1,6 +1,7 @@
 'use client'
 import { APP_URL } from '@/data/config-app-url'
 import {
+  Building,
   // Dock,
   HomeIcon,
   Layers,
@@ -106,6 +107,52 @@ export const menuOrganization = [
           name: 'Inicio',
           url: APP_URL.ORGANIZATION.BASE,
           icon: HomeIcon
+        },
+        submenus: []
+      }
+    ]
+  }
+]
+
+export const adminMenu = [
+  {
+    section: {
+      id: 1,
+      name: 'Administración'
+    },
+    menus: [
+      {
+        menu: {
+          id: 1,
+          name: 'Inicio',
+          url: APP_URL.ADMIN.BASE,
+          icon: HomeIcon
+        },
+        submenus: []
+      }
+    ]
+  },
+  {
+    section: {
+      id: 2,
+      name: 'Gestión'
+    },
+    menus: [
+      {
+        menu: {
+          id: 2,
+          name: 'Solcitudes',
+          url: APP_URL.ADMIN.REQUESTS_APPROVAL,
+          icon: Layers
+        },
+        submenus: []
+      },
+      {
+        menu: {
+          id: 3,
+          name: 'Instituciones',
+          url: APP_URL.ADMIN.INSTITUTIONS.BASE,
+          icon: Building
         },
         submenus: []
       }

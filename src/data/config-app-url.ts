@@ -43,5 +43,20 @@ export const APP_URL = {
 
       EVENTS: (id: string) => `/organizations/${id}/events`
     }
-  }
+  },
+  ADMIN: {
+    BASE: '/admin',
+    REQUESTS_APPROVAL: '/admin/requests-approval',
+    USERS: {
+      BASE: '/admin/users',
+      DETAIL: (id: string) => `/admin/users/${id}`,
+      ADD_USER: '/admin/users/add'
+    },
+    INSTITUTIONS: {
+      BASE: '/admin/institutions',
+      DETAIL: (id: string) => `/admin/institutions/${id}`,
+      ADD_INSTITUTION: '/admin/institutions/add'
+    }
+  },
+  NOT_FOUND: '/404'
 }

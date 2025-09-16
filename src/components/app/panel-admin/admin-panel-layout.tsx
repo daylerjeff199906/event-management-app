@@ -40,7 +40,7 @@ export default function AdminPanelLayout({
 
       <main
         className={cn(
-          'min-h-screen bg-background dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 relative',
+          'min-h-[calc(100vh-22rem)] bg-background dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 relative',
           !settings.disabled && (isCurrentlyOpen ? 'lg:ml-60' : 'lg:ml-[90px]')
         )}
       >
@@ -50,9 +50,9 @@ export default function AdminPanelLayout({
           userName={userName}
           menuItems={menuDashboardFinal}
         />
-        <main className="w-full container mx-auto py-4 zoom-adjust px-4 md:px-6">
+        <div className="w-full container mx-auto py-4 zoom-adjust px-4 md:px-6">
           {children}
-        </main>
+        </div>
       </main>
       <Footer />
     </>
