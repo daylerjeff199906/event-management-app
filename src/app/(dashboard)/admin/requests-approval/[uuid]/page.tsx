@@ -57,7 +57,7 @@ const mockRequests: RegistrationRequestList[] = [
 
 interface PageProps {
   params: {
-    id: string
+    uuid: string
   }
 }
 
@@ -98,7 +98,7 @@ const getStatusBadge = (status: string | null | undefined) => {
 export default function RequestDetailsPage({ params }: PageProps) {
   const router = useRouter()
 
-  const request = mockRequests.find((req) => req.id === params.id)
+  const request = mockRequests.find((req) => req.id === params.uuid)
 
   if (!request) {
     return (
