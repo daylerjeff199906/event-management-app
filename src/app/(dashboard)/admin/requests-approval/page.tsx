@@ -1,4 +1,5 @@
-import { fetchRegistrationRequestsByInstitution } from '@/services/registration_requests.services'
+import { RegistrationRequestsTable } from '@/modules/admin'
+import { fetchRegistrationRequests } from '@/services/registration_requests.services'
 import { SearchParams } from '@/types'
 
 interface IProps {
@@ -17,7 +18,7 @@ export default async function Page(props: IProps) {
   const status = searchParams.status as string
   const searchQuery = (searchParams.search as string) || undefined
 
-  const { data, error } = await fetchRegistrationRequestsByInstitution({
+  const { data, error } = await fetchRegistrationRequests({
     page,
     pageSize,
     status,
@@ -28,7 +29,9 @@ export default async function Page(props: IProps) {
     return <div>Error: {error.message}</div>
   }
 
-  console.log('data', data?.data)
-
-  return <div>page</div>
+  return (
+    <div>
+      <RegistrationRequestsTable requests={data?.data || []} />
+    </div>
+  )
 }
