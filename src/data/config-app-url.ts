@@ -56,7 +56,8 @@ export const APP_URL = {
       BASE: '/admin/institutions',
       DETAIL: (id: string) => `/admin/institutions/${id}`,
       ADD_INSTITUTION: '/admin/institutions/add'
-    }
+    },
+    SETTINGS: '/admin/settings'
   },
   NOT_FOUND: '/404'
 }

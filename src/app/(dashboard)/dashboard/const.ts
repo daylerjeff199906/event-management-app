@@ -157,5 +157,39 @@ export const adminMenu = [
         submenus: []
       }
     ]
+  },
+  {
+    section: {
+      id: 3,
+      name: 'Usuarios'
+    },
+    menus: [
+      {
+        menu: {
+          id: 4,
+          name: 'Usuarios',
+          url: APP_URL.ADMIN.USERS.BASE,
+          icon: UserIcon
+        },
+        submenus: []
+      }
+    ]
+  },
+  {
+    section: {
+      id: 4,
+      name: 'Configuración'
+    },
+    menus: [
+      {
+        menu: {
+          id: 5,
+          name: 'Configuración',
+          url: APP_URL.ADMIN.SETTINGS,
+          icon: Settings
+        },
+        submenus: []
+      }
+    ]
   }
 ]

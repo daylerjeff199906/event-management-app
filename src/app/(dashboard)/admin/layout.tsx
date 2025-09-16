@@ -18,6 +18,12 @@ export default async function Layout(props: IProps) {
     redirect(APP_URL.AUTH.LOGIN)
   }
 
+  const { data: profile } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', user.user?.id)
+    .maybeSingle()
+
   // Si hay sesión, continuar con el flujo normal
   const { data: datarole } = await supabase
     .from('user_roles')
@@ -32,7 +38,7 @@ export default async function Layout(props: IProps) {
     redirect(APP_URL.NOT_FOUND)
   }
 
-  const profileData = (await datarole) as {
+  const profileData = (await profile) as {
     first_name: string | null
     email: string
     profile_image: string | null
@@ -41,7 +47,7 @@ export default async function Layout(props: IProps) {
   return (
     <AdminPanelLayout
       userName={profileData?.first_name || 'Usuario'}
-      email={datarole.email}
+      email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
       menuItems={adminMenu}
     >
