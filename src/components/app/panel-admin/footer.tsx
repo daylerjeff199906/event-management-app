@@ -15,8 +15,8 @@ export const Footer = () => {
       className={cn(
         'bg-card border-t py-12',
         isCurrentlyOpen
-          ? 'max-w-[calc(100vw-15rem)] ml-auto'
-          : 'max-w-[calc(100vw-6.4rem)] ml-auto'
+          ? 'max-w-[calc(100vw-16rem)] ml-auto'
+          : 'max-w-[calc(100vw-6.3rem)] ml-auto'
       )}
     >
       <div className="container mx-auto px-4">
