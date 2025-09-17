@@ -3,6 +3,8 @@ import { useSidebar, useStore } from '@/hooks'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import React from 'react'
+import { LogoRender } from '../miscellaneous/logo-render'
+import { APP_URL } from '@/data/config-app-url'
 
 export const Footer = () => {
   const sidebar = useStore(useSidebar, (x) => x)
@@ -21,8 +23,8 @@ export const Footer = () => {
     >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2">
-            <h3 className="text-2xl font-bold text-primary mb-4">EventosES</h3>
+          <div className="md:col-span-2 flex flex-col items-start gap-4">
+            <LogoRender href={APP_URL.PORTAL.BASE} />
             <p className="text-muted-foreground mb-4 max-w-md">
               La plataforma líder para descubrir y crear eventos locales en
               España. Conectamos comunidades a través de experiencias únicas.
