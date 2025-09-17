@@ -3,7 +3,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   AlertDialog,
@@ -17,14 +16,10 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import {
-  Building2,
   Mail,
   Phone,
   User,
   FileText,
-  MapPin,
-  Globe,
-  ImageIcon,
   ArrowLeft,
   CheckCircle,
   XCircle,
@@ -139,286 +134,122 @@ export default function RequestDetailsPage({
               Revisa toda la información antes de tomar una decisión
             </p>
           </div>
-
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              <strong>ID de Solicitud:</strong> {itemData.id}
-              <br />
-              <strong>Estado actual:</strong>{' '}
-              {getStatusBadge(itemData.request_status)}
-              {itemData.request_status === 'pending' && (
-                <span className="block mt-2 text-sm">
-                  💡 Esta solicitud está pendiente de revisión. Puedes aprobarla
-                  o rechazarla usando los botones de acción.
-                </span>
-              )}
-            </AlertDescription>
-          </Alert>
         </div>
       </div>
 
       <div className="space-y-8">
-        <Card className="shadow-none">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+        <Card className="shadow-none border border-border bg-white">
+          <CardHeader className="py-0">
+            <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
+              <FileText className="h-5 w-5 text-foreground/70" />
               Información de la Solicitud
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <CardContent className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground/60 uppercase tracking-wider">
                   Nombre de Institución
                 </label>
-                <p className="text-lg font-medium">
+                <p className="text-base font-medium text-foreground">
                   {itemData.institution_name}
                 </p>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-foreground/60 uppercase tracking-wider">
                   Tipo de Institución
                 </label>
-                <p className="text-lg font-medium capitalize">
+                <p className="text-base font-medium text-foreground capitalize">
                   {itemData.institution_type}
+                </p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-foreground/60 uppercase tracking-wider">
+                  Correo Institucional
+                </label>
+                <p className="text-base font-medium text-foreground">
+                  {itemData.institution?.institution_email || 'N/A'}
+                </p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-foreground/60 uppercase tracking-wider">
+                  Teléfono Institucional
+                </label>
+                <p className="text-base font-medium text-foreground">
+                  {itemData.institution?.contact_phone || 'N/A'}
                 </p>
               </div>
             </div>
 
-            <Separator />
+            {itemData?.institution?.description && (
+              <>
+                <div className="h-px bg-border"></div>
+                <div className="space-y-2">
+                  <h3 className="text-lg text-foreground">¿A qué se dedica?</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {itemData.institution.description}
+                  </p>
+                </div>
+              </>
+            )}
+            <div className="h-px bg-border"></div>
 
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Información de Contacto</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <Mail className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
+            <div className="space-y-6">
+              <h3 className="text-lg text-foreground">
+                Información de Contacto
+              </h3>
+              <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+                <div className="flex items-center gap-4">
+                  <Mail className="h-4 w-4 text-foreground/50 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-foreground/60 uppercase tracking-wider">
                       Email
                     </p>
-                    <p className="font-medium">{itemData.contact_email}</p>
+                    <p className="font-medium text-foreground">
+                      {itemData.contact_email}
+                    </p>
                   </div>
                 </div>
 
                 {itemData.contact_phone && (
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                    <Phone className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
+                  <div className="flex items-center gap-4">
+                    <Phone className="h-4 w-4 text-foreground/50 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-foreground/60 uppercase tracking-wider">
                         Teléfono
                       </p>
-                      <p className="font-medium">{itemData.contact_phone}</p>
+                      <p className="font-medium text-foreground">
+                        {itemData.contact_phone}
+                      </p>
                     </div>
                   </div>
                 )}
 
                 {itemData.contact_person && (
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                    <User className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
+                  <div className="flex items-center gap-4">
+                    <User className="h-4 w-4 text-foreground/50 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-foreground/60 uppercase tracking-wider">
                         Persona de Contacto
                       </p>
-                      <p className="font-medium">{itemData.contact_person}</p>
+                      <p className="font-medium text-foreground">
+                        {itemData.contact_person}
+                      </p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
+
+            <div className="h-px bg-border"></div>
+            <div className="space-y-2">
+              <h3 className="text-lg text-foreground">
+                Estado de la Solicitud
+              </h3>
+              {getStatusBadge(itemData.request_status)}
+            </div>
           </CardContent>
         </Card>
-
-        {itemData.institution && (
-          <Card className="shadow-none">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                Información Detallada de la Institución
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
-                    Estado de Validación
-                  </p>
-                  {getStatusBadge(itemData.institution.validation_status)}
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
-                    Estado General
-                  </p>
-                  <Badge
-                    variant={
-                      itemData.institution.status === 'ACTIVE'
-                        ? 'default'
-                        : 'outline'
-                    }
-                  >
-                    {itemData.institution.status || 'N/A'}
-                  </Badge>
-                </div>
-              </div>
-
-              {itemData.institution.description && (
-                <>
-                  <Separator />
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-lg">Descripción</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {itemData.institution.description}
-                    </p>
-                  </div>
-                </>
-              )}
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg">
-                  Contacto Institucional
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                    <Mail className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Email Institucional
-                      </p>
-                      <p className="font-medium">
-                        {itemData.institution.institution_email}
-                      </p>
-                    </div>
-                  </div>
-
-                  {itemData.institution.contact_phone && (
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <Phone className="h-5 w-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Teléfono
-                        </p>
-                        <p className="font-medium">
-                          {itemData.institution.contact_phone}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {itemData.institution.address && (
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <MapPin className="h-5 w-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Dirección
-                        </p>
-                        <p className="font-medium">
-                          {itemData.institution.address}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {(itemData.institution.document_number ||
-                itemData.institution.acronym ||
-                itemData.institution.brand) && (
-                <>
-                  <Separator />
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">
-                      Información Adicional
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {itemData.institution.document_number && (
-                        <div className="p-3 bg-muted/50 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Número de Documento
-                          </p>
-                          <p className="font-medium">
-                            {itemData.institution.document_number}
-                          </p>
-                        </div>
-                      )}
-                      {itemData.institution.acronym && (
-                        <div className="p-3 bg-muted/50 rounded-lg">
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Acrónimo
-                          </p>
-                          <p className="font-medium">
-                            {itemData.institution.acronym}
-                          </p>
-                        </div>
-                      )}
-                      {itemData.institution.brand && (
-                        <div className="p-3 bg-muted/50 rounded-lg md:col-span-2">
-                          <p className="text-sm font-medium text-muted-foreground">
-                            Marca
-                          </p>
-                          <p className="font-medium">
-                            {itemData.institution.brand}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {(itemData.institution.cover_image_url ||
-                itemData.institution.map_iframe_url) && (
-                <>
-                  <Separator />
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">
-                      Enlaces y Recursos
-                    </h3>
-                    <div className="space-y-3">
-                      {itemData.institution.cover_image_url && (
-                        <div className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                          <ImageIcon className="h-5 w-5 text-primary" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-muted-foreground">
-                              Imagen de Portada
-                            </p>
-                            <a
-                              href={itemData.institution.cover_image_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline font-medium"
-                            >
-                              Ver imagen de portada →
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                      {itemData.institution.map_iframe_url && (
-                        <div className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                          <Globe className="h-5 w-5 text-primary" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-muted-foreground">
-                              Ubicación
-                            </p>
-                            <a
-                              href={itemData.institution.map_iframe_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline font-medium"
-                            >
-                              Ver ubicación en mapa →
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        )}
 
         {itemData.request_status === 'pending' && (
           <Card className="border-2 border-dashed border-primary/20 shadow-none">
