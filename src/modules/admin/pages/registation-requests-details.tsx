@@ -79,17 +79,6 @@ export default function RequestDetailsPage({
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const formatDate = (dateString: string | null | undefined) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
   const handleApprove = async (request: RegistrationRequestList) => {
     setIsProcessing(true)
     try {
@@ -170,100 +159,6 @@ export default function RequestDetailsPage({
       </div>
 
       <div className="space-y-8">
-        {itemData.request_status === 'pending' && (
-          <Card className="border-2 border-dashed border-primary/20 shadow-none">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-primary">
-                <Clock className="h-5 w-5" />
-                Acciones Requeridas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Revisa cuidadosamente toda la información antes de tomar una
-                  decisión. Esta acción no se puede deshacer fácilmente.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        className="bg-green-600 hover:bg-green-700 flex-1"
-                        disabled={isProcessing}
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        {isProcessing ? 'Procesando...' : 'Aprobar Solicitud'}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          ¿Aprobar esta solicitud?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Estás a punto de aprobar la solicitud de registro para{' '}
-                          <strong>{itemData.institution_name}</strong>. Esta
-                          acción permitirá que la institución acceda al sistema.
-                          <br />
-                          <br />
-                          ¿Estás seguro de que quieres continuar?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleApprove(itemData)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          Sí, Aprobar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        className="flex-1"
-                        disabled={isProcessing}
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        {isProcessing ? 'Procesando...' : 'Rechazar Solicitud'}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          ¿Rechazar esta solicitud?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Estás a punto de rechazar la solicitud de registro
-                          para <strong>{itemData.institution_name}</strong>. La
-                          institución será notificada del rechazo.
-                          <br />
-                          <br />
-                          ¿Estás seguro de que quieres continuar?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleReject(itemData)}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
-                          Sí, Rechazar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <Card className="shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -329,30 +224,6 @@ export default function RequestDetailsPage({
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Fechas Importantes</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Fecha de Creación
-                  </p>
-                  <p className="font-medium">
-                    {formatDate(itemData.created_at)}
-                  </p>
-                </div>
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Última Actualización
-                  </p>
-                  <p className="font-medium">
-                    {formatDate(itemData.updated_at)}
-                  </p>
-                </div>
               </div>
             </div>
           </CardContent>
@@ -545,6 +416,100 @@ export default function RequestDetailsPage({
                   </div>
                 </>
               )}
+            </CardContent>
+          </Card>
+        )}
+
+        {itemData.request_status === 'pending' && (
+          <Card className="border-2 border-dashed border-primary/20 shadow-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Clock className="h-5 w-5" />
+                Acciones Requeridas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Revisa cuidadosamente toda la información antes de tomar una
+                  decisión. Esta acción no se puede deshacer fácilmente.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        className="bg-green-600 hover:bg-green-700 flex-1"
+                        disabled={isProcessing}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        {isProcessing ? 'Procesando...' : 'Aprobar Solicitud'}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          ¿Aprobar esta solicitud?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Estás a punto de aprobar la solicitud de registro para{' '}
+                          <strong>{itemData.institution_name}</strong>. Esta
+                          acción permitirá que la institución acceda al sistema.
+                          <br />
+                          <br />
+                          ¿Estás seguro de que quieres continuar?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleApprove(itemData)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Sí, Aprobar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        className="flex-1"
+                        disabled={isProcessing}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        {isProcessing ? 'Procesando...' : 'Rechazar Solicitud'}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          ¿Rechazar esta solicitud?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Estás a punto de rechazar la solicitud de registro
+                          para <strong>{itemData.institution_name}</strong>. La
+                          institución será notificada del rechazo.
+                          <br />
+                          <br />
+                          ¿Estás seguro de que quieres continuar?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleReject(itemData)}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Sí, Rechazar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}
