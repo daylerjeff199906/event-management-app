@@ -96,7 +96,7 @@ export default function RequestDetailsPage({
       console.log('Aprobando solicitud:', request.id)
       await new Promise((resolve) => setTimeout(resolve, 2000))
       alert('Solicitud aprobada exitosamente')
-    } catch (error) {
+    } catch {
       alert('Error al aprobar la solicitud')
     } finally {
       setIsProcessing(false)
@@ -109,7 +109,7 @@ export default function RequestDetailsPage({
       console.log('Rechazando solicitud:', request.id)
       await new Promise((resolve) => setTimeout(resolve, 2000))
       alert('Solicitud rechazada')
-    } catch (error) {
+    } catch {
       alert('Error al rechazar la solicitud')
     } finally {
       setIsProcessing(false)
@@ -171,7 +171,7 @@ export default function RequestDetailsPage({
 
       <div className="space-y-8">
         {itemData.request_status === 'pending' && (
-          <Card className="border-2 border-dashed border-primary/20">
+          <Card className="border-2 border-dashed border-primary/20 shadow-none">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-primary">
                 <Clock className="h-5 w-5" />
@@ -264,7 +264,7 @@ export default function RequestDetailsPage({
           </Card>
         )}
 
-        <Card>
+        <Card className="shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -359,7 +359,7 @@ export default function RequestDetailsPage({
         </Card>
 
         {itemData.institution && (
-          <Card>
+          <Card className="shadow-none">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
