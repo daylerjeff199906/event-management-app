@@ -245,3 +245,26 @@ export async function fetchRegistrationRequestsByInstitution({
     return { data: null, error: err as Error }
   }
 }
+
+export async function updateRegistrationRequestStatus(
+  id_request: string,
+  status: 'pending' | 'approved' | 'rejected'
+): Promise<{ data: RegistrationRequest | null; error: Error | null }> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('registration_requests')
+      .update({ status })
+      .eq('id', id_request)
+      .single()
+    if (error) {
+      console.error('Error updating registration request status:', error)
+      return { data: null, error }
+    }
+
+    return { data: data as RegistrationRequest, error: null }
+  } catch (err) {
+    console.error('Unexpected error updating registration request status:', err)
+    return { data: null, error: err as Error }
+  }
+}
