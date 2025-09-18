@@ -9,11 +9,11 @@ export const MENU_PROFILE_USER: MenuSection[] = [
     items: [
       {
         label: 'Perfil',
-        href: APP_URL.PROFILE.URL_BASE
+        href: APP_URL.DASHBOARD.PROFILE
       },
       {
-        label: 'Mi cuenta',
-        href: APP_URL.PROFILE.ACCOUNT
+        label: 'Configuración',
+        href: APP_URL.DASHBOARD.SETTINGS
       },
       {
         label: 'Cerrar sesión',

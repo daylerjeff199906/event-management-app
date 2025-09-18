@@ -6,23 +6,22 @@ import { IMoreApp } from './interface.navbar'
 import { SectionElement } from '@/types'
 import { useStore } from 'zustand'
 import { MENU_PROFILE } from './profile-menu'
-import { IPerson } from '@/types'
 import { ProfilePopover } from './profile-popover'
 import { SearchBar } from '../miscellaneous/search-bar'
 
 interface NavBarCustomProps {
   moreApps?: Array<IMoreApp>
-  person?: IPerson
+  userName?: string
+  urlPhoto?: string
   email?: string
   menuItems?: SectionElement[]
 }
 
 export const NavBarCustom = (props: NavBarCustomProps) => {
-  const { person, email, menuItems } = props
+  const { userName, urlPhoto, email, menuItems } = props
 
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
-  // const { isOpen, toggleOpen } = sidebar
 
   return (
     <header
@@ -41,9 +40,9 @@ export const NavBarCustom = (props: NavBarCustomProps) => {
           {/*Menu de perfil*/}
           <ProfilePopover
             profileData={{
-              names: `${person?.names} ${person?.last_name1} ${person?.last_name2}`,
+              names: `${userName}`,
               email,
-              photo: person?.photo
+              photo: urlPhoto
             }}
             menuSections={MENU_PROFILE.APP_MENU}
             showProgress={false}

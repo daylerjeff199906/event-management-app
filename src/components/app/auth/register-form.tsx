@@ -7,16 +7,6 @@ import * as z from 'zod'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import {
   Form,
   FormControl,
@@ -28,65 +18,118 @@ import {
 import { toast } from 'react-toastify'
 import { AuthLayout } from '../miscellaneous/auth-layout'
 import { APP_URL } from '@/data/config-app-url'
+import { createClient } from '@/utils/supabase/client'
+import { Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react'
+import { ToastCustom } from '../miscellaneous/toast-custom'
 
+// Esquema de validación con Zod
 const registerSchema = z
   .object({
-    firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-    lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres'),
+    username: z
+      .string()
+      .min(3, 'El nombre de usuario debe tener al menos 3 caracteres'),
     email: z.string().email('Ingresa un email válido'),
-    confirmEmail: z.string().email('Ingresa un email válido'),
-    country: z.string().min(1, 'Selecciona un país'),
-    city: z.string().min(1, 'Selecciona una ciudad'),
-    gender: z.enum(['male', 'female'], {
-      error: 'Selecciona un género'
-    }),
-    acceptTerms: z.boolean().refine((val) => val === true, {
-      message: 'Debes aceptar los términos y condiciones'
-    }),
-    acceptPromotions: z.boolean().optional()
+    password: z
+      .string()
+      .min(8, 'La contraseña debe tener al menos 8 caracteres')
+      .regex(/[a-z]/, 'La contraseña debe contener al menos una minúscula')
+      .regex(/[A-Z]/, 'La contraseña debe contener al menos una mayúscula')
+      .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
+      .regex(
+        /[^a-zA-Z0-9]/,
+        'La contraseña debe contener al menos un carácter especial'
+      ),
+    confirmPassword: z.string()
   })
-  .refine((data) => data.email === data.confirmEmail, {
-    message: 'Los emails no coinciden',
-    path: ['confirmEmail']
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword']
   })
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
 export const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState(0)
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      username: '',
       email: '',
-      confirmEmail: '',
-      country: '',
-      city: '',
-      gender: undefined,
-      acceptTerms: false,
-      acceptPromotions: false
+      password: '',
+      confirmPassword: ''
     }
   })
+
+  // Función para evaluar la fortaleza de la contraseña
+  const evaluatePasswordStrength = (password: string) => {
+    let strength = 0
+
+    // Longitud mínima
+    if (password.length >= 8) strength += 20
+
+    // Contiene minúsculas
+    if (/[a-z]/.test(password)) strength += 20
+
+    // Contiene mayúsculas
+    if (/[A-Z]/.test(password)) strength += 20
+
+    // Contiene números
+    if (/[0-9]/.test(password)) strength += 20
+
+    // Contiene caracteres especiales
+    if (/[^a-zA-Z0-9]/.test(password)) strength += 20
+
+    setPasswordStrength(strength)
+  }
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      toast.success('Cuenta creada exitosamente!')
-      console.log('Register data:', data)
+      const supabase = createClient()
+
+      // Registrar usuario con email y contraseña
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            username: data.username
+          }
+        }
+      })
+      if (error) {
+        toast.error(
+          <ToastCustom
+            title="Error al crear la cuenta"
+            description={error.message}
+          />
+        )
+        return
+      }
+
+      // Redirigir a completar perfil
+      if (authData.user) {
+        window.location.href = '/onboarding'
+        toast.success(
+          '¡Cuenta creada! Por favor revisa tu email para confirmar tu cuenta.'
+        )
+      }
     } catch {
-      toast.error('Error al crear la cuenta. Inténtalo de nuevo.')
+      toast.error('Error al crear la cuenta. Por favor intenta nuevamente.')
     } finally {
       setIsLoading(false)
     }
   }
 
+  const password = form.watch('password')
+
   return (
     <AuthLayout
-      logoSize={120}
+      logoSize={160}
       title="Crea tu cuenta"
       subTitle="Estas a un paso de unirte a nuestra comunidad. Descubre las novedades que tenemos para ti."
       hiddenName
@@ -96,55 +139,36 @@ export const RegisterForm = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
-                      Nombre
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="JOSE JEFFERSON"
-                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* Nombre de usuario */}
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                    Nombre de usuario
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="JHONDOE"
+                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
-                      Apellido
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="SANTOS PANAFO"
-                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Email Fields */}
+            {/* Correo */}
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                    Correo electrónico
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -158,182 +182,172 @@ export const RegisterForm = () => {
               )}
             />
 
+            {/* Contraseña */}
             <FormField
               control={form.control}
-              name="confirmEmail"
+              name="password"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                    Contraseña
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Repetir correo electrónico"
-                      className="border-gray-200 focus:border-teal-500 focus:ring-teal-500"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Ingresa tu contraseña"
+                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500 pr-10"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          evaluatePasswordStrength(e.target.value)
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+
+                  {/* Indicador de fortaleza de contraseña */}
+                  {password && (
+                    <div className="mt-2">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-xs text-gray-500">
+                          Seguridad de la contraseña:
+                        </span>
+                        <span className="text-xs font-medium">
+                          {passwordStrength < 60
+                            ? 'Débil'
+                            : passwordStrength < 80
+                            ? 'Media'
+                            : 'Fuerte'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className={`h-1.5 rounded-full ${
+                            passwordStrength < 60
+                              ? 'bg-red-500'
+                              : passwordStrength < 80
+                              ? 'bg-yellow-500'
+                              : 'bg-green-500'
+                          }`}
+                          style={{ width: `${passwordStrength}%` }}
+                        ></div>
+                      </div>
+
+                      <div className="mt-2 space-y-1">
+                        <div className="flex items-center text-xs">
+                          {password.length >= 8 ? (
+                            <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-red-500 mr-1" />
+                          )}
+                          Al menos 8 caracteres
+                        </div>
+                        <div className="flex items-center text-xs">
+                          {/[a-z]/.test(password) ? (
+                            <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-red-500 mr-1" />
+                          )}
+                          Al menos una minúscula
+                        </div>
+                        <div className="flex items-center text-xs">
+                          {/[A-Z]/.test(password) ? (
+                            <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-red-500 mr-1" />
+                          )}
+                          Al menos una mayúscula
+                        </div>
+                        <div className="flex items-center text-xs">
+                          {/[0-9]/.test(password) ? (
+                            <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-red-500 mr-1" />
+                          )}
+                          Al menos un número
+                        </div>
+                        <div className="flex items-center text-xs">
+                          {/[^a-zA-Z0-9]/.test(password) ? (
+                            <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-red-500 mr-1" />
+                          )}
+                          Al menos un carácter especial
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </FormItem>
+              )}
+            />
+
+            {/* Confirmar Contraseña */}
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                    Confirmar Contraseña
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Confirma tu contraseña"
+                        className="border-gray-200 focus:border-teal-500 focus:ring-teal-500 pr-10"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Location Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="border-gray-200 w-full">
-                          <SelectValue placeholder="País" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="peru">Perú</SelectItem>
-                          <SelectItem value="colombia">Colombia</SelectItem>
-                          <SelectItem value="mexico">México</SelectItem>
-                          <SelectItem value="argentina">Argentina</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="border-gray-200 w-full">
-                          <SelectValue placeholder="Ciudad" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="lima">Lima</SelectItem>
-                          <SelectItem value="pasco">Pasco</SelectItem>
-                          <SelectItem value="arequipa">Arequipa</SelectItem>
-                          <SelectItem value="cusco">Cusco</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Gender */}
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex space-x-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <Label htmlFor="male" className="text-sm">
-                          Hombre
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <Label htmlFor="female" className="text-sm">
-                          Mujer
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Checkboxes */}
-            <div className="space-y-3">
-              <FormField
-                control={form.control}
-                name="acceptTerms"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="flex space-x-1 flex-col">
-                      <Label className="text-xs text-gray-600 text-nowrap">
-                        Acepto los{' '}
-                        <Link href="#" className="text-primary hover:underline">
-                          Términos y Condiciones
-                        </Link>{' '}
-                        y la{' '}
-                        <Link href="#" className="text-primary hover:underline">
-                          Política de Privacidad
-                        </Link>
-                      </Label>
-                      <FormMessage />
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="acceptPromotions"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <Label className="text-xs text-gray-600">
-                        Doy mi consentimiento para recibir notificaciones y
-                        disfrutar de los beneficios, promociones y descuentos
-                        creados para mí.
-                      </Label>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="text-xs text-gray-500">* Campos obligatorios</div>
-
-            {/* reCAPTCHA placeholder */}
-            {/*end reCAPTCHA placeholder */}
-
+            {/* Botón principal */}
             <Button
               type="submit"
-              className="w-full  text-white py-3 rounded-lg font-medium"
+              className="w-full text-white py-3"
               disabled={isLoading}
             >
-              {isLoading ? 'Creando cuenta...' : 'Ingresar'}
+              {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
             </Button>
+
             <div className="flex flex-col items-center">
               <span className="text-gray-500 text-sm mb-2">
+                ¿Ya tienes una cuenta?{' '}
                 <Link
                   href={APP_URL.AUTH.LOGIN}
                   className="text-primary hover:underline font-semibold"
                 >
-                  Volver al inicio de sesión
+                  Inicia sesión
                 </Link>
               </span>
             </div>

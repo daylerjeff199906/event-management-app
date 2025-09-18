@@ -176,7 +176,6 @@ export function EventsGrid() {
             onLike={handleLike}
             viewMode={viewMode}
             primaryButtonLabel="Comprar entradas"
-            secondaryButtonLabel="Ver detalles"
           />
         ))}
       </div>

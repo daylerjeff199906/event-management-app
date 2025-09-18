@@ -3,16 +3,17 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTrigger,
+  SheetTrigger
 } from '@/components/ui/sheet'
 import { SectionElement } from '@/types'
 import { MenuIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Menu } from './menu'
+import { APP_CONFIG } from '@/data/config.app'
 
 interface SheetMenuProps {
-  title: string
+  title?: string
   menuItems?: SectionElement[]
 }
 
@@ -38,12 +39,14 @@ export function SheetMenu(props: SheetMenuProps) {
             <Link href="/dashboard" className="flex items-center gap-2">
               <div id="logo" className="flex items-center space-x-2">
                 <Image
-                  src="/brands/escudo-epg.webp"
+                  src={APP_CONFIG.logos.logoHorizontalDark}
                   alt="Logo"
                   width={18}
                   height={18}
                 />
-                <h1 className="font-bold text-xs line-clamp-2">{title}</h1>
+                {title && (
+                  <h1 className="font-bold text-xs line-clamp-2">{title}</h1>
+                )}
               </div>
             </Link>
           </Button>

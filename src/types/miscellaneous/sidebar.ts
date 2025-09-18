@@ -15,6 +15,8 @@ export interface SubmenuElement {
   description?: string
   icon?: null | (typeof icons)[keyof typeof icons]
   url: null | string
+  isDisabled?: boolean
+  isExternal?: boolean
 }
 
 export interface SectionSection {

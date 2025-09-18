@@ -4,17 +4,20 @@ import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-// import IMAGE_BRAND from '@/assets/brands/festify_logo.svg'
-import IMAGE_BRAND_DARK from '@/assets/brands/festify_logo_dark.svg'
+import { APP_CONFIG } from '@/data/config.app'
 
 export const LogoRender = ({
   href,
-  className
+  className,
+  size,
+  isOpened
 }: {
   nameApp?: string
   subtitle?: string
   href: string
   className?: string
+  size?: number
+  isOpened?: boolean
 }) => {
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
@@ -22,7 +25,7 @@ export const LogoRender = ({
 
   return (
     <>
-      {getOpenState() && (
+      {(getOpenState() || isOpened) && (
         <section
           id="logo"
           className={cn(
@@ -36,11 +39,16 @@ export const LogoRender = ({
           >
             <div className="flex flex-col items-start justify-center w-full">
               <Image
-                src={IMAGE_BRAND_DARK}
+                src={APP_CONFIG.logos.logoHorizontalDark}
                 alt="logo-festify"
-                className="w-32 h-8"
-                width={1400}
-                height={30}
+                width={size ?? 140}
+                height={size ? Math.round(size * 0.21) : 30} // Mantiene proporción aproximada
+                style={{
+                  width: size ? `${size}px` : '140px',
+                  height: size ? `${Math.round(size * 0.21)}px` : '30px',
+                  objectFit: 'contain'
+                }}
+                className="transition-all"
               />
             </div>
           </Link>

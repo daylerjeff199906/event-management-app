@@ -1,16 +1,16 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LoaderIcon, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useForm, Controller } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
-// import { recoveryPassword } from '@/api/auth'
 import { APP_URL } from '@/data/config-app-url'
 import { ForgotPasswordForm } from '@/types/auth/auth.interfaces'
 import { ToastCustom } from '../miscellaneous/toast-custom'
 import { AuthLayout } from '../miscellaneous/auth-layout'
+import { createClient } from '@/utils/supabase/client'
 
 interface IProps {
   email?: string
@@ -21,18 +21,82 @@ export const ForgotPassword = (props: IProps) => {
   const { control, handleSubmit, watch, formState } =
     useForm<ForgotPasswordForm>({
       defaultValues: {
-        email: defaultEmail
+        email: defaultEmail,
+        code: ''
       }
     })
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+  const [codeSent, setCodeSent] = useState(false)
 
   const router = useRouter()
+  const supabase = createClient()
 
   const { errors: formErrors } = formState
 
+  // Función para analizar los parámetros del fragmento de la URL
+  const parseFragmentParams = () => {
+    if (typeof window !== 'undefined') {
+      const fragment = window.location.hash.substring(1)
+      const params = new URLSearchParams(fragment)
+
+      const error = params.get('error')
+      const errorDescription = params.get('error_description')
+
+      if (error) {
+        const errorMessage = errorDescription
+          ? `${error}: ${errorDescription.replace(/\+/g, ' ')}`
+          : 'Ha ocurrido un error inesperado'
+
+        toast.error(<ToastCustom title="Error" description={errorMessage} />)
+
+        // Limpiar el fragmento de la URL
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname + window.location.search
+        )
+      }
+    }
+  }
+
+  useEffect(() => {
+    parseFragmentParams()
+  }, [])
+
+  const handleSendCode = async (email: string) => {
+    setIsLoading(true)
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/forgot-password`
+    })
+
+    if (error) {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description={
+            error.message || 'No se pudo enviar el código de verificación.'
+          }
+        />
+      )
+      setIsLoading(false)
+      return false
+    }
+
+    toast.success(
+      <ToastCustom
+        title="¡Código enviado!"
+        description="Revisa tu correo electrónico para obtener el código de verificación."
+      />
+    )
+    setCodeSent(true)
+    setIsLoading(false)
+    return true
+  }
+
   const handleChangePassword = async (data: ForgotPasswordForm) => {
-    const { email, newPassword, confirmPassword } = data
+    const { email, newPassword, confirmPassword, code } = data
 
     if (newPassword !== confirmPassword) {
       toast.error(
@@ -46,17 +110,38 @@ export const ForgotPassword = (props: IProps) => {
 
     setIsLoading(true)
 
-    // const response = await recoveryPassword({
-    //   email,
-    //   password: newPassword,
-    //   confirm_password: confirmPassword,
-    //   code_token: '' // Puedes ajustar esto según tu API
-    // })
-    const response = await Promise.resolve({
-      status: 200
+    if (!codeSent) {
+      // Primero enviar el código
+      await handleSendCode(email)
+      return
+    }
+
+    // Verificar que el código esté presente
+    if (!code) {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description="El código de verificación es requerido."
+        />
+      )
+      setIsLoading(false)
+      return
+    }
+
+    // Actualizar la contraseña
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
     })
 
-    if (response?.status === 200) {
+    if (error) {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description={error.message || 'No se pudo cambiar la contraseña.'}
+        />
+      )
+      setErrors([error.message])
+    } else {
       toast.success(
         <ToastCustom
           title="¡Éxito!"
@@ -64,8 +149,6 @@ export const ForgotPassword = (props: IProps) => {
         />
       )
       setTimeout(() => router.push(APP_URL.AUTH.LOGIN), 2000)
-    } else {
-      //   setErrors(response?.errors || [])
     }
 
     setIsLoading(false)
@@ -81,7 +164,9 @@ export const ForgotPassword = (props: IProps) => {
       <div className="space-y-6 max-w-sm mx-auto">
         <h2 className="text-2xl font-bold">Cambiar contraseña</h2>
         <p className="text-sm text-gray-600">
-          Por favor, ingresa tu correo electrónico y tu nueva contraseña.
+          {codeSent
+            ? 'Ingresa el código que recibiste por correo y tu nueva contraseña.'
+            : 'Por favor, ingresa tu correo electrónico para recibir un código de verificación.'}
         </p>
 
         {errors.length > 0 && (
@@ -119,7 +204,12 @@ export const ForgotPassword = (props: IProps) => {
               }
             }}
             render={({ field }) => (
-              <Input {...field} type="email" placeholder="Correo electrónico" />
+              <Input
+                {...field}
+                type="email"
+                placeholder="Correo electrónico"
+                disabled={codeSent}
+              />
             )}
           />
           {formErrors.email && (
@@ -128,51 +218,79 @@ export const ForgotPassword = (props: IProps) => {
             </p>
           )}
 
-          <Controller
-            name="newPassword"
-            control={control}
-            defaultValue=""
-            rules={{
-              required: 'La nueva contraseña es requerida',
-              minLength: {
-                value: 6,
-                message: 'La contraseña debe tener al menos 6 caracteres'
-              }
-            }}
-            render={({ field }) => <Input {...field} />}
-          />
-          {formErrors?.newPassword && (
-            <p className="text-red-500 text-sm mt-1">
-              {formErrors?.newPassword?.message}
-            </p>
-          )}
-
-          <Controller
-            name="confirmPassword"
-            control={control}
-            defaultValue=""
-            rules={{
-              required: 'Debes confirmar tu contraseña',
-              validate: (value) =>
-                value === watch('newPassword') || 'Las contraseñas no coinciden'
-            }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="password"
-                placeholder="Confirmar contraseña"
+          {codeSent && (
+            <>
+              <Controller
+                name="code"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: 'El código de verificación es requerido'
+                }}
+                render={({ field }) => (
+                  <Input {...field} placeholder="Código de verificación" />
+                )}
               />
-            )}
-          />
-          {formErrors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">
-              {formErrors.confirmPassword.message}
-            </p>
+              {formErrors.code && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formErrors.code.message}
+                </p>
+              )}
+
+              <Controller
+                name="newPassword"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: 'La nueva contraseña es requerida',
+                  minLength: {
+                    value: 6,
+                    message: 'La contraseña debe tener al menos 6 caracteres'
+                  }
+                }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    type="password"
+                    placeholder="Nueva contraseña"
+                  />
+                )}
+              />
+              {formErrors?.newPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formErrors?.newPassword?.message}
+                </p>
+              )}
+
+              <Controller
+                name="confirmPassword"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: 'Debes confirmar tu contraseña',
+                  validate: (value) =>
+                    value === watch('newPassword') ||
+                    'Las contraseñas no coinciden'
+                }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    type="password"
+                    placeholder="Confirmar contraseña"
+                  />
+                )}
+              />
+              {formErrors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formErrors.confirmPassword.message}
+                </p>
+              )}
+            </>
           )}
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <LoaderIcon className="animate-spin mr-2" />}
-            Cambiar contraseña
+            {codeSent ? 'Cambiar contraseña' : 'Enviar código'}
           </Button>
 
           <Button
