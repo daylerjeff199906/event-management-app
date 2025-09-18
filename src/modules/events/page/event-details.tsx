@@ -13,6 +13,15 @@ import {
 } from 'lucide-react'
 import { EventItemDetails } from '@/types'
 import EventStickyBanner from './event-sticky-banner'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb'
+import { APP_URL } from '@/data/config-app-url'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -38,6 +47,31 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 py-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href={APP_URL.DASHBOARD.BASE}>
+                Home
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={APP_URL.DASHBOARD.EVENTS.BASE}>
+                Eventos
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                {event.event_name.length > 30
+                  ? event.event_name.substring(0, 30) + '...'
+                  : event.event_name}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Hero Image */}
         <div className="relative w-full h-80 mb-6 rounded-2xl overflow-hidden">
@@ -191,20 +225,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Sticky Event Info */}
-            {/* <Card className="p-4 sticky top-16">
-              <div className="text-center space-y-3">
-                <Badge variant="secondary">Gratuito</Badge>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(event.start_date)} ·{' '}
-                  {formatTime(event.start_date)}
-                </p>
-                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
-                  Me interesa
-                </Button>
-              </div>
-            </Card> */}
+          <div className="">
             <EventStickyBanner
               event={event}
               badgeText="Gratuito"

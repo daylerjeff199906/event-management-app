@@ -177,8 +177,8 @@ export default function EventStickyBanner({
 
         {/* Event Details */}
         <div className="flex flex-col items-center gap-2">
-          <div className="flex flex-col items-center border rounded-md border-muted-foreground/20 p-2 w-16 h-16 justify-center mb-2">
-            <h2 className="text-lg font-semibold text-center">
+          <div className="flex flex-col items-center border rounded-md border-muted-foreground/20 p-2 w-16  justify-center mb-2">
+            <h2 className="text-2xl md:text-3xl font-semibold text-center">
               {getShortDateParts(event?.start_date).day}
             </h2>
             <p>{getShortDateParts(event?.start_date).month}</p>
