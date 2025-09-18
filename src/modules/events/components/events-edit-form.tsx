@@ -335,6 +335,23 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                       <AITextarea
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
+                        eventContext={{
+                          titulo: form.getValues('event_name'),
+                          fechaInicio: form.getValues('start_date')
+                            ? format(
+                                form.getValues('start_date')!,
+                                'dd/MM/yyyy',
+                                {
+                                  locale: es
+                                }
+                              )
+                            : undefined,
+                          categoria: categories?.find(
+                            (cat) =>
+                              cat.id.toString() ===
+                              form.getValues('category')?.toString()
+                          )?.name
+                        }}
                         {...field}
                       />
                     </FormControl>
