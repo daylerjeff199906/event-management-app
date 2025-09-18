@@ -121,7 +121,6 @@ export function AITextarea({
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [previousValue, setPreviousValue] = useState(value)
 
   const handleGenerateSuggestions = async () => {
     setIsGenerating(true)
