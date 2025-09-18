@@ -2,7 +2,15 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, Globe, Heart, Share, Flag } from 'lucide-react'
+import {
+  Calendar,
+  Clock,
+  Globe,
+  Heart,
+  Share,
+  Flag,
+  Clock1
+} from 'lucide-react'
 import { EventItemDetails } from '@/types'
 
 interface EventDetailsPageProps {
@@ -96,7 +104,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </div>
 
         {/* Event Info Card */}
-        <Card className="p-6 mb-8">
+        {/* <Card className="p-6 mb-8">
           <div className="flex justify-between items-center">
             <div>
               <Badge variant="secondary" className="mb-2">
@@ -110,27 +118,35 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
               Obtener entradas
             </Button>
           </div>
-        </Card>
+        </Card> */}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Date and Time */}
-            <section>
-              <h2 className="text-xl font-semibold mb-4">Fecha y hora</h2>
+            <section className="flex flex-col gap-4">
+              <h2 className="font-semibold mb-4 tracking-wider">
+                Fecha y hora
+              </h2>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Calendar className="w-5 h-5" />
                 <span>
-                  {formatDate(event.start_date)} ·{' '}
-                  {formatTime(event.start_date)}
+                  {formatDate(event.start_date)}
                   {event.end_date ? ` - ${formatTime(event.end_date)}` : ''}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Clock1 className="w-5 h-5" />
+                <span>
+                  {event?.time ? formatTime(event?.time) : 'No indicado'}
+                  {event?.duration ? ` · ${event.duration}` : ''}
                 </span>
               </div>
             </section>
 
             {/* Location */}
             <section>
-              <h2 className="text-xl font-semibold mb-4">Ubicación</h2>
+              <h2 className="font-semibold mb-4 tracking-wider">Ubicación</h2>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Globe className="w-5 h-5" />
                 <span>En línea</span>
@@ -141,7 +157,9 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
             <section>
               <h2 className="text-xl font-semibold mb-4">Bueno saber</h2>
               <div className="space-y-3">
-                <h3 className="font-medium">Destacados</h3>
+                <h3 className="font-semibold mb-4 tracking-wider">
+                  Destacados
+                </h3>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 text-muted-foreground">
                     <Clock className="w-4 h-4" />
@@ -157,13 +175,15 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
 
             {/* About Event */}
             <section>
-              <h2 className="text-xl font-semibold mb-4">
-                Acerca de este evento
-              </h2>
+              <h2 className="font-semibold mb-4 tracking-wider">Categoría</h2>
               <div className="space-y-4">
                 <div className="flex gap-2">
-                  <Badge variant="outline">Negocios</Badge>
-                  <Badge variant="outline">Carrera</Badge>
+                  <Badge
+                    variant="outline"
+                    className="px-3 py-1 rounded-full text-sm bg-secondary text-secondary-foreground"
+                  >
+                    {event.categorydata?.name || 'Sin categoría'}
+                  </Badge>
                 </div>
 
                 <h3 className="font-semibold">Tech Career Fair US/Canada</h3>
@@ -198,7 +218,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Sticky Event Info */}
-            <Card className="p-4 sticky top-4">
+            <Card className="p-4 sticky top-16">
               <div className="text-center space-y-3">
                 <Badge variant="secondary">Gratuito</Badge>
                 <p className="text-sm text-muted-foreground">
@@ -242,10 +262,13 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                       : event.institution?.institution_name}
                   </h3>
                   <div className="flex gap-6 text-sm text-muted-foreground mt-1">
+                    Autor de la publicación
+                  </div>
+                  {/* <div className="flex gap-6 text-sm text-muted-foreground mt-1">
                     <span>Seguidores: 62.5k</span>
                     <span>Eventos: 54</span>
                     <span>Organizando: 8 años</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className="flex gap-2">
