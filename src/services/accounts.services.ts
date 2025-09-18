@@ -1,5 +1,6 @@
 'use server'
 
+import { createServiceRoleSupabase } from '@/utils/supabase/core.supabase-admin'
 import { getSupabase } from './core.supabase'
 
 interface RegistrationRequest {
@@ -35,6 +36,7 @@ export async function createInstitutionAccount({
   lastName
 }: CreateInstitutionAccountParams): Promise<CreateAccountResult> {
   const supabase = await getSupabase()
+  const supabaseAdmin = createServiceRoleSupabase()
 
   try {
     // 1. Verificar si el usuario ya existe
@@ -57,13 +59,18 @@ export async function createInstitutionAccount({
       // 2. Crear usuario con contraseña por defecto
       const defaultPassword = 'TempPassword123!'
 
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password: defaultPassword,
-        options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-        }
-      })
+      const { data: authData, error: authError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email,
+          password: defaultPassword,
+          email_confirm: true,
+          user_metadata: {
+            is_institution_owner: true,
+            created_via_admin: true
+          }
+        })
+
+      console.log(authData, authError)
 
       if (authError) {
         throw new Error(`Error al crear usuario en Auth: ${authError.message}`)
