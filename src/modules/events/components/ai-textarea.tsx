@@ -121,6 +121,7 @@ export function AITextarea({
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [previousValue, setPreviousValue] = useState(value)
 
   const handleGenerateSuggestions = async () => {
     setIsGenerating(true)
@@ -151,32 +152,73 @@ export function AITextarea({
   return (
     <div className="relative space-y-2">
       <div className="relative">
-        <Textarea
-          ref={textareaRef}
-          placeholder={placeholder}
-          className={cn('min-h-[100px] pr-12', className)}
-          value={value}
-          onChange={handleTextareaChange}
-          name={name}
-          {...props}
-        />
-
-        {/* Botón de IA */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-primary/10"
-          onClick={handleGenerateSuggestions}
-          disabled={isGenerating}
-        >
-          <Sparkles
+        {/* Tabs */}
+        <div className="flex mb-2 space-x-2">
+          <button
+            type="button"
             className={cn(
-              'h-4 w-4 text-primary',
-              isGenerating && 'animate-spin'
+              'px-3 py-1 rounded-t text-sm font-medium transition-colors',
+              !showSuggestions && 'text-primary border-b-2 border-primary',
+              showSuggestions && 'text-foreground'
             )}
-          />
-        </Button>
+            onClick={() => setShowSuggestions(false)}
+          >
+            Editar
+          </button>
+          <button
+            type="button"
+            className={cn(
+              'px-3 py-1 rounded-t text-sm font-medium transition-colors',
+              showSuggestions && 'text-primary border-b-2 border-primary',
+              !showSuggestions && 'text-foreground'
+            )}
+            onClick={() => setShowSuggestions(true)}
+          >
+            Vista previa
+          </button>
+        </div>
+
+        {/* Editor o Vista previa */}
+        {!showSuggestions ? (
+          <div className="relative">
+            <Textarea
+              ref={textareaRef}
+              placeholder={placeholder}
+              className={cn('min-h-[100px] pr-12', className)}
+              value={value}
+              onChange={handleTextareaChange}
+              name={name}
+              {...props}
+            />
+
+            {/* Botón de IA */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-primary/10"
+              onClick={handleGenerateSuggestions}
+              disabled={isGenerating}
+            >
+              <Sparkles
+                className={cn(
+                  'h-4 w-4 text-primary',
+                  isGenerating && 'animate-spin'
+                )}
+              />
+            </Button>
+          </div>
+        ) : (
+          <div className="min-h-[100px] p-3 border rounded bg-background text-foreground whitespace-pre-wrap break-words text-sm">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: (value || '')
+                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\n/g, '<br />')
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Panel de sugerencias */}
@@ -207,9 +249,13 @@ export function AITextarea({
                 type="button"
                 className="w-full text-left p-3 rounded-md border border-border hover:bg-accent hover:text-accent-foreground transition-colors text-sm leading-relaxed"
                 onClick={() => handleSuggestionClick(suggestion)}
-              >
-                {suggestion}
-              </button>
+                dangerouslySetInnerHTML={{
+                  __html: suggestion.replace(
+                    /\*\*(.*?)\*\*/g,
+                    '<strong>$1</strong>'
+                  )
+                }}
+              />
             ))}
           </div>
 
