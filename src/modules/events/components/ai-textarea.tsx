@@ -34,7 +34,13 @@ const generateSuggestions = async (
   try {
     const { titulo, fechaInicio, categoria } = context
 
-    // Construir el prompt para Gemini
+    // Verificar que la API Key esté disponible
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    if (!apiKey) {
+      throw new Error('API Key no configurada')
+    }
+
+    // Construir el prompt
     const prompt = `Como asistente de redacción, genera 3 sugerencias concisas para la descripción de un evento.
     
 Contexto del evento:
@@ -42,31 +48,24 @@ Contexto del evento:
 - Fecha: ${fechaInicio || 'No especificada'}
 - Categoría: ${categoria || 'No especificada'}
 
-Texto actual (para no repetir): "${currentText.substring(0, 100)}${
+Texto actual: "${currentText.substring(0, 100)}${
       currentText.length > 100 ? '...' : ''
     }"
 
-Genera 3 sugerencias variadas, atractivas y relevantes para el contexto proporcionado. Las sugerencias deben estar en español.`
+Genera 3 sugerencias variadas, atractivas y relevantes en español.`
 
-    // Llamar a la API de Gemini
+    // Llamar a la API con el formato correcto de autenticación
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`
-          // O si usas la clave de API directamente (menos seguro):
-          // 'x-goog-api-key': process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           contents: [
             {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
+              parts: [{ text: prompt }]
             }
           ],
           generationConfig: {
@@ -79,29 +78,28 @@ Genera 3 sugerencias variadas, atractivas y relevantes para el contexto proporci
       }
     )
 
-    console.log('Gemini response status:', response)
-
     if (!response.ok) {
-      throw new Error(`Error en la API: ${response.status}`)
+      const errorData = await response.json()
+      console.error('Error detallado:', errorData)
+      throw new Error(
+        `Error en la API: ${response.status} - ${errorData.message}`
+      )
     }
 
     const data = await response.json()
-    console.log('Gemini response data:', data)
-
-    // Extraer el texto de la respuesta
     const responseText = data.candidates[0].content.parts[0].text
 
-    // Dividir el texto en sugerencias (asumiendo que cada sugerencia está en una línea separada)
+    // Procesar las sugerencias
     const suggestions = responseText
       .split('\n')
-      .map((line: string) => line.replace(/^\d+[\.\)]\s*/, '').trim()) // Eliminar numeración
-      .filter((line: string) => line.length > 0) // Filtrar líneas vacías
+      .map((line: string) => line.replace(/^\d+[\.\)]\s*/, '').trim())
+      .filter((line: string) => line.length > 0)
 
-    return suggestions.slice(0, 3) // Asegurar máximo 3 sugerencias
+    return suggestions.slice(0, 3)
   } catch (error) {
-    console.error('Error al generar sugerencias con Gemini:', error)
+    console.error('Error al generar sugerencias:', error)
 
-    // Sugerencias de respaldo en caso de error
+    // Sugerencias de respaldo
     return [
       'Una experiencia de aprendizaje diseñada para profesionales que buscan destacar en su campo.',
       'Contenido actualizado, networking de calidad y oportunidades de crecimiento profesional.',
