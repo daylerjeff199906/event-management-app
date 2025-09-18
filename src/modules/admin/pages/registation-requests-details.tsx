@@ -79,8 +79,6 @@ export default function RequestDetailsPage({
   const handleApprove = async (request: RegistrationRequestList) => {
     setIsProcessing(true)
     try {
-      // console.log('Aprobando solicitud:', request.id)
-      // await new Promise((resolve) => setTimeout(resolve, 2000))
       // alert('Solicitud aprobada exitosamente')
       const result = await createInstitutionAccount({
         email: request.contact_email,

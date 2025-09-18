@@ -49,7 +49,7 @@ export const ProfilePopover = ({
               </AvatarFallback>
             </Avatar>
             <div className="items-start hidden lg:grid">
-              <h3 className="text-start w-full inline text-sm">{`${profileData?.names}`}</h3>
+              <h3 className="text-start w-full inline text-sm truncate">{`${profileData?.names}`}</h3>
               <p className="text-xs text-gray-500 text-start">
                 {profileData.email}
               </p>
