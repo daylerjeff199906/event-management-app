@@ -72,7 +72,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="w-full max-w-6xl mx-auto px-4 pt-4">
         {/* Hero Image */}
         <div className="relative w-full h-80 mb-6 rounded-2xl overflow-hidden">
           <img
@@ -92,7 +92,8 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
             </div>
           </div>
         </div>
-
+      </div>
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Event Header */}
         <div className="flex justify-between items-start mb-8">
           <div className="flex-1">
@@ -295,7 +296,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </div>
 
         {/* More Events */}
-        <section className="mt-12">
+        {/* <section className="mt-12">
           <h2 className="text-xl font-semibold mb-6">
             Más eventos de este organizador
           </h2>
@@ -336,7 +337,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
               </Card>
             ))}
           </div>
-        </section>
+        </section> */}
       </div>
     </div>
   )
