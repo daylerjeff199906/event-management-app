@@ -42,7 +42,7 @@ export function EventsSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {loading
           ? // Skeleton loading
-            Array.from({ length: 3 }).map((_, index) => (
+            Array.from({ length: 4 }).map((_, index) => (
               <EventCardSkeleton key={index} />
             ))
           : events.map((event) => (
