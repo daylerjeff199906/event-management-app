@@ -1,5 +1,5 @@
 'use client'
-
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,7 +28,9 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { RegistrationRequestList } from '@/types'
-import { useState } from 'react'
+import { createInstitutionAccount } from '@/services/accounts.services'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 const getStatusBadge = (status: string | null | undefined) => {
   switch (status?.toLowerCase()) {
@@ -77,9 +79,33 @@ export default function RequestDetailsPage({
   const handleApprove = async (request: RegistrationRequestList) => {
     setIsProcessing(true)
     try {
-      console.log('Aprobando solicitud:', request.id)
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      alert('Solicitud aprobada exitosamente')
+      // console.log('Aprobando solicitud:', request.id)
+      // await new Promise((resolve) => setTimeout(resolve, 2000))
+      // alert('Solicitud aprobada exitosamente')
+      const result = await createInstitutionAccount({
+        email: request.contact_email,
+        firstName: request.contact_person || 'Usuario',
+        lastName: '',
+        institutionId: request.institution_uuid || '',
+        registrationRequestId: request.id
+      })
+
+      if (result.success) {
+        toast.success(
+          <ToastCustom
+            title="Solicitud Aprobada"
+            description="La cuenta ha sido creada y las credenciales enviadas al correo."
+          />
+        )
+        router.back()
+      } else {
+        toast.error(
+          <ToastCustom
+            title="Error"
+            description={result.message || 'No se pudo aprobar la solicitud.'}
+          />
+        )
+      }
     } catch {
       alert('Error al aprobar la solicitud')
     } finally {
@@ -261,10 +287,18 @@ export default function RequestDetailsPage({
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Revisa cuidadosamente toda la información antes de tomar una
-                  decisión. Esta acción no se puede deshacer fácilmente.
-                </p>
+                <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                  <li>
+                    Se creará un usuario con el correo {itemData.contact_email}{' '}
+                    como <strong>owner</strong> y se le enviarán todas las
+                    indicaciones al correo proporcionado.
+                  </li>
+                  <li>
+                    La institución será asignada a este usuario y podrá ingresar
+                    desde su apartado. Si la persona ya tiene cuenta, se le
+                    asignará esta institución y la institución quedará activa.
+                  </li>
+                </ul>
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <AlertDialog>
