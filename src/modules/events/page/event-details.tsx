@@ -52,7 +52,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href={APP_URL.DASHBOARD.BASE}>
-                Home
+                Inicio
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -257,7 +257,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                       ? `${event.user.first_name?.[0] ?? ''}${
                           event.user.last_name?.[0] ?? ''
                         }`
-                      : event.institution?.acronym?.[0] ?? ''}
+                      : event.institution?.institution_name?.[0] ?? ''}
                   </AvatarFallback>
                 </Avatar>
                 <div>
