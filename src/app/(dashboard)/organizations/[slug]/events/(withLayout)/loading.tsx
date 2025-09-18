@@ -1,21 +1,20 @@
-// app/events/loading.tsx
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Loading() {
   return (
     <div className="w-full">
       {/* Grid para los eventos */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="flex flex-col rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+            className="flex flex-col rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900 aspect-square"
           >
             {/* Imagen */}
-            <Skeleton className="h-56 w-full rounded-t-xl" />
+            <Skeleton className="h-1/2 w-full rounded-t-xl" />
 
             {/* Contenido */}
-            <div className="flex flex-col p-4">
+            <div className="flex flex-col p-4 flex-1">
               {/* Título */}
               <Skeleton className="h-6 w-3/4 rounded-md" />
 

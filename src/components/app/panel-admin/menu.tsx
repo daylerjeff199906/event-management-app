@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Ellipsis } from 'lucide-react'
+import { Ellipsis, ExternalLink } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -100,6 +100,9 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                                   >
                                     {menu.name}
                                   </p>
+                                  {menu?.isExternal && isOpen && (
+                                    <ExternalLink className="h-4 w-4 inline-block ml-1" />
+                                  )}
                                 </Link>
                               )}
                             </Button>

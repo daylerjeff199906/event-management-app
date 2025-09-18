@@ -3,7 +3,8 @@ import {
   BannerCarousel,
   CategoryGrid,
   EventsCTA,
-  EventsSection
+  EventsSection,
+  ScrollMensageSection
 } from '@/modules/portal/pages'
 
 export default function Page() {
@@ -13,6 +14,10 @@ export default function Page() {
       <EventsSection />
       <EventsCTA urlImageBackground={BG_CTA_EVENTS.src} />
       <CategoryGrid className="py-12 md::py-16 lg:py-24" />
+      <ScrollMensageSection
+        messsage1="Tu Puerta a Eventos Emocionantes"
+        messsage2="Bienvenido a VamoYa"
+      />
       {/* <HeroSection /> */}
     </>
   )

@@ -32,7 +32,6 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Popover,
   PopoverContent,
@@ -55,6 +54,7 @@ import { createEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
+import { AITextarea } from './ai-textarea'
 
 const locationTypes = [
   {
@@ -214,7 +214,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Textarea
+                      <AITextarea
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
                         {...field}

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.14",
     "@hookform/resolvers": "^5.2.1",
     "@origin-space/image-cropper": "^0.1.9",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -30,12 +31,13 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/ssr": "^0.6.1",
     "@vercel/blob": "^1.1.1",
+    "ai": "^5.0.46",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "immer": "^10.1.1",
     "lucide-react": "^0.539.0",
-    "motion": "^12.23.12",
+    "motion": "^12.23.15",
     "next": "15.4.6",
     "next-auth": "^5.0.0-beta.29",
     "react": "19.1.0",

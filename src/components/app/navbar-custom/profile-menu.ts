@@ -8,6 +8,10 @@ export const MENU_PROFILE_USER: MenuSection[] = [
     label: 'Opciones',
     items: [
       {
+        label: 'Panel de control',
+        href: APP_URL.DASHBOARD.BASE
+      },
+      {
         label: 'Perfil',
         href: APP_URL.DASHBOARD.PROFILE
       },
