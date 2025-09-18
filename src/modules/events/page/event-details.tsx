@@ -12,6 +12,7 @@ import {
   Clock1
 } from 'lucide-react'
 import { EventItemDetails } from '@/types'
+import EventStickyBanner from './event-sticky-banner'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -185,32 +186,6 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                     {event.categorydata?.name || 'Sin categoría'}
                   </Badge>
                 </div>
-
-                <h3 className="font-semibold">Tech Career Fair US/Canada</h3>
-
-                <div className="prose prose-sm max-w-none text-muted-foreground">
-                  <p>
-                    Estaremos organizando una Feria de Carreras Tecnológicas
-                    virtual con nuestros socios de contratación de startups de
-                    rápido crecimiento y empresas Fortune 500 en tecnología en
-                    EE.UU./Canadá. Habrá un enfoque en ayudar a las empresas a
-                    lograr su iniciativa de diversidad e inclusión con más
-                    candidatos diversos no tradicionales para su grupo de
-                    talentos.
-                  </p>
-                  <p className="mt-4">
-                    Los roles disponibles que nuestras empresas de contratación
-                    buscan llenar son los siguientes:
-                  </p>
-                  <ul className="mt-3 space-y-1">
-                    <li>• Ingeniería de Software</li>
-                    <li>• Gestión de Productos</li>
-                    <li>• Científico de Datos</li>
-                    <li>• Ingeniero de IA/Aprendizaje Automático</li>
-                    <li>• Analista de Datos</li>
-                    <li>• Diseño UI/UX</li>
-                  </ul>
-                </div>
               </div>
             </section>
           </div>
@@ -218,7 +193,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Sticky Event Info */}
-            <Card className="p-4 sticky top-16">
+            {/* <Card className="p-4 sticky top-16">
               <div className="text-center space-y-3">
                 <Badge variant="secondary">Gratuito</Badge>
                 <p className="text-sm text-muted-foreground">
@@ -226,10 +201,19 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                   {formatTime(event.start_date)}
                 </p>
                 <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
-                  Obtener entradas
+                  Me interesa
                 </Button>
               </div>
-            </Card>
+            </Card> */}
+            <EventStickyBanner
+              event={event}
+              badgeText="Gratuito"
+              actionType="interest"
+              showEndDate={true}
+              showTime={true}
+              showLocation={true}
+              cardClassName="w-full min-w-[340px]"
+            />
           </div>
         </div>
 
