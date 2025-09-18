@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { Event } from '@/types'
 import { cn } from '@/lib/utils'
+import { BG_EVENT } from '@/assets/images'
 
 interface EventCardProps {
   event: Event
@@ -67,52 +68,50 @@ export function EventCard({
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border bg-card overflow-hidden pt-0 shadow-none">
-      {event.cover_image_url && (
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={event.cover_image_url || '/placeholder.svg'}
-            alt={event.event_name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 bg-black/50 hover:bg-black/60 text-white rounded-full hover:text-white"
-              >
-                <MoreVertical className="h-4 w-4" />
-                <span className="sr-only">Abrir menú de acciones</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={() => onEdit?.(event)}
-                className="cursor-pointer"
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Editar evento
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onChangeImage?.(event)}
-                className="cursor-pointer"
-              >
-                <ImageIcon className="h-4 w-4 mr-2" />
-                Cambiar imagen
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => onToggleStatus?.(event)}
-                className="cursor-pointer"
-              >
-                <ToggleLeft className="h-4 w-4 mr-2" />
-                Cambiar estado
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={event.cover_image_url || BG_EVENT.src}
+          alt={event.event_name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 bg-black/50 hover:bg-black/60 text-white rounded-full hover:text-white"
+            >
+              <MoreVertical className="h-4 w-4" />
+              <span className="sr-only">Abrir menú de acciones</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={() => onEdit?.(event)}
+              className="cursor-pointer"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Editar evento
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onChangeImage?.(event)}
+              className="cursor-pointer"
+            >
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Cambiar imagen
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onToggleStatus?.(event)}
+              className="cursor-pointer"
+            >
+              <ToggleLeft className="h-4 w-4 mr-2" />
+              Cambiar estado
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-4">
