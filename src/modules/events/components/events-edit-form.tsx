@@ -32,7 +32,6 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Popover,
   PopoverContent,
@@ -57,6 +56,7 @@ import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
 import SearchLocation from '@/components/app/miscellaneous/search-location'
 import { AddressForm } from './address-form'
+import { AITextarea } from './ai-textarea'
 
 const locationTypes = [
   {
@@ -332,7 +332,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Textarea
+                      <AITextarea
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
                         {...field}
