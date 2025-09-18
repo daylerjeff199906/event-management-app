@@ -28,7 +28,7 @@ const BUTTONS = [
     icon: null,
     text: TEXTS.buttonUser,
     className:
-      'bg-green-500 hover:bg-green-600 text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto',
+      'bg-primary text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto hover:cursor-pointer py-6',
     variant: undefined
   },
   {
@@ -38,7 +38,7 @@ const BUTTONS = [
     icon: <Building2 className="h-5 w-5 mr-2" />,
     text: TEXTS.buttonInstitution,
     className:
-      'border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold text-lg px-8 py-4 rounded-full transition-all duration-300 w-full sm:w-auto bg-transparent',
+      'border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold text-lg px-8 py-4 rounded-full transition-all duration-300 w-full sm:w-auto bg-transparent hover:cursor-pointer py-6 bg-gray-50',
     variant: 'outline'
   }
 ]
