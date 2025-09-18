@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Sparkles, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { google } from '@ai-sdk/google'
-import { generateText } from 'ai'
+// import { google } from '@ai-sdk/google'
+// import { generateText } from 'ai'
 
 interface EventContext {
   titulo?: string
@@ -27,88 +27,88 @@ interface AITextareaProps {
 }
 
 // Función para obtener sugerencias de la API de Gemini
-// const generateSuggestions = async (
-//   context: EventContext,
-//   currentText: string
-// ): Promise<string[]> => {
-//   try {
-//     const { titulo, fechaInicio, categoria } = context
+const generateSuggestions = async (
+  context: EventContext,
+  currentText: string
+): Promise<string[]> => {
+  try {
+    const { titulo, fechaInicio, categoria } = context
 
-//     // Construir el prompt para Gemini
-//     const prompt = `Como asistente de redacción, genera 3 sugerencias concisas para la descripción de un evento.
+    // Construir el prompt para Gemini
+    const prompt = `Como asistente de redacción, genera 3 sugerencias concisas para la descripción de un evento.
+    
+Contexto del evento:
+- Título: ${titulo || 'No especificado'}
+- Fecha: ${fechaInicio || 'No especificada'}
+- Categoría: ${categoria || 'No especificada'}
 
-// Contexto del evento:
-// - Título: ${titulo || 'No especificado'}
-// - Fecha: ${fechaInicio || 'No especificada'}
-// - Categoría: ${categoria || 'No especificada'}
+Texto actual (para no repetir): "${currentText.substring(0, 100)}${
+      currentText.length > 100 ? '...' : ''
+    }"
 
-// Texto actual (para no repetir): "${currentText.substring(0, 100)}${
-//       currentText.length > 100 ? '...' : ''
-//     }"
+Genera 3 sugerencias variadas, atractivas y relevantes para el contexto proporcionado. Las sugerencias deben estar en español.`
 
-// Genera 3 sugerencias variadas, atractivas y relevantes para el contexto proporcionado. Las sugerencias deben estar en español.`
+    // Llamar a la API de Gemini
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`
+          // O si usas la clave de API directamente (menos seguro):
+          // 'x-goog-api-key': process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024
+          }
+        })
+      }
+    )
 
-//     // Llamar a la API de Gemini
-//     const response = await fetch(
-//       'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
-//       {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`
-//           // O si usas la clave de API directamente (menos seguro):
-//           // 'x-goog-api-key': process.env.NEXT_PUBLIC_GEMINI_API_KEY,
-//         },
-//         body: JSON.stringify({
-//           contents: [
-//             {
-//               parts: [
-//                 {
-//                   text: prompt
-//                 }
-//               ]
-//             }
-//           ],
-//           generationConfig: {
-//             temperature: 0.7,
-//             topK: 40,
-//             topP: 0.95,
-//             maxOutputTokens: 1024
-//           }
-//         })
-//       }
-//     )
+    console.log('Gemini response status:', response)
 
-//     console.log('Gemini response status:', response)
+    if (!response.ok) {
+      throw new Error(`Error en la API: ${response.status}`)
+    }
 
-//     if (!response.ok) {
-//       throw new Error(`Error en la API: ${response.status}`)
-//     }
+    const data = await response.json()
+    console.log('Gemini response data:', data)
 
-//     const data = await response.json()
-//     console.log('Gemini response data:', data)
+    // Extraer el texto de la respuesta
+    const responseText = data.candidates[0].content.parts[0].text
 
-//     // Extraer el texto de la respuesta
-//     const responseText = data.candidates[0].content.parts[0].text
+    // Dividir el texto en sugerencias (asumiendo que cada sugerencia está en una línea separada)
+    const suggestions = responseText
+      .split('\n')
+      .map((line: string) => line.replace(/^\d+[\.\)]\s*/, '').trim()) // Eliminar numeración
+      .filter((line: string) => line.length > 0) // Filtrar líneas vacías
 
-//     // Dividir el texto en sugerencias (asumiendo que cada sugerencia está en una línea separada)
-//     const suggestions = responseText
-//       .split('\n')
-//       .map((line: string) => line.replace(/^\d+[\.\)]\s*/, '').trim()) // Eliminar numeración
-//       .filter((line: string) => line.length > 0) // Filtrar líneas vacías
+    return suggestions.slice(0, 3) // Asegurar máximo 3 sugerencias
+  } catch (error) {
+    console.error('Error al generar sugerencias con Gemini:', error)
 
-//     return suggestions.slice(0, 3) // Asegurar máximo 3 sugerencias
-//   } catch (error) {
-//     console.error('Error al generar sugerencias con Gemini:', error)
-
-//     // Sugerencias de respaldo en caso de error
-//     return [
-//       'Una experiencia de aprendizaje diseñada para profesionales que buscan destacar en su campo.',
-//       'Contenido actualizado, networking de calidad y oportunidades de crecimiento profesional.',
-//       'Inversión en tu desarrollo profesional con retorno inmediato en conocimientos y contactos.'
-//     ]
-//   }
-// }
+    // Sugerencias de respaldo en caso de error
+    return [
+      'Una experiencia de aprendizaje diseñada para profesionales que buscan destacar en su campo.',
+      'Contenido actualizado, networking de calidad y oportunidades de crecimiento profesional.',
+      'Inversión en tu desarrollo profesional con retorno inmediato en conocimientos y contactos.'
+    ]
+  }
+}
 
 export function AITextarea({
   placeholder = 'Describe tu evento...',
@@ -129,38 +129,9 @@ export function AITextarea({
     setShowSuggestions(false)
 
     try {
-      //   const newSuggestions = await generateSuggestions(eventContext, value)
-      //   setSuggestions(newSuggestions)
-      //   setShowSuggestions(true)
-      const response = await generateText({
-        model: 'gemini-1.5-pro',
-        prompt: `Como asistente de redacción, genera 3 sugerencias concisas para la descripción de un evento.
-Contexto del evento:
-- Título: ${eventContext.titulo || 'No especificado'}
-- Fecha: ${eventContext.fechaInicio || 'No especificada'}
-- Categoría: ${eventContext.categoria || 'No especificada'}
-Texto actual (para no repetir): "${value.substring(0, 100)}${
-          value.length > 100 ? '...' : ''
-        }"
-Genera 3 sugerencias variadas, atractivas y relevantes para el contexto proporcionado. Las sugerencias deben estar en español.`
-      })
-      console.log('AI response:', response)
-      if (response.text) {
-        const newSuggestions = response.text
-          .split('\n')
-          .map((line) => line.replace(/^\d+[\.\)]\s*/, '').trim()) // Eliminar numeración
-          .filter((line) => line.length > 0) // Filtrar líneas vacías
-        setSuggestions(newSuggestions.slice(0, 3)) // Asegurar máximo 3 sugerencias
-        setShowSuggestions(true)
-      } else {
-        console.error('No se recibió texto de la IA')
-        setSuggestions([
-          'Una experiencia de aprendizaje diseñada para profesionales que buscan destacar en su campo.',
-          'Contenido actualizado, networking de calidad y oportunidades de crecimiento profesional.',
-          'Inversión en tu desarrollo profesional con retorno inmediato en conocimientos y contactos.'
-        ])
-        setShowSuggestions(true)
-      }
+      const newSuggestions = await generateSuggestions(eventContext, value)
+      setSuggestions(newSuggestions)
+      setShowSuggestions(true)
     } catch (error) {
       console.error('Error al generar sugerencias:', error)
       // Puedes mostrar un mensaje de error al usuario si lo deseas
