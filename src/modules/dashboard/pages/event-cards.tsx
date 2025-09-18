@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Calendar, MapPin, Users } from 'lucide-react'
 import BG_DEFAULT from '@/assets/images/bg-default.webp'
+import { cardBackgrounds } from '@/assets/card-backgrounds'
 
 interface eventCard {
   title: string
@@ -16,7 +17,7 @@ const eventCards: eventCard[] = [
   {
     title: 'Descubre eventos musicales',
     description: 'Encuentra conciertos y festivales cerca de ti',
-    // image: '/colorful-concert-stage.png',
+    image: cardBackgrounds.Music.src,
     category: 'Música',
     color: 'bg-gradient-to-br from-pink-400 to-rose-500',
     textColor: 'text-white'
@@ -24,7 +25,7 @@ const eventCards: eventCard[] = [
   {
     title: 'Eventos gastronómicos',
     description: 'Degustaciones, cenas temáticas y festivales de comida',
-    // image: '/colorful-food-festival.png',
+    image: cardBackgrounds.Gastronomy.src,
     category: 'Gastronomía',
     color: 'bg-gradient-to-br from-emerald-400 to-teal-600',
     textColor: 'text-white'
@@ -32,7 +33,7 @@ const eventCards: eventCard[] = [
   {
     title: 'Eventos deportivos',
     description: 'Partidos, competencias y actividades deportivas',
-    // image: '/bustling-sports-stadium.png',
+    image: cardBackgrounds.Sports.src,
     category: 'Deportes',
     color: 'bg-gradient-to-br from-gray-800 to-gray-900',
     textColor: 'text-white'
@@ -40,7 +41,7 @@ const eventCards: eventCard[] = [
   {
     title: 'Arte y cultura',
     description: 'Exposiciones, teatro y eventos culturales',
-    // image: '/placeholder-4fwkz.png',
+    image: cardBackgrounds.Art.src,
     category: 'Arte',
     color: 'bg-gradient-to-br from-orange-400 to-red-500',
     textColor: 'text-white'

@@ -17,12 +17,12 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { configImages } from '@/data/config.images'
-// import { fetchLogin } from '@/api/auth'
 import { APP_URL } from '@/data/config-app-url'
 import { toast } from 'react-toastify'
-import { ToastCustom } from '../miscellaneous/toast-custom'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AuthLayout } from '../miscellaneous/auth-layout'
+import { createClient } from '@/utils/supabase/client' // Importamos el cliente de Supabase
+import { ToastCustom } from '../miscellaneous/toast-custom'
 
 const loginSchema = z.object({
   username: z.string().min(1, 'El usuario es requerido'),
@@ -52,32 +52,60 @@ export const LoginForm = () => {
     setIsLoading(true)
     setErrorsList([])
 
-    // const response = await fetchLogin(data)
-    const response = await Promise.resolve({
-      status: 200,
-      data: {
-        first_name: 'John',
-        last_name: 'Doe'
-      }
-    })
-    if (response.status === 200 && response.data) {
-      toast.success(
-        <ToastCustom
-          title="Inicio de sesión exitoso"
-          description={`Bienvenido, ${response?.data?.first_name} ${response?.data?.last_name}.`}
-        />
-      )
-      router.push(redirectUrl || APP_URL.DASHBOARD.BASE)
-    } else {
-      // setErrorsList(response.errors || ['Error desconocido.'])
-    }
+    const supabase = createClient() // Usamos el cliente de Supabase
 
-    setIsLoading(false)
+    try {
+      // Intentamos iniciar sesión con nombre de usuario y contraseña
+      const { data: session, error } = await supabase.auth.signInWithPassword({
+        email: data.username,
+        password: data.password
+      })
+
+      if (error) {
+        setErrorsList([error.message])
+        toast.error('Error al iniciar sesión')
+        return
+      }
+
+      // La sesión se obtiene aquí, y puedes redirigir de inmediato
+      if (session?.user) {
+        toast.success(
+          <ToastCustom
+            title={`Bienvenido, ${session?.user?.email}!`}
+            description="Has iniciado sesión correctamente."
+          />
+        )
+        // Redirige al dashboard o a la URL solicitada
+        router.push(redirectUrl || APP_URL.DASHBOARD.BASE)
+      }
+    } catch (error) {
+      const { message } = error as { message: string }
+      toast.error(message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    const supabase = createClient()
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // Esta debe ser EXACTAMENTE la misma URL que tienes en Google Cloud Console
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+    } catch (error) {
+      const { message } = error as { message: string }
+      toast.error(message)
+    }
   }
 
   return (
     <AuthLayout
-      hiddenApp
+      hiddenName
+      logoSize={160}
       title="¡Bienvenido!"
       subTitle="Ingresa tus credenciales para acceder a tu cuenta. Descubre las novedades que tenemos para ti."
       backgroundImage={configImages.BACKGROUND_DEFAULT.src}
@@ -170,17 +198,24 @@ export const LoginForm = () => {
                   )}
                 />
 
-                <Link
+                {/* <Link
                   href={APP_URL.AUTH.FORGOT_PASSWORD}
                   className="text-sm hover:underline text-primary"
                 >
                   ¿Olvidaste tu contraseña?
-                </Link>
+                </Link> */}
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </Button>
+              <button
+                onClick={handleGoogleLogin}
+                type="button"
+                className="border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100 w-full mt-4"
+              >
+                Iniciar sesión con Google
+              </button>
             </form>
           </Form>
 
@@ -194,6 +229,12 @@ export const LoginForm = () => {
                 Regístrate gratis
               </Link>
             </span>
+            <Link
+              href={APP_URL.PORTAL.BASE}
+              className="text-primary hover:underline text-sm mt-4"
+            >
+              Ir a la página de inicio
+            </Link>
           </div>
         </div>
       </div>

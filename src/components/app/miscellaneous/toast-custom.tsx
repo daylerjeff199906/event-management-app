@@ -10,9 +10,9 @@ export const ToastCustom = (props: ToastProps) => {
 
   return (
     <div className="flex items-center space-x-4">
-      <div className="text-sm font-medium text-gray-900 flex flex-col">
+      <div className="text-sm font-medium text-gray-200 flex flex-col">
         <h2 className="font-semibold text-sm">{title}</h2>
-        <p className="text-xs text-gray-500">{description}</p>
+        <p className="text-xs text-gray-300">{description}</p>
       </div>
     </div>
   )
