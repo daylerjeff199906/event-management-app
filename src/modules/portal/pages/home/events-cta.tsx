@@ -62,7 +62,7 @@ export default function EventsCTA({
                   <Link href={userRegisterUrl}>
                     <Button
                       size="lg"
-                      className="bg-amber-600 text-black hover:bg-orange-400 flex items-center gap-2 font-bold text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full"
+                      className="bg-red-400 text-black hover:bg-orange-400 flex items-center gap-2 font-bold text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full"
                     >
                       <Users className="h-5 w-5" />
                       CREAR CUENTA
