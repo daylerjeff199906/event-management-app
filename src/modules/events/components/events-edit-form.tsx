@@ -32,7 +32,6 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Popover,
   PopoverContent,
@@ -57,6 +56,7 @@ import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
 import SearchLocation from '@/components/app/miscellaneous/search-location'
 import { AddressForm } from './address-form'
+import { AITextarea } from './ai-textarea'
 
 const locationTypes = [
   {
@@ -332,9 +332,26 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Textarea
+                      <AITextarea
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
+                        eventContext={{
+                          titulo: form.getValues('event_name'),
+                          fechaInicio: form.getValues('start_date')
+                            ? format(
+                                form.getValues('start_date')!,
+                                'dd/MM/yyyy',
+                                {
+                                  locale: es
+                                }
+                              )
+                            : undefined,
+                          categoria: categories?.find(
+                            (cat) =>
+                              cat.id.toString() ===
+                              form.getValues('category')?.toString()
+                          )?.name
+                        }}
                         {...field}
                       />
                     </FormControl>
@@ -369,7 +386,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               )}
                             >
                               {field.value ? (
-                                format(field.value, 'dd/MM/yyyy — HH:mm', {
+                                format(field.value, 'dd/MM/yyyy', {
                                   locale: es
                                 })
                               ) : (
@@ -387,7 +404,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                             disabled={(date) =>
                               date < new Date(new Date().setHours(0, 0, 0, 0))
                             }
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
@@ -413,7 +429,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               )}
                             >
                               {field.value ? (
-                                format(field.value, 'dd/MM/yyyy — HH:mm', {
+                                format(field.value, 'dd/MM/yyyy', {
                                   locale: es
                                 })
                               ) : (
@@ -432,12 +448,49 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               const startDate = form.getValues('start_date')
                               return startDate
                                 ? date < startDate
-                                : date < new Date()
+                                : date <
+                                    new Date(new Date().setHours(0, 0, 0, 0))
                             }}
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hora de inicio</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="time"
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Duración (minutos)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="Ej: 120"
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

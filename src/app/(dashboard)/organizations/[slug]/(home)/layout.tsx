@@ -23,7 +23,7 @@ export default async function Layout(props: LayoutProps) {
             <Badge
               className={cn(
                 'ml-4 rounded-full',
-                InstitutionData.data?.status === 'ACTIVE'
+                InstitutionData.data?.status?.toUpperCase() === 'ACTIVE'
                   ? 'bg-emerald-500 text-emerald-100'
                   : 'bg-yellow-500 text-yellow-100 '
               )}

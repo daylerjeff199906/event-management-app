@@ -46,7 +46,7 @@ export default async function Layout(props: LayoutProps) {
             institutionId || '',
             eventId || ''
           ),
-          label: 'Agregar horario',
+          label: 'Agregar agenda',
           description: 'Agregar un nuevo horario para el evento',
           href: APP_URL.ORGANIZATION.INSTITUTION.ADD_SCHEDULE(
             institutionId || '',

@@ -23,6 +23,8 @@ export interface Event {
   category?: number | null
   author_id?: string | null
   location?: string | null
+  time?: string | null
+  duration?: string | null
   location_type?: 'venue' | 'online' | 'tba' | null
   lon: number | null
   lat: number | null

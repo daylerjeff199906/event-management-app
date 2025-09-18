@@ -10,6 +10,8 @@ export const eventSchema = z
     description: z.string().optional(),
     start_date: z.date('La fecha de inicio es requerida'),
     end_date: z.date().optional(),
+    time: z.string().optional(),
+    duration: z.string().optional(),
     location: z.string().optional(),
     location_type: z.enum(['venue', 'online', 'tba']).optional(),
     cover_image_url: z.string().optional(),
