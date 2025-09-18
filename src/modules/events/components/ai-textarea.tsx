@@ -56,7 +56,7 @@ Genera 3 sugerencias variadas, atractivas y relevantes en español.`
 
     // Llamar a la API con el formato correcto de autenticación
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
