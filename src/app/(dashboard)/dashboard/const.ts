@@ -2,6 +2,7 @@
 import { APP_URL } from '@/data/config-app-url'
 import {
   Building,
+  Coins,
   // Dock,
   HomeIcon,
   Layers,
@@ -132,8 +133,18 @@ export const menuOrganization = [
         menu: {
           id: 3,
           name: 'Configuración',
-          url: APP_URL.DASHBOARD.SETTINGS,
+          url: APP_URL.ORGANIZATION.CONFIGURATIONS.BASE,
           icon: Settings
+        },
+        submenus: []
+      },
+      {
+        menu: {
+          id: 4,
+          name: 'Pagos',
+          url: '#',
+          icon: Coins,
+          isDisabled: true
         },
         submenus: []
       }
