@@ -8,7 +8,7 @@ export default function Loading() {
           {[...Array(3)].map((_, idx) => (
             <div
               key={idx}
-              className="shadow-none border border-border relative group bg-white rounded-lg minh-h-[160px]"
+              className="shadow-none border border-border relative group bg-white rounded-lg minh-h-[220px]"
             >
               <div className="p-3">
                 <div className="flex items-start gap-4">
