@@ -9,7 +9,7 @@ export default function Loading() {
             key={idx}
             className="shadow-none border border-border relative group bg-white rounded-lg min-h-[200px]"
           >
-            <div className="p-3">
+            <div className="px-3 py-12 h-full">
               <div className="flex items-start gap-4">
                 {/* Avatar Skeleton */}
                 <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
@@ -23,7 +23,7 @@ export default function Loading() {
                     <Skeleton className="h-4 w-16 rounded-full" />
                     <Skeleton className="h-4 w-16 rounded-full" />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <Skeleton className="h-3 w-28" />
                     <Skeleton className="h-3 w-20" />
                   </div>

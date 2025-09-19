@@ -18,7 +18,7 @@ export default function Loading() {
       </div>
 
       {/* Lista de tarjetas */}
-      <ul className="space-y-4 sm:space-y-5">
+      <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <li
             key={i}
