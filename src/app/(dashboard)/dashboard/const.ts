@@ -8,7 +8,8 @@ import {
   Settings,
   Star,
   TicketIcon,
-  UserIcon
+  UserIcon,
+  Users
 } from 'lucide-react'
 
 export const menuDashboard = [
@@ -115,7 +116,24 @@ export const menuOrganization = [
           id: 2,
           name: 'Usuarios',
           url: APP_URL.ORGANIZATION.USERS.BASE,
-          icon: UserIcon
+          icon: Users
+        },
+        submenus: []
+      }
+    ]
+  },
+  {
+    section: {
+      id: 2,
+      name: 'Configuración'
+    },
+    menus: [
+      {
+        menu: {
+          id: 3,
+          name: 'Configuración',
+          url: APP_URL.DASHBOARD.SETTINGS,
+          icon: Settings
         },
         submenus: []
       }

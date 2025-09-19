@@ -45,6 +45,9 @@ export const APP_URL = {
     },
     USERS: {
       BASE: '/organizations/users'
+    },
+    CONFIGURATIONS: {
+      BASE: '/organizations/configurations'
     }
   },
   ADMIN: {
