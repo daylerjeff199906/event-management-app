@@ -109,6 +109,15 @@ export const menuOrganization = [
           icon: HomeIcon
         },
         submenus: []
+      },
+      {
+        menu: {
+          id: 2,
+          name: 'Usuarios',
+          url: APP_URL.ORGANIZATION.USERS.BASE,
+          icon: UserIcon
+        },
+        submenus: []
       }
     ]
   }

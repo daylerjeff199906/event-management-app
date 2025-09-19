@@ -42,6 +42,9 @@ export const APP_URL = {
         `/organizations/${id}/events/${eventId}/info`,
 
       EVENTS: (id: string) => `/organizations/${id}/events`
+    },
+    USERS: {
+      BASE: '/organizations/users'
     }
   },
   ADMIN: {
