@@ -8,8 +8,6 @@ import {
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface InstitutionSettingsProps {
   institutionData?: InstitutionForm
@@ -62,7 +60,7 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
           />
         )
 
-        window.location.reload()
+        // window.location.reload()
       }
     } catch (error) {
       const errorMessage =
@@ -82,23 +80,18 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
     <>
       <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center border rounded-md p-4">
         <div className="flex items-center gap-4">
-          <Avatar className="w-16 h-16">
-            <AvatarImage
-              src={institutionData?.brand || undefined}
-              alt={institutionData?.institution_name || 'Logo'}
-            />
-            <AvatarFallback>
-              {institutionData?.acronym
-                ? institutionData.acronym.toUpperCase()
-                : institutionData?.institution_name
-                ? institutionData.institution_name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()
-                : 'NA'}
-            </AvatarFallback>
-          </Avatar>
+          <ImageUploadModal
+            onUpload={onAvatarChange}
+            title="Cambiar Logo de la Institución"
+            defaultImage={institutionData?.brand || undefined}
+            nameInstitution={
+              institutionData?.acronym ||
+              institutionData?.institution_name ||
+              'Institución'
+            }
+            description="Logo de la institución (se recomienda una imagen cuadrada para mejores resultados)"
+            folder="institutions"
+          />
           <div>
             <h2 className="text-base font-semibold text-foreground">
               {institutionData?.institution_name || 'Nombre de la Institución'}
@@ -108,18 +101,6 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
             </p>
           </div>
         </div>
-        <ImageUploadModal
-          onUpload={onAvatarChange}
-          title="Cambiar Logo de la Institución"
-          defaultImage={institutionData?.brand || undefined}
-          description="Logo de la institución (se recomienda una imagen cuadrada para mejores resultados)"
-          folder="institutions"
-          trigger={
-            <Button variant="outline" className="mb-4">
-              Cambiar Logo
-            </Button>
-          }
-        />
       </div>
       <InstitutionFormData
         initialData={institutionData}
