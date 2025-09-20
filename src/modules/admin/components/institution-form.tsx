@@ -60,7 +60,7 @@ export function InstitutionFormData({
   const isDirty = form.formState.isDirty
 
   return (
-    <div className="max-w-7xl mx-auto ">
+    <div className="max-w-6xl mx-auto ">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Información General Section */}
