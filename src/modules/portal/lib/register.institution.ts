@@ -9,6 +9,11 @@ export const institutionSchema = z.object({
   institution_type: z.string().min(1, 'Selecciona el tipo de institución'),
   description: z.string().optional(),
   institution_email: z.string('Ingresa un correo electrónico válido'),
+  document_number: z.string().optional(),
+  brand: z.string().optional(),
+  acronym: z.string().optional(),
+  cover_image_url: z.string().optional(),
+  map_iframe_url: z.string().optional(),
   contact_phone: z.string().optional(),
   address: z.string().optional(),
   documents: z.any().optional(), // jsonb field
