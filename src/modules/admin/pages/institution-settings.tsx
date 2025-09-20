@@ -61,6 +61,8 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
             description="Tu perfil se ha actualizado con éxito."
           />
         )
+
+        window.location.reload()
       }
     } catch (error) {
       const errorMessage =
@@ -111,6 +113,7 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
           title="Cambiar Logo de la Institución"
           defaultImage={institutionData?.brand || undefined}
           description="Logo de la institución (se recomienda una imagen cuadrada para mejores resultados)"
+          folder="institutions"
           trigger={
             <Button variant="outline" className="mb-4">
               Cambiar Logo
