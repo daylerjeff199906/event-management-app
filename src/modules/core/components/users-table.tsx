@@ -25,8 +25,10 @@ export function UsersTable({
   currentUserId,
   onRemoveUser
 }: UsersTableProps) {
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+  const getInitials = (firstName?: string, lastName?: string) => {
+    const firstInitial = firstName?.charAt(0) || ''
+    const lastInitial = lastName?.charAt(0) || ''
+    return `${firstInitial}${lastInitial}`.toUpperCase()
   }
 
   const getRoleBadgeVariant = (role: string) => {
