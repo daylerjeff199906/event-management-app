@@ -50,14 +50,14 @@ export function UsersTable({
         <TableHeader>
           <TableRow>
             <TableHead>USUARIO</TableHead>
+            <TableHead>DETALLES</TableHead>
             <TableHead>HABILITADO</TableHead>
-            <TableHead>MFA</TableHead>
             <TableHead>ROL</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((userRole) => (
+          {users?.map((userRole) => (
             <TableRow key={userRole.id}>
               <TableCell className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
@@ -74,13 +74,25 @@ export function UsersTable({
                 </Avatar>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">
-                    {userRole.user.email}
+                    {userRole?.user?.email}
                   </span>
-                  {userRole.user_id === currentUserId && (
+                  {userRole?.user_id === currentUserId && (
                     <Badge variant="outline" className="w-fit text-xs">
                       Tú
                     </Badge>
                   )}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col">
+                  <p className="text-sm text-muted-foreground">
+                    {userRole?.user?.first_name && userRole?.user?.last_name
+                      ? `${userRole?.user?.first_name} ${userRole?.user?.last_name}`
+                      : 'N/A'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {userRole?.user?.phone || 'N/A'}
+                  </p>
                 </div>
               </TableCell>
               <TableCell>
@@ -91,26 +103,23 @@ export function UsersTable({
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant="outline">No configurado</Badge>
-              </TableCell>
-              <TableCell>
-                <Badge variant={getRoleBadgeVariant(userRole.role)}>
-                  {userRole.role}
+                <Badge variant={getRoleBadgeVariant(userRole?.role)}>
+                  {userRole?.role}
                 </Badge>
               </TableCell>
               <TableCell>
-                {userRole.user_id !== currentUserId && onRemoveUser && (
+                {userRole?.user_id !== currentUserId && onRemoveUser && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onRemoveUser(userRole.user_id)}
+                    onClick={() => onRemoveUser(userRole?.user_id)}
                     className="h-8 w-8 p-0"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
-                {userRole.user_id === currentUserId &&
-                  userRole.role.toLowerCase() !== 'owner' && (
+                {userRole?.user_id === currentUserId &&
+                  userRole?.role.toLowerCase() !== 'owner' && (
                     <Button variant="outline" size="sm">
                       Abandonar equipo
                     </Button>

@@ -27,7 +27,7 @@ export async function getfullUserRoleByInstitution(
   const supabase = await getSupabase()
   const { data, error } = await supabase
     .from('user_roles')
-    .select('*, user_id(*)')
+    .select('*, user:user_id(*)')
     .eq('institution_id', institutionId)
   if (error) {
     console.error('Error fetching user roles:', error)

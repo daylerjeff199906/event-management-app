@@ -25,5 +25,5 @@ export interface IUserRole {
 }
 
 export interface IUserRoleFull extends IUserRole {
-  user: IUser
+  user: IUser | null
 }
