@@ -58,6 +58,10 @@ export function InstitutionFormData({
 
   const isDirty = form.formState.isDirty
 
+  const handleReset = () => {
+    form.reset()
+  }
+
   return (
     <div className="max-w-5xl mx-auto ">
       <Form {...form}>
@@ -302,6 +306,7 @@ export function InstitutionFormData({
               type="button"
               variant="outline"
               className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+              onClick={handleReset}
             >
               Cancelar
             </Button>
