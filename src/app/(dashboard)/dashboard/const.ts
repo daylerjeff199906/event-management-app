@@ -96,7 +96,7 @@ export const subMenuElementInstitucional = {
   ]
 }
 
-export const menuOrganization = [
+export const menuOrganization = (idInstitution: string) => [
   {
     section: {
       id: 1,
@@ -116,7 +116,7 @@ export const menuOrganization = [
         menu: {
           id: 2,
           name: 'Usuarios',
-          url: APP_URL.ORGANIZATION.USERS.BASE,
+          url: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(idInstitution),
           icon: Users
         },
         submenus: []
@@ -133,7 +133,9 @@ export const menuOrganization = [
         menu: {
           id: 3,
           name: 'Configuración',
-          url: APP_URL.ORGANIZATION.CONFIGURATIONS.BASE,
+          url: APP_URL.ORGANIZATION.CONFIGURATIONS.CONFIG_INSTITUTION(
+            idInstitution
+          ),
           icon: Settings
         },
         submenus: []

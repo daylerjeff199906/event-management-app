@@ -44,10 +44,16 @@ export const APP_URL = {
       EVENTS: (id: string) => `/organizations/${id}/events`
     },
     USERS: {
-      BASE: '/organizations/users'
+      BASE: '/organizations/users',
+      USER_INSTITUTION: (idInstitution: string) =>
+        `/organizations/${idInstitution}/users`,
+      ADD_USER: (idInstitution: string) =>
+        `/organizations/${idInstitution}/users/add`
     },
     CONFIGURATIONS: {
-      BASE: '/organizations/configurations'
+      BASE: '/organizations/configurations',
+      CONFIG_INSTITUTION: (idInstitution: string) =>
+        `/organizations/${idInstitution}/settings`
     }
   },
   ADMIN: {

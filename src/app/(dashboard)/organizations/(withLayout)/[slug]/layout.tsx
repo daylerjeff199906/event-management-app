@@ -2,14 +2,17 @@ import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
-import { menuOrganization } from '../dashboard/const'
+import { menuOrganization } from '@/app/(dashboard)/dashboard/const'
+import { Params } from '@/types'
 
 interface IProps {
   children: React.ReactNode
+  params: Params
 }
 
 export default async function Layout(props: IProps) {
   const { children } = props
+  const params = await props.params
   const supabase = await getSupabase()
   const { data: user } = await supabase.auth.getUser()
 
@@ -42,12 +45,15 @@ export default async function Layout(props: IProps) {
   }
 
   const hasInstitution = institutions && institutions.length > 0 ? true : false
+
+  const idInstitution = params.slug
+
   return (
     <AdminPanelLayout
       userName={profileData?.first_name || 'Usuario'}
       email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
-      menuItems={menuOrganization}
+      menuItems={menuOrganization(idInstitution?.toString() || '')}
       isInstitutional={hasInstitution}
     >
       {children}
