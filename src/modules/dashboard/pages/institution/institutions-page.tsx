@@ -56,7 +56,7 @@ export default function InstitutionsPage({
 
                   {/* Contenido principal */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-foreground mb-2">
+                    <h3 className="font-medium text-foreground mb-2 line-clamp-2">
                       {institution.institution_name}
                     </h3>
 
