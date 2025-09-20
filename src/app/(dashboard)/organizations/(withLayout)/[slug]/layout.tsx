@@ -53,7 +53,7 @@ export default async function Layout(props: IProps) {
       userName={profileData?.first_name || 'Usuario'}
       email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
-      menuItems={menuOrganization(idInstitution?.toString() || '')}
+      menuItems={await menuOrganization(idInstitution?.toString() || '')}
       isInstitutional={hasInstitution}
     >
       {children}

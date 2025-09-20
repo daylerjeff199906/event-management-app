@@ -1,19 +1,8 @@
-'use client'
+// 'use client'
 import { APP_URL } from '@/data/config-app-url'
-import {
-  Building,
-  Coins,
-  // Dock,
-  HomeIcon,
-  Layers,
-  Settings,
-  Star,
-  TicketIcon,
-  UserIcon,
-  Users
-} from 'lucide-react'
+import { SectionElement } from '@/types'
 
-export const menuDashboard = [
+export const menuDashboard: SectionElement[] = [
   {
     section: {
       id: 1,
@@ -25,7 +14,7 @@ export const menuDashboard = [
           id: 1,
           name: 'Inicio',
           url: APP_URL.DASHBOARD.BASE,
-          icon: HomeIcon
+          icon: 'HomeIcon'
         },
         submenus: []
       },
@@ -34,7 +23,7 @@ export const menuDashboard = [
           id: 2,
           name: 'Eventos',
           url: APP_URL.DASHBOARD.EVENTS.BASE,
-          icon: TicketIcon
+          icon: 'Calendar'
         },
         submenus: []
       },
@@ -43,7 +32,7 @@ export const menuDashboard = [
           id: 3,
           name: 'Mis favoritos',
           url: APP_URL.DASHBOARD.FAVORITES,
-          icon: Star
+          icon: 'Heart'
         },
         submenus: []
       }
@@ -60,7 +49,7 @@ export const menuDashboard = [
           id: 4,
           name: 'Perfil',
           url: APP_URL.DASHBOARD.PROFILE,
-          icon: UserIcon
+          icon: 'UserIcon'
         },
         submenus: []
       },
@@ -69,7 +58,7 @@ export const menuDashboard = [
           id: 5,
           name: 'Configuración',
           url: APP_URL.DASHBOARD.SETTINGS,
-          icon: Settings
+          icon: 'Settings'
         },
         submenus: []
       }
@@ -77,7 +66,7 @@ export const menuDashboard = [
   }
 ]
 
-export const subMenuElementInstitucional = {
+export const subMenuElementInstitucional: SectionElement = {
   section: {
     id: 4,
     name: 'Institucional'
@@ -88,7 +77,7 @@ export const subMenuElementInstitucional = {
         id: 4,
         name: 'Instituciones',
         url: APP_URL.ORGANIZATION.INSTITUTION.BASE,
-        icon: Layers,
+        icon: 'Layers',
         isExternal: true
       },
       submenus: []
@@ -96,7 +85,7 @@ export const subMenuElementInstitucional = {
   ]
 }
 
-export const menuOrganization = (idInstitution: string) => [
+export const menuOrganization = (idInstitution: string): SectionElement[] => [
   {
     section: {
       id: 1,
@@ -108,7 +97,7 @@ export const menuOrganization = (idInstitution: string) => [
           id: 1,
           name: 'Inicio',
           url: APP_URL.ORGANIZATION.BASE,
-          icon: HomeIcon
+          icon: 'HomeIcon'
         },
         submenus: []
       },
@@ -117,7 +106,7 @@ export const menuOrganization = (idInstitution: string) => [
           id: 2,
           name: 'Usuarios',
           url: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(idInstitution),
-          icon: Users
+          icon: 'Users'
         },
         submenus: []
       }
@@ -136,7 +125,7 @@ export const menuOrganization = (idInstitution: string) => [
           url: APP_URL.ORGANIZATION.CONFIGURATIONS.CONFIG_INSTITUTION(
             idInstitution
           ),
-          icon: Settings
+          icon: 'Settings'
         },
         submenus: []
       },
@@ -145,7 +134,7 @@ export const menuOrganization = (idInstitution: string) => [
           id: 4,
           name: 'Pagos',
           url: '#',
-          icon: Coins,
+          icon: 'Coins',
           isDisabled: true
         },
         submenus: []
@@ -154,7 +143,7 @@ export const menuOrganization = (idInstitution: string) => [
   }
 ]
 
-export const adminMenu = [
+export const adminMenu: SectionElement[] = [
   {
     section: {
       id: 1,
@@ -166,7 +155,7 @@ export const adminMenu = [
           id: 1,
           name: 'Inicio',
           url: APP_URL.ADMIN.BASE,
-          icon: HomeIcon
+          icon: 'HomeIcon'
         },
         submenus: []
       }
@@ -183,7 +172,7 @@ export const adminMenu = [
           id: 2,
           name: 'Solcitudes',
           url: APP_URL.ADMIN.REQUESTS_APPROVAL.BASE,
-          icon: Layers
+          icon: 'ClipboardCheck'
         },
         submenus: []
       },
@@ -192,7 +181,7 @@ export const adminMenu = [
           id: 3,
           name: 'Instituciones',
           url: APP_URL.ADMIN.INSTITUTIONS.BASE,
-          icon: Building
+          icon: 'Layers'
         },
         submenus: []
       }
@@ -209,7 +198,7 @@ export const adminMenu = [
           id: 4,
           name: 'Usuarios',
           url: APP_URL.ADMIN.USERS.BASE,
-          icon: UserIcon
+          icon: 'Users'
         },
         submenus: []
       }
@@ -226,7 +215,7 @@ export const adminMenu = [
           id: 5,
           name: 'Configuración',
           url: APP_URL.ADMIN.SETTINGS,
-          icon: Settings
+          icon: 'Settings'
         },
         submenus: []
       }
