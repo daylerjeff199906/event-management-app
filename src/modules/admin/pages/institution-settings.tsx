@@ -50,6 +50,7 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
       const response = await upsertInstitutionById({
         id: institutionData?.id?.toString() || '',
         updates: {
+          ...institutionData,
           brand: url
         }
       })
@@ -81,7 +82,7 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
         <div className="flex items-center gap-4">
           <Avatar className="w-16 h-16">
             <AvatarImage
-              src={institutionData?.brand || ''}
+              src={institutionData?.brand || undefined}
               alt={institutionData?.institution_name || 'Logo'}
             />
             <AvatarFallback>

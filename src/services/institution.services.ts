@@ -221,9 +221,12 @@ export async function upsertInstitutionById({
     .eq('id', id)
     .select()
     .single()
+  console.log('error', error, data)
   if (error) {
     console.error('Error actualizando institución:', error)
     return { data: null, error: error.message }
   }
+
+  revalidatePath(`$/dashboard/organizations/${id}/settings`)
   return { data, error: null }
 }
