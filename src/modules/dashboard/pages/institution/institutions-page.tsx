@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChevronRight, Mail, Phone } from 'lucide-react'
@@ -41,6 +41,12 @@ export default function InstitutionsPage({
                 <div className="flex items-start gap-4">
                   {/* Avatar cuando no hay brand/logo */}
                   <Avatar className="h-10 w-10 flex-shrink-0">
+                    <AvatarImage
+                      src={institution.brand || undefined}
+                      alt={institution.institution_name}
+                      className="object-cover"
+                    />
+
                     <AvatarFallback className="bg-muted text-muted-foreground font-medium text-sm">
                       {institution.institution_name
                         .split(' ')
