@@ -45,9 +45,9 @@ export function UsersTable({
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-white">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-muted">
           <TableRow>
             <TableHead>USUARIO</TableHead>
             <TableHead>DETALLES</TableHead>
