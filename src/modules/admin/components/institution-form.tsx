@@ -1,11 +1,8 @@
 'use client'
-// import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-// import { ImageIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -24,11 +21,10 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-// import { ImageUploadModal } from './image-upload-modal'
 import {
+  InstitutionForm,
   institutionSchema,
-  institutionTypes,
-  type InstitutionForm
+  institutionTypes
 } from '@/modules/portal/lib/register.institution'
 
 interface InstitutionFormProps {
@@ -42,8 +38,6 @@ export function InstitutionFormData({
   onSubmit,
   isLoading = false
 }: InstitutionFormProps) {
-  //   const [imageModalOpen, setImageModalOpen] = useState(false)
-
   const form = useForm<InstitutionForm>({
     resolver: zodResolver(institutionSchema),
     defaultValues: {
@@ -63,31 +57,33 @@ export function InstitutionFormData({
     }
   })
 
-  //   const handleImageSelect = (imageUrl: string) => {
-  //     form.setValue('cover_image_url', imageUrl)
-  //   }
-
-  //   const coverImageUrl = form.watch('cover_image_url')
+  const isDirty = form.formState.isDirty
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Información general</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Información básica */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="max-w-7xl mx-auto ">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Información General Section */}
+          <h2 className="text-lg font-medium text-gray-900 mb-6">
+            Información General
+          </h2>
+          <div className="border border-gray-200 rounded-lg p-6">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="institution_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nombre de la institución</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Nombre de la institución
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Universidad Nacional" {...field} />
+                        <Input
+                          placeholder="Universidad Nacional"
+                          className="border-gray-300 focus:border-gray-400 focus:ring-0"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -99,9 +95,15 @@ export function InstitutionFormData({
                   name="acronym"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Acrónimo</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Acrónimo
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="UN" {...field} />
+                        <Input
+                          placeholder="UN"
+                          className="border-gray-300 focus:border-gray-400 focus:ring-0"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -113,13 +115,15 @@ export function InstitutionFormData({
                   name="institution_type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tipo de institución</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Tipo de institución
+                      </FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="border-gray-300 focus:border-gray-400 focus:ring-0 w-full">
                             <SelectValue placeholder="Selecciona un tipo" />
                           </SelectTrigger>
                         </FormControl>
@@ -132,31 +136,31 @@ export function InstitutionFormData({
                         </SelectContent>
                       </Select>
                       <FormMessage />
+                      <FormDescription className="text-xs text-gray-500">
+                        Tipo de institución (universidad, empresa, etc.)
+                      </FormDescription>
                     </FormItem>
                   )}
                 />
 
                 <FormField
                   control={form.control}
-                  name="status"
+                  name="document_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Estado</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Activo</SelectItem>
-                          <SelectItem value="inactive">Inactivo</SelectItem>
-                          <SelectItem value="pending">Pendiente</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Número de documento
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="123456789"
+                          className="border-gray-300 focus:border-gray-400 focus:ring-0"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs text-gray-500">
+                        RUC, NIT o número de identificación fiscal
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -168,31 +172,47 @@ export function InstitutionFormData({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descripción</FormLabel>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Descripción
+                    </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Descripción de la institución..."
-                        className="min-h-[100px]"
+                        placeholder="Breve descripción de la institución"
+                        className="min-h-[100px] border-gray-300 focus:border-gray-400 focus:ring-0"
                         {...field}
                       />
                     </FormControl>
                     <FormMessage />
+                    <FormDescription className="text-xs text-gray-500">
+                      Breve descripción de la institución, a qué se dedica, etc.
+                    </FormDescription>
                   </FormItem>
                 )}
               />
+            </div>
+          </div>
 
-              {/* Información de contacto */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Información de Contacto Section */}
+          <h2 className="text-lg font-medium text-gray-900 mb-6">
+            Información de Contacto
+          </h2>
+
+          <div className="border border-gray-200 rounded-lg p-6">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="institution_email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email institucional</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Email institucional
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="contacto@universidad.edu"
+                          className="border-gray-300 focus:border-gray-400 focus:ring-0"
                           {...field}
                         />
                       </FormControl>
@@ -206,9 +226,15 @@ export function InstitutionFormData({
                   name="contact_phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Teléfono de contacto</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Teléfono de contacto
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 234 567 8900" {...field} />
+                        <Input
+                          placeholder="+1 234 567 8900"
+                          className="border-gray-300 focus:border-gray-400 focus:ring-0"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -221,10 +247,13 @@ export function InstitutionFormData({
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dirección</FormLabel>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Dirección
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Calle Principal 123, Ciudad, País"
+                        className="border-gray-300 focus:border-gray-400 focus:ring-0"
                         {...field}
                       />
                     </FormControl>
@@ -232,122 +261,60 @@ export function InstitutionFormData({
                   </FormItem>
                 )}
               />
+            </div>
+          </div>
 
-              {/* Información adicional */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="document_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Número de documento</FormLabel>
-                      <FormControl>
-                        <Input placeholder="123456789" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        RUC, NIT o número de identificación fiscal
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          {/* Información Adicional Section */}
+          <h2 className="text-lg font-medium text-gray-900 mb-6">
+            Información Adicional
+          </h2>
 
-                <FormField
-                  control={form.control}
-                  name="brand"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Marca</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nombre comercial" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Imagen de portada */}
-              {/* <FormField
-                control={form.control}
-                name="cover_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imagen de portada</FormLabel>
-                    <div className="space-y-2">
-                      {coverImageUrl ? (
-                        <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-lg border">
-                          <img
-                            src={coverImageUrl || '/placeholder.svg'}
-                            alt="Imagen de portada"
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex h-32 w-full max-w-md items-center justify-center rounded-lg border border-dashed">
-                          <div className="text-center">
-                            <ImageIcon className="mx-auto h-8 w-8 text-muted-foreground" />
-                            <p className="mt-2 text-sm text-muted-foreground">
-                              Sin imagen
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setImageModalOpen(true)}
-                      >
-                        <ImageIcon className="mr-2 h-4 w-4" />
-                        {coverImageUrl ? 'Cambiar imagen' : 'Subir imagen'}
-                      </Button>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
-
-              {/* URL del mapa */}
+          <div className="border border-gray-200 rounded-lg p-6">
+            <div className="space-y-6">
               <FormField
                 control={form.control}
                 name="map_iframe_url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>URL del mapa (iframe)</FormLabel>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      URL del mapa (iframe)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://www.google.com/maps/embed?pb=..."
+                        className="border-gray-300 focus:border-gray-400 focus:ring-0"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>
+                    <FormDescription className="text-xs text-gray-500">
                       URL del iframe de Google Maps para mostrar la ubicación
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            </div>
+          </div>
 
-              {/* Botones de acción */}
-              <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline">
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Guardando...' : 'Guardar'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-
-      {/* <ImageUploadModal
-        isOpen={imageModalOpen}
-        onClose={() => setImageModalOpen(false)}
-        onImageSelect={handleImageSelect}
-        currentImage={coverImageUrl}
-      /> */}
+          {/* Botones de acción */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading || !isDirty}
+              className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white"
+            >
+              {isLoading ? 'Guardando...' : 'Guardar'}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   )
 }
