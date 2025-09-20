@@ -206,3 +206,24 @@ export async function updateInstitutionById(
   revalidatePath('/dashboard/organizations/[slug]/settings')
   return { data, error: null }
 }
+
+export async function upsertInstitutionById({
+  id,
+  updates
+}: {
+  id: string
+  updates: Partial<InstitutionForm>
+}): Promise<{ data: InstitutionForm | null; error: string | null }> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('institutions')
+    .upsert({ id, ...updates })
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) {
+    console.error('Error actualizando institución:', error)
+    return { data: null, error: error.message }
+  }
+  return { data, error: null }
+}

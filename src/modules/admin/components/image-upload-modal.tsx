@@ -22,6 +22,7 @@ interface ImageUploadModalProps {
   onUpload: (imageUrl: string) => void
   title?: string
   description?: string
+  folder?: string
 }
 
 export function ImageUploadModal({
@@ -29,7 +30,8 @@ export function ImageUploadModal({
   defaultImage,
   onUpload,
   title = 'Subir Imagen',
-  description = 'Selecciona una imagen para subir o arrastra y suelta aquí'
+  description = 'Selecciona una imagen para subir o arrastra y suelta aquí',
+  folder = 'institutions'
 }: ImageUploadModalProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(
     defaultImage || null
@@ -37,6 +39,7 @@ export function ImageUploadModal({
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Reset state when modal opens
@@ -52,6 +55,11 @@ export function ImageUploadModal({
   // Handle file selection
   const handleFileSelect = useCallback((file: File) => {
     if (file && file.type.startsWith('image/')) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo debe ser menor a 5MB')
+        return
+      }
+
       setSelectedFile(file)
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -96,10 +104,38 @@ export function ImageUploadModal({
   }
 
   // Handle upload action
-  const handleUpload = () => {
-    if (selectedImage) {
-      onUpload(selectedImage)
+  const handleUpload = async () => {
+    if (!selectedFile) return
+
+    setIsUploading(true)
+    try {
+      // Crear FormData para enviar el archivo
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+
+      // Subir la imagen al API con el parámetro folder=institutions
+      const response = await fetch(
+        `/api/images/upload?filename=${selectedFile.name}&folder=${folder}&override=true`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Error al subir la imagen')
+      }
+
+      const blob = await response.json()
+
+      // Llamar a la función onUpload con la URL de la imagen
+      onUpload(blob.url)
       setIsOpen(false)
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('Error al subir la imagen')
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -176,7 +212,7 @@ export function ImageUploadModal({
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                PNG, JPG, GIF hasta 10MB
+                PNG, JPG, GIF hasta 5MB
               </p>
             </div>
           </div>
@@ -188,11 +224,11 @@ export function ImageUploadModal({
           </Button>
           <Button
             onClick={handleUpload}
-            disabled={!selectedImage}
+            disabled={!selectedImage || isUploading}
             className="flex items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            Subir Imagen
+            {isUploading ? 'Subiendo...' : 'Subir Imagen'}
           </Button>
         </DialogFooter>
       </DialogContent>
