@@ -41,26 +41,25 @@ export function InstitutionFormData({
   const form = useForm<InstitutionForm>({
     resolver: zodResolver(institutionSchema),
     defaultValues: {
-      institution_name: '',
-      institution_type: '',
-      description: '',
-      institution_email: '',
-      contact_phone: '',
-      address: '',
-      document_number: '',
-      brand: '',
-      acronym: '',
-      cover_image_url: '',
-      map_iframe_url: '',
-      status: 'ACTIVE',
-      ...initialData
+      acronym: initialData?.acronym || '',
+      institution_name: initialData?.institution_name || '',
+      institution_type: initialData?.institution_type || '',
+      document_number: initialData?.document_number || '',
+      address: initialData?.address || '',
+      brand: initialData?.brand || undefined,
+      description: initialData?.description || '',
+      institution_email: initialData?.institution_email || '',
+      contact_phone: initialData?.contact_phone || '',
+      map_iframe_url: initialData?.map_iframe_url || '',
+      cover_image_url: initialData?.cover_image_url || undefined
+      //   status: initialData?.status || InstitutionStatus.ACTIVE
     }
   })
 
   const isDirty = form.formState.isDirty
 
   return (
-    <div className="max-w-6xl mx-auto ">
+    <div className="max-w-5xl mx-auto ">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Información General Section */}
@@ -281,9 +280,10 @@ export function InstitutionFormData({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        {...field}
                         placeholder="https://www.google.com/maps/embed?pb=..."
                         className="border-gray-300 focus:border-gray-400 focus:ring-0"
-                        {...field}
+                        value={field.value || ''}
                       />
                     </FormControl>
                     <FormDescription className="text-xs text-gray-500">
