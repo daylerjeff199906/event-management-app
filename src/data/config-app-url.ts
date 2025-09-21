@@ -42,6 +42,22 @@ export const APP_URL = {
         `/organizations/${id}/events/${eventId}/info`,
 
       EVENTS: (id: string) => `/organizations/${id}/events`
+    },
+    EVENTS: {
+      EVENTS_INSTITUTION: (idInstitution: string) =>
+        `/organizations/${idInstitution}/events`
+    },
+    USERS: {
+      BASE: '/organizations/users',
+      USER_INSTITUTION: (idInstitution: string) =>
+        `/organizations/${idInstitution}/users`,
+      ADD_USER: (idInstitution: string) =>
+        `/organizations/${idInstitution}/users/add`
+    },
+    CONFIGURATIONS: {
+      BASE: '/organizations/configurations',
+      CONFIG_INSTITUTION: (idInstitution: string) =>
+        `/organizations/${idInstitution}/settings`
     }
   },
   ADMIN: {

@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+export enum InstitutionStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE'
+}
+
 // Esquema para la tabla institutions
 export const institutionSchema = z.object({
   id: z.string().optional(),
@@ -9,13 +14,20 @@ export const institutionSchema = z.object({
   institution_type: z.string().min(1, 'Selecciona el tipo de institución'),
   description: z.string().optional(),
   institution_email: z.string('Ingresa un correo electrónico válido'),
+  document_number: z.string().optional(),
+  brand: z.string().optional().nullable(),
+  acronym: z.string().optional(),
+  cover_image_url: z.string().optional(),
+  map_iframe_url: z.string().optional().nullable(),
   contact_phone: z.string().optional(),
   address: z.string().optional(),
   documents: z.any().optional(), // jsonb field
   validation_status: z.enum(['pending', 'approved', 'rejected']).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE']).optional()
+  status: z
+    .enum([InstitutionStatus.ACTIVE, InstitutionStatus.INACTIVE])
+    .optional()
 })
 
 // Esquema para el formulario de búsqueda

@@ -1,14 +1,29 @@
 export interface IUser {
-  id?: string // UUID del usuario autenticado
+  id?: string
   first_name: string
   last_name: string
   profile_image: string | null
   country: string | null
-  birth_date: string | null
-  phone: string
-  email: string
-  created_at: Date
-  updated_at: Date
+  birth_date: Date | null
+  phone: string | null
+  email: string | null
+  created_at: Date | null
+  updated_at: Date | null
   gender: string | null
-  username?: string
+  username?: string | null
+}
+
+export interface IUserRole {
+  id: string
+  user_id: string
+  role: string
+  institution_id?: string | null
+  access_enabled?: boolean | null
+  created_at?: Date | null
+  updated_at?: Date | null
+  role_action?: string[] | null
+}
+
+export interface IUserRoleFull extends IUserRole {
+  user: IUser | null
 }

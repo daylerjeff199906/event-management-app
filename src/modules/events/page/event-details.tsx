@@ -93,7 +93,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           </div>
         </div>
       </div>
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 w-full grid grid-cols-1 gap-8">
         {/* Event Header */}
         <div className="flex justify-between items-start mb-8">
           <div className="flex-1">
@@ -240,17 +240,17 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </div>
 
         {/* Organized By */}
-        <section className="mt-12">
+        <section className="mt-12 w-full">
           <h2 className="text-xl font-semibold mb-6">Organizado por</h2>
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
+          <Card className="p-6 w-full minm">
+            <div className="flex items-center justify-between gap-4 w-full">
               <div className="flex items-center gap-4">
                 <Avatar className="w-16 h-16">
                   <AvatarImage
                     src={
-                      event.user != null
-                        ? event.user.profile_image || ''
-                        : event.institution?.cover_image_url || ''
+                      event.institution != null
+                        ? event.institution.brand || ''
+                        : event.user?.profile_image || ''
                     }
                   />
                   <AvatarFallback className="bg-pink-200 text-lg">
@@ -262,19 +262,17 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold text-lg">
-                    {event.user != null
-                      ? `${event.user.first_name} ${event.user.last_name}`
-                      : event.institution?.institution_name}
+                  <h3 className="font-semibold">
+                    {event.institution != null
+                      ? event.institution.institution_name
+                      : `${event.user?.first_name ?? ''} ${
+                          event.user?.last_name ?? ''
+                        }`}
                   </h3>
-                  <div className="flex gap-6 text-sm text-muted-foreground mt-1">
-                    Autor de la publicación
+                  <div className="flex gap-6 text-xs text-muted-foreground mt-1">
+                    Autor de la publicación: {event.user?.first_name}{' '}
+                    {event.user?.last_name}
                   </div>
-                  {/* <div className="flex gap-6 text-sm text-muted-foreground mt-1">
-                    <span>Seguidores: 62.5k</span>
-                    <span>Eventos: 54</span>
-                    <span>Organizando: 8 años</span>
-                  </div> */}
                 </div>
               </div>
               <div className="flex gap-2">

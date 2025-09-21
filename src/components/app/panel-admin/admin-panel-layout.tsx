@@ -15,7 +15,8 @@ export default function AdminPanelLayout({
   userName,
   menuItems,
   menuOptional,
-  isInstitutional = false
+  isInstitutional = false,
+  hiddenSidebar = false
 }: {
   children: React.ReactNode
   menuItems?: SectionElement[]
@@ -24,6 +25,7 @@ export default function AdminPanelLayout({
   userName?: string
   isInstitutional?: boolean
   menuOptional?: SectionElement[]
+  hiddenSidebar?: boolean
 }) {
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
@@ -36,12 +38,14 @@ export default function AdminPanelLayout({
 
   return (
     <>
-      <SideBar menuItems={menuDashboardFinal} />
+      {!hiddenSidebar && <SideBar menuItems={menuDashboardFinal} />}
 
       <main
         className={cn(
           'min-h-[calc(100vh-22rem)] bg-background dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 relative',
-          !settings.disabled && (isCurrentlyOpen ? 'lg:ml-60' : 'lg:ml-[90px]')
+          !hiddenSidebar &&
+            !settings.disabled &&
+            (isCurrentlyOpen ? 'lg:ml-60' : 'lg:ml-[90px]')
         )}
       >
         <NavBarCustom

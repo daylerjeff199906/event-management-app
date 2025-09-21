@@ -5,6 +5,7 @@ import {
   RegistrationInstitutionForm
 } from '@/modules/portal/lib/register.institution'
 import { RegistrationRequestForm } from '@/modules/portal/lib/register.institution'
+import { revalidatePath } from 'next/cache'
 
 // Función de búsqueda combinada (por nombre o email)
 export async function searchInstitutionFunction(query: string) {
@@ -182,5 +183,50 @@ export async function getInstitutionById(id: string): Promise<{
     console.error('Error obteniendo institución por ID:', error)
     return { data: null, error: error.message }
   }
+  return { data, error: null }
+}
+
+export async function updateInstitutionById(
+  id: string,
+  updates: Partial<InstitutionForm>
+): Promise<{ data: InstitutionForm | null; error: string | null }> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('institutions')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) {
+    console.error('Error actualizando institución:', error)
+    return { data: null, error: error.message }
+  }
+  console.log('Revalidating path...')
+  console.log(data)
+  revalidatePath('/dashboard/organizations/[slug]/settings')
+  return { data, error: null }
+}
+
+export async function upsertInstitutionById({
+  id,
+  updates
+}: {
+  id: string
+  updates: Partial<InstitutionForm>
+}): Promise<{ data: InstitutionForm | null; error: string | null }> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('institutions')
+    .upsert({ id, ...updates })
+    .eq('id', id)
+    .select()
+    .single()
+  console.log('error', error, data)
+  if (error) {
+    console.error('Error actualizando institución:', error)
+    return { data: null, error: error.message }
+  }
+
+  revalidatePath(`/dashboard/organizations/${id}/settings`)
   return { data, error: null }
 }
