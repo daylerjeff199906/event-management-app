@@ -103,6 +103,15 @@ export const menuOrganization = (idInstitution: string): SectionElement[] => [
       {
         menu: {
           id: 2,
+          name: 'Eventos',
+          url: APP_URL.ORGANIZATION.EVENTS.EVENTS_INSTITUTION(idInstitution),
+          icon: 'Calendar'
+        },
+        submenus: []
+      },
+      {
+        menu: {
+          id: 2,
           name: 'Usuarios',
           url: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(idInstitution),
           icon: 'Users'

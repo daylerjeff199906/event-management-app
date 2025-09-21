@@ -69,7 +69,7 @@ export default function InstitutionsPage({
                     <div className="flex gap-2 mb-3">
                       <Badge
                         variant="secondary"
-                        className="text-xs rounded-full"
+                        className="text-xs rounded-full capitalize  "
                       >
                         {institution.institution_type}
                       </Badge>
