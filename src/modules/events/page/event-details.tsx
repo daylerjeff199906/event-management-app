@@ -270,7 +270,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                         }`}
                   </h3>
                   <div className="flex gap-6 text-xs text-muted-foreground mt-1">
-                    Autor de la publicación: {event.user?.first_name}
+                    Autor de la publicación: {event.user?.first_name}{' '}
                     {event.user?.last_name}
                   </div>
                 </div>
