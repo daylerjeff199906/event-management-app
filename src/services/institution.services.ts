@@ -227,6 +227,6 @@ export async function upsertInstitutionById({
     return { data: null, error: error.message }
   }
 
-  revalidatePath(`$/dashboard/organizations/${id}/settings`)
+  revalidatePath(`/dashboard/organizations/${id}/settings`)
   return { data, error: null }
 }
