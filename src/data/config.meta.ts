@@ -7,10 +7,10 @@ export const metadataBase: Metadata = {
   openGraph: {
     images: [
       {
-        url: 'https://firebasestorage.googleapis.com/v0/b/coniap-iiap.appspot.com/o/EPG%2Fsigae-background.webp?alt=media&token=16abc6dc-337b-497f-a605-d92d7e61899f',
+        url: 'https://jfarspcvbclqkotzddhc.supabase.co/storage/v1/object/public/events-app/brands/meta_bg.webp',
         width: 1000,
         height: 630,
-        alt: 'Template EPG - UNAP'
+        alt: 'VamoYa | Eventos cerca de ti'
       }
     ]
   }
