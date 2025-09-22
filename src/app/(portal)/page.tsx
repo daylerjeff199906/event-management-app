@@ -15,8 +15,8 @@ export default function Page() {
       <EventsCTA urlImageBackground={BG_CTA_EVENTS.src} />
       <CategoryGrid className="py-12 md::py-16 lg:py-24" />
       <ScrollMensageSection
-        messsage1="Tu Puerta a Eventos Emocionantes"
-        messsage2="Bienvenido a VamoYa"
+        message1="Tu Puerta a Eventos Emocionantes"
+        message2="Bienvenido a VamoYa"
       />
       {/* <HeroSection /> */}
     </>
