@@ -17,14 +17,10 @@ import { X } from 'lucide-react'
 interface UsersTableProps {
   users: IUserRoleFull[]
   currentUserId?: string
-  onRemoveUser?: (userId: string) => void
+  isOwner?: boolean
 }
 
-export function UsersTable({
-  users,
-  currentUserId,
-  onRemoveUser
-}: UsersTableProps) {
+export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
   const getInitials = (firstName?: string, lastName?: string) => {
     const firstInitial = firstName?.charAt(0) || ''
     const lastInitial = lastName?.charAt(0) || ''
@@ -108,22 +104,16 @@ export function UsersTable({
                 </Badge>
               </TableCell>
               <TableCell>
-                {userRole?.user_id !== currentUserId && onRemoveUser && (
+                {isOwner && !(userRole?.user_id === currentUserId) && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onRemoveUser(userRole?.user_id)}
+                    // onClick={() => onRemoveUser(userRole?.user_id)}
                     className="h-8 w-8 p-0"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
-                {userRole?.user_id === currentUserId &&
-                  userRole?.role.toLowerCase() !== 'owner' && (
-                    <Button variant="outline" size="sm">
-                      Abandonar equipo
-                    </Button>
-                  )}
               </TableCell>
             </TableRow>
           ))}
