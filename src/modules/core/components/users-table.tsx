@@ -104,7 +104,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                 </Badge>
               </TableCell>
               <TableCell>
-                {isOwner && (
+                {isOwner && !(userRole?.user_id === currentUserId) && (
                   <Button
                     variant="ghost"
                     size="sm"
