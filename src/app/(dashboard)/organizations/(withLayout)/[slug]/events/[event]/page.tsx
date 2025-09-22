@@ -22,7 +22,6 @@ export default async function Page(props: PageProps) {
   }
 
   const addressData = await getAddressById(response.data.address_uuid || '')
-  console.log('addressData', addressData)
 
   return (
     <div>

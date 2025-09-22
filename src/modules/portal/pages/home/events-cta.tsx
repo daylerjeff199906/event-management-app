@@ -2,8 +2,46 @@
 
 import { Button } from '@/components/ui/button'
 import { APP_URL } from '@/data/config-app-url'
-import { ArrowUpRight, Users, Building2 } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 import Link from 'next/link'
+
+const TEXTS = {
+  title: 'Bienvenido',
+  subtitle: 'La forma más fácil de gestionar y descubrir eventos',
+  heading1: '¡Impulsa tus ',
+  heading2: 'eventos',
+  heading3: ' y conecta con ',
+  heading4: 'personas increíbles',
+  heading5: ' hoy mismo!',
+  buttonUser: 'REGÍSTRATE GRATIS',
+  buttonInstitution: 'SOLICITAR COMO ORGANIZADOR',
+  description:
+    'Organiza, promociona y encuentra eventos de manera sencilla en la plataforma preferida por miles de usuarios.',
+  descriptionHighlight: ' ¡Únete y haz que tu evento sea un éxito!'
+}
+
+const BUTTONS = [
+  {
+    key: 'user',
+    show: (isAuthenticated: boolean) => !isAuthenticated,
+    href: (userRegisterUrl: string) => userRegisterUrl,
+    icon: null,
+    text: TEXTS.buttonUser,
+    className:
+      'bg-primary text-white font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto hover:cursor-pointer py-6',
+    variant: undefined
+  },
+  {
+    key: 'institution',
+    show: () => true,
+    href: (institutionRequestUrl: string) => institutionRequestUrl,
+    icon: <Building2 className="h-5 w-5 mr-2" />,
+    text: TEXTS.buttonInstitution,
+    className:
+      'border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold text-lg px-8 py-4 rounded-full transition-all duration-300 w-full sm:w-auto bg-transparent hover:cursor-pointer py-6 bg-gray-50',
+    variant: 'outline'
+  }
+]
 
 interface EventsCTAProps {
   isAuthenticated?: boolean
@@ -20,118 +58,62 @@ export default function EventsCTA({
   urlImageBackground
 }: EventsCTAProps) {
   return (
-    <div className="relative overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('${urlImageBackground}')`
-        }}
-      />
-      <div className="absolute inset-0 bg-black/60" />
+    <div className="relative bg-gray-50 py-20 px-6 lg:px-12">
+      {urlImageBackground && (
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+          style={{
+            backgroundImage: `url('${urlImageBackground}')`
+          }}
+        />
+      )}
 
-      <div className="relative text-white py-16 px-6 lg:px-12">
-        <div className="container mx-auto max-w-7xl">
-          <div className="flex flex-col lg:flex-row items-start justify-between gap-8">
-            <div className="flex-1 space-y-6">
-              <div className="space-y-2">
-                <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight max-w-4xl">
-                  CREA Y PUBLICA
-                </h2>
-                <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight max-w-4xl text-orange-400">
-                  TU EVENTO
-                </h2>
-              </div>
-
-              <div className="space-y-3 text-lg max-w-2xl">
-                <div>
-                  <span className="text-3xl font-bold text-orange-300">
-                    ¡Impulsa tu evento al éxito!
-                  </span>
-                </div>
-                <div>
-                  Publica tu evento en nuestra plataforma líder y conecta con
-                  una audiencia masiva lista para participar.{' '}
-                  <span className="opacity-90 font-medium">
-                    Fácil, rápido y seguro. ¡Comienza hoy!
-                  </span>
-                </div>
-              </div>
-
-              <div className="max-w-md flex flex-col gap-4 lg:flex-row lg:gap-4">
-                {!isAuthenticated && (
-                  <Link href={userRegisterUrl}>
-                    <Button
-                      size="lg"
-                      className="bg-amber-600 text-black hover:bg-orange-400 flex items-center gap-2 font-bold text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full"
-                    >
-                      <Users className="h-5 w-5" />
-                      CREAR CUENTA
-                      <ArrowUpRight className="h-5 w-5" />
-                    </Button>
-                  </Link>
-                )}
-                <Link href={institutionRequestUrl}>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-2 border-white text-white hover:bg-white hover:text-black flex items-center gap-2 bg-transparent rounded-full font-bold text-lg px-8 py-5 shadow-lg hover:shadow-xl transition-all duration-300 w-full"
-                  >
-                    <Building2 className="h-5 w-5" />
-                    SOLICITAR COMO INSTITUCIÓN
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* <div className="flex flex-col gap-4 lg:self-end">
-              {onUserRegister ? (
-                <Button
-                  onClick={onUserRegister}
-                  size="lg"
-                  className="bg-atext-amber-600 text-white hover:bg-orange-400 flex items-center gap-2 font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 border-orange-500 border"
-                >
-                  <Users className="h-5 w-5" />
-                  CREAR CUENTA
-                  <ArrowUpRight className="h-5 w-5" />
-                </Button>
-              ) : (
-                <Link href={userRegisterUrl}>
-                  <Button
-                    size="lg"
-                    className="bg-atext-amber-600 text-white hover:bg-orange-400 flex items-center gap-2 font-bold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full border-orange-500 border"
-                  >
-                    <Users className="h-5 w-5" />
-                    CREAR CUENTA
-                    <ArrowUpRight className="h-5 w-5" />
-                  </Button>
-                </Link>
-              )}
-
-              {onInstitutionRequest ? (
-                <Button
-                  onClick={onInstitutionRequest}
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-white text-white hover:bg-white hover:text-black flex items-center gap-2 bg-transparent rounded-full font-bold text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <Building2 className="h-5 w-5" />
-                  SOLICITAR COMO INSTITUCIÓN
-                </Button>
-              ) : (
-                <Link href={institutionRequestUrl}>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="border-2 border-white text-white hover:bg-white hover:text-black flex items-center gap-2 bg-transparent rounded-full font-bold text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 w-full"
-                  >
-                    <Building2 className="h-5 w-5" />
-                    SOLICITAR COMO INSTITUCIÓN
-                  </Button>
-                </Link>
-              )}
-            </div> */}
-          </div>
+      <div className="relative max-w-4xl mx-auto text-center">
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            {TEXTS.title}
+          </h3>
+          <p className="text-gray-600">{TEXTS.subtitle}</p>
         </div>
+
+        <div className="mb-12">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+            {TEXTS.heading1}
+            <span className="font-black">{TEXTS.heading2}</span>,
+            <br />
+            {TEXTS.heading3}
+            <span className="font-black">{TEXTS.heading4}</span>
+            <br />
+            <span className="font-black">{TEXTS.heading5}</span>
+          </h1>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
+          {BUTTONS.map(
+            (btn) =>
+              btn.show(isAuthenticated ?? false) && (
+                <Link
+                  key={btn.key}
+                  href={
+                    btn.key === 'user'
+                      ? btn.href(userRegisterUrl)
+                      : btn.href(institutionRequestUrl)
+                  }
+                  className="w-full sm:w-auto"
+                >
+                  <Button size="lg" className={btn.className}>
+                    {btn.icon}
+                    {btn.text}
+                  </Button>
+                </Link>
+              )
+          )}
+        </div>
+
+        <p className="text-gray-600 mt-8 text-lg max-w-2xl mx-auto">
+          {TEXTS.description}
+          <span className="font-semibold">{TEXTS.descriptionHighlight}</span>
+        </p>
       </div>
     </div>
   )

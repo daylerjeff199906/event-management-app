@@ -5,13 +5,14 @@ import { del, list } from '@vercel/blob'
 export async function POST(request: Request): Promise<NextResponse> {
   const { searchParams } = new URL(request.url)
   const filename = searchParams.get('filename')
+  const folderParam = searchParams.get('folder')
 
   if (!filename) {
     return NextResponse.json({ error: 'Filename is required' }, { status: 400 })
   }
 
   // Si has añadido un folder "image" en Vercel, puedes guardar los archivos dentro de ese folder
-  const folder = 'image'
+  const folder = folderParam || 'image'
   const fullPath = `${folder}/${filename}`
 
   // Buscar y eliminar el archivo existente con el mismo nombre en el folder

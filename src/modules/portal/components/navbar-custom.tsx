@@ -30,6 +30,8 @@ import { cn } from '@/lib/utils'
 import { LogoRender } from '@/components/app/miscellaneous/logo-render'
 import { APP_URL } from '@/data/config-app-url'
 import { Category } from '@/types'
+import { ProfilePopover } from '@/components/app/navbar-custom/profile-popover'
+import { MENU_PROFILE } from '@/components/app/navbar-custom/profile-menu'
 
 export interface SearchConfig {
   placeholder?: string
@@ -212,52 +214,19 @@ export function NavbarCustom({
             {/* User Section - Desktop */}
             <div className="hidden md:block">
               {userConfig.isLoggedIn ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2">
-                      <div className="flex items-center justify-center gap-2">
-                        {userConfig.userAvatar ? (
-                          <img
-                            src={userConfig.userAvatar || '/placeholder.svg'}
-                            alt="Avatar"
-                            className="h-8 w-8 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                            {userConfig.userName
-                              ? userConfig.userName.charAt(0).toUpperCase()
-                              : 'U'}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <div className="flex flex-col leading-tight text-right">
-                            <div className="hidden sm:inline font-medium">
-                              {userConfig.userName || 'Usuario'}
-                            </div>
-                            <div className="hidden sm:inline text-xs text-muted-foreground">
-                              {userConfig.email || ''}
-                            </div>
-                          </div>
-                          <ChevronDown className="h-4 w-4 ml-1 text-muted-foreground" />
-                        </div>
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={userConfig.onProfile}>
-                      <User className="h-4 w-4 mr-2" />
-                      Mi Perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={userConfig.onSettings}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Configuración
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={userConfig.onLogout}>
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Cerrar Sesión
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                  {/*Menu de perfil*/}
+                  <ProfilePopover
+                    profileData={{
+                      names: `${userConfig.userName || 'Usuario'}`,
+                      email: userConfig.email || '',
+                      photo: userConfig.userAvatar || ''
+                    }}
+                    menuSections={MENU_PROFILE.APP_MENU}
+                    showProgress={false}
+                    showBorders={false}
+                  />
+                </>
               ) : (
                 <div className="flex items-center space-x-2">
                   <Button

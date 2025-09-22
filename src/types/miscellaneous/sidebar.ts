@@ -1,4 +1,5 @@
-import { icons } from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
+type LucideIconName = keyof typeof LucideIcons
 export interface SectionElement {
   section: SectionSection
   menus: MenuElement[]
@@ -13,7 +14,7 @@ export interface SubmenuElement {
   id: number
   name: string
   description?: string
-  icon?: null | (typeof icons)[keyof typeof icons]
+  icon?: LucideIconName
   url: null | string
   isDisabled?: boolean
   isExternal?: boolean

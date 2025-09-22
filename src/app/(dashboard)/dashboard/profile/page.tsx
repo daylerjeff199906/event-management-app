@@ -24,12 +24,12 @@ export default async function Page() {
     <>
       <ProfileEditor
         userId={dataProfile.id}
-        email={dataProfile.email}
+        email={dataProfile.email || ''}
         initialData={{
-          birth_date: dataProfile.birth_date || undefined,
+          birth_date: dataProfile.birth_date?.toString() || undefined,
           first_name: dataProfile.first_name,
           last_name: dataProfile.last_name,
-          phone: dataProfile.phone,
+          phone: dataProfile.phone || undefined,
           profile_image: dataProfile.profile_image || undefined,
           country: dataProfile.country || undefined,
           gender: dataProfile.gender as 'male' | 'female' | 'other' | undefined,

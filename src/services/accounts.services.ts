@@ -57,8 +57,7 @@ export async function createInstitutionAccount({
       console.log(`Usuario existente encontrado: ${userId}`)
     } else {
       // 2. Crear usuario con contraseña por defecto
-      const defaultPassword = ' '
-
+      const defaultPassword = process.env.NEXT_PUBLIC_PASSWORD_DEFAULT
       const { data: authData, error: authError } =
         await supabaseAdmin.auth.admin.createUser({
           email,

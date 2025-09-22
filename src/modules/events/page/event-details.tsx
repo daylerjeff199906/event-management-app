@@ -2,8 +2,26 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, Globe, Heart, Share, Flag } from 'lucide-react'
+import {
+  Calendar,
+  Clock,
+  Globe,
+  Heart,
+  Share,
+  Flag,
+  Clock1
+} from 'lucide-react'
 import { EventItemDetails } from '@/types'
+import EventStickyBanner from './event-sticky-banner'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb'
+import { APP_URL } from '@/data/config-app-url'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -29,7 +47,32 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href={APP_URL.DASHBOARD.BASE}>
+                Inicio
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={APP_URL.DASHBOARD.EVENTS.BASE}>
+                Eventos
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                {event.event_name.length > 30
+                  ? event.event_name.substring(0, 30) + '...'
+                  : event.event_name}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+      <div className="w-full max-w-6xl mx-auto px-4 pt-4">
         {/* Hero Image */}
         <div className="relative w-full h-80 mb-6 rounded-2xl overflow-hidden">
           <img
@@ -49,7 +92,8 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
             </div>
           </div>
         </div>
-
+      </div>
+      <div className="max-w-4xl mx-auto px-4 py-8 w-full grid grid-cols-1 gap-8">
         {/* Event Header */}
         <div className="flex justify-between items-start mb-8">
           <div className="flex-1">
@@ -96,7 +140,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </div>
 
         {/* Event Info Card */}
-        <Card className="p-6 mb-8">
+        {/* <Card className="p-6 mb-8">
           <div className="flex justify-between items-center">
             <div>
               <Badge variant="secondary" className="mb-2">
@@ -110,27 +154,35 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
               Obtener entradas
             </Button>
           </div>
-        </Card>
+        </Card> */}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Date and Time */}
-            <section>
-              <h2 className="text-xl font-semibold mb-4">Fecha y hora</h2>
+            <section className="flex flex-col gap-4">
+              <h2 className="font-semibold mb-4 tracking-wider">
+                Fecha y hora
+              </h2>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Calendar className="w-5 h-5" />
                 <span>
-                  {formatDate(event.start_date)} ·{' '}
-                  {formatTime(event.start_date)}
+                  {formatDate(event.start_date)}
                   {event.end_date ? ` - ${formatTime(event.end_date)}` : ''}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Clock1 className="w-5 h-5" />
+                <span>
+                  {event?.time ? formatTime(event?.time) : 'No indicado'}
+                  {event?.duration ? ` · ${event.duration}` : ''}
                 </span>
               </div>
             </section>
 
             {/* Location */}
             <section>
-              <h2 className="text-xl font-semibold mb-4">Ubicación</h2>
+              <h2 className="font-semibold mb-4 tracking-wider">Ubicación</h2>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Globe className="w-5 h-5" />
                 <span>En línea</span>
@@ -141,7 +193,9 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
             <section>
               <h2 className="text-xl font-semibold mb-4">Bueno saber</h2>
               <div className="space-y-3">
-                <h3 className="font-medium">Destacados</h3>
+                <h3 className="font-semibold mb-4 tracking-wider">
+                  Destacados
+                </h3>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 text-muted-foreground">
                     <Clock className="w-4 h-4" />
@@ -157,74 +211,46 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
 
             {/* About Event */}
             <section>
-              <h2 className="text-xl font-semibold mb-4">
-                Acerca de este evento
-              </h2>
+              <h2 className="font-semibold mb-4 tracking-wider">Categoría</h2>
               <div className="space-y-4">
                 <div className="flex gap-2">
-                  <Badge variant="outline">Negocios</Badge>
-                  <Badge variant="outline">Carrera</Badge>
-                </div>
-
-                <h3 className="font-semibold">Tech Career Fair US/Canada</h3>
-
-                <div className="prose prose-sm max-w-none text-muted-foreground">
-                  <p>
-                    Estaremos organizando una Feria de Carreras Tecnológicas
-                    virtual con nuestros socios de contratación de startups de
-                    rápido crecimiento y empresas Fortune 500 en tecnología en
-                    EE.UU./Canadá. Habrá un enfoque en ayudar a las empresas a
-                    lograr su iniciativa de diversidad e inclusión con más
-                    candidatos diversos no tradicionales para su grupo de
-                    talentos.
-                  </p>
-                  <p className="mt-4">
-                    Los roles disponibles que nuestras empresas de contratación
-                    buscan llenar son los siguientes:
-                  </p>
-                  <ul className="mt-3 space-y-1">
-                    <li>• Ingeniería de Software</li>
-                    <li>• Gestión de Productos</li>
-                    <li>• Científico de Datos</li>
-                    <li>• Ingeniero de IA/Aprendizaje Automático</li>
-                    <li>• Analista de Datos</li>
-                    <li>• Diseño UI/UX</li>
-                  </ul>
+                  <Badge
+                    variant="outline"
+                    className="px-3 py-1 rounded-full text-sm bg-secondary text-secondary-foreground"
+                  >
+                    {event.categorydata?.name || 'Sin categoría'}
+                  </Badge>
                 </div>
               </div>
             </section>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Sticky Event Info */}
-            <Card className="p-4 sticky top-4">
-              <div className="text-center space-y-3">
-                <Badge variant="secondary">Gratuito</Badge>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(event.start_date)} ·{' '}
-                  {formatTime(event.start_date)}
-                </p>
-                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
-                  Obtener entradas
-                </Button>
-              </div>
-            </Card>
+          <div className="">
+            <EventStickyBanner
+              event={event}
+              badgeText="Gratuito"
+              actionType="interest"
+              showEndDate={true}
+              showTime={true}
+              showLocation={true}
+              cardClassName="w-full min-w-[340px]"
+            />
           </div>
         </div>
 
         {/* Organized By */}
-        <section className="mt-12">
+        <section className="mt-12 w-full">
           <h2 className="text-xl font-semibold mb-6">Organizado por</h2>
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
+          <Card className="p-6 w-full minm">
+            <div className="flex items-center justify-between gap-4 w-full">
               <div className="flex items-center gap-4">
                 <Avatar className="w-16 h-16">
                   <AvatarImage
                     src={
-                      event.user != null
-                        ? event.user.profile_image || ''
-                        : event.institution?.cover_image_url || ''
+                      event.institution != null
+                        ? event.institution.brand || ''
+                        : event.user?.profile_image || ''
                     }
                   />
                   <AvatarFallback className="bg-pink-200 text-lg">
@@ -232,19 +258,20 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                       ? `${event.user.first_name?.[0] ?? ''}${
                           event.user.last_name?.[0] ?? ''
                         }`
-                      : event.institution?.acronym?.[0] ?? ''}
+                      : event.institution?.institution_name?.[0] ?? ''}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold text-lg">
-                    {event.user != null
-                      ? `${event.user.first_name} ${event.user.last_name}`
-                      : event.institution?.institution_name}
+                  <h3 className="font-semibold">
+                    {event.institution != null
+                      ? event.institution.institution_name
+                      : `${event.user?.first_name ?? ''} ${
+                          event.user?.last_name ?? ''
+                        }`}
                   </h3>
-                  <div className="flex gap-6 text-sm text-muted-foreground mt-1">
-                    <span>Seguidores: 62.5k</span>
-                    <span>Eventos: 54</span>
-                    <span>Organizando: 8 años</span>
+                  <div className="flex gap-6 text-xs text-muted-foreground mt-1">
+                    Autor de la publicación: {event.user?.first_name}{' '}
+                    {event.user?.last_name}
                   </div>
                 </div>
               </div>
@@ -267,7 +294,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </div>
 
         {/* More Events */}
-        <section className="mt-12">
+        {/* <section className="mt-12">
           <h2 className="text-xl font-semibold mb-6">
             Más eventos de este organizador
           </h2>
@@ -308,7 +335,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
               </Card>
             ))}
           </div>
-        </section>
+        </section> */}
       </div>
     </div>
   )

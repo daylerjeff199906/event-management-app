@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Ellipsis } from 'lucide-react'
+import { Ellipsis, ExternalLink, LucideIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,8 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip'
 import { SectionElement } from '@/types'
+import { createElement } from 'react'
+import * as LucideIcons from 'lucide-react'
 
 interface MenuProps {
   isOpen: boolean | undefined
@@ -23,6 +25,17 @@ interface MenuProps {
 export function Menu({ isOpen, menuItems }: MenuProps) {
   const pathname = usePathname()
   const menuList = menuItems || []
+
+  // Primero, necesitas definir el tipo LucideIconName y el iconMap.
+  // Por ejemplo:
+
+  type LucideIconName = keyof typeof LucideIcons
+
+  const iconMap = LucideIcons
+
+  function getIconComponent(iconName: LucideIconName): LucideIcon {
+    return iconMap[iconName] as LucideIcon
+  }
 
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
@@ -86,9 +99,15 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                                       isOpen === false ? '' : 'mr-4'
                                     )}
                                   >
-                                    {menu.icon && (
-                                      <menu.icon className={cn('h-5 w-5')} />
-                                    )}
+                                    {menu.icon &&
+                                      createElement(
+                                        getIconComponent(
+                                          menu.icon as LucideIconName
+                                        ),
+                                        {
+                                          className: 'h-5 w-5'
+                                        }
+                                      )}
                                   </span>
                                   <p
                                     className={cn(
@@ -100,6 +119,9 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                                   >
                                     {menu.name}
                                   </p>
+                                  {menu?.isExternal && isOpen && (
+                                    <ExternalLink className="h-4 w-4 inline-block ml-1" />
+                                  )}
                                 </Link>
                               )}
                             </Button>
