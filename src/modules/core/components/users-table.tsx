@@ -31,9 +31,9 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
   const getRoleBadgeVariant = (role: string) => {
     switch (role.toLowerCase()) {
       case 'institution_owner':
-        return 'secondary'
-      case 'member':
         return 'outline'
+      case 'member':
+        return 'secondary'
       default:
         return 'outline'
     }
@@ -104,7 +104,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
               </TableCell>
               <TableCell>
                 <div className="flex gap-2 justify-end">
-                  {isOwner && !(userRole?.user_id === currentUserId) && (
+                  {/* {isOwner && !(userRole?.user_id === currentUserId) && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -113,11 +113,14 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                     >
                       <X className="h-4 w-4" />
                     </Button>
-                  )}
+                  )} */}
                   {isOwner && !(userRole?.user_id === currentUserId) && (
                     <EditRoleUserModal
                       key={userRole.id}
+                      idRole={userRole.id}
                       value={userRole?.role}
+                      userId={userRole?.user_id}
+                      institutionId={userRole?.institution_id?.toString() || ''}
                     />
                   )}
                 </div>
