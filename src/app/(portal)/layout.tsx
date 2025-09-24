@@ -26,7 +26,7 @@ export default async function Layout({ children }: LayoutProps) {
         }}
       />
       {children}
-      <Footer />
+      <Footer disabledOpen />
     </>
   )
 }
