@@ -75,11 +75,17 @@ export async function upsertUserRole({
   }
 }
 
-export async function upsertAccessEnabled(
-  userId: string,
-  institutionId: string,
+export async function upsertAccessEnabled({
+  userId,
+  institutionId,
+  access_enabled,
+  urlRevalidate
+}: {
+  userId: string
+  institutionId: string
   access_enabled: boolean
-): Promise<{ data: IUserRoleFull | null; error: Error | null }> {
+  urlRevalidate?: string
+}): Promise<{ data: IUserRoleFull | null; error: Error | null }> {
   const supabase = await getSupabase()
   try {
     const { data, error } = await supabase
@@ -95,6 +101,7 @@ export async function upsertAccessEnabled(
       console.error('Error upserting access enabled:', error)
       return { data: null, error }
     }
+    revalidatePath(urlRevalidate || '/portal/institution/users')
     return { data: data as IUserRoleFull, error: null }
   } catch (err) {
     console.error('Unexpected error upserting access enabled:', err)

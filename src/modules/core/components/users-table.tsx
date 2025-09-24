@@ -2,7 +2,6 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -11,9 +10,9 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { RemoveAccessModal } from '@/modules/dashboard/components'
 import { EditRoleUserModal } from '@/modules/dashboard/components/edit-role-user-modal'
 import { IUserRoleFull } from '@/types'
-import { X } from 'lucide-react'
 
 interface UsersTableProps {
   users: IUserRoleFull[]
@@ -104,16 +103,14 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
               </TableCell>
               <TableCell>
                 <div className="flex gap-2 justify-end">
-                  {/* {isOwner && !(userRole?.user_id === currentUserId) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      // onClick={() => onRemoveUser(userRole?.user_id)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )} */}
+                  {isOwner && !(userRole?.user_id === currentUserId) && (
+                    <RemoveAccessModal
+                      institutionId={userRole?.institution_id?.toString() || ''}
+                      userEmail={userRole?.user?.email || ''}
+                      userId={userRole?.user_id}
+                      userName={userRole?.user?.first_name || ''}
+                    />
+                  )}
                   {isOwner && !(userRole?.user_id === currentUserId) && (
                     <EditRoleUserModal
                       key={userRole.id}
