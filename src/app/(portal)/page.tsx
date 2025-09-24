@@ -10,7 +10,7 @@ import {
 export default function Page() {
   return (
     <>
-      <BannerCarousel className="mx-auto max-w-7xl rounded-2xl lg:pt-8" />
+      <BannerCarousel className="mx-auto max-w-7xl rounded-2xl lg:pt-8 p-4 lg:px-0" />
       <EventsSection />
       <EventsCTA urlImageBackground={BG_CTA_EVENTS.src} />
       <CategoryGrid className="py-12 md::py-16 lg:py-24" />

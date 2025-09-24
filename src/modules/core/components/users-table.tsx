@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { EditRoleUserModal } from '@/modules/dashboard/components/edit-role-user-modal'
 import { IUserRoleFull } from '@/types'
 import { X } from 'lucide-react'
 
@@ -29,9 +30,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role.toLowerCase()) {
-      case 'owner':
-        return 'default'
-      case 'admin':
+      case 'institution_owner':
         return 'secondary'
       case 'member':
         return 'outline'
@@ -104,16 +103,24 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                 </Badge>
               </TableCell>
               <TableCell>
-                {isOwner && !(userRole?.user_id === currentUserId) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    // onClick={() => onRemoveUser(userRole?.user_id)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
+                <div className="flex gap-2 justify-end">
+                  {isOwner && !(userRole?.user_id === currentUserId) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      // onClick={() => onRemoveUser(userRole?.user_id)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {isOwner && !(userRole?.user_id === currentUserId) && (
+                    <EditRoleUserModal
+                      key={userRole.id}
+                      value={userRole?.role}
+                    />
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

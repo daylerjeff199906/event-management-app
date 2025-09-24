@@ -58,7 +58,7 @@ export default function AdminPanelLayout({
           {children}
         </div>
       </main>
-      <Footer />
+      <Footer disabledOpen={hiddenSidebar} />
     </>
   )
 }

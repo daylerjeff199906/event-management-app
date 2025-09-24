@@ -6,7 +6,11 @@ import React from 'react'
 import { LogoRender } from '../miscellaneous/logo-render'
 import { APP_URL } from '@/data/config-app-url'
 
-export const Footer = () => {
+interface FooterProps {
+  disabledOpen?: boolean
+}
+
+export const Footer = ({ disabledOpen }: FooterProps) => {
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
   const { getOpenState } = sidebar
@@ -16,9 +20,11 @@ export const Footer = () => {
     <footer
       className={cn(
         'bg-card border-t py-12',
-        isCurrentlyOpen
-          ? 'max-w-[calc(100vw-16rem)] ml-auto'
-          : 'max-w-[calc(100vw-6.3rem)] ml-auto'
+        disabledOpen && 'mx-auto container',
+        isCurrentlyOpen && !disabledOpen && 'max-w-[calc(100vw-16rem)] ml-auto',
+        !isCurrentlyOpen &&
+          !disabledOpen &&
+          'max-w-[calc(100vw-6.3rem)] ml-auto'
       )}
     >
       <div className="container mx-auto px-4">
