@@ -105,10 +105,17 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                 <div className="flex gap-2 justify-end">
                   {isOwner && !(userRole?.user_id === currentUserId) && (
                     <RemoveAccessModal
+                      idUserRole={userRole.id}
                       institutionId={userRole?.institution_id?.toString() || ''}
                       userEmail={userRole?.user?.email || ''}
                       userId={userRole?.user_id}
                       userName={userRole?.user?.first_name || ''}
+                      role={
+                        userRole?.role as
+                          | 'institution_owner'
+                          | 'member'
+                          | 'editor'
+                      }
                     />
                   )}
                   {isOwner && !(userRole?.user_id === currentUserId) && (

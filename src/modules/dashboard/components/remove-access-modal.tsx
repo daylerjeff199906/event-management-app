@@ -35,14 +35,16 @@ const removeAccessSchema = z.object({
 type RemoveAccessFormValues = z.infer<typeof removeAccessSchema>
 
 interface IProps {
+  idUserRole?: string
   userId: string
   institutionId: string
   userName: string
   userEmail: string
+  role: 'institution_owner' | 'member' | 'editor'
 }
 
 export const RemoveAccessModal = (props: IProps) => {
-  const { userId, institutionId, userName, userEmail } = props
+  const { userId, institutionId, userName, userEmail, role, idUserRole } = props
   const [open, setOpen] = useState(false)
 
   const form = useForm<RemoveAccessFormValues>({
@@ -63,8 +65,10 @@ export const RemoveAccessModal = (props: IProps) => {
     try {
       // Llamar al servicio para deshabilitar el acceso
       const { error } = await upsertAccessEnabled({
+        userRoleId: idUserRole,
         userId,
         institutionId,
+        role,
         access_enabled: data.confirm === 'true' ? false : true,
         urlRevalidate: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(
           institutionId.toString()

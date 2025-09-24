@@ -76,14 +76,18 @@ export async function upsertUserRole({
 }
 
 export async function upsertAccessEnabled({
+  userRoleId,
   userId,
   institutionId,
   access_enabled,
+  role,
   urlRevalidate
 }: {
+  userRoleId?: string
   userId: string
   institutionId: string
   access_enabled: boolean
+  role: 'institution_owner' | 'member' | 'editor'
   urlRevalidate?: string
 }): Promise<{ data: IUserRoleFull | null; error: Error | null }> {
   const supabase = await getSupabase()
@@ -91,7 +95,9 @@ export async function upsertAccessEnabled({
     const { data, error } = await supabase
       .from('user_roles')
       .upsert({
+        id: userRoleId,
         user_id: userId,
+        role,
         institution_id: institutionId,
         access_enabled
       })
