@@ -25,9 +25,6 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
         !isCurrentlyOpen &&
           !disabledOpen &&
           'max-w-[calc(100vw-6.3rem)] ml-auto'
-
-        //   ? 'max-w-[calc(100vw-16rem)] ml-auto'
-        //   : 'max-w-[calc(100vw-6.3rem)] ml-auto'
       )}
     >
       <div className="container mx-auto px-4">
