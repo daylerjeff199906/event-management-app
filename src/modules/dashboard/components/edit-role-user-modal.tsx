@@ -9,38 +9,69 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { UserCheck } from 'lucide-react'
 
-export const EditRoleUserModal = () => {
+const roles = [
+  {
+    key: 'institution_owner',
+    label: 'Propietario de la institución',
+    description: 'Acceso total a todas las configuraciones y datos.'
+  },
+  {
+    key: 'editor',
+    label: 'Editor',
+    description: 'Puede editar contenido pero no cambiar configuraciones.'
+  }
+]
+
+interface IProps {
+  value?: string
+}
+
+export const EditRoleUserModal = (props: IProps) => {
+  const { value } = props
   return (
     <>
       <Dialog>
         <form>
           <DialogTrigger asChild>
-            <Button variant="outline">Open Dialog</Button>
+            <Button variant="outline" size="icon">
+              <UserCheck className="h-4 w-4" />
+            </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Edit profile</DialogTitle>
+              <DialogTitle>Editar Rol</DialogTitle>
               <DialogDescription>
-                Make changes to your profile here. Click save when you&apos;re
-                done.
+                Modifica el rol y los permisos del usuario aquí. Haz clic en
+                guardar cuando hayas terminado.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label htmlFor="name-1">Name</Label>
-                <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="username-1">Username</Label>
-                <Input
-                  id="username-1"
-                  name="username"
-                  defaultValue="@peduarte"
-                />
-              </div>
+              <Select defaultValue={value}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map((role) => (
+                    <SelectItem key={role.key} value={role.key}>
+                      <div className="">
+                        <div>{role.label}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {role.description}
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <DialogFooter>
               <DialogClose asChild>
