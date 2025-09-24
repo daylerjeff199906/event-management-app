@@ -2,9 +2,7 @@
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -17,7 +15,7 @@ import {
   FormItem,
   FormMessage
 } from '@/components/ui/form'
-import { UserX } from 'lucide-react'
+import { Trash } from 'lucide-react'
 import { upsertAccessEnabled } from '@/services/user.roles.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
@@ -117,20 +115,23 @@ export const RemoveAccessModal = (props: IProps) => {
               size="icon"
               className="text-destructive hover:text-destructive"
             >
-              <UserX className="h-4 w-4" />
+              <Trash className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle className="text-destructive">
+            <DialogHeader className="bg-gray-50">
+              <DialogTitle>
                 Confirmar que deseas eliminar este miembro
               </DialogTitle>
-              <DialogDescription>
+            </DialogHeader>
+
+            <div>
+              <p className="text-sm text-muted-foregrounds">
                 Una vez eliminado, {userName} ({userEmail}) ya no tendrá acceso
                 directo a esta institución. Sin embargo, aún podría tener acceso
                 si es miembro de un equipo que tenga permisos concedidos.
-              </DialogDescription>
-            </DialogHeader>
+              </p>
+            </div>
 
             <div className="grid gap-4 py-4">
               <FormField
@@ -163,22 +164,14 @@ export const RemoveAccessModal = (props: IProps) => {
               />
             </div>
 
-            <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-between items-center">
-              <div className="text-sm text-muted-foreground"></div>
-              <div className="flex gap-2">
-                <DialogClose asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isSubmitting}
-                  >
-                    Cancelar
-                  </Button>
-                </DialogClose>
+            <DialogFooter className="flex flex-col">
+              <div className="flex gap-2 flex-col w-full">
                 <Button
                   type="submit"
                   variant="destructive"
                   disabled={isSubmitting || !form.watch('confirm')}
+                  className="w-full"
+                  onClick={() => form.handleSubmit(onSubmit)()}
                 >
                   {isSubmitting ? 'Eliminando...' : `Remover a ${userName}`}
                 </Button>
