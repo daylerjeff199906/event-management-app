@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { RemoveAccessModal } from '@/modules/dashboard/components'
+import { ToggleAccessModal } from '@/modules/dashboard/components'
 import { EditRoleUserModal } from '@/modules/dashboard/components/edit-role-user-modal'
 import { IUserRoleFull } from '@/types'
 
@@ -91,7 +91,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
               </TableCell>
               <TableCell>
                 <Badge
-                  variant={userRole.access_enabled ? 'default' : 'secondary'}
+                  variant={!userRole.access_enabled ? 'default' : 'secondary'}
                 >
                   {userRole.access_enabled ? 'Sí' : 'No'}
                 </Badge>
@@ -104,7 +104,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
               <TableCell>
                 <div className="flex gap-2 justify-end">
                   {isOwner && !(userRole?.user_id === currentUserId) && (
-                    <RemoveAccessModal
+                    <ToggleAccessModal
                       idUserRole={userRole.id}
                       institutionId={userRole?.institution_id?.toString() || ''}
                       userEmail={userRole?.user?.email || ''}
@@ -116,17 +116,22 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                           | 'member'
                           | 'editor'
                       }
+                      accessEnabled={userRole?.access_enabled || false}
                     />
                   )}
-                  {isOwner && !(userRole?.user_id === currentUserId) && (
-                    <EditRoleUserModal
-                      key={userRole.id}
-                      idRole={userRole.id}
-                      value={userRole?.role}
-                      userId={userRole?.user_id}
-                      institutionId={userRole?.institution_id?.toString() || ''}
-                    />
-                  )}
+                  {isOwner &&
+                    userRole?.access_enabled &&
+                    !(userRole?.user_id === currentUserId) && (
+                      <EditRoleUserModal
+                        key={userRole.id}
+                        idRole={userRole.id}
+                        value={userRole?.role}
+                        userId={userRole?.user_id}
+                        institutionId={
+                          userRole?.institution_id?.toString() || ''
+                        }
+                      />
+                    )}
                 </div>
               </TableCell>
             </TableRow>
