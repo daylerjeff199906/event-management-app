@@ -31,7 +31,10 @@ export default async function Layout(props: IProps) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar un usuario" className="pl-10" />
           </div>
-          <AddUserSection existingUsers={usersData || []} />
+          <AddUserSection
+            institutionId={institutionId}
+            existingUsers={usersData || []}
+          />
         </div>
         {children}
       </div>

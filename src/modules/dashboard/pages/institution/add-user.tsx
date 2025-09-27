@@ -2,14 +2,41 @@
 import { IUserRoleFull } from '@/types'
 import { AddUsersDialog } from '../../components'
 import { getUserList } from '@/services/user.services'
+import { createUserRole } from '@/services/user.roles.services'
 import { User } from '../../components/add-users-dialog'
+import { APP_URL } from '@/data/config-app-url'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 interface IProps {
   existingUsers: IUserRoleFull[]
+  institutionId: string
 }
 
 export const AddUserSection = (props: IProps) => {
-  const { existingUsers } = props
+  const { existingUsers, institutionId } = props
+
+  const handleAddUser = async (userId: string) => {
+    const { data, error } = await createUserRole({
+      userId,
+      institutionId,
+      role: 'editor',
+      urlRevalidate: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(institutionId)
+    })
+    if (error) {
+      toast.error(
+        <ToastCustom title="Error" description="Error al añadir el usuario" />
+      )
+      console.error('Error adding user:', error)
+    } else {
+      toast.success(
+        <ToastCustom
+          title="Éxito"
+          description={`Usuario ${data?.user?.email} añadido correctamente`}
+        />
+      )
+    }
+  }
 
   return (
     <div>
@@ -43,8 +70,8 @@ export const AddUserSection = (props: IProps) => {
         }}
         searchPlaceholder="Buscar usuarios por email o username"
         onAddUsers={async (selectedUsers: User[]) => {
-          // Aquí deberías llamar a tu servicio para añadir usuarios a la institución
-          console.log('Usuarios añadidos:', selectedUsers)
+          const userSeleted = selectedUsers[0]
+          await handleAddUser(userSeleted.id)
         }}
         className="w-full"
         addButtonText="Añadir a la institución"

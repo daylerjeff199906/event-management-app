@@ -114,3 +114,38 @@ export async function upsertAccessEnabled({
     return { data: null, error: err as Error }
   }
 }
+
+export async function createUserRole({
+  userId,
+  institutionId,
+  role,
+  urlRevalidate
+}: {
+  userId: string
+  institutionId: string
+  role: 'institution_owner' | 'member' | 'editor'
+  urlRevalidate?: string
+}): Promise<{ data: IUserRoleFull | null; error: Error | null }> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .insert({
+        user_id: userId,
+        institution_id: institutionId,
+        role
+      })
+      .select('*, user:user_id(*)')
+      .single()
+    if (error) {
+      console.error('Error creating user role:', error)
+      return { data: null, error }
+    }
+
+    revalidatePath(urlRevalidate || '/portal/institution/users')
+    return { data: data as IUserRoleFull, error: null }
+  } catch (err) {
+    console.error('Unexpected error creating user role:', err)
+    return { data: null, error: err as Error }
+  }
+}
