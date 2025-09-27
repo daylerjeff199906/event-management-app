@@ -136,17 +136,17 @@ export const menuOrganization = (idInstitution: string): SectionElement[] => [
           icon: 'Settings'
         },
         submenus: []
-      },
-      {
-        menu: {
-          id: 4,
-          name: 'Pagos',
-          url: '#',
-          icon: 'Coins',
-          isDisabled: true
-        },
-        submenus: []
       }
+      // {
+      //   menu: {
+      //     id: 4,
+      //     name: 'Pagos',
+      //     url: '#',
+      //     icon: 'Coins',
+      //     isDisabled: true
+      //   },
+      //   submenus: []
+      // }
     ]
   }
 ]
