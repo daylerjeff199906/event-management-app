@@ -1,13 +1,24 @@
 import { Input } from '@/components/ui/input'
-import { AddUserModal } from '@/modules/dashboard/components'
+import { AddUserSection } from '@/modules/dashboard/pages/institution'
+import { getfullUserRoleByInstitution } from '@/services/user.roles.services'
+import { Params } from '@/types'
 import { Search } from 'lucide-react'
 
 interface IProps {
   children: React.ReactNode
+  params: Params
 }
 
-export default function Layout(props: IProps) {
+export default async function Layout(props: IProps) {
   const { children } = props
+  const params = await props.params
+
+  const institutionId = params?.slug?.toString() || null
+  if (!institutionId) {
+    return <div>No institution ID provided</div>
+  }
+
+  const usersData = await getfullUserRoleByInstitution(institutionId)
 
   return (
     <main className="min-h-screen bg-background p-6">
@@ -20,7 +31,10 @@ export default function Layout(props: IProps) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar un usuario" className="pl-10" />
           </div>
-          <AddUserModal />
+          <AddUserSection
+            institutionId={institutionId}
+            existingUsers={usersData || []}
+          />
         </div>
         {children}
       </div>

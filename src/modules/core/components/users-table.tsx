@@ -2,7 +2,6 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -11,9 +10,9 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { ToggleAccessModal } from '@/modules/dashboard/components'
 import { EditRoleUserModal } from '@/modules/dashboard/components/edit-role-user-modal'
 import { IUserRoleFull } from '@/types'
-import { X } from 'lucide-react'
 
 interface UsersTableProps {
   users: IUserRoleFull[]
@@ -31,9 +30,9 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
   const getRoleBadgeVariant = (role: string) => {
     switch (role.toLowerCase()) {
       case 'institution_owner':
-        return 'secondary'
-      case 'member':
         return 'outline'
+      case 'member':
+        return 'secondary'
       default:
         return 'outline'
     }
@@ -92,7 +91,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
               </TableCell>
               <TableCell>
                 <Badge
-                  variant={userRole.access_enabled ? 'default' : 'secondary'}
+                  variant={!userRole.access_enabled ? 'default' : 'secondary'}
                 >
                   {userRole.access_enabled ? 'Sí' : 'No'}
                 </Badge>
@@ -105,21 +104,34 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
               <TableCell>
                 <div className="flex gap-2 justify-end">
                   {isOwner && !(userRole?.user_id === currentUserId) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      // onClick={() => onRemoveUser(userRole?.user_id)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                  {isOwner && !(userRole?.user_id === currentUserId) && (
-                    <EditRoleUserModal
-                      key={userRole.id}
-                      value={userRole?.role}
+                    <ToggleAccessModal
+                      idUserRole={userRole.id}
+                      institutionId={userRole?.institution_id?.toString() || ''}
+                      userEmail={userRole?.user?.email || ''}
+                      userId={userRole?.user_id}
+                      userName={userRole?.user?.first_name || ''}
+                      role={
+                        userRole?.role as
+                          | 'institution_owner'
+                          | 'member'
+                          | 'editor'
+                      }
+                      accessEnabled={userRole?.access_enabled || false}
                     />
                   )}
+                  {isOwner &&
+                    userRole?.access_enabled &&
+                    !(userRole?.user_id === currentUserId) && (
+                      <EditRoleUserModal
+                        key={userRole.id}
+                        idRole={userRole.id}
+                        value={userRole?.role}
+                        userId={userRole?.user_id}
+                        institutionId={
+                          userRole?.institution_id?.toString() || ''
+                        }
+                      />
+                    )}
                 </div>
               </TableCell>
             </TableRow>
