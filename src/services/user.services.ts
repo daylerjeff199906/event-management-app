@@ -5,6 +5,7 @@ import {
   Notifications
 } from '@/modules/portal/lib/validations'
 import { getSupabase } from './core.supabase'
+import { IUser, IUserFilter, ResponsePagination } from '@/types'
 
 export async function insertUserData(formData: PersonalInfo) {
   const supabase = await getSupabase()
@@ -137,4 +138,55 @@ export async function updateNotifications({
     .select()
 
   return { error, data, status, statusText }
+}
+
+export async function getUserList(
+  filters: IUserFilter
+): Promise<ResponsePagination<IUser>> {
+  const supabase = await getSupabase()
+
+  // Default pagination values
+  const page = filters.page ?? 1
+  const pageSize = filters.pageSize ?? 10
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+
+  let query = supabase.from('users').select('*', { count: 'exact' })
+
+  // Apply filters if present
+  if (filters.first_name) {
+    query = query.ilike('first_name', `%${filters.first_name}%`)
+  }
+  if (filters.last_name) {
+    query = query.ilike('last_name', `%${filters.last_name}%`)
+  }
+  if (filters.searchQuery) {
+    // Busca por email o username usando OR
+    query = query.or(
+      `email.ilike.%${filters.searchQuery}%,username.ilike.%${filters.searchQuery}%`
+    )
+  }
+  // Add more filters as needed
+
+  // Pagination
+  query = query.range(from, to)
+
+  const { data, error, count } = await query
+
+  if (error) {
+    console.error('Error fetching users:', error)
+    return {
+      data: [],
+      total: 0,
+      page,
+      pageSize
+    }
+  }
+
+  return {
+    data: data ?? [],
+    total: count ?? 0,
+    page,
+    pageSize
+  }
 }

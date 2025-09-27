@@ -1,3 +1,5 @@
+import { Pagination } from './pagination'
+
 export interface IUser {
   id?: string
   first_name: string
@@ -26,4 +28,12 @@ export interface IUserRole {
 
 export interface IUserRoleFull extends IUserRole {
   user: IUser | null
+}
+
+export interface IUserFilter extends Pagination {
+  username?: string
+  email?: string
+  first_name?: string
+  last_name?: string
+  role?: string
 }
