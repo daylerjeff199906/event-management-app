@@ -61,7 +61,7 @@ export function SearchBar({
   return (
     <div
       className={cn(
-        'flex items-center bg-white border border-gray-200 rounded-full w-full transition-shadow duration-200',
+        'flex items-center bg-white border border-gray-200 rounded-full w-full transition-shadow duration-200 dark:bg-zinc-800 dark:border-gray-700 focus-within:shadow-md',
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}
