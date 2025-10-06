@@ -1,3 +1,5 @@
+import { EventsPage } from '@/modules/portal/pages/events'
+
 export default function Page() {
-  return <div>page</div>
+  return <EventsPage />
 }

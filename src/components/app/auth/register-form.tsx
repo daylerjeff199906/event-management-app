@@ -135,7 +135,9 @@ export const RegisterForm = () => {
       hiddenName
     >
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Bienvenido</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6 dark:text-gray-100">
+          Bienvenido
+        </h1>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -145,7 +147,7 @@ export const RegisterForm = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide dark:text-gray-300">
                     Nombre de usuario
                   </FormLabel>
                   <FormControl>
@@ -166,7 +168,7 @@ export const RegisterForm = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide dark:text-gray-300">
                     Correo electrónico
                   </FormLabel>
                   <FormControl>
@@ -188,7 +190,7 @@ export const RegisterForm = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide dark:text-gray-300">
                     Contraseña
                   </FormLabel>
                   <FormControl>
@@ -222,7 +224,7 @@ export const RegisterForm = () => {
                   {password && (
                     <div className="mt-2">
                       <div className="flex justify-between mb-1">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           Seguridad de la contraseña:
                         </span>
                         <span className="text-xs font-medium">
@@ -300,7 +302,7 @@ export const RegisterForm = () => {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide">
+                  <FormLabel className="text-xs text-gray-600 uppercase tracking-wide dark:text-gray-300">
                     Confirmar Contraseña
                   </FormLabel>
                   <FormControl>
@@ -341,7 +343,7 @@ export const RegisterForm = () => {
             </Button>
 
             <div className="flex flex-col items-center">
-              <span className="text-gray-500 text-sm mb-2">
+              <span className="text-gray-500 text-sm mb-2 dark:text-gray-400">
                 ¿Ya tienes una cuenta?{' '}
                 <Link
                   href={APP_URL.AUTH.LOGIN}

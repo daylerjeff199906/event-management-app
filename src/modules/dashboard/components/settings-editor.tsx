@@ -84,12 +84,17 @@ export function SettingsEditor({ initialData, userId }: SettingsEditorProps) {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Configuraciones</h1>
+        <h1
+          className="text-2xl font-bold text-foreground
+"
+        >
+          Configuraciones
+        </h1>
       </div>
 
-      <Card className="shadow-none bg-white">
+      <Card className="shadow-none bg-white dark:bg-slate-800 border">
         <CardHeader>
-          <CardTitle className="text-xl text-slate-700">
+          <CardTitle className="text-xl text-slate-700 dark:text-slate-200">
             Preferencias de Notificaciones y Privacidad
           </CardTitle>
         </CardHeader>

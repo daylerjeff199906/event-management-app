@@ -110,11 +110,13 @@ export const LoginForm = () => {
       subTitle="Ingresa tus credenciales para acceder a tu cuenta. Descubre las novedades que tenemos para ti."
       backgroundImage={configImages.BACKGROUND_DEFAULT.src}
     >
-      <div className="space-y-6 w-full max-w-sm mx-auto">
+      <div className="space-y-6 w-full max-w-md mx-auto">
         <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Iniciar Sesión</h1>
-            <p className="text-gray-600 text-sm mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+              Iniciar Sesión
+            </h1>
+            <p className="text-gray-600 text-sm mb-4 dark:text-gray-300">
               Ingresa tus credenciales para acceder a tu cuenta
             </p>
           </div>
@@ -141,7 +143,7 @@ export const LoginForm = () => {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm text-gray-700">
+                    <FormLabel className="text-sm text-gray-700 dark:text-gray-300">
                       Usuario
                     </FormLabel>
                     <FormControl>
@@ -162,7 +164,7 @@ export const LoginForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm text-gray-700">
+                    <FormLabel className="text-sm text-gray-700 dark:text-gray-300">
                       Contraseña
                     </FormLabel>
                     <FormControl>
@@ -212,7 +214,7 @@ export const LoginForm = () => {
               <button
                 onClick={handleGoogleLogin}
                 type="button"
-                className="border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100 w-full mt-4"
+                className="border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100 w-full mt-4 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 flex items-center justify-center gap-2"
               >
                 Iniciar sesión con Google
               </button>
@@ -220,7 +222,7 @@ export const LoginForm = () => {
           </Form>
 
           <div className="mt-8 flex flex-col items-center">
-            <span className="text-gray-500 text-sm mb-2">
+            <span className="text-gray-500 text-sm mb-2 dark:text-gray-400">
               ¿No tienes cuenta?{' '}
               <Link
                 href={APP_URL.AUTH.REGISTER}
