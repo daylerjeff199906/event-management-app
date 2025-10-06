@@ -19,3 +19,4 @@ export {
 }
 
 export * from './profile'
+export * from './institution'
