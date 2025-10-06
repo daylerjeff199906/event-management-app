@@ -33,6 +33,7 @@ import { Category } from '@/types'
 import { ProfilePopover } from '@/components/app/navbar-custom/profile-popover'
 import { MENU_PROFILE } from '@/components/app/navbar-custom/profile-menu'
 import { ModeToggle } from '@/components/app/miscellaneous/mode-toggle'
+import { useSearchParams } from 'next/navigation'
 
 export interface SearchConfig {
   placeholder?: string
@@ -94,6 +95,11 @@ export function NavbarCustom({
   const [userLocation, setUserLocation] = useState<string>(
     'Detectando ubicación...'
   )
+
+  const searchParams = useSearchParams()
+
+  const categoryParam = searchParams.get('category') || ''
+  // const searchParam = searchParams.get('search') || ''
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -178,7 +184,27 @@ export function NavbarCustom({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {categories.map((category) => (
-                    <DropdownMenuItem key={category.id}>
+                    <DropdownMenuItem
+                      key={category.id}
+                      onClick={() => {
+                        if (categoryParam === category.id.toString()) {
+                          // Si la categoría ya está seleccionada, la deseleccionamos
+                          const params = new URLSearchParams(
+                            searchParams.toString()
+                          )
+                          params.delete('category')
+                          params.delete('page')
+                          window.location.search = params.toString()
+                        } else {
+                          const params = new URLSearchParams(
+                            searchParams.toString()
+                          )
+                          params.set('category', category.id.toString())
+                          params.delete('page')
+                          window.location.search = params.toString()
+                        }
+                      }}
+                    >
                       {category.name}
                     </DropdownMenuItem>
                   ))}
