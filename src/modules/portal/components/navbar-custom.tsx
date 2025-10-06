@@ -32,6 +32,7 @@ import { APP_URL } from '@/data/config-app-url'
 import { Category } from '@/types'
 import { ProfilePopover } from '@/components/app/navbar-custom/profile-popover'
 import { MENU_PROFILE } from '@/components/app/navbar-custom/profile-menu'
+import { ModeToggle } from '@/components/app/miscellaneous/mode-toggle'
 
 export interface SearchConfig {
   placeholder?: string
@@ -140,9 +141,9 @@ export function NavbarCustom({
   return (
     <nav
       className={cn(
-        'sticky top-0 z-50 w-full border-b bg-white shadow-sm',
+        'sticky top-0 z-50 w-full border-b bg-white shadow-sm dark:border-gray-800 dark:bg-zinc-900',
         variant === 'transparent' &&
-          'bg-transparent border-transparent shadow-none',
+          'bg-transparent border-transparent shadow-none dark:bg-dark',
         className
       )}
       style={{
@@ -212,6 +213,7 @@ export function NavbarCustom({
           {/* Right Section */}
           <div className="flex items-center space-x-2">
             {/* User Section - Desktop */}
+            <ModeToggle />
             <div className="hidden md:block">
               {userConfig.isLoggedIn ? (
                 <>

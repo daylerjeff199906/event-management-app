@@ -58,7 +58,7 @@ export default function EventsCTA({
   urlImageBackground
 }: EventsCTAProps) {
   return (
-    <div className="relative bg-gray-50 py-20 px-6 lg:px-12">
+    <div className="relative bg-gray-50 py-20 px-6 lg:px-12 dark:bg-gray-900 overflow-hidden">
       {urlImageBackground && (
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
@@ -70,14 +70,19 @@ export default function EventsCTA({
 
       <div className="relative max-w-4xl mx-auto text-center">
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1 dark:text-white">
             {TEXTS.title}
           </h3>
-          <p className="text-gray-600">{TEXTS.subtitle}</p>
+          <p
+            className="text-gray-600 dark:text-gray-300 text-lg
+          "
+          >
+            {TEXTS.subtitle}
+          </p>
         </div>
 
         <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6 dark:text-white">
             {TEXTS.heading1}
             <span className="font-black">{TEXTS.heading2}</span>,
             <br />
@@ -110,7 +115,7 @@ export default function EventsCTA({
           )}
         </div>
 
-        <p className="text-gray-600 mt-8 text-lg max-w-2xl mx-auto">
+        <p className="text-gray-600 mt-8 text-lg max-w-2xl mx-auto dark:text-gray-300">
           {TEXTS.description}
           <span className="font-semibold">{TEXTS.descriptionHighlight}</span>
         </p>
