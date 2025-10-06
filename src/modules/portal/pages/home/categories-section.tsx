@@ -73,7 +73,7 @@ export function CategoryGrid({
   }
 
   return (
-    <div className="bg-amber-50 py-10 lg:py-16 dark:bg-gray-900">
+    <div className="bg-amber-50 py-10 lg:py-16 dark:bg-zinc-900">
       <section
         className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}
       >

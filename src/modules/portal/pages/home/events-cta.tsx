@@ -58,7 +58,7 @@ export default function EventsCTA({
   urlImageBackground
 }: EventsCTAProps) {
   return (
-    <div className="relative bg-gray-50 py-20 px-6 lg:px-12 dark:bg-gray-900 overflow-hidden">
+    <div className="relative bg-gray-50 py-20 px-6 lg:px-12 dark:bg-zinc-900 overflow-hidden">
       {urlImageBackground && (
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
