@@ -97,7 +97,6 @@ export function NavbarCustom({
   )
 
   const searchParams = useSearchParams()
-
   const categoryParam = searchParams.get('category') || ''
   // const searchParam = searchParams.get('search') || ''
 
@@ -178,7 +177,11 @@ export function NavbarCustom({
                     variant="ghost"
                     className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
                   >
-                    <span>Categorías</span>
+                    {categoryParam
+                      ? categories.find(
+                          (cat) => cat.id.toString() === categoryParam
+                        )?.name || 'Categorías'
+                      : 'Categorías'}
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -204,6 +207,10 @@ export function NavbarCustom({
                           window.location.search = params.toString()
                         }
                       }}
+                      className={cn(
+                        categoryParam === category.id.toString() &&
+                          'bg-primary/10 text-primary hover:bg-primary/20'
+                      )}
                     >
                       {category.name}
                     </DropdownMenuItem>

@@ -129,7 +129,7 @@ export const BannerCarousel = ({
                       zIndex: 9999
                     }}
                   >
-                    <Link href={APP_URL.PORTAL.EVENTS}>
+                    <Link href={APP_URL.PORTAL.EVENTS.BASE}>
                       Ver todos los eventos
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
