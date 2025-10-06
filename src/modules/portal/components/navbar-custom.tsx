@@ -32,6 +32,8 @@ import { APP_URL } from '@/data/config-app-url'
 import { Category } from '@/types'
 import { ProfilePopover } from '@/components/app/navbar-custom/profile-popover'
 import { MENU_PROFILE } from '@/components/app/navbar-custom/profile-menu'
+import { ModeToggle } from '@/components/app/miscellaneous/mode-toggle'
+import { useSearchParams } from 'next/navigation'
 
 export interface SearchConfig {
   placeholder?: string
@@ -94,6 +96,10 @@ export function NavbarCustom({
     'Detectando ubicación...'
   )
 
+  const searchParams = useSearchParams()
+  const categoryParam = searchParams.get('category') || ''
+  // const searchParam = searchParams.get('search') || ''
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -140,9 +146,9 @@ export function NavbarCustom({
   return (
     <nav
       className={cn(
-        'sticky top-0 z-50 w-full border-b bg-white shadow-sm',
+        'sticky top-0 z-50 w-full border-b bg-white shadow-sm dark:border-gray-800 dark:bg-zinc-900',
         variant === 'transparent' &&
-          'bg-transparent border-transparent shadow-none',
+          'bg-transparent border-transparent shadow-none dark:bg-dark',
         className
       )}
       style={{
@@ -171,13 +177,41 @@ export function NavbarCustom({
                     variant="ghost"
                     className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
                   >
-                    <span>Categorías</span>
+                    {categoryParam
+                      ? categories.find(
+                          (cat) => cat.id.toString() === categoryParam
+                        )?.name || 'Categorías'
+                      : 'Categorías'}
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {categories.map((category) => (
-                    <DropdownMenuItem key={category.id}>
+                    <DropdownMenuItem
+                      key={category.id}
+                      onClick={() => {
+                        if (categoryParam === category.id.toString()) {
+                          // Si la categoría ya está seleccionada, la deseleccionamos
+                          const params = new URLSearchParams(
+                            searchParams.toString()
+                          )
+                          params.delete('category')
+                          params.delete('page')
+                          window.location.search = params.toString()
+                        } else {
+                          const params = new URLSearchParams(
+                            searchParams.toString()
+                          )
+                          params.set('category', category.id.toString())
+                          params.delete('page')
+                          window.location.search = params.toString()
+                        }
+                      }}
+                      className={cn(
+                        categoryParam === category.id.toString() &&
+                          'bg-primary/10 text-primary hover:bg-primary/20'
+                      )}
+                    >
                       {category.name}
                     </DropdownMenuItem>
                   ))}
@@ -212,6 +246,7 @@ export function NavbarCustom({
           {/* Right Section */}
           <div className="flex items-center space-x-2">
             {/* User Section - Desktop */}
+            <ModeToggle />
             <div className="hidden md:block">
               {userConfig.isLoggedIn ? (
                 <>

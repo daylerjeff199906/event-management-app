@@ -36,7 +36,7 @@ export default function InstitutionsPage({
               String(institution.id)
             )}
           >
-            <Card className="shadow-none border border-border relative group hover:bg-accent/50 transition-colors hover:cursor-pointer bg-white">
+            <Card className="shadow-none border border-border relative group hover:bg-accent/50 transition-colors hover:cursor-pointer bg-white dark:bg-gray-800">
               <CardContent className="p-3">
                 <div className="flex items-start gap-4">
                   {/* Avatar cuando no hay brand/logo */}

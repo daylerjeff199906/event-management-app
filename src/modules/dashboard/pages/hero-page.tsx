@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button'
-import { Sparkles } from 'lucide-react'
+// import { Sparkles } from 'lucide-react'
 
 export const HeroPage = () => {
   return (
     <div>
-      <div className="w-full bg-orange-50 border border-orange-700 rounded-lg px-6 py-4 mb-6 relative">
+      {/* <div className="w-full bg-orange-50 border border-orange-700 rounded-lg px-6 py-4 mb-6 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
@@ -29,7 +29,7 @@ export const HeroPage = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl text-foreground">

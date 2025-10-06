@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { APP_CONFIG } from '@/data/config.app'
+import { useTheme } from 'next-themes'
 
 export const LogoRender = ({
   href,
@@ -19,9 +20,15 @@ export const LogoRender = ({
   size?: number
   isOpened?: boolean
 }) => {
+  const { theme } = useTheme()
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
   const { getOpenState } = sidebar
+
+  const logoRender =
+    theme === 'dark'
+      ? APP_CONFIG.logos.logoHorizontalDefault
+      : APP_CONFIG.logos.logoHorizontalDark
 
   return (
     <>
@@ -39,7 +46,7 @@ export const LogoRender = ({
           >
             <div className="flex flex-col items-start justify-center w-full">
               <Image
-                src={APP_CONFIG.logos.logoHorizontalDark}
+                src={logoRender}
                 alt="logo-festify"
                 width={size ?? 140}
                 height={size ? Math.round(size * 0.21) : 30} // Mantiene proporción aproximada

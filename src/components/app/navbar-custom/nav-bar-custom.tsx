@@ -8,6 +8,7 @@ import { useStore } from 'zustand'
 import { MENU_PROFILE } from './profile-menu'
 import { ProfilePopover } from './profile-popover'
 import { SearchBar } from '../miscellaneous/search-bar'
+import { ModeToggle } from '../miscellaneous/mode-toggle'
 
 interface NavBarCustomProps {
   moreApps?: Array<IMoreApp>
@@ -38,6 +39,7 @@ export const NavBarCustom = (props: NavBarCustomProps) => {
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
           {/*Menu de perfil*/}
+          <ModeToggle />
           <ProfilePopover
             profileData={{
               names: `${userName}`,

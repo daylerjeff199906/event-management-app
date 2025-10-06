@@ -42,7 +42,7 @@ export function AuthLayout({
   return (
     <div className="flex min-h-screen">
       {/* Left side - Form content */}
-      <div className="w-full lg:w-1/3 flex items-center justify-center p-8 bg-white dark:bg-dark">
+      <div className="w-full lg:w-1/3 flex items-center justify-center p-8 bg-white dark:bg-gray-900">
         <div className="w-full max-w-md space-y-8">{children}</div>
       </div>
       {/* Rigth side - Background with gradient overlay */}
@@ -104,7 +104,9 @@ export function AuthLayout({
 
         {/* Content */}
         <div className="fixed bottom-8 right-8 text-white max-w-xl z-10">
-          <h1 className="text-3xl mb-4">{title}</h1>
+          <h1 className="text-3xl mb-4 text-white dark:text-gray-100">
+            {title}
+          </h1>
           {subTitle ? (
             <p className="text-lg text-gray-300">{subTitle}</p>
           ) : (

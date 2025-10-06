@@ -42,7 +42,7 @@ export default function AdminPanelLayout({
 
       <main
         className={cn(
-          'min-h-[calc(100vh-22rem)] bg-background dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300 relative',
+          'min-h-[calc(100vh-22rem)] transition-[margin-left] ease-in-out duration-300 relative',
           !hiddenSidebar &&
             !settings.disabled &&
             (isCurrentlyOpen ? 'lg:ml-60' : 'lg:ml-[90px]')
