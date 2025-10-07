@@ -37,6 +37,18 @@ export async function getfullUserRoleByInstitution(
   return data ?? []
 }
 
+export async function getFullUserRole(): Promise<IUserRoleFull[]> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('*, user:user_id(*)')
+  if (error) {
+    console.error('Error fetching user roles:', error)
+    return []
+  }
+  return data ?? []
+}
+
 export async function upsertUserRole({
   idRole,
   institutionId,
