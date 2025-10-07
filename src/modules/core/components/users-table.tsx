@@ -39,9 +39,9 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
   }
 
   return (
-    <div className="rounded-md border bg-white">
+    <div className="rounded-md border bg-muted">
       <Table>
-        <TableHeader className="bg-muted">
+        <TableHeader className="bg-gray-50 dark:bg-zinc-900">
           <TableRow>
             <TableHead>USUARIO</TableHead>
             <TableHead>DETALLES</TableHead>
