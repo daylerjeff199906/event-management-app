@@ -23,7 +23,6 @@ export default async function Layout(props: IProps) {
     .select('*')
     .eq('id', user.user?.id)
     .maybeSingle()
-  console.log(profile)
 
   // Si hay sesión, continuar con el flujo normal
   const { data: datarole } = await supabase
@@ -31,7 +30,6 @@ export default async function Layout(props: IProps) {
     .select('*')
     .eq('user_id', user.user?.id)
     .maybeSingle()
-  console.log(datarole)
   if (
     !Array.isArray(datarole?.role_action) ||
     !datarole.role_action.includes('ADMIN')

@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button'
+import { StockHero } from '../components'
 // import { Sparkles } from 'lucide-react'
 
 export const HeroPage = () => {
   return (
-    <div>
+    <div className="flex flex-col gap-6 lg:gap-8">
       {/* <div className="w-full bg-orange-50 border border-orange-700 rounded-lg px-6 py-4 mb-6 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -31,6 +32,10 @@ export const HeroPage = () => {
         </div>
       </div> */}
 
+      <StockHero
+        title="Descubre eventos increíbles cerca de ti"
+        subtitle="Explora una amplia variedad de eventos adaptados a tus intereses y ubicación."
+      />
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl text-foreground">
           ¿Qué evento quieres descubrir hoy?

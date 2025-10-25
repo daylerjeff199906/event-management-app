@@ -59,7 +59,9 @@ export function InstitutionSearch({
     try {
       // Simular búsqueda en la base de datos
       // En producción, esto sería una llamada a la API
-      const { data, error } = await searchInstitutionFunction(query.search_term)
+      const { data, error } = await searchInstitutionFunction({
+        query: query.search_term
+      })
 
       if (error) {
         console.error('Error al buscar institución:', error)
@@ -71,8 +73,8 @@ export function InstitutionSearch({
         onInstitutionNotFound(query.search_term)
       }
 
-      setSearchResults(data)
-      onInstitutionFound(data)
+      setSearchResults(data?.[0] || null)
+      onInstitutionFound(data?.[0] as InstitutionForm)
     } catch (error) {
       console.error('Error al buscar institución:', error)
     } finally {
