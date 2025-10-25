@@ -21,7 +21,7 @@ export default async function Page(props: PageProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between md:gap-0 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <h3 className="text-lg font-semibold text-foreground">
           Últimos eventos creados por la institución
         </h3>

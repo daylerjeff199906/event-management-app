@@ -14,6 +14,8 @@ import {
   TooltipProvider
 } from '@/components/ui/tooltip'
 import { SectionElement } from '@/types'
+import { createElement } from 'react'
+import * as LucideIcons from 'lucide-react'
 
 interface MenuProps {
   isOpen: boolean | undefined
@@ -23,6 +25,13 @@ interface MenuProps {
 export function Menu({ isOpen, menuItems }: MenuProps) {
   const pathname = usePathname()
   const menuList = menuItems || []
+
+  type LucideIconName = keyof typeof LucideIcons
+  const iconMap = LucideIcons
+
+  function getIconComponent(iconName: LucideIconName): LucideIcons.LucideIcon {
+    return iconMap[iconName] as LucideIcons.LucideIcon
+  }
 
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
@@ -78,16 +87,15 @@ export function Menu({ isOpen, menuItems }: MenuProps) {
                                       isOpen === false ? '' : 'mr-4'
                                     )}
                                   >
-                                    {menu.icon && (
-                                      <span
-                                        className={cn(
-                                          isActive(menu.url ?? '') ? '' : ''
-                                        )}
-                                        dangerouslySetInnerHTML={{
-                                          __html: menu.icon
-                                        }}
-                                      />
-                                    )}
+                                    {menu.icon &&
+                                      createElement(
+                                        getIconComponent(
+                                          menu.icon as LucideIconName
+                                        ),
+                                        {
+                                          className: 'h-5 w-5'
+                                        }
+                                      )}
                                   </span>
                                   <p
                                     className={cn(

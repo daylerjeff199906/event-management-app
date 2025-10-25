@@ -36,7 +36,7 @@ export const HeroPage = () => {
         title="Descubre eventos increíbles cerca de ti"
         subtitle="Explora una amplia variedad de eventos adaptados a tus intereses y ubicación."
       />
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
         <h3 className="text-2xl text-foreground">
           ¿Qué evento quieres descubrir hoy?
         </h3>
