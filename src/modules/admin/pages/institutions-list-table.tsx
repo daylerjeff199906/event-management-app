@@ -1,16 +1,16 @@
 'use client'
-import { useRouter } from 'next/navigation'
+// import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Eye, Edit, Settings } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+// import { Button } from '@/components/ui/button'
+// import { Eye, Edit, Settings } from 'lucide-react'
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger
+// } from '@/components/ui/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { APP_URL } from '@/data/config-app-url'
+// import { APP_URL } from '@/data/config-app-url'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import { cn } from '@/lib/utils'
 
@@ -28,7 +28,7 @@ interface RegistrationRequestsTableProps {
 }
 
 const getStatusBadge = (status?: string) => {
-  type BadgeVariant = React.ComponentProps<typeof Badge>['variant']
+  // type BadgeVariant = React.ComponentProps<typeof Badge>['variant']
 
   const statusConfig: Record<string, { label: string; className: string }> = {
     ACTIVE: {
@@ -57,7 +57,7 @@ const getStatusBadge = (status?: string) => {
 export function InstitutionsListTable({
   institutions
 }: RegistrationRequestsTableProps) {
-  const router = useRouter()
+  // const router = useRouter()
 
   //   const handleViewDetails = (request: RegistrationRequest) => {
   //     router.push(APP_URL.ADMIN.REQUESTS_APPROVAL.DETAILS(request.id))
