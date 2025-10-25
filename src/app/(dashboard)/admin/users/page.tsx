@@ -12,11 +12,6 @@ export default async function Page(props: PageProps) {
   const supabase = await getSupabase()
   const { data: user } = await supabase.auth.getUser()
 
-  const institutionId = params?.slug?.toString() || null
-  if (!institutionId) {
-    return <div>No institution ID provided</div>
-  }
-
   const query = (await params.query?.toString()) || ''
 
   const userList = await getUsersPagintion({
