@@ -51,6 +51,7 @@ export default async function Layout(props: IProps) {
       isInstitutional={hasInstitution}
       menuItems={menuDashboard}
       menuOptional={[subMenuElementInstitucional]}
+      hiddenSidebar
     >
       {children}
     </AdminPanelLayout>
