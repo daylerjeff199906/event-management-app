@@ -1,4 +1,4 @@
-import { UsersTable } from '@/modules/core/components'
+import { UsersTableList } from '@/modules/core/components'
 import { getUsersPagintion } from '@/services/user.roles.services'
 import { Params } from '@/types'
 
@@ -22,7 +22,7 @@ export default async function Page(props: PageProps) {
 
   return (
     <>
-      <UsersTable users={userList.users} />
+      <UsersTableList users={userList.users} />
     </>
   )
 }
