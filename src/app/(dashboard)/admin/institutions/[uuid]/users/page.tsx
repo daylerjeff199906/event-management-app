@@ -1,7 +1,9 @@
+import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { UsersTable } from '@/modules/core/components'
 import { getSupabase } from '@/services/core.supabase'
 import { getfullUserRoleByInstitution } from '@/services/user.roles.services'
 import { Params } from '@/types'
+import Image from 'next/image'
 
 interface PageProps {
   params: Params
@@ -20,7 +22,20 @@ export default async function Page(props: PageProps) {
   const usersData = await getfullUserRoleByInstitution(institutionId)
 
   if (!usersData || usersData.length === 0) {
-    return <div>No users found for this institution</div>
+    return (
+      <EmptyState
+        title="No se han encontrado usuarios"
+        description="Parece que no hay usuarios asociados a esta institución."
+        icon={
+          <Image
+            src="/svg/empty-states/users.svg"
+            alt="No users"
+            width={150}
+            height={150}
+          />
+        }
+      />
+    )
   }
 
   return (
