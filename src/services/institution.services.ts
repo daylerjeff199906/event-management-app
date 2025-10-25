@@ -8,23 +8,62 @@ import { RegistrationRequestForm } from '@/modules/portal/lib/register.instituti
 import { revalidatePath } from 'next/cache'
 
 // Función de búsqueda combinada (por nombre o email)
-export async function searchInstitutionFunction(query: string) {
+export async function searchInstitutionFunction({
+  query,
+  page = 1,
+  pageSize = 10
+}: {
+  query?: string
+  page?: number
+  pageSize?: number
+}): Promise<{
+  data: InstitutionForm[] | null
+  error: string | null
+  count: number | null
+}> {
   const supabase = await getSupabase()
 
-  const { data, error } = await supabase
-    .from('institutions')
-    .select('*')
-    .or(`institution_name.ilike.%${query}%,institution_email.eq.${query}`)
-    .order('institution_name')
-    .select()
-    .single()
+  // normalizar page/pageSize
+  const safePage = Math.max(1, Math.floor(page ?? 1))
+  const safePageSize = Math.min(100, Math.max(1, Math.floor(pageSize ?? 10))) // límite a 100
 
-  if (error) {
-    console.error('Error buscando institución:', error)
-    return { data: null, error }
+  const from = (safePage - 1) * safePageSize
+  const to = from + safePageSize - 1
+
+  try {
+    let queryBuilder = supabase
+      .from('institutions')
+      .select('*', { count: 'exact' })
+      .order('institution_name', { ascending: true })
+
+    if (query && query.trim().length > 0) {
+      const q = query.trim()
+      // buscar por nombre o email (ilike para búsqueda parcial, case-insensitive)
+      queryBuilder = queryBuilder.or(
+        `institution_name.ilike.%${q}%,institution_email.ilike.%${q}%`
+      )
+    }
+
+    const { data, error, count } = await queryBuilder.range(from, to)
+
+    if (error) {
+      console.error('Error buscando institución:', error)
+      return { data: null, error: error.message, count: null }
+    }
+
+    return {
+      data: (data as InstitutionForm[]) ?? [],
+      error: null,
+      count: count ?? null
+    }
+  } catch (err) {
+    console.error('Error inesperado en búsqueda de instituciones:', err)
+    return {
+      data: null,
+      error: err instanceof Error ? err.message : 'Error desconocido',
+      count: null
+    }
   }
-
-  return { data, error: null }
 }
 
 export async function createInstitution(institutionData: InstitutionForm) {
