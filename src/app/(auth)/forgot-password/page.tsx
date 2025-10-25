@@ -9,11 +9,11 @@ interface PageProps {
 export default async function Page(props: PageProps) {
   const searchParams = await props.searchParams
 
-  const token = searchParams?.token?.toString()
+  const token = searchParams?.code?.toString()
   const error = searchParams?.error?.toString()
   const type = searchParams?.type?.toString() as
     | 'with-otp'
-    | 'with-token'
+    | 'recovery'
     | undefined
 
   return (

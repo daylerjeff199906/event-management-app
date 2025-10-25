@@ -7,8 +7,9 @@ import { ForgotPasswordSendLink } from './forgot-password-send-link'
 import { ForgotPasswordWithToken } from './forgot-password-with-token'
 import { ForgotPasswordWithOTP } from './ForgotPasswordWithOTP'
 import { toast } from 'react-toastify'
+import { APP_URL } from '@/data/config-app-url'
 
-type StepType = 'with-otp' | 'with-token'
+type StepType = 'with-otp' | 'recovery'
 
 interface ForgotPasswordProps {
   token?: string | null
@@ -32,14 +33,14 @@ export const ForgotPassword = ({ token, error, type }: ForgotPasswordProps) => {
 
   const handlePasswordChanged = () => {
     // Redirigir después de cambiar la contraseña
-    setTimeout(() => router.push('/auth/login'), 2000)
+    setTimeout(() => router.push(APP_URL.AUTH.LOGIN), 2000)
   }
 
   const getStepTitle = () => {
     switch (type) {
       case 'with-otp':
         return 'Verificar código'
-      case 'with-token':
+      case 'recovery':
         return 'Cambiar contraseña'
       default:
         return 'Recuperar contraseña'
@@ -50,7 +51,7 @@ export const ForgotPassword = ({ token, error, type }: ForgotPasswordProps) => {
     switch (type) {
       case 'with-otp':
         return 'Ingresa el código que recibiste por correo y tu nueva contraseña.'
-      case 'with-token':
+      case 'recovery':
         return 'Tu enlace de recuperación es válido. Ingresa tu nueva contraseña.'
       default:
         return 'Recupera el acceso a tu cuenta.'
@@ -91,7 +92,7 @@ export const ForgotPassword = ({ token, error, type }: ForgotPasswordProps) => {
           )}
         </>
       )}
-      {token && type === 'with-token' && (
+      {token && type === 'recovery' && (
         <ForgotPasswordWithToken onPasswordChanged={handlePasswordChanged} />
       )}
 
