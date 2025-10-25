@@ -257,7 +257,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const selectedLocationType = form.watch('location_type')
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-2 md:p-6 space-y-8">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Edita los detalles de tu evento</h1>
         <p className="text-gray-600">
@@ -555,7 +555,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {locationTypes.map((type) => {
                           const Icon = type.icon
                           const isSelected = field.value === type.value

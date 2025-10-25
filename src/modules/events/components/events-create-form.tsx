@@ -150,7 +150,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
   const selectedLocationType = form.watch('location_type')
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-8">
+    <div className="max-w-2xl mx-auto p-2 md:p-6 space-y-8">
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-balance">
           Crea tu evento al instante
@@ -316,7 +316,6 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                                 ? date < startDate
                                 : date < new Date()
                             }}
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
@@ -384,7 +383,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {locationTypes.map((type) => {
                           const Icon = type.icon
                           const isSelected = field.value === type.value
@@ -520,7 +519,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full  max-w-xs lg:max-w-full">
                           <SelectValue
                             placeholder="Selecciona el estado del evento"
                             className="w-full"
@@ -539,7 +538,10 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                             </span>
                           </div>
                         </SelectItem>
-                        <SelectItem value={EventStatus.PUBLIC}>
+                        <SelectItem
+                          value={EventStatus.PUBLIC}
+                          className="max-w-md"
+                        >
                           <div className="flex items-center gap-2">
                             <Badge className="bg-green-700 text-green-100 hover:bg-green-600 focus:ring-green-700">
                               Publicado
