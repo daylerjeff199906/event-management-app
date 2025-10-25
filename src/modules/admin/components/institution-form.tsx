@@ -50,7 +50,7 @@ export function InstitutionFormData({
       address: initialData?.address || '',
       brand: initialData?.brand || undefined,
       description: initialData?.description || '',
-      institution_email: initialData?.institution_email || '',
+      institution_email: initialData?.institution_email || undefined,
       contact_phone: initialData?.contact_phone || '',
       map_iframe_url: initialData?.map_iframe_url || '',
       cover_image_url: initialData?.cover_image_url || undefined
@@ -222,6 +222,9 @@ export function InstitutionFormData({
                         />
                       </FormControl>
                       <FormMessage />
+                      <FormDescription className="text-xs text-gray-500">
+                        Correo electrónico principal de la institución
+                      </FormDescription>
                     </FormItem>
                   )}
                 />

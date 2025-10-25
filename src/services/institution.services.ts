@@ -74,10 +74,9 @@ export async function createInstitution(institutionData: InstitutionForm) {
     .insert([institutionData])
     .select()
     .single()
-
   if (error) {
     console.error('Error creando institución:', error)
-    throw new Error(`Error al crear institución: ${error.message}`)
+    return { data: null, error: error.message }
   }
 
   return { data, error: null }
