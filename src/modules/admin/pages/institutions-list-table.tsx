@@ -24,7 +24,7 @@ import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { Edit } from 'lucide-react'
+import { Edit, UserPlus2 } from 'lucide-react'
 import { APP_URL } from '@/data/config-app-url'
 
 interface RegistrationRequestsTableProps {
@@ -145,14 +145,6 @@ export function InstitutionsListTable({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      {/* <Button
-                        variant="outline"
-                        onClick={() => handleViewDetails(institution)}
-                        size="icon"
-                        title="Ver detalles"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button> */}
                       <Button
                         variant="outline"
                         size="icon"
@@ -165,6 +157,20 @@ export function InstitutionsListTable({
                           )}
                         >
                           <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Editar"
+                        asChild
+                      >
+                        <Link
+                          href={APP_URL.ADMIN.INSTITUTIONS.ADD_USERS(
+                            String(institution.id)
+                          )}
+                        >
+                          <UserPlus2 className="h-4 w-4" />
                         </Link>
                       </Button>
                       {/* <DropdownMenu>

@@ -124,6 +124,13 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
       <InstitutionFormData
         initialData={institutionData}
         onSubmit={handleSubmit}
+        onCancel={() => {
+          if (urlRedirect) {
+            router.push(urlRedirect)
+          } else {
+            router.back()
+          }
+        }}
         isLoading={isLoading}
       />
     </>

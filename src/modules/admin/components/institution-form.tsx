@@ -30,12 +30,14 @@ import {
 interface InstitutionFormProps {
   initialData?: Partial<InstitutionForm>
   onSubmit: (data: InstitutionForm) => void
+  onCancel?: () => void
   isLoading?: boolean
 }
 
 export function InstitutionFormData({
   initialData,
   onSubmit,
+  onCancel,
   isLoading = false
 }: InstitutionFormProps) {
   const form = useForm<InstitutionForm>({
@@ -306,7 +308,13 @@ export function InstitutionFormData({
               type="button"
               variant="outline"
               className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
-              onClick={handleReset}
+              onClick={() => {
+                if (onCancel) {
+                  onCancel()
+                } else {
+                  handleReset()
+                }
+              }}
             >
               Cancelar
             </Button>
