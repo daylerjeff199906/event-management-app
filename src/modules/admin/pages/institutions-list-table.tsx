@@ -22,6 +22,10 @@ import {
 // import { APP_URL } from '@/data/config-app-url'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { Edit } from 'lucide-react'
+import { APP_URL } from '@/data/config-app-url'
 
 interface RegistrationRequestsTableProps {
   institutions: InstitutionForm[]
@@ -61,11 +65,6 @@ export function InstitutionsListTable({
 
   //   const handleViewDetails = (request: RegistrationRequest) => {
   //     router.push(APP_URL.ADMIN.REQUESTS_APPROVAL.DETAILS(request.id))
-  //   }
-
-  //   const handleEdit = (institution) => {
-  //     // Lógica para editar
-  //     console.log('Editar:', institution)
   //   }
 
   //   const handleStatusChange = (institutionId, newStatus) => {
@@ -145,24 +144,30 @@ export function InstitutionsListTable({
                     </p>
                   </TableCell>
                   <TableCell className="text-right">
-                    {/* <div className="flex justify-end gap-2">
-                      <Button
+                    <div className="flex justify-end gap-2">
+                      {/* <Button
                         variant="outline"
                         onClick={() => handleViewDetails(institution)}
                         size="icon"
                         title="Ver detalles"
                       >
                         <Eye className="h-4 w-4" />
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="outline"
-                        onClick={() => handleEdit(institution)}
                         size="icon"
                         title="Editar"
+                        asChild
                       >
-                        <Edit className="h-4 w-4" />
+                        <Link
+                          href={APP_URL.ADMIN.INSTITUTIONS.EDIT(
+                            String(institution.id)
+                          )}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Link>
                       </Button>
-                      <DropdownMenu>
+                      {/* <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
@@ -210,8 +215,8 @@ export function InstitutionsListTable({
                             Suspendido
                           </DropdownMenuItem>
                         </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div> */}
+                      </DropdownMenu> */}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
