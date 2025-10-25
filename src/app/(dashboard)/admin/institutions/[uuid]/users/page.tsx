@@ -30,8 +30,8 @@ export default async function Page(props: PageProps) {
           <Image
             src="/svg/empty-states.svg"
             alt="No users"
-            width={450}
-            height={450}
+            width={290}
+            height={290}
           />
         }
       />
