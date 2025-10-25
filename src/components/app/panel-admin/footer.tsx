@@ -24,10 +24,10 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
         isCurrentlyOpen && !disabledOpen && 'max-w-[calc(100vw-16rem)] ml-auto',
         !isCurrentlyOpen &&
           !disabledOpen &&
-          'max-w-[calc(100vw-6.3rem)] ml-auto'
+          'lg:max-w-[calc(100vw-6.3rem)] ml-auto'
       )}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2 flex flex-col items-start gap-4">
             <LogoRender isOpened href={APP_URL.PORTAL.BASE} />

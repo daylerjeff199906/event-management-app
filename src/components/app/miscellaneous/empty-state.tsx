@@ -50,7 +50,7 @@ export function EmptyState({
   return (
     <Empty>
       <EmptyHeader>
-        {icon && <EmptyMedia variant="icon">{icon}</EmptyMedia>}
+        {icon && <EmptyMedia variant="default">{icon}</EmptyMedia>}
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>
