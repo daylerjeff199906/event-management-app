@@ -73,15 +73,15 @@ export function CategoryGrid({
   }
 
   return (
-    <div className="bg-amber-50 py-10 lg:py-16">
+    <div className="bg-amber-50 py-10 lg:py-16 dark:bg-zinc-900">
       <section
         className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}
       >
         <div className="text-center mb-10 md:mb-14">
-          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight dark:text-white">
             {title}
           </h2>
-          <p className="mt-3 text-base text-gray-600 max-w-2xl mx-auto">
+          <p className="mt-3 text-base text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
             {subtitle}
           </p>
         </div>
@@ -122,8 +122,8 @@ function CategoryItem({ category, onClick, isSelected }: CategoryItemProps) {
         transition-all duration-300 ease-in-out
         ${
           isSelected
-            ? 'bg-gray-200 scale-105 shadow-sm'
-            : 'bg-gray-50 group-hover:bg-gray-100'
+            ? 'bg-gray-200 scale-105 shadow-sm dark:bg-gray-700'
+            : 'bg-gray-50 group-hover:bg-gray-100 dark:bg-gray-800'
         }
         shadow-xs group-hover:shadow-md
       `}
@@ -132,12 +132,16 @@ function CategoryItem({ category, onClick, isSelected }: CategoryItemProps) {
           className={`
             w-5 h-5 sm:w-6 sm:h-6 
             transition-colors duration-200
-            ${isSelected ? 'text-gray-800' : 'text-gray-600'}
+            ${
+              isSelected
+                ? 'text-gray-800 dark:text-gray-200'
+                : 'text-gray-500 group-hover:text-gray-700 dark:text-gray-400 group-hover:dark:text-gray-200'
+            }
           `}
           strokeWidth={1.5}
         />
       </div>
-      <span className="mt-3 text-xs sm:text-sm font-medium text-gray-900 text-center group-hover:text-gray-700 transition-colors">
+      <span className="mt-3 text-xs sm:text-sm font-medium text-gray-900 text-center group-hover:text-gray-700 transition-colors duration-200 dark:text-white">
         {category.name}
       </span>
       {category.description && (

@@ -13,7 +13,7 @@ export const ScrollMensageSection = ({
   message2 = 'Your Gateway to Exciting Events'
 }: ScrollMensageSectionProps) => {
   return (
-    <div className="w-full bg-gray-100 py-12 md:py-20 overflow-hidden">
+    <div className="w-full py-12 md:py-20 overflow-hidden bg-gray-50 dark:bg-zinc-800">
       <ScrollVelocityContainer className="text-4xl md:text-7xl font-bold">
         <ScrollVelocityRow baseVelocity={20} direction={1}>
           {message1}

@@ -80,7 +80,7 @@ export function InterestForm({ data, idUser }: StepTwoProps) {
 
   return (
     <div className="animate-slide-in-right">
-      <Card className="w-full mx-auto shadow-none bg-white">
+      <Card className="w-full mx-auto shadow-none bg-white dark:bg-slate-800 border">
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

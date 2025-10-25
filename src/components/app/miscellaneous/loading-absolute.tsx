@@ -15,7 +15,7 @@ export const LoadingAbsolute = ({
 
   return (
     <div
-      className={`absolute flex items-center justify-center z-50 bg-orange-50 ${blurClass} top-0 bottom-0 right-0 left-0`}
+      className={`absolute flex items-center justify-center z-50 bg-orange-50 ${blurClass} top-0 bottom-0 right-0 left-0 dark:bg-slate-900/50`}
       style={{
         position: 'fixed',
         top: -32,

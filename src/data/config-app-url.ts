@@ -1,7 +1,10 @@
 export const APP_URL = {
   PORTAL: {
     BASE: '/',
-    EVENTS: '/events',
+    EVENTS: {
+      BASE: '/events',
+      DETAIL: (uuid: string) => `/events/${uuid}`
+    },
     INSTITUTION_REQUEST: '/institution-request'
   },
   PROFILE: {

@@ -163,7 +163,7 @@ export function ProfileEditor({
         <div className="space-y-6">
           {/* Profile Image */}
           <div
-            className="border-2 border-dashed px-6 rounded-lg py-20 bg-white sticky top-24"
+            className="border-2 border-dashed px-6 rounded-lg py-20 bg-white sticky top-24 dark:bg-gray-800"
             style={{ borderWidth: '3px' }}
           >
             <AvatarUploadPage
@@ -185,9 +185,9 @@ export function ProfileEditor({
               <Progress value={100 - profileEmpty} className="h-2" />
             </div>
           </div>
-          <Card className="shadow-none bg-white">
+          <Card className="shadow-none bg-white dark:bg-gray-800 border border-border">
             <CardHeader>
-              <CardTitle className="text-xl text-slate-700">
+              <CardTitle className="text-xl text-slate-700 dark:text-slate-200">
                 Tus Datos
               </CardTitle>
             </CardHeader>
@@ -204,7 +204,7 @@ export function ProfileEditor({
                       name="first_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-slate-600">
+                          <FormLabel className="text-sm font-medium text-slate-600 dark:text-slate-200">
                             Nombres
                           </FormLabel>
                           <FormControl>
@@ -223,7 +223,7 @@ export function ProfileEditor({
                       name="last_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-slate-600">
+                          <FormLabel className="text-sm font-medium text-slate-600 dark:text-slate-200">
                             Apellidos
                           </FormLabel>
                           <FormControl>
@@ -246,7 +246,7 @@ export function ProfileEditor({
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-slate-600">
+                          <FormLabel className="text-sm font-medium text-slate-600 dark:text-slate-200">
                             Usuario
                           </FormLabel>
                           <FormControl>
@@ -262,7 +262,7 @@ export function ProfileEditor({
                       )}
                     />
                     <div>
-                      <Label className="text-sm font-medium text-slate-600">
+                      <Label className="text-sm font-medium text-slate-600 dark:text-slate-200">
                         Email
                       </Label>
                       <Input
@@ -280,7 +280,7 @@ export function ProfileEditor({
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium text-slate-600">
+                        <FormLabel className="text-sm font-medium text-slate-600 dark:text-slate-200">
                           Teléfono Móvil
                         </FormLabel>
                         <FormControl>
@@ -301,7 +301,7 @@ export function ProfileEditor({
                       name="gender"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel className="text-sm font-medium text-slate-600">
+                          <FormLabel className="text-sm font-medium text-slate-600 dark:text-slate-200">
                             Género
                           </FormLabel>
                           <FormControl>
@@ -339,7 +339,7 @@ export function ProfileEditor({
                       name="birth_date"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-slate-600">
+                          <FormLabel className="text-sm font-medium text-slate-600 dark:text-slate-200">
                             Cumpleaños
                           </FormLabel>
                           <FormControl>
