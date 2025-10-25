@@ -561,7 +561,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Botones de acción */}
-          <div className="flex gap-4 pt-6">
+          <div className="flex gap-4 pt-6 flex-col md:flex-row">
             <Button
               type="button"
               variant="outline"
