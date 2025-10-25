@@ -5,7 +5,7 @@ import { LoaderIcon, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useForm, Controller } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
 import { ForgotPasswordForm } from '@/types/auth/auth.interfaces'
 import { ToastCustom } from '../miscellaneous/toast-custom'
@@ -22,47 +22,69 @@ export const ForgotPassword = (props: IProps) => {
     useForm<ForgotPasswordForm>({
       defaultValues: {
         email: defaultEmail,
-        code: ''
+        code: '',
+        newPassword: '',
+        confirmPassword: ''
       }
     })
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [codeSent, setCodeSent] = useState(false)
+  const [hasValidToken, setHasValidToken] = useState(false)
 
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const { errors: formErrors } = formState
 
-  // Función para analizar los parámetros del fragmento de la URL
-  const parseFragmentParams = () => {
-    if (typeof window !== 'undefined') {
-      const fragment = window.location.hash.substring(1)
-      const params = new URLSearchParams(fragment)
+  useEffect(() => {
+    // Verificar si hay un token válido en los parámetros
+    const token = searchParams.get('token')
+    const error = searchParams.get('error')
 
-      const error = params.get('error')
-      const errorDescription = params.get('error_description')
+    if (error) {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description="El enlace de recuperación es inválido o ha expirado."
+        />
+      )
+    }
 
-      if (error) {
-        const errorMessage = errorDescription
-          ? `${error}: ${errorDescription.replace(/\+/g, ' ')}`
-          : 'Ha ocurrido un error inesperado'
+    if (token) {
+      setHasValidToken(true)
+      setCodeSent(true)
+    }
 
-        toast.error(<ToastCustom title="Error" description={errorMessage} />)
+    // Función para analizar los parámetros del fragmento de la URL
+    const parseFragmentParams = () => {
+      if (typeof window !== 'undefined') {
+        const fragment = window.location.hash.substring(1)
+        const params = new URLSearchParams(fragment)
 
-        // Limpiar el fragmento de la URL
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname + window.location.search
-        )
+        const fragmentError = params.get('error')
+        const errorDescription = params.get('error_description')
+
+        if (fragmentError) {
+          const errorMessage = errorDescription
+            ? `${fragmentError}: ${errorDescription.replace(/\+/g, ' ')}`
+            : 'Ha ocurrido un error inesperado'
+
+          toast.error(<ToastCustom title="Error" description={errorMessage} />)
+
+          // Limpiar el fragmento de la URL
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname + window.location.search
+          )
+        }
       }
     }
-  }
 
-  useEffect(() => {
     parseFragmentParams()
-  }, [])
+  }, [searchParams])
 
   const handleSendCode = async (email: string) => {
     setIsLoading(true)
@@ -110,14 +132,14 @@ export const ForgotPassword = (props: IProps) => {
 
     setIsLoading(true)
 
-    if (!codeSent) {
+    if (!codeSent && !hasValidToken) {
       // Primero enviar el código
       await handleSendCode(email)
       return
     }
 
-    // Verificar que el código esté presente
-    if (!code) {
+    // Verificar que el código esté presente (solo si no hay token válido)
+    if (!hasValidToken && !code) {
       toast.error(
         <ToastCustom
           title="Error"
@@ -128,20 +150,33 @@ export const ForgotPassword = (props: IProps) => {
       return
     }
 
-    // Actualizar la contraseña
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    })
+    try {
+      // Si tenemos un token válido de la URL, no necesitamos verificar OTP nuevamente
+      if (hasValidToken) {
+        // Actualizar la contraseña directamente
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword
+        })
 
-    if (error) {
-      toast.error(
-        <ToastCustom
-          title="Error"
-          description={error.message || 'No se pudo cambiar la contraseña.'}
-        />
-      )
-      setErrors([error.message])
-    } else {
+        if (error) throw error
+      } else {
+        // Verificar el OTP y luego actualizar la contraseña
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          email,
+          token: code!,
+          type: 'recovery'
+        })
+
+        if (verifyError) throw verifyError
+
+        // Actualizar la contraseña después de verificar el OTP
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: newPassword
+        })
+
+        if (updateError) throw updateError
+      }
+
       toast.success(
         <ToastCustom
           title="¡Éxito!"
@@ -149,6 +184,16 @@ export const ForgotPassword = (props: IProps) => {
         />
       )
       setTimeout(() => router.push(APP_URL.AUTH.LOGIN), 2000)
+    } catch (error) {
+      const errorObj = error as { message: string }
+
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description={errorObj.message || 'No se pudo cambiar la contraseña.'}
+        />
+      )
+      setErrors([errorObj.message])
     }
 
     setIsLoading(false)
@@ -159,12 +204,18 @@ export const ForgotPassword = (props: IProps) => {
       hiddenName
       logoSize={120}
       title="Cambiar contraseña"
-      subTitle="Recupera el acceso a tu cuenta. Ingresa tu correo y espera el código de verificación."
+      subTitle={
+        hasValidToken
+          ? 'Tu enlace de recuperación es válido. Ingresa tu nueva contraseña.'
+          : 'Recupera el acceso a tu cuenta. Ingresa tu correo y espera el código de verificación.'
+      }
     >
       <div className="space-y-6 max-w-sm mx-auto">
         <h2 className="text-2xl font-bold">Cambiar contraseña</h2>
         <p className="text-sm text-gray-600">
-          {codeSent
+          {hasValidToken
+            ? 'Ingresa tu nueva contraseña.'
+            : codeSent
             ? 'Ingresa el código que recibiste por correo y tu nueva contraseña.'
             : 'Por favor, ingresa tu correo electrónico para recibir un código de verificación.'}
         </p>
@@ -192,49 +243,57 @@ export const ForgotPassword = (props: IProps) => {
           onSubmit={handleSubmit(handleChangePassword)}
           className="space-y-4"
         >
-          <Controller
-            name="email"
-            control={control}
-            defaultValue={defaultEmail}
-            rules={{
-              required: 'El correo electrónico es requerido',
-              pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: 'El correo electrónico no es válido'
-              }
-            }}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="email"
-                placeholder="Correo electrónico"
-                disabled={codeSent}
-              />
-            )}
-          />
-          {formErrors.email && (
-            <p className="text-red-500 text-sm mt-1">
-              {formErrors.email.message}
-            </p>
-          )}
-
-          {codeSent && (
+          {!hasValidToken && (
             <>
               <Controller
-                name="code"
+                name="email"
                 control={control}
-                defaultValue=""
+                defaultValue={defaultEmail}
                 rules={{
-                  required: 'El código de verificación es requerido'
+                  required: 'El correo electrónico es requerido',
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: 'El correo electrónico no es válido'
+                  }
                 }}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Código de verificación" />
+                  <Input
+                    {...field}
+                    type="email"
+                    placeholder="Correo electrónico"
+                    disabled={codeSent}
+                  />
                 )}
               />
-              {formErrors.code && (
+              {formErrors.email && (
                 <p className="text-red-500 text-sm mt-1">
-                  {formErrors.code.message}
+                  {formErrors.email.message}
                 </p>
+              )}
+            </>
+          )}
+
+          {(codeSent || hasValidToken) && (
+            <>
+              {!hasValidToken && (
+                <>
+                  <Controller
+                    name="code"
+                    control={control}
+                    defaultValue=""
+                    rules={{
+                      required: 'El código de verificación es requerido'
+                    }}
+                    render={({ field }) => (
+                      <Input {...field} placeholder="Código de verificación" />
+                    )}
+                  />
+                  {formErrors.code && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.code.message}
+                    </p>
+                  )}
+                </>
               )}
 
               <Controller
@@ -290,7 +349,11 @@ export const ForgotPassword = (props: IProps) => {
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <LoaderIcon className="animate-spin mr-2" />}
-            {codeSent ? 'Cambiar contraseña' : 'Enviar código'}
+            {hasValidToken
+              ? 'Cambiar contraseña'
+              : codeSent
+              ? 'Cambiar contraseña'
+              : 'Enviar código'}
           </Button>
 
           <Button

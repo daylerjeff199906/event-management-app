@@ -76,8 +76,10 @@ export const APP_URL = {
     },
     INSTITUTIONS: {
       BASE: '/admin/institutions',
-      DETAIL: (id: string) => `/admin/institutions/${id}`,
-      ADD_INSTITUTION: '/admin/institutions/add'
+      EDIT: (id: string) => `/admin/institutions/${id}`,
+      DETAIL: (id: string) => `/admin/institutions/${id}/details`,
+      ADD_INSTITUTION: '/admin/institutions/create',
+      ADD_USERS: (id: string) => `/admin/institutions/${id}/users`
     },
     SETTINGS: '/admin/settings'
   },

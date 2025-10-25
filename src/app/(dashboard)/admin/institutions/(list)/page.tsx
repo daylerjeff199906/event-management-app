@@ -22,9 +22,5 @@ export default async function Page(props: IProps) {
     return <div>Error: {error}</div>
   }
 
-  return (
-    <div>
-      <InstitutionsListTable institutions={data || []} />
-    </div>
-  )
+  return <InstitutionsListTable institutions={data || []} />
 }
