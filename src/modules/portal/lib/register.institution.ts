@@ -99,5 +99,8 @@ export const institutionTypes = [
   { value: 'empresa', label: 'Empresa' },
   { value: 'gobierno', label: 'Institución Gubernamental' },
   { value: 'fundacion', label: 'Fundación' },
+  { value: 'asociacion', label: 'Asociación' },
+  { value: 'cooperativa', label: 'Cooperativa' },
+  { value: 'grupo-independiente', label: 'Grupo Independiente' },
   { value: 'otro', label: 'Otro' }
 ] as const

@@ -54,7 +54,7 @@ export default function AdminPanelLayout({
           userName={userName}
           menuItems={menuDashboardFinal}
         />
-        <div className="w-full container mx-auto py-4 zoom-adjust px-4 md:px-6">
+        <div className="w-full container mx-auto py-4 zoom-adjust px-2 md:px-6">
           {children}
         </div>
       </main>

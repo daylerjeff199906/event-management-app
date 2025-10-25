@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
@@ -37,10 +38,10 @@ export const ForgotPassword = (props: IProps) => {
   const supabase = createClient()
 
   const { errors: formErrors } = formState
+  const token = searchParams.get('token')
 
   useEffect(() => {
     // Verificar si hay un token válido en los parámetros
-    const token = searchParams.get('token')
     const error = searchParams.get('error')
 
     if (error) {
@@ -90,7 +91,7 @@ export const ForgotPassword = (props: IProps) => {
     setIsLoading(true)
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/forgot-password`
+      redirectTo: `${window.location.origin}/forgot-password?type=recovery&token=${token}`
     })
 
     if (error) {
