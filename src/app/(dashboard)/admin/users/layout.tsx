@@ -9,12 +9,6 @@ interface IProps {
 
 export default async function Layout(props: IProps) {
   const { children } = props
-  const params = await props.params
-
-  const institutionId = params?.slug?.toString() || null
-  if (!institutionId) {
-    return <div>No institution ID provided</div>
-  }
 
   // const usersData = await getfullUserRoleByInstitution(institutionId)
 
