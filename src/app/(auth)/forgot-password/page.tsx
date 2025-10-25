@@ -9,9 +9,12 @@ interface PageProps {
 export default async function Page(props: PageProps) {
   const searchParams = await props.searchParams
 
-  const token = searchParams?.token
-  const error = searchParams?.error
-  const type = searchParams?.type
+  const token = searchParams?.token?.toString()
+  const error = searchParams?.error?.toString()
+  const type = searchParams?.type?.toString() as
+    | 'with-otp'
+    | 'with-token'
+    | undefined
 
   return (
     <>
@@ -47,7 +50,7 @@ export default async function Page(props: PageProps) {
           </div>
         }
       >
-        <ForgotPassword />
+        <ForgotPassword error={error} token={token} type={type} />
       </Suspense>
     </>
   )

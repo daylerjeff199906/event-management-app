@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -9,66 +8,26 @@ import { ForgotPasswordWithToken } from './forgot-password-with-token'
 import { ForgotPasswordWithOTP } from './ForgotPasswordWithOTP'
 import { toast } from 'react-toastify'
 
-export const ForgotPassword = () => {
-  const [currentStep, setCurrentStep] = useState<
-    'send-link' | 'with-otp' | 'with-token'
-  >('send-link')
+type StepType = 'with-otp' | 'with-token'
+
+interface ForgotPasswordProps {
+  token?: string | null
+  error?: string | null
+  type?: StepType | null
+}
+
+export const ForgotPassword = ({ token, error, type }: ForgotPasswordProps) => {
+  const [currentStep, setCurrentStep] = useState<'send-link' | 'send-success'>(
+    'send-link'
+  )
   const [email, setEmail] = useState('')
 
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const token = searchParams.get('token')
-  const error = searchParams.get('error')
-  const type = searchParams.get('type')
-
-  useEffect(() => {
-    // Verificar si hay un token válido en los parámetros
-    if (error) {
-      toast.error(
-        <ToastCustom
-          title="Error"
-          description="El enlace de recuperación es inválido o ha expirado."
-        />
-      )
-    }
-
-    if (token && type === 'recovery') {
-      setCurrentStep('with-token')
-    }
-
-    // Función para analizar los parámetros del fragmento de la URL
-    const parseFragmentParams = () => {
-      if (typeof window !== 'undefined') {
-        const fragment = window.location.hash.substring(1)
-        const params = new URLSearchParams(fragment)
-
-        const fragmentError = params.get('error')
-        const errorDescription = params.get('error_description')
-
-        if (fragmentError) {
-          const errorMessage = errorDescription
-            ? `${fragmentError}: ${errorDescription.replace(/\+/g, ' ')}`
-            : 'Ha ocurrido un error inesperado'
-
-          toast.error(<ToastCustom title="Error" description={errorMessage} />)
-
-          // Limpiar el fragmento de la URL
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname + window.location.search
-          )
-        }
-      }
-    }
-
-    parseFragmentParams()
-  }, [searchParams])
-
   const handleLinkSent = (userEmail: string) => {
     setEmail(userEmail)
-    setCurrentStep('with-otp')
+    setCurrentStep('send-success')
   }
 
   const handlePasswordChanged = () => {
@@ -77,9 +36,7 @@ export const ForgotPassword = () => {
   }
 
   const getStepTitle = () => {
-    switch (currentStep) {
-      case 'send-link':
-        return 'Recuperar contraseña'
+    switch (type) {
       case 'with-otp':
         return 'Verificar código'
       case 'with-token':
@@ -90,9 +47,7 @@ export const ForgotPassword = () => {
   }
 
   const getStepSubtitle = () => {
-    switch (currentStep) {
-      case 'send-link':
-        return 'Ingresa tu correo electrónico para recibir un enlace de recuperación.'
+    switch (type) {
       case 'with-otp':
         return 'Ingresa el código que recibiste por correo y tu nueva contraseña.'
       case 'with-token':
@@ -102,6 +57,17 @@ export const ForgotPassword = () => {
     }
   }
 
+  useEffect(() => {
+    if (error) {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description={error || 'Ha ocurrido un error.'}
+        />
+      )
+    }
+  }, [error])
+
   return (
     <AuthLayout
       hiddenName
@@ -109,20 +75,32 @@ export const ForgotPassword = () => {
       title={getStepTitle()}
       subTitle={getStepSubtitle()}
     >
-      {currentStep === 'send-link' && (
-        <ForgotPasswordSendLink onLinkSent={handleLinkSent} />
+      {!token && (
+        <>
+          {currentStep === 'send-link' && (
+            <ForgotPasswordSendLink onLinkSent={handleLinkSent} />
+          )}
+          {currentStep === 'send-success' && (
+            <div className="space-y-6 max-w-sm mx-auto">
+              <h2 className="text-2xl font-bold">¡Enlace enviado!</h2>
+              <p className="text-sm text-gray-600">
+                Revisa tu correo electrónico ({email}) para obtener el enlace de
+                recuperación.
+              </p>
+            </div>
+          )}
+        </>
       )}
-
-      {currentStep === 'with-otp' && (
-        <ForgotPasswordWithOTP
-          email={email}
-          onPasswordChanged={handlePasswordChanged}
-          onBack={() => setCurrentStep('send-link')}
-        />
-      )}
-
-      {currentStep === 'with-token' && (
+      {token && type === 'with-token' && (
         <ForgotPasswordWithToken onPasswordChanged={handlePasswordChanged} />
+      )}
+
+      {token && type === 'with-otp' && (
+        <ForgotPasswordWithOTP
+          email={searchParams.get('email') || ''}
+          onPasswordChanged={handlePasswordChanged}
+          onBack={() => router.push('/auth/forgot-password')}
+        />
       )}
     </AuthLayout>
   )
