@@ -1,7 +1,7 @@
 'use server'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import { getSupabase } from './core.supabase'
-import { IUserRoleFull } from '@/types'
+import { IUser, IUserRoleFull } from '@/types'
 import { revalidatePath } from 'next/cache'
 
 export async function getInstitutionsByUserRole(
@@ -35,6 +35,31 @@ export async function getfullUserRoleByInstitution(
     return []
   }
   return data ?? []
+}
+
+export async function getUsersPagintion({
+  page,
+  pageSize,
+  query
+}: {
+  page: number
+  pageSize?: number
+  query?: string
+}): Promise<{ users: IUser[]; total: number }> {
+  const supabase = await getSupabase()
+  let queryBuilder = supabase
+    .from('users')
+    .select('*', { count: 'exact' })
+    .range((page - 1) * (pageSize || 10), page * (pageSize || 10) - 1)
+  if (query) {
+    queryBuilder = queryBuilder.ilike('user.email', `%${query}%`)
+  }
+  const { data, error, count } = await queryBuilder
+  if (error) {
+    console.error('Error fetching paginated users:', error)
+    return { users: [], total: 0 }
+  }
+  return { users: data ?? [], total: count ?? 0 }
 }
 
 export async function upsertUserRole({

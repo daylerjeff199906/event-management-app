@@ -30,8 +30,8 @@ export default async function Page(props: PageProps) {
           <Image
             src="/svg/empty-states.svg"
             alt="No users"
-            width={150}
-            height={150}
+            width={290}
+            height={290}
           />
         }
       />
@@ -43,6 +43,7 @@ export default async function Page(props: PageProps) {
       <UsersTable
         users={usersData}
         currentUserId={user?.user?.id || undefined}
+        isOwner
       />
     </>
   )

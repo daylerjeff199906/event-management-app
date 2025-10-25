@@ -55,7 +55,6 @@ export default async function Layout(props: IProps) {
       urlPhoto={profileData?.profile_image || undefined}
       menuItems={await menuOrganization(idInstitution?.toString() || '')}
       isInstitutional={hasInstitution}
-      hiddenSidebar
     >
       {children}
     </AdminPanelLayout>
