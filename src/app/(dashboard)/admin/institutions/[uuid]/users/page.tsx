@@ -28,7 +28,7 @@ export default async function Page(props: PageProps) {
         description="Parece que no hay usuarios asociados a esta institución."
         icon={
           <Image
-            src="/svg/empty-states/users.svg"
+            src="/svg/empty-states.svg"
             alt="No users"
             width={150}
             height={150}

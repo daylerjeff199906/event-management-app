@@ -87,6 +87,7 @@ export function InstitutionFormData({
                         <Input
                           placeholder="Universidad Nacional"
                           className="border-gray-300 focus:border-gray-400 focus:ring-0"
+                          autoComplete="off"
                           {...field}
                         />
                       </FormControl>
@@ -105,8 +106,9 @@ export function InstitutionFormData({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="UN"
+                          placeholder="ANIOP"
                           className="border-gray-300 focus:border-gray-400 focus:ring-0"
+                          autoComplete="off"
                           {...field}
                         />
                       </FormControl>

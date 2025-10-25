@@ -6,6 +6,9 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get('token')
   const type = searchParams.get('type')
 
+  console.log('Received token:', token)
+  console.log('Received type:', type)
+
   // Verificar que sea un token de recuperación
   if (type !== 'recovery' || !token) {
     return NextResponse.redirect(
@@ -21,6 +24,8 @@ export async function GET(request: NextRequest) {
       token_hash: token,
       type: 'recovery'
     })
+
+    console.log('Token verification result:', { error })
 
     if (error) {
       console.error('Error verifying token:', error)
