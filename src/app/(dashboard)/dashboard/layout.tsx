@@ -35,19 +35,24 @@ export default async function Layout(props: IProps) {
     .select('institution_id')
     .eq('user_id', user.user?.id)
 
+  const hasInstitution = institutions && institutions.length > 0 ? true : false
+
   const profileData = (await profile) as {
     first_name: string | null
     email: string
     profile_image: string | null
   }
-
-  const hasInstitution = institutions && institutions.length > 0 ? true : false
+  const isAdmin =
+    profile?.role && profile.role?.length > 0 && profile.role.includes('ADMIN')
+      ? true
+      : false
 
   return (
     <AdminPanelLayout
       userName={profileData?.first_name || 'Usuario'}
       email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
+      isAdmin={isAdmin}
       isInstitutional={hasInstitution}
       menuItems={menuDashboard}
       menuOptional={[subMenuElementInstitucional]}

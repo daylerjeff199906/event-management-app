@@ -1,8 +1,15 @@
 import { Button } from '@/components/ui/button'
 import { StockHero } from '../components'
+import { InstitutionsBanner } from '@/components/app/miscellaneous/institutions-banner'
+import { APP_URL } from '@/data/config-app-url'
+import { BG_CTA_EVENTS } from '@/assets/images'
 // import { Sparkles } from 'lucide-react'
 
-export const HeroPage = () => {
+interface IHeroPageProps {
+  institutionsCount?: number
+}
+
+export const HeroPage = ({ institutionsCount }: IHeroPageProps) => {
   return (
     <div className="flex flex-col gap-6 lg:gap-8">
       {/* <div className="w-full bg-orange-50 border border-orange-700 rounded-lg px-6 py-4 mb-6 relative">
@@ -35,7 +42,22 @@ export const HeroPage = () => {
       <StockHero
         title="Descubre eventos increíbles cerca de ti"
         subtitle="Explora una amplia variedad de eventos adaptados a tus intereses y ubicación."
+        badge={{ text: 'Conecta', variant: 'default' }}
+        highlightWord="increíbles"
+        highlightColor="text-orange-400"
+        buttonText="Explorar eventos"
+        backgroundColor="bg-slate-900"
+        isDark={true}
+        buttonHref={APP_URL.DASHBOARD.EVENTS.BASE}
+        backgroundImageUrl={BG_CTA_EVENTS.src}
       />
+      {institutionsCount && institutionsCount > 0 && (
+        <InstitutionsBanner
+          description={`Tienes ${institutionsCount} instituciones asignadas. Ir a gestionar Instituciones y optimizar tu experiencia. Gestiona los eventos de tus instituciones de manera eficiente y centralizada.`}
+          redirectUrl={APP_URL.ORGANIZATION.BASE}
+        />
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
         <h3 className="text-2xl text-foreground">
           ¿Qué evento quieres descubrir hoy?

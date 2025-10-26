@@ -48,6 +48,12 @@ export default async function Layout(props: IProps) {
 
   const idInstitution = params.slug
 
+  // Si hay sesión, continuar con el flujo normal
+  const isAdmin =
+    profile?.role && profile.role?.length > 0 && profile.role.includes('ADMIN')
+      ? true
+      : false
+
   return (
     <AdminPanelLayout
       userName={profileData?.first_name || 'Usuario'}
@@ -55,6 +61,7 @@ export default async function Layout(props: IProps) {
       urlPhoto={profileData?.profile_image || undefined}
       menuItems={await menuOrganization(idInstitution?.toString() || '')}
       isInstitutional={hasInstitution}
+      isAdmin={isAdmin}
     >
       {children}
     </AdminPanelLayout>

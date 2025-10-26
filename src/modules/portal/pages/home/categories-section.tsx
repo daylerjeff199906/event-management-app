@@ -1,53 +1,7 @@
 'use client'
-import type { LucideIcon } from 'lucide-react'
-import { Gamepad2, Globe, Heart, Music, Palette, Sun } from 'lucide-react'
+import { Category } from '@/types'
+import { Star } from 'lucide-react'
 import { useState } from 'react'
-
-const categoriesData: Category[] = [
-  {
-    id: 'music',
-    name: 'Música',
-    icon: Music,
-    description: 'Eventos y experiencias musicales'
-  },
-  {
-    id: 'nightlife',
-    name: 'Vida Nocturna',
-    icon: Globe,
-    description: 'Bares, clubs y fiestas'
-  },
-  {
-    id: 'performing-visual-arts',
-    name: 'Artes Escénicas y Visuales',
-    icon: Palette,
-    description: 'Teatro, exposiciones y galerías'
-  },
-  {
-    id: 'holidays',
-    name: 'Festividades',
-    icon: Sun,
-    description: 'Celebraciones y eventos especiales'
-  },
-  {
-    id: 'dating',
-    name: 'Citas',
-    icon: Heart,
-    description: 'Encuentros y actividades románticas'
-  },
-  {
-    id: 'hobbies',
-    name: 'Pasatiempos',
-    icon: Gamepad2,
-    description: 'Actividades recreativas y talleres'
-  }
-]
-
-export interface Category {
-  id: string
-  name: string
-  icon: LucideIcon
-  description?: string
-}
 
 interface CategoryGridProps {
   categories?: Category[]
@@ -58,7 +12,7 @@ interface CategoryGridProps {
 }
 
 export function CategoryGrid({
-  categories = categoriesData,
+  categories,
   onCategoryClick,
   className = '',
   title = 'Explora por categorías',
@@ -67,7 +21,7 @@ export function CategoryGrid({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   const handleCategoryClick = (category: Category) => {
-    setSelectedCategory(category.id)
+    setSelectedCategory(category.id.toString())
     setTimeout(() => setSelectedCategory(null), 300) // Reset after animation
     onCategoryClick?.(category)
   }
@@ -87,11 +41,11 @@ export function CategoryGrid({
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6 justify-center">
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <CategoryItem
               key={category.id}
               category={category}
-              isSelected={selectedCategory === category.id}
+              isSelected={selectedCategory === category.id.toString()}
               onClick={() => handleCategoryClick(category)}
             />
           ))}
@@ -108,7 +62,7 @@ interface CategoryItemProps {
 }
 
 function CategoryItem({ category, onClick, isSelected }: CategoryItemProps) {
-  const IconComponent = category.icon
+  // const IconComponent = category.icon
 
   return (
     <div
@@ -128,7 +82,7 @@ function CategoryItem({ category, onClick, isSelected }: CategoryItemProps) {
         shadow-xs group-hover:shadow-md
       `}
       >
-        <IconComponent
+        <Star
           className={`
             w-5 h-5 sm:w-6 sm:h-6 
             transition-colors duration-200

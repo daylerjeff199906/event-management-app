@@ -25,16 +25,17 @@ export default async function Layout(props: IProps) {
     .maybeSingle()
 
   // Si hay sesión, continuar con el flujo normal
-  const { data: datarole } = await supabase
-    .from('user_roles')
-    .select('*')
-    .eq('user_id', user.user?.id)
-    .maybeSingle()
-  if (
-    !Array.isArray(datarole?.role_action) ||
-    !datarole.role_action.includes('ADMIN')
-  ) {
+  const isAdmin =
+    profile?.role && profile.role?.length > 0 && profile.role.includes('ADMIN')
+      ? true
+      : false
+
+  if (!profile?.email) {
     // Si el perfil no tiene email, redirigir a la página de onboarding
+    redirect(APP_URL.PROFILE.ONBOARDING)
+  }
+
+  if (!isAdmin) {
     redirect(APP_URL.NOT_FOUND)
   }
 
@@ -44,12 +45,21 @@ export default async function Layout(props: IProps) {
     profile_image: string | null
   }
 
+  const { data: institutions } = await supabase
+    .from('user_roles')
+    .select('institution_id')
+    .eq('user_id', user.user?.id)
+
+  const hasInstitution = institutions && institutions.length > 0 ? true : false
+
   return (
     <AdminPanelLayout
       userName={profileData?.first_name || 'Usuario'}
       email={profile.email}
       urlPhoto={profileData?.profile_image || undefined}
       menuItems={adminMenu}
+      isAdmin={isAdmin}
+      isInstitutional={hasInstitution}
     >
       {children}
     </AdminPanelLayout>

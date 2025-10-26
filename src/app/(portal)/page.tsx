@@ -7,6 +7,7 @@ import {
   EventsSection,
   ScrollMensageSection
 } from '@/modules/portal/pages'
+import { fetchCategories } from '@/services/categories.services'
 import { getSupabase } from '@/services/core.supabase'
 import { redirect } from 'next/navigation'
 
@@ -18,12 +19,17 @@ export default async function Page() {
     redirect(APP_URL.DASHBOARD.BASE)
   }
 
+  const categories = await fetchCategories()
+
   return (
     <>
       <BannerCarousel className="mx-auto max-w-7xl rounded-2xl lg:pt-8 p-4 lg:px-0" />
       <EventsSection />
       <EventsCTA urlImageBackground={BG_CTA_EVENTS.src} />
-      <CategoryGrid className="py-12 md::py-16 lg:py-24" />
+      <CategoryGrid
+        categories={categories || []}
+        className="py-12 md::py-16 lg:py-24"
+      />
       <ScrollMensageSection
         message1="Tu Puerta a Eventos Emocionantes"
         message2="Bienvenido a VamoYa"
