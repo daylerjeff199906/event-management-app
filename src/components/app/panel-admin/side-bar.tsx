@@ -46,6 +46,7 @@ export const SideBar = (props: SideBarProps) => {
             href={APP_URL.DASHBOARD.BASE}
             className="w-full max-w-36"
           />
+
           <button onClick={() => setIsOpen(!isOpen)}>
             <PanelLeftDashed className="w-5 h-5" />
           </button>
