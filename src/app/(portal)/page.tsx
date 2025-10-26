@@ -13,11 +13,11 @@ import { redirect } from 'next/navigation'
 export default async function Page() {
   const supabase = await getSupabase()
   const { data: user } = await supabase.auth.getUser()
-
-  if (user) {
+  if (user && user.user) {
     // Si no hay usuario, redirigir a la página de login
     redirect(APP_URL.DASHBOARD.BASE)
   }
+
   return (
     <>
       <BannerCarousel className="mx-auto max-w-7xl rounded-2xl lg:pt-8 p-4 lg:px-0" />
