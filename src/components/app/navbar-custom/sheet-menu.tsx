@@ -6,11 +6,13 @@ import {
   SheetTrigger
 } from '@/components/ui/sheet'
 import { SectionElement } from '@/types'
-import { MenuIcon } from 'lucide-react'
+import { Building2, Columns3Cog, MenuIcon, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Menu } from './menu'
 import { APP_CONFIG } from '@/data/config.app'
+import { TeamSwitcher } from './team-switcher'
+import { APP_URL } from '@/data/config-app-url'
 
 interface SheetMenuProps {
   title?: string
@@ -18,7 +20,7 @@ interface SheetMenuProps {
 }
 
 export function SheetMenu(props: SheetMenuProps) {
-  const { title, menuItems } = props
+  const { menuItems } = props
   return (
     <Sheet>
       <SheetTrigger className="lg:hidden" asChild>
@@ -37,20 +39,39 @@ export function SheetMenu(props: SheetMenuProps) {
             asChild
           >
             <Link href="/dashboard" className="flex items-center gap-2">
-              <div id="logo" className="flex items-center space-x-2">
-                <Image
-                  src={APP_CONFIG.logos.logoHorizontalDark}
-                  alt="Logo"
-                  width={18}
-                  height={18}
-                />
-                {title && (
-                  <h1 className="font-bold text-xs line-clamp-2">{title}</h1>
-                )}
-              </div>
+              <Image
+                src={APP_CONFIG.logos.logoHorizontalDark}
+                alt="Logo"
+                width={128}
+                height={16}
+              />
             </Link>
           </Button>
         </SheetHeader>
+        <div className="flex lg:hidden justify-start gap-4 flex-1 px-3 w-full">
+          <TeamSwitcher
+            teams={[
+              {
+                name: 'Perfil de usuario',
+                logo: User,
+                plan: 'Mi perfil',
+                href: APP_URL.DASHBOARD.BASE
+              },
+              {
+                name: 'Mis organizaciones',
+                logo: Building2,
+                plan: 'Owner',
+                href: APP_URL.ORGANIZATION.BASE
+              },
+              {
+                name: 'Administrador',
+                logo: Columns3Cog,
+                plan: 'Panel Admin',
+                href: APP_URL.ADMIN.BASE
+              }
+            ]}
+          />
+        </div>
         <Menu isOpen menuItems={menuItems} />
       </SheetContent>
     </Sheet>
