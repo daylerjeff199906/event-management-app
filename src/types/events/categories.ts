@@ -1,5 +1,5 @@
 export interface Category {
-  id: bigint
+  id: number
   created_at: string // ISO timestamp
   name: string
   description?: string | null
