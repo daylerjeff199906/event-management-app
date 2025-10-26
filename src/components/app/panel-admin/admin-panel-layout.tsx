@@ -16,6 +16,7 @@ export default function AdminPanelLayout({
   menuItems,
   menuOptional,
   isInstitutional = false,
+  isAdmin = false,
   hiddenSidebar = false
 }: {
   children: React.ReactNode
@@ -24,6 +25,7 @@ export default function AdminPanelLayout({
   urlPhoto?: string
   userName?: string
   isInstitutional?: boolean
+  isAdmin?: boolean
   menuOptional?: SectionElement[]
   hiddenSidebar?: boolean
 }) {
@@ -53,6 +55,8 @@ export default function AdminPanelLayout({
           email={email}
           userName={userName}
           menuItems={menuDashboardFinal}
+          isAdmin={isAdmin}
+          isInstitutional={isInstitutional}
         />
         <div className="w-full container mx-auto py-4 zoom-adjust md:px-6">
           {children}

@@ -13,6 +13,7 @@ export interface IUser {
   updated_at: Date | null
   gender: string | null
   username?: string | null
+  role?: string[] | null
 }
 
 export interface IUserRole {
@@ -23,7 +24,6 @@ export interface IUserRole {
   access_enabled?: boolean | null
   created_at?: Date | null
   updated_at?: Date | null
-  role_action?: string[] | null
 }
 
 export interface IUserRoleFull extends IUserRole {

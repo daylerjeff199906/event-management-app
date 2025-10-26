@@ -10,8 +10,7 @@ import { ProfilePopover } from './profile-popover'
 import { SearchBar } from '../miscellaneous/search-bar'
 import { ModeToggle } from '../miscellaneous/mode-toggle'
 import { TeamSwitcher } from './team-switcher'
-import { Building2, Columns3Cog, User } from 'lucide-react'
-import { APP_URL } from '@/data/config-app-url'
+import { teamOptions } from '../panel-admin/roles-menu'
 
 interface NavBarCustomProps {
   moreApps?: Array<IMoreApp>
@@ -19,13 +18,26 @@ interface NavBarCustomProps {
   urlPhoto?: string
   email?: string
   menuItems?: SectionElement[]
+  isAdmin?: boolean
+  isInstitutional?: boolean
 }
 
 export const NavBarCustom = (props: NavBarCustomProps) => {
-  const { userName, urlPhoto, email, menuItems } = props
+  const { userName, urlPhoto, email, menuItems, isAdmin, isInstitutional } =
+    props
 
   const sidebar = useStore(useSidebar, (x) => x)
   if (!sidebar) return null
+
+  const userRoles = [
+    'user',
+    ...(isInstitutional ? ['institutional'] : []),
+    ...(isAdmin ? ['admin'] : [])
+  ]
+
+  const teamsForSwitcher = teamOptions.filter((t) =>
+    t.roles.some((r) => userRoles.includes(r))
+  )
 
   return (
     <header
@@ -35,32 +47,16 @@ export const NavBarCustom = (props: NavBarCustomProps) => {
     >
       <div className="px-4 sm:px-6 md:px-7 flex h-16 items-center">
         <div className="flex items-center space-x-4 lg:space-x-0 sm:gap-3 w-full">
-          <SheetMenu title="Tu panel" menuItems={menuItems} />
+          <SheetMenu
+            title="Tu panel"
+            menuItems={menuItems}
+            isAdmin={isAdmin}
+            isInstitutional={isInstitutional}
+          />
           <div className="hidden lg:flex items-center justify-start gap-4 flex-1">
-            <TeamSwitcher
-              teams={[
-                {
-                  name: 'Perfil de usuario',
-                  logo: User,
-                  plan: 'Mi perfil',
-                  href: APP_URL.DASHBOARD.BASE
-                },
-                {
-                  name: 'Mis organizaciones',
-                  logo: Building2,
-                  plan: 'Owner',
-                  href: APP_URL.ORGANIZATION.BASE
-                },
-                {
-                  name: 'Administrador',
-                  logo: Columns3Cog,
-                  plan: 'Panel Admin',
-                  href: APP_URL.ADMIN.BASE
-                }
-              ]}
-            />
+            <TeamSwitcher teams={teamsForSwitcher} />
           </div>
-          <div className="w-full flex items-center justify-between gap-2 max-w-2xl mx-auto">
+          <div className="w-full hidden md:flex items-center justify-between gap-2 max-w-2xl mx-auto">
             <SearchBar showSmartButton={false} />
           </div>
         </div>
