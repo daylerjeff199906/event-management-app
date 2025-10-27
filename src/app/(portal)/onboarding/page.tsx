@@ -28,7 +28,13 @@ const STORAGE_KEY = 'eventify-onboarding-progress'
 
 const stepTitles = ['Perfil', 'Intereses', 'Configuración']
 
-export default function OnboardingPage() {
+interface OnboardingPageProps {
+  email?: string
+  photoURL?: string
+}
+
+export default function OnboardingPage(props: OnboardingPageProps) {
+  const { email, photoURL } = props
   const [loading, setLoading] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [onboardingData, setOnboardingData] = useState<
@@ -131,11 +137,11 @@ export default function OnboardingPage() {
     try {
       // Guardar datos personales
       await insertUserData({
-        username: completeData.username || '',
+        username: email || '',
         birth_date: completeData.birth_date || '',
         first_name: completeData.first_name || '',
         last_name: completeData.last_name || '',
-        profile_image: completeData.profile_image || '',
+        profile_image: photoURL || '',
         country: completeData.country || '',
         phone: completeData.phone || ''
       })
@@ -215,7 +221,6 @@ export default function OnboardingPage() {
               {currentStep === 1 && (
                 <StepOne
                   data={{
-                    username: onboardingData.username || '',
                     first_name: onboardingData.first_name || '',
                     last_name: onboardingData.last_name || '',
                     profile_image: onboardingData.profile_image || '',
