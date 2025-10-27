@@ -179,7 +179,7 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
             description="Por favor espera un momento."
           />
         )
-        router.push(APP_URL.DASHBOARD.BASE)
+        router.replace(APP_URL.DASHBOARD.BASE)
       }, 2000)
     } catch (error) {
       toast.error(

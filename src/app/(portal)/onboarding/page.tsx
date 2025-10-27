@@ -5,10 +5,12 @@ export default async function Page() {
   const supabase = await getSupabase()
   const { data: user } = await supabase.auth.getUser()
 
+  
+
   return (
     <OnboardingPage
       email={user.user?.email || undefined}
-      photoURL={user.user?.user_metadata?.photoURL || undefined}
+      photoURL={user.user?.user_metadata?.avatar_url || undefined}
     />
   )
 }
