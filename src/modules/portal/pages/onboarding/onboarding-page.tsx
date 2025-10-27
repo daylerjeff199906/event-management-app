@@ -37,7 +37,7 @@ interface OnboardingPageProps {
 export const OnboardingPage = (props: OnboardingPageProps) => {
   const { email, photoURL } = props
   const [loading, setLoading] = useState(false)
-  const [currentStep, setCurrentStep] = useState(4)
+  const [currentStep, setCurrentStep] = useState(1)
   const [onboardingData, setOnboardingData] = useState<
     Partial<CompleteOnboarding>
   >({
@@ -171,7 +171,7 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
           description="Tu perfil ha sido configurado exitosamente."
         />
       )
-
+      setCurrentStep(4)
       // Simular redirección a la app principal
       setTimeout(() => {
         toast.info(
