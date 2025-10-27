@@ -6,7 +6,8 @@ import {
   ProgressIndicator,
   StepOne,
   StepTwo,
-  StepThree
+  StepThree,
+  CompletionScreen
 } from '@/modules/portal/pages'
 import type {
   PersonalInfo,
@@ -23,6 +24,7 @@ import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
 import { LoadingAbsolute } from '@/components/app/miscellaneous/loading-absolute'
+import { brands } from '@/assets/brands'
 
 const STORAGE_KEY = 'eventify-onboarding-progress'
 
@@ -36,7 +38,7 @@ interface OnboardingPageProps {
 export const OnboardingPage = (props: OnboardingPageProps) => {
   const { email, photoURL } = props
   const [loading, setLoading] = useState(false)
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(4)
   const [onboardingData, setOnboardingData] = useState<
     Partial<CompleteOnboarding>
   >({
@@ -262,6 +264,15 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
                   onNext={handleStepThreeNext}
                   onBack={handleBack}
                   onSkip={handleSkip}
+                />
+              )}
+
+              {currentStep === 4 && (
+                <CompletionScreen
+                  title="¡Configuración Completa!"
+                  centerImageUrl="/svg/congratulation.svg"
+                  centerImageAlt="Onboarding Complete"
+                  description="¡Felicidades! Has completado el proceso de configuración. Ahora estás listo para explorar todas las funcionalidades de Eventify. ¡Vamos a comenzar!"
                 />
               )}
             </div>
