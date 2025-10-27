@@ -41,11 +41,11 @@ export function StepOne({ data, onNext }: StepOneProps) {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            ¡Hola! Bienvenido
+            ¡Queremos conocerte mejor!
           </h1>
           <p className="text-gray-600 leading-relaxed">
-            Estás comenzando una nueva experiencia. Queremos conocer más sobre
-            ti, ayúdanos completando esta información básica.
+            Completa tu información personal para una experiencia más
+            personalizada.
           </p>
         </div>
 

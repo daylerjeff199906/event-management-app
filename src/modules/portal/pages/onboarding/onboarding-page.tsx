@@ -6,7 +6,8 @@ import {
   ProgressIndicator,
   StepOne,
   StepTwo,
-  StepThree
+  StepThree,
+  CompletionScreen
 } from '@/modules/portal/pages'
 import type {
   PersonalInfo,
@@ -170,7 +171,7 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
           description="Tu perfil ha sido configurado exitosamente."
         />
       )
-
+      setCurrentStep(4)
       // Simular redirección a la app principal
       setTimeout(() => {
         toast.info(
@@ -179,7 +180,7 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
             description="Por favor espera un momento."
           />
         )
-        router.push(APP_URL.DASHBOARD.BASE)
+        router.replace(APP_URL.DASHBOARD.BASE)
       }, 2000)
     } catch (error) {
       toast.error(
@@ -262,6 +263,15 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
                   onNext={handleStepThreeNext}
                   onBack={handleBack}
                   onSkip={handleSkip}
+                />
+              )}
+
+              {currentStep === 4 && (
+                <CompletionScreen
+                  title="¡Configuración Completa!"
+                  centerImageUrl="/svg/congratulation.svg"
+                  centerImageAlt="Onboarding Complete"
+                  description="¡Felicidades! Has completado el proceso de configuración. Ahora estás listo para explorar todas las funcionalidades de Eventify. ¡Vamos a comenzar!"
                 />
               )}
             </div>

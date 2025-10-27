@@ -16,5 +16,17 @@ export default async function Layout(props: IProps) {
     redirect(APP_URL.AUTH.LOGIN)
   }
 
+  // Si hay sesión, continuar con el flujo normal
+  const { data: profile } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', user.user?.id)
+    .maybeSingle()
+
+  if (profile?.email) {
+    // Si el perfil tiene email, redirigir a la página de dashboard
+    redirect(APP_URL.DASHBOARD.BASE)
+  }
+
   return <>{props.children}</>
 }
