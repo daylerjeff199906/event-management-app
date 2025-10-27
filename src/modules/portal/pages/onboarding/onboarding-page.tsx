@@ -24,7 +24,6 @@ import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
 import { LoadingAbsolute } from '@/components/app/miscellaneous/loading-absolute'
-import { brands } from '@/assets/brands'
 
 const STORAGE_KEY = 'eventify-onboarding-progress'
 
