@@ -36,22 +36,19 @@ export function UsersTable({ users }: UsersTableProps) {
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              User
+              Usuario
             </th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Name
+              Nombre
             </th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Email
+              Correo
             </th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Joined
+              Fecha de registro
             </th>
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Profile
-            </th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Status
+              Estado
             </th>
           </tr>
         </thead>
@@ -84,9 +81,6 @@ export function UsersTable({ users }: UsersTableProps) {
               <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
               <td className="px-6 py-4 text-sm text-gray-600">
                 {formatDate(user.created_at)}
-              </td>
-              <td className="px-6 py-4 text-sm text-blue-600 font-medium">
-                {user.profile_image ? 'Has Photo' : 'No Photo'}
               </td>
               <td className="px-6 py-4 text-sm">
                 <Badge

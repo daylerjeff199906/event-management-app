@@ -11,7 +11,7 @@ interface RecentUser {
   profile_image: string | null
 }
 
-interface RecentEvent {
+export interface RecentEvent {
   id: string
   event_name: string
   start_date: string
@@ -56,13 +56,13 @@ interface Institution {
   id: string
 }
 
-interface EventWithInstitution {
+export interface EventWithInstitution {
   id: string
   event_name: string
   start_date: string
   created_at: string
   cover_image_url: string | null
-  institution: Institution[] | null
+  institution: Institution | null
 }
 
 // Constants
@@ -133,19 +133,7 @@ class DashboardService {
   > {
     return await this.supabase
       .from('events')
-      .select(
-        `
-            id,
-            event_name,
-            start_date,
-            created_at,
-            cover_image_url,
-            institution:institutions (
-                institution_name,
-                id
-            )
-        `
-      )
+      .select()
       .order('created_at', { ascending: false })
       .limit(RECENT_EVENTS_LIMIT)
   }
@@ -164,22 +152,15 @@ class DashboardService {
   }
 
   private processEventData(events: EventWithInstitution[]): RecentEvent[] {
-    return events.map((event) => {
-      const institution =
-        Array.isArray(event.institution) && event.institution.length > 0
-          ? event.institution[0]
-          : null
-
-      return {
-        id: event.id,
-        event_name: event.event_name,
-        start_date: event.start_date,
-        created_at: event.created_at,
-        cover_image_url: event.cover_image_url,
-        institution_name: institution?.institution_name || null,
-        institution_id: institution?.id || null
-      }
-    })
+    return events.map((event) => ({
+      id: event.id,
+      event_name: event.event_name,
+      start_date: event.start_date,
+      created_at: event.created_at,
+      cover_image_url: event.cover_image_url,
+      institution_name: event.institution?.institution_name || null,
+      institution_id: event.institution?.id || null
+    }))
   }
 
   private validateQueryResults(
