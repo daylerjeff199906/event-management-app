@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { UsersTableList } from '@/modules/core/components'
 import { getUsersPagintion } from '@/services/user.roles.services'
 import { Params } from '@/types'
@@ -17,7 +18,12 @@ export default async function Page(props: PageProps) {
   })
 
   if (!userList || userList.users.length === 0) {
-    return <div>No users found for this institution</div>
+    return (
+      <EmptyState
+        title="No se encontraron usuarios"
+        description="Parece que no hay usuarios disponibles. ¡Agrega nuevos usuarios para comenzar!"
+      />
+    )
   }
 
   return (
