@@ -9,9 +9,9 @@ import {
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
-  EmptyMedia,
   EmptyTitle
 } from '@/components/ui/empty'
+import Image from 'next/image'
 
 export interface EmptyStateProps {
   /** Icono a mostrar en la parte superior */
@@ -41,7 +41,7 @@ export interface EmptyStateProps {
 }
 
 export function EmptyState({
-  icon,
+  icon = '/svg/empty-states.svg',
   title,
   description,
   actions,
@@ -50,7 +50,13 @@ export function EmptyState({
   return (
     <Empty>
       <EmptyHeader>
-        {icon && <EmptyMedia variant="default">{icon}</EmptyMedia>}
+        <Image
+          src={typeof icon === 'string' ? icon : '/svg/empty-states.svg'}
+          alt="Empty State"
+          width={220}
+          height={220}
+          className="mb-4"
+        />
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>

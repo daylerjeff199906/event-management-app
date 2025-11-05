@@ -1,5 +1,5 @@
 import * as LucideIcons from 'lucide-react'
-type LucideIconName = keyof typeof LucideIcons
+export type LucideIconName = keyof typeof LucideIcons
 export interface SectionElement {
   section: SectionSection
   menus: MenuElement[]

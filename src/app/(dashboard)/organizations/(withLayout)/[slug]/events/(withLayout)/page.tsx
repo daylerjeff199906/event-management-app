@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { InstitutionEventsPage } from '@/modules/events/page'
 import { fetchEventsByInstitution } from '@/services/events.services'
 import { EventStatus, Params, SearchParams } from '@/types'
@@ -26,10 +27,19 @@ export default async function Page(props: PageProps) {
 
   return (
     <>
-      <InstitutionEventsPage
-        institutionId={id_institution}
-        eventsList={response.data?.data || []}
-      />
+      {response?.data && response?.data?.data?.length > 0 && (
+        <InstitutionEventsPage
+          institutionId={id_institution}
+          eventsList={response.data?.data || []}
+        />
+      )}
+      {!response?.data ||
+        (response?.data?.data?.length === 0 && (
+          <EmptyState
+            title="No se encontraron eventos"
+            description="Parece que no hay eventos disponibles para esta institución. ¡Crea un nuevo evento para comenzar!"
+          />
+        ))}
     </>
   )
 }
