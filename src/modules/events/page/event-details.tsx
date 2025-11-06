@@ -73,22 +73,23 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </Breadcrumb>
       </div>
       <div className="w-full max-w-6xl mx-auto px-4 pt-4">
-        {/* Hero Image */}
+        {/* Hero Image con gradiente */}
         <div className="relative w-full h-80 mb-6 rounded-2xl overflow-hidden">
-          <img
-            src={
-              event?.cover_image_url ||
-              '/placeholder.svg?height=320&width=800&query=tech career fair event'
-            }
-            alt={event.event_name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <div className="text-center text-white">
-              <h1 className="text-4xl font-bold mb-2">
+          {/* Fondo gradiente */}
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500" />
+
+          {/* Capa de oscurecimiento suave para mejorar legibilidad */}
+          <div className="absolute inset-0 bg-black/25" />
+
+          {/* Contenido centrado */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center text-white drop-shadow-lg px-4">
+              <h1 className="text-4xl font-bold mb-2 opacity-90">
                 {event?.categorydata?.name || 'Evento'}
               </h1>
-              <h2 className="text-6xl font-bold">{event.event_name}</h2>
+              <h2 className="text-3xl sm:text-6xl font-extrabold leading-tight">
+                {event.event_name}
+              </h2>
             </div>
           </div>
         </div>
