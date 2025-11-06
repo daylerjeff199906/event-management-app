@@ -3,6 +3,7 @@ import { fetchEventFullDetails } from '@/services/events.services'
 import { EventDetailsPage } from '@/modules/events/page'
 import { Metadata } from 'next'
 import { siteConfig } from '@/lib/siteConfig'
+import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 
 interface PageProps {
   params: Params
@@ -66,11 +67,16 @@ export default async function Page(props: PageProps) {
   const response = await fetchEventFullDetails(uuid?.toString() || '')
 
   if (response.error) {
-    return <div>Error loading event details: {response.error.message}</div>
+    return <EmptyState title="Error" description={response.error.message} />
   }
 
   if (!response.data) {
-    return <div>No event details found.</div>
+    return (
+      <EmptyState
+        title="Evento no encontrado"
+        description="Lo sentimos, no pudimos encontrar el evento que estás buscando."
+      />
+    )
   }
 
   return (
