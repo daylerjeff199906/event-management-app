@@ -105,7 +105,7 @@ export function EventCardUser({
       <CardFooter>
         <Button
           onClick={() => onViewDetails(event.id)}
-          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors hover:cursor-pointer rounded-full cursor-pointer"
+          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors group-hover:cursor-pointer rounded-full"
           variant="outline"
         >
           <Eye className="w-4 h-4 mr-2" />
