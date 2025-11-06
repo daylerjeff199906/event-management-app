@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     emailApi.setApiKey(TransactionalEmailsApiApiKeys.apiKey, String(apiKey));
 
     const message: SendSmtpEmail = {
-      sender: { name: "Tu App", email: "tu@dominio.com" },
+      sender: { name: "IIAP", email: "jose.santos@unapiquitos.edu.pe" },
       to: [{ email: toEmail, name: toName }],
       subject,
       htmlContent,
@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     };
 
     const response = await emailApi.sendTransacEmail(message);
+    console.log("Brevo sendTransacEmail response:", response.response);
     return NextResponse.json({ success: true, result: response.body });
   } catch (err: unknown) {
     let message = "Unknown error";

@@ -93,7 +93,7 @@ export function EventsList({
             onClick={handleLoadMore}
             disabled={loading}
             size="lg"
-            className="min-w-[200px]"
+            className="min-w-[200px] cursor-pointer"
           >
             {loading ? (
               <>
