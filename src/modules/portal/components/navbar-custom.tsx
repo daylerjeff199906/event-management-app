@@ -259,7 +259,9 @@ export function NavbarCustom({
           {/* Right Section */}
           <div className="flex items-center space-x-2">
             {/* User Section - Desktop */}
-            <ModeToggle />
+            <ModeToggle
+              variant={variant === 'transparent' ? 'light' : 'default'}
+            />
             <div className="hidden md:block">
               {userConfig.isLoggedIn ? (
                 <>
