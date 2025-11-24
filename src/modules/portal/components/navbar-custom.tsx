@@ -159,7 +159,7 @@ export function NavbarCustom({
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Logo */}
           <div className="flex items-center gap-4">
-            <LogoRender isOpened href={logoHref} />
+            <LogoRender variant="dark" isOpened href={logoHref} />
             <hr
               className={cn(
                 'h-6 border-l border-gray-300',
