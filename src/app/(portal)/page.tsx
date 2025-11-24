@@ -23,7 +23,7 @@ export default async function Page() {
 
   return (
     <>
-      <BannerCarousel className="mx-auto max-w-7xl rounded-2xl lg:pt-8 p-4 lg:px-0" />
+      <BannerCarousel />
       <EventsSection />
       <EventsCTA urlImageBackground={BG_CTA_EVENTS.src} />
       <CategoryGrid
