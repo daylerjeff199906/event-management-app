@@ -7,7 +7,7 @@ import { SectionElement } from '@/types'
 import { useStore } from 'zustand'
 import { MENU_PROFILE } from './profile-menu'
 import { ProfilePopover } from './profile-popover'
-import { SearchBar } from '../miscellaneous/search-bar'
+// import { SearchBar } from '../miscellaneous/search-bar'
 import { ModeToggle } from '../miscellaneous/mode-toggle'
 import { TeamSwitcher } from './team-switcher'
 import { teamOptions } from '../panel-admin/roles-menu'
@@ -56,9 +56,9 @@ export const NavBarCustom = (props: NavBarCustomProps) => {
           <div className="hidden lg:flex items-center justify-start gap-4 flex-1">
             <TeamSwitcher teams={teamsForSwitcher} />
           </div>
-          <div className="w-full hidden md:flex items-center justify-between gap-2 max-w-2xl mx-auto">
+          {/* <div className="w-full hidden md:flex items-center justify-between gap-2 max-w-2xl mx-auto">
             <SearchBar showSmartButton={false} />
-          </div>
+          </div> */}
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">
           {/*Menu de perfil*/}
