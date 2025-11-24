@@ -146,9 +146,9 @@ export function NavbarCustom({
   return (
     <nav
       className={cn(
-        'sticky top-0 z-50 w-full border-b bg-white shadow-sm dark:border-gray-800 dark:bg-zinc-900',
+        'fixed top-0 z-50 w-full border-b bg-white shadow-sm dark:border-gray-800 dark:bg-zinc-900',
         variant === 'transparent' &&
-          'bg-transparent border-transparent shadow-none dark:bg-dark',
+          'bg-gray-900/40 border-transparent shadow-none dark:bg-dark backdrop-blur',
         className
       )}
       style={{
@@ -160,8 +160,18 @@ export function NavbarCustom({
           {/* Logo */}
           <div className="flex items-center gap-4">
             <LogoRender isOpened href={logoHref} />
-            <hr className="h-6 border-l border-gray-300" />
-            <div className="items-center gap-2 text-muted-foreground hidden md:flex">
+            <hr
+              className={cn(
+                'h-6 border-l border-gray-300',
+                variant === 'transparent' && 'border-white/50'
+              )}
+            />
+            <div
+              className={cn(
+                'items-center gap-2 text-muted-foreground hidden md:flex',
+                variant === 'transparent' && 'text-white/90'
+              )}
+            >
               <MapPin className="h-4 w-4" />
               <span className="max-w-32 truncate text-sm">{userLocation}</span>
             </div>
@@ -175,7 +185,10 @@ export function NavbarCustom({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                    className={cn(
+                      'flex items-center gap-1 text-muted-foreground hover:text-foreground',
+                      variant === 'transparent' && 'text-white/90'
+                    )}
                   >
                     {categoryParam
                       ? categories.find(

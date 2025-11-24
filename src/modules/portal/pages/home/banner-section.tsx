@@ -104,7 +104,7 @@ export const BannerCarousel = ({
         {slides.map((slide) => (
           <div
             key={slide.id}
-            className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden "
+            className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden"
             style={{
               backgroundImage: `url(${slide.backgroundImage})`,
               backgroundSize: 'cover',

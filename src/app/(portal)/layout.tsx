@@ -17,6 +17,7 @@ export default async function Layout({ children }: LayoutProps) {
     <>
       <NavbarCustom
         categories={categories || []}
+        variant="transparent"
         logoHref={APP_URL.PORTAL.BASE}
         userConfig={{
           isLoggedIn: !!user?.user,
