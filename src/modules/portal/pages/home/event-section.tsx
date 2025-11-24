@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react'
 import { Event, EventStatus } from '@/types'
 import { fetchEventList } from '@/services/events.services'
+import { EventCardUser } from '@/modules/events'
 import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
-import { EventCardUser } from '@/modules/events'
 
 export function EventsSection() {
   const [events, setEvents] = useState<Event[]>([])

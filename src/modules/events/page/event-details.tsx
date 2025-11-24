@@ -75,19 +75,13 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
       <div className="w-full max-w-6xl mx-auto px-4 pt-4">
         {/* Hero Image con gradiente */}
         <div className="relative w-full h-80 mb-6 rounded-2xl overflow-hidden">
-          {/* Fondo gradiente */}
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500" />
-
-          {/* Capa de oscurecimiento suave para mejorar legibilidad */}
-          <div className="absolute inset-0 bg-black/25" />
-
-          {/* Contenido centrado */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center text-white drop-shadow-lg px-4">
-              <h1 className="text-4xl font-bold mb-2 opacity-90">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
+          <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+            <div className="text-center text-white px-4">
+              <h1 className="text-2xl sm:text-4xl font-semibold mb-2">
                 {event?.categorydata?.name || 'Evento'}
               </h1>
-              <h2 className="text-3xl sm:text-6xl font-extrabold leading-tight">
+              <h2 className="text-3xl sm:text-6xl font-bold leading-tight">
                 {event.event_name}
               </h2>
             </div>
@@ -124,6 +118,17 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                 </Button>
               </div>
             </div>
+
+            {/* Image */}
+            {event.cover_image_url && (
+              <div className="mb-6 flex justify-center items-center bg-gray-200 p-4 rounded-lg">
+                <img
+                  src={event.cover_image_url}
+                  alt={event.event_name}
+                  className="h-[520px] object-cover rounded-lg"
+                />
+              </div>
+            )}
 
             <p className="text-muted-foreground max-w-2xl">
               {event.description}
