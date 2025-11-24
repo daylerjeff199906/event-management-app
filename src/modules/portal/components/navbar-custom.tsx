@@ -281,7 +281,10 @@ export function NavbarCustom({
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="ghost"
-                    className="rounded-full text-sm"
+                    className={cn(
+                      'rounded-full text-sm',
+                      variant === 'transparent' && 'text-white/90'
+                    )}
                     asChild
                   >
                     <Link href={APP_URL.AUTH.LOGIN}>Iniciar Sesión</Link>
