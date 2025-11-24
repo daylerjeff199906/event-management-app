@@ -6,7 +6,9 @@ interface IProps {
   params: Params
 }
 
-const SEARCH_FIELDS = [{ key: 'search', label: 'Buscar usario' }]
+const SEARCH_FIELDS = [
+  { key: 'query', label: 'Buscar', placeholder: 'Buscar usuario...' }
+]
 
 export default async function Layout(props: IProps) {
   const { children } = props

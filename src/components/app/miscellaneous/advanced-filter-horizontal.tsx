@@ -36,7 +36,7 @@ interface FilterConfig {
 interface AdvancedFilterProps {
   filters: FilterConfig[]
   onFiltersChange?: (filters: Record<string, FilterValue>) => void
-  searchFields?: { key: string; label: string }[]
+  searchFields?: { key: string; label: string; placeholder?: string }[]
   hiddenMoreFiltersButton?: boolean
   hiddenSearchInput?: boolean
   hiddenBadgeFilters?: boolean
@@ -235,7 +235,10 @@ export function AdvancedFilterHorizontal({
             <div className="flex-1 relative rounded-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar..."
+                placeholder={
+                  searchFields.find((f) => f.key === searchField)
+                    ?.placeholder || 'Buscar...'
+                }
                 defaultValue={searchValue}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-10 rounded-full"
