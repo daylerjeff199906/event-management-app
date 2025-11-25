@@ -25,7 +25,7 @@ export const menuDashboard: SectionElement[] = [
           icon: 'Calendar'
         },
         submenus: []
-      },
+      }
       // {
       //   menu: {
       //     id: 3,
