@@ -24,13 +24,11 @@ export default async function Page(props: PageProps) {
   const addressData = await getAddressById(response.data.address_uuid || '')
 
   return (
-    <div>
-      <EventsEditForm
-        institutionId={institutionId!}
-        categories={categories}
-        eventData={response.data}
-        eventAddress={addressData.data || null}
-      />
-    </div>
+    <EventsEditForm
+      institutionId={institutionId!}
+      categories={categories}
+      eventData={response.data}
+      eventAddress={addressData.data || null}
+    />
   )
 }
