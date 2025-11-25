@@ -20,11 +20,8 @@ export const eventSchema = z
       .optional(),
     category: z.number().optional(),
     institution_id: z.string().optional(),
-    link_meeting: z.string().optional(),
     user_id: z.string().optional(),
     author_id: z.string().optional(),
-    lat: z.number().nullable().optional(),
-    lon: z.number().nullable().optional(),
     adress_uuid: z.string().optional()
   })
   .refine(
