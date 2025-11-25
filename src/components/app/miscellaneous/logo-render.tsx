@@ -11,7 +11,8 @@ export const LogoRender = ({
   href,
   className,
   size,
-  isOpened
+  isOpened,
+  variant
 }: {
   nameApp?: string
   subtitle?: string
@@ -19,6 +20,7 @@ export const LogoRender = ({
   className?: string
   size?: number
   isOpened?: boolean
+  variant?: 'default' | 'light' | 'dark'
 }) => {
   const { theme } = useTheme()
   const sidebar = useStore(useSidebar, (x) => x)
@@ -26,7 +28,7 @@ export const LogoRender = ({
   const { getOpenState } = sidebar
 
   const logoRender =
-    theme === 'dark'
+    theme === 'dark' || variant === 'dark'
       ? APP_CONFIG.logos.logoHorizontalDefault
       : APP_CONFIG.logos.logoHorizontalDark
 

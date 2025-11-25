@@ -71,7 +71,10 @@ export function EventCardUser({
         )}
       </div>
       <CardContent className="space-y-3">
-        <h3 className="font-semibold text-lg lg:text-xl line-clamp-2 group-hover:text-primary transition-colors">
+        <h3
+          className="font-semibold text-lg lg:text-xl line-clamp-2 group-hover:text-primary transition-colors"
+          onClick={() => onViewDetails(event.id)}
+        >
           {event.event_name}
         </h3>
         {event.description && (
@@ -102,7 +105,7 @@ export function EventCardUser({
       <CardFooter>
         <Button
           onClick={() => onViewDetails(event.id)}
-          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors hover:cursor-pointer rounded-full"
+          className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors group-hover:cursor-pointer rounded-full"
           variant="outline"
         >
           <Eye className="w-4 h-4 mr-2" />

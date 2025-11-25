@@ -82,7 +82,7 @@ export const BannerCarousel = ({
   deviceType
 }: MusicCarouselProps) => {
   return (
-    <div className={cn('w-full rounded-2xl h-fit relative', className)}>
+    <div className={cn('w-full  h-fit relative', className)}>
       <Carousel
         swipeable={true}
         draggable={true}
@@ -95,7 +95,7 @@ export const BannerCarousel = ({
         keyBoardControl={true}
         customTransition="all .7"
         transitionDuration={700}
-        containerClass="carousel-container rounded-2xl"
+        containerClass="carousel-container rounded-b-2xl"
         removeArrowOnDeviceType={['tablet', 'mobile']}
         deviceType={deviceType}
         dotListClass="custom-dot-list-style"
@@ -104,16 +104,16 @@ export const BannerCarousel = ({
         {slides.map((slide) => (
           <div
             key={slide.id}
-            className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden rounded-2xl"
+            className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden"
             style={{
               backgroundImage: `url(${slide.backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 rounded-2xl z-20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 rounded-b-2xl z-20" />
 
-            <div className="relative z-30 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24">
+            <div className="relative z-30 flex flex-col justify-center items-start h-full px-6 md:px-12 lg:px-24 container mx-auto">
               <div className="max-w-2xl space-y-6">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                   {slide.subtitle}
