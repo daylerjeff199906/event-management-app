@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 export const eventSchema = z
   .object({
+    id: z.string().optional(),
     event_name: z
       .string()
       .min(1, 'El nombre del evento es requerido')
@@ -10,8 +11,10 @@ export const eventSchema = z
     description: z.string().optional(),
     start_date: z.date('La fecha de inicio es requerida'),
     end_date: z.date().optional(),
-    time: z.string().optional(),
-    duration: z.string().optional(),
+    created_at: z.date().optional(),
+    updated_at: z.date().optional(),
+    time: z.date().optional(),
+    duration: z.number().optional(),
     cover_image_url: z.string().optional(),
     status: z
       .enum([EventStatus.DRAFT, EventStatus.PUBLIC, EventStatus.DELETE])
@@ -20,7 +23,11 @@ export const eventSchema = z
     institution_id: z.string().optional(),
     user_id: z.string().optional(),
     author_id: z.string().optional(),
-    adress_uuid: z.string().optional()
+    address_uuid: z.string().optional(),
+    is_recurring: z.boolean().optional(),
+    recurrence_pattern: z.string().optional(),
+    recurrence_interval: z.number().optional(),
+    recurrence_end_date: z.date().optional()
   })
   .refine(
     (data) => {
