@@ -3,14 +3,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  CalendarIcon,
-  MapPinIcon,
-  GlobeIcon,
-  ClockIcon,
-  ExternalLink,
-  Loader
-} from 'lucide-react'
+import { CalendarIcon, ExternalLink, Loader } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -25,7 +18,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -55,27 +47,6 @@ import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
 import { AITextarea } from './ai-textarea'
-
-const locationTypes = [
-  {
-    value: 'venue',
-    label: 'Venue',
-    icon: MapPinIcon,
-    description: 'Evento presencial en una ubicación específica'
-  },
-  {
-    value: 'online',
-    label: 'Online event',
-    icon: GlobeIcon,
-    description: 'Evento virtual o en línea'
-  },
-  {
-    value: 'tba',
-    label: 'To be announced',
-    icon: ClockIcon,
-    description: 'Ubicación por anunciar'
-  }
-]
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -146,8 +117,6 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
       setIsSubmitting(false)
     }
   }
-
-  const selectedLocationType = form.watch('location_type')
 
   return (
     <div className="max-w-2xl mx-auto p-2 md:p-6 space-y-8">
@@ -364,136 +333,6 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                         )
                       })}
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Ubicación */}
-          <Card className="shadow-none border border-gray-200 bg-white">
-            <CardHeader>
-              <CardTitle>¿Dónde se llevará a cabo tu evento?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="location_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex gap-2 flex-wrap">
-                        {locationTypes.map((type) => {
-                          const Icon = type.icon
-                          const isSelected = field.value === type.value
-                          return (
-                            <Button
-                              key={type.value}
-                              type="button"
-                              variant={isSelected ? 'default' : 'outline'}
-                              className="flex-1 h-auto p-3"
-                              onClick={() => field.onChange(type.value)}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Icon className="h-4 w-4" />
-                                <span>{type.label}</span>
-                              </div>
-                            </Button>
-                          )
-                        })}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {selectedLocationType === 'venue' && (
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="relative">
-                          <MapPinIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Location *"
-                            className="pl-10"
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {selectedLocationType === 'online' && (
-                <FormField
-                  control={form.control}
-                  name="location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          placeholder="Meeting link or platform details"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {selectedLocationType === 'venue' && (
-                <div className="space-y-2">
-                  <Button variant="ghost" size="sm" className="text-blue-600">
-                    <MapPinIcon className="h-4 w-4 mr-1" />
-                    Add location details
-                  </Button>
-
-                  {/* Placeholder para el mapa */}
-                  <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
-                      <p>Map will appear here</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* URL de imagen de portada */}
-          <Card className="shadow-none border border-gray-200 bg-white">
-            <CardHeader>
-              <CardTitle>Agrega una imagen de portada para tu evento</CardTitle>
-              <CardDescription>
-                Esta imagen se utilizará en la página del evento y en las
-                promociones. Asegúrate de que sea atractiva y relevante.
-                (Opcional)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="cover_image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="https://example.com/image.jpg"
-                        type="url"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Debe ser una URL válida que termine en .jpg, .png, etc.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

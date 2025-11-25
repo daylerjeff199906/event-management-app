@@ -17,13 +17,11 @@ export default async function Page(props: PageProps) {
   const categories = await fetchCategories()
 
   return (
-    <>
-      <EventsCreateForm
-        authorId={user?.user?.id}
-        institutionId={institutionId!}
-        urlReturn={APP_URL.ORGANIZATION.INSTITUTION.EVENTS(institutionId!)}
-        categories={categories || []}
-      />
-    </>
+    <EventsCreateForm
+      authorId={user?.user?.id}
+      institutionId={institutionId!}
+      urlReturn={APP_URL.ORGANIZATION.INSTITUTION.EVENTS(institutionId!)}
+      categories={categories || []}
+    />
   )
 }
