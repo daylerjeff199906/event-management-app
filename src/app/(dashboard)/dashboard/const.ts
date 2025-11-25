@@ -26,15 +26,15 @@ export const menuDashboard: SectionElement[] = [
         },
         submenus: []
       },
-      {
-        menu: {
-          id: 3,
-          name: 'Mis favoritos',
-          url: APP_URL.DASHBOARD.FAVORITES,
-          icon: 'Heart'
-        },
-        submenus: []
-      }
+      // {
+      //   menu: {
+      //     id: 3,
+      //     name: 'Mis favoritos',
+      //     url: APP_URL.DASHBOARD.FAVORITES,
+      //     icon: 'Heart'
+      //   },
+      //   submenus: []
+      // }
     ]
   },
   {
