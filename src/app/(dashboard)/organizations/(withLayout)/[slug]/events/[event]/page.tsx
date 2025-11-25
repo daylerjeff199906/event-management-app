@@ -1,7 +1,6 @@
 import { EventsEditForm } from '@/modules/events'
 import { fetchCategories } from '@/services/categories.services'
 import { fetchEventById } from '@/services/events.services'
-import { getAddressById } from '@/services/address.services'
 import { Params } from '@/types'
 
 interface PageProps {
@@ -21,14 +20,11 @@ export default async function Page(props: PageProps) {
     return <div>Error loading event data.</div>
   }
 
-  const addressData = await getAddressById(response.data.address_uuid || '')
-
   return (
     <EventsEditForm
       institutionId={institutionId!}
       categories={categories}
       eventData={response.data}
-      eventAddress={addressData.data || null}
     />
   )
 }

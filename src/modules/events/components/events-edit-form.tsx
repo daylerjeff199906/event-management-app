@@ -3,14 +3,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  CalendarIcon,
-  MapPinIcon,
-  GlobeIcon,
-  ClockIcon,
-  Loader,
-  Pin
-} from 'lucide-react'
+import { CalendarIcon, Loader } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -25,7 +18,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -48,36 +40,12 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { eventSchema, type EventFormData } from '@/modules/events/schemas'
-import { Address, Category, Event, EventStatus } from '@/types'
+import { Category, Event, EventStatus } from '@/types'
 import { updateEvent, updateEventField } from '@/services/events.services'
-import { upsertAddress } from '@/services/address.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
-import SearchLocation from '@/components/app/miscellaneous/search-location'
-import { AddressForm } from './address-form'
 import { AITextarea } from './ai-textarea'
-
-const locationTypes = [
-  {
-    value: 'venue',
-    label: 'Presencial',
-    icon: MapPinIcon,
-    description: 'Evento presencial en una ubicación específica'
-  },
-  {
-    value: 'online',
-    label: 'En línea',
-    icon: GlobeIcon,
-    description: 'Evento virtual o en línea'
-  },
-  {
-    value: 'tba',
-    label: 'Por anunciar',
-    icon: ClockIcon,
-    description: 'Ubicación por anunciar'
-  }
-]
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -85,24 +53,11 @@ interface EventsCreateFormProps {
   urlReturn?: string
   categories?: Category[]
   eventData: Event
-  eventAddress?: Address | null
 }
 
 export const EventsEditForm = (props: EventsCreateFormProps) => {
-  const {
-    institutionId,
-    urlReturn,
-    authorId,
-    categories,
-    eventData,
-    eventAddress
-  } = props
+  const { institutionId, urlReturn, authorId, categories, eventData } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showMoreLocationOptions, setShowMoreLocationOptions] =
-    useState<boolean>(
-      eventData.location_type === 'venue' && !!eventAddress ? false : true
-    )
-  const [loadingAddress, setLoadingAddress] = useState(false)
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -114,14 +69,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         ? new Date(eventData.start_date)
         : undefined,
       end_date: eventData?.end_date ? new Date(eventData.end_date) : undefined,
-      location: eventData?.location || '',
-      location_type: eventData?.location_type || 'venue',
       cover_image_url: eventData?.cover_image_url || '',
       category: eventData?.category || undefined,
-      status: eventData?.status || EventStatus.DRAFT,
-      lat: eventData?.lat || null,
-      lon: eventData?.lon || null,
-      link_meeting: eventData?.link_meeting || ''
+      status: eventData?.status || EventStatus.DRAFT
     }
   })
 
@@ -174,50 +124,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     }
   }
 
-  const onSubmitAddress = async (address: Address) => {
-    setLoadingAddress(true)
-    try {
-      const response = eventAddress?.id
-        ? await upsertAddress({
-            id: eventAddress.id,
-            address: address,
-            eventId: eventData.id
-          })
-        : await upsertAddress({
-            id: null,
-            address: address,
-            eventId: eventData.id
-          })
-
-      if (response.error) {
-        toast.error(
-          <ToastCustom
-            title="Error"
-            description={`No se pudo guardar la dirección: ${response.error.message}`}
-            variant="destructive"
-          />
-        )
-      } else {
-        toast.success(
-          <ToastCustom
-            title="Éxito"
-            description="La dirección ha sido guardada correctamente."
-          />
-        )
-      }
-    } catch (error) {
-      console.error('Error al guardar dirección:', error)
-      toast.error(
-        <ToastCustom
-          title="Error"
-          description="Ocurrió un error inesperado al guardar la dirección."
-          variant="destructive"
-        />
-      )
-    }
-    setLoadingAddress(false)
-  }
-
   const onImageChange = async (imageUrl: string) => {
     form.setValue('cover_image_url', imageUrl, { shouldDirty: true })
     try {
@@ -253,8 +159,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       )
     }
   }
-
-  const selectedLocationType = form.watch('location_type')
 
   return (
     <div className="p-2 md:p-6 space-y-8">
@@ -540,182 +444,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
-
-          {/* Ubicación */}
-          <Card className="shadow-none border border-gray-200 bg-white">
-            <CardHeader>
-              <CardTitle>¿Dónde se llevará a cabo tu evento?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="location_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex flex-wrap gap-2">
-                        {locationTypes.map((type) => {
-                          const Icon = type.icon
-                          const isSelected = field.value === type.value
-                          return (
-                            <Button
-                              key={type.value}
-                              type="button"
-                              variant={isSelected ? 'default' : 'outline'}
-                              className="flex-1 h-auto p-3"
-                              onClick={() => field.onChange(type.value)}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Icon className="h-4 w-4" />
-                                <span>{type.label}</span>
-                              </div>
-                            </Button>
-                          )
-                        })}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {selectedLocationType === 'venue' && (
-                <div className="space-y-4">
-                  {/* Opción para ingresar dirección manualmente */}
-                  {showMoreLocationOptions ? (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Dirección del evento</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ingresa la dirección del evento"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Puedes escribir la dirección manualmente o
-                              buscarla en el mapa.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-blue-600"
-                        onClick={() => setShowMoreLocationOptions(false)}
-                      >
-                        <Pin className="mr-1" />
-                        Buscar y configurar dirección avanzada
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      {/* Buscador y configuración avanzada de dirección */}
-                      <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Buscar dirección</FormLabel>
-                            <FormControl>
-                              <div className="flex flex-col gap-2 relative">
-                                <SearchLocation
-                                  className="w-full"
-                                  onSelect={(address, lat, lon) => {
-                                    field.onChange(address)
-                                    form.setValue('lat', lat)
-                                    form.setValue('lon', lon)
-                                  }}
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                  Dirección seleccionada:{' '}
-                                  {form.getValues('location')}
-                                </p>
-                              </div>
-                            </FormControl>
-                            <FormDescription>
-                              Busca la dirección en el mapa y podrás
-                              configurarla con más detalles.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {/* Mapa de ubicación */}
-                      {form.watch('lat') && form.watch('lon') ? (
-                        <iframe
-                          title="Ubicación en el mapa"
-                          src={`https://maps.google.com/maps?q=${form.watch(
-                            'lat'
-                          )},${form.watch('lon')}&z=15&output=embed`}
-                          className="w-full h-48 rounded-lg border"
-                          allowFullScreen
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                          <div className="text-center text-muted-foreground">
-                            <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
-                            <p>
-                              El mapa aparecerá aquí al seleccionar una
-                              dirección
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {/* Formulario avanzado para configurar información extra de la dirección */}
-                      <AddressForm
-                        defaultValues={eventAddress || undefined}
-                        onSubmit={(address) => onSubmitAddress(address)}
-                        isLoading={loadingAddress}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-blue-600 mt-2"
-                        onClick={() => setShowMoreLocationOptions(true)}
-                      >
-                        <MapPinIcon className="mr-1" />
-                        Volver a ingresar dirección manualmente
-                      </Button>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {selectedLocationType === 'online' && (
-                <FormField
-                  control={form.control}
-                  name="link_meeting"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Enlace de acceso en línea</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Ingresa el link de acceso (Zoom, Meet, etc.)"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="mt-1">
-                        Si el evento es en línea y tiene más de un enlace de
-                        acceso, puedes agregar los enlaces adicionales en la
-                        descripción del evento.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
             </CardContent>
           </Card>
 
