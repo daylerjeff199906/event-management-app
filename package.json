@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.14",
+    "@getbrevo/brevo": "^3.0.1",
     "@hookform/resolvers": "^5.2.1",
     "@origin-space/image-cropper": "^0.1.9",
     "@radix-ui/react-alert-dialog": "^1.1.15",

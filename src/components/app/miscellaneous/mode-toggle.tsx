@@ -9,10 +9,15 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  TooltipProvider,
+  TooltipProvider
 } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 
-export function ModeToggle() {
+interface ModeToggleProps {
+  variant?: 'light' | 'default'
+}
+
+export function ModeToggle({ variant = 'default' }: ModeToggleProps) {
   const { setTheme, theme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
@@ -33,9 +38,19 @@ export function ModeToggle() {
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           >
             {resolvedTheme === 'dark' ? (
-              <SunIcon className="w-4 h-4" />
+              <SunIcon
+                className={cn(
+                  'w-4 h-4',
+                  variant === 'light' && 'text-gray-200'
+                )}
+              />
             ) : (
-              <MoonIcon className="w-4 h-4" />
+              <MoonIcon
+                className={cn(
+                  'w-4 h-4',
+                  variant === 'light' && 'text-gray-200'
+                )}
+              />
             )}
             <span className="sr-only">Switch Theme</span>
           </Button>

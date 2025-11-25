@@ -50,7 +50,7 @@ export async function getUsersPagintion({
   let queryBuilder = supabase
     .from('users')
     .select('*', { count: 'exact' })
-    .range((page - 1) * (pageSize || 10), page * (pageSize || 10) - 1)
+    .range((page - 1) * (pageSize || 20), page * (pageSize || 20) - 1)
   if (query) {
     queryBuilder = queryBuilder.ilike('user.email', `%${query}%`)
   }

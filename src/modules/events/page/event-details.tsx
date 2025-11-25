@@ -73,7 +73,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </Breadcrumb>
       </div>
       <div className="w-full max-w-6xl mx-auto px-4 pt-4">
-        {/* Hero Image */}
+        {/* Hero Image con gradiente */}
         <div className="relative w-full h-80 mb-6 rounded-2xl overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
           <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
