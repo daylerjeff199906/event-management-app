@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { APP_URL } from '@/data/config-app-url'
 import { AdvancedFilterHorizontal } from '@/components/app/miscellaneous/advanced-filter-horizontal'
+import { Plus } from 'lucide-react'
 interface InstitutionEventsHeaderProps {
   className?: string
   institutionId?: string
@@ -41,6 +42,7 @@ export const InstitutionEventsHeader = ({
             className="flex items-center gap-2"
           >
             Agregar Evento
+            <Plus className="size-4" />
           </Button>
         </div>
       </div>
