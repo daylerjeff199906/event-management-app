@@ -46,7 +46,7 @@ import { createEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
-import { AITextarea } from './ai-textarea'
+import { Textarea } from '@/components/ui/textarea'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -170,10 +170,12 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
           {/* Descripción */}
           <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
-              <CardTitle>Descripción del evento</CardTitle>
+              <CardTitle>
+                ¿Puedes describir brevemente de qué trata tu evento?
+              </CardTitle>
               <CardDescription>
-                Proporciona más detalles sobre tu evento para ayudar a los
-                asistentes a entender qué pueden esperar.
+                Proporciona una descripción clara y concisa para atraer a los
+                asistentes potenciales.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -183,9 +185,9 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <AITextarea
-                        placeholder="Describe a las personas qué pueden esperar de tu evento..."
-                        className="min-h-[100px]"
+                      <Textarea
+                        placeholder="Descripción del evento"
+                        className="text-lg min-h-[120px]"
                         {...field}
                       />
                     </FormControl>
