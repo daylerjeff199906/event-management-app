@@ -1,6 +1,6 @@
 import {
+  ActionCardSection,
   EventCards,
-  HeroPage,
   MainActions,
   QuickFilters
 } from '@/modules/dashboard/pages'
@@ -17,7 +17,7 @@ export default async function HomePage() {
   return (
     <>
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <HeroPage institutionsCount={responseData?.length} />
+        <ActionCardSection withInstitution={responseData.length > 0} />
         <MainActions />
         <QuickFilters categories={categories || []} />
         <EventCards />
