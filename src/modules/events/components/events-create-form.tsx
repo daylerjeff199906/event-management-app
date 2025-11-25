@@ -66,7 +66,6 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
     defaultValues: {
       event_name: '',
       description: '',
-      location: '',
       cover_image_url: '',
       status: EventStatus.DRAFT,
       category: undefined
