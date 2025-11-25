@@ -7,11 +7,6 @@ export const APP_URL = {
     },
     INSTITUTION_REQUEST: '/institution-request'
   },
-  PROFILE: {
-    URL_BASE: '/profile',
-    SETTINGS: '/profile/settings',
-    ONBOARDING: '/onboarding'
-  },
   AUTH: {
     LOGIN: '/login',
     FORGOT_PASSWORD: '/forgot-password',

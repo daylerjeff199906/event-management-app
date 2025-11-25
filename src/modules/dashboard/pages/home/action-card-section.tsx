@@ -1,6 +1,7 @@
 'use client'
 import { Search, Plus, User, Building, Settings } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { APP_URL } from '@/data/config-app-url'
 
 interface ActionItem {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
@@ -16,7 +17,7 @@ const actions: ActionItem[] = [
     title: 'Ver eventos',
     description: 'Explora todos los eventos disponibles',
     enabled: true,
-    url: '/eventos'
+    url: APP_URL.DASHBOARD.EVENTS.BASE
   },
   {
     icon: Plus,
@@ -35,14 +36,14 @@ const actions: ActionItem[] = [
     title: 'Instituciones',
     description: 'Descubre organizaciones y lugares',
     enabled: true,
-    url: '/instituciones'
+    url: APP_URL.ORGANIZATION.BASE
   },
   {
     icon: Settings,
     title: 'Configurar perfil',
     description: 'Personaliza tu cuenta y preferencias',
     enabled: true,
-    url: '/perfil'
+    url: APP_URL.DASHBOARD.PROFILE
   }
 ]
 

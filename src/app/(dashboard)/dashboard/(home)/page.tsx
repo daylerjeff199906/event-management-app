@@ -1,7 +1,6 @@
 import {
   ActionCardSection,
   EventCards,
-  MainActions,
   QuickFilters
 } from '@/modules/dashboard/pages'
 import { fetchCategories } from '@/services/categories.services'
@@ -18,7 +17,6 @@ export default async function HomePage() {
     <>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <ActionCardSection withInstitution={responseData.length > 0} />
-        <MainActions />
         <QuickFilters categories={categories || []} />
         <EventCards />
         {/* <EventInspiration /> */}
