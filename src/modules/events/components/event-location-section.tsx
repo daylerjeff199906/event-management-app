@@ -40,7 +40,7 @@ export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
   }, [eventMode])
 
   return (
-    <Card className="shadow-none border border-gray-200 bg-white">
+    <Card className="shadow-none border border-gray-200">
       <CardHeader>
         <CardTitle>¿Dónde se realizará tu evento?</CardTitle>
         <CardDescription>

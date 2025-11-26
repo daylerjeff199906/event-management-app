@@ -58,7 +58,7 @@ export function EventManageLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Overlay para móvil */}
       {sidebarOpen && (
         <div
@@ -70,7 +70,7 @@ export function EventManageLayout({
       {/* Sidebar */}
       <aside
         className={cn(
-          'sticky left-0 top-0 lg:top-14 z-50 h-fit w-80 transform bg-white border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:z-auto',
+          'sticky left-0 top-0 lg:top-14 z-50 h-fit w-80 transform  border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:z-auto',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -116,7 +116,7 @@ export function EventManageLayout({
                             'w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0',
                             isActive
                               ? 'bg-primary border-primary'
-                              : 'border-gray-300 bg-white'
+                              : 'border-gray-300 bg-white dark:bg-gray-800'
                           )}
                         >
                           {isActive && (
@@ -129,15 +129,15 @@ export function EventManageLayout({
                             className={cn(
                               'font-medium text-sm',
                               isActive || isCompleted
-                                ? 'text-gray-900'
-                                : 'text-gray-400'
+                                ? 'text-gray-900 dark:text-gray-100'
+                                : 'text-gray-400 dark:text-gray-500'
                             )}
                           >
                             {item.label}
                           </h4>
 
                           {isActive && item.description && (
-                            <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
                               {item.description}
                             </p>
                           )}
@@ -150,7 +150,7 @@ export function EventManageLayout({
             </div>
           </div>
 
-          <div className="lg:hidden p-4 border-t border-gray-200 mt-auto">
+          <div className="lg:hidden p-4 border-t border-gray-200 dark:border-gray-700 mt-auto">
             <Button
               variant="outline"
               onClick={() => setSidebarOpen(false)}
