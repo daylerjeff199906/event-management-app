@@ -212,21 +212,21 @@ export const adminMenu: SectionElement[] = [
       }
     ]
   },
-  {
-    section: {
-      id: 4,
-      name: 'Configuración'
-    },
-    menus: [
-      {
-        menu: {
-          id: 5,
-          name: 'Configuración',
-          url: APP_URL.ADMIN.SETTINGS,
-          icon: 'Settings'
-        },
-        submenus: []
-      }
-    ]
-  }
+  // {
+  //   section: {
+  //     id: 4,
+  //     name: 'Configuración'
+  //   },
+  //   menus: [
+  //     {
+  //       menu: {
+  //         id: 5,
+  //         name: 'Configuración',
+  //         url: APP_URL.ADMIN.SETTINGS,
+  //         icon: 'Settings'
+  //       },
+  //       submenus: []
+  //     }
+  //   ]
+  // }
 ]
