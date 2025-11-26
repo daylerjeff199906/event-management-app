@@ -3,7 +3,17 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, Globe, Heart, Share, Clock1 } from 'lucide-react'
+import {
+  Calendar,
+  Clock,
+  Globe,
+  Heart,
+  Share,
+  Clock1,
+  MapPin,
+  Video,
+  Repeat
+} from 'lucide-react'
 import { EventItemDetails } from '@/types'
 import EventStickyBanner from './event-sticky-banner'
 import {
@@ -18,6 +28,7 @@ import { APP_URL } from '@/data/config-app-url'
 import { useState } from 'react'
 import { PhotoProvider, PhotoView } from 'react-photo-view'
 import 'react-photo-view/dist/react-photo-view.css'
+import { EventMode } from '../schemas'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -71,6 +82,22 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
     // ... otras imágenes del evento
   ].filter(Boolean)
 
+  // Determinar el modo del evento
+  const getEventModeInfo = () => {
+    switch (event.event_mode) {
+      case EventMode.VIRTUAL:
+        return { label: 'En línea', icon: Globe }
+      case EventMode.PRESENCIAL:
+        return { label: 'Presencial', icon: MapPin }
+      case EventMode.HIBRIDO:
+        return { label: 'Híbrido', icon: Video }
+      default:
+        return null
+    }
+  }
+
+  const eventModeInfo = getEventModeInfo()
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-4">
@@ -103,9 +130,26 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         {/* Event Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start gap-4 mb-8">
           <div className="flex-1 w-full">
-            <p className="text-muted-foreground mb-2">
-              {formatDate(event.start_date)}
-            </p>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <p className="text-muted-foreground">
+                {formatDate(event.start_date)}
+              </p>
+              {/* Badge de evento recurrente */}
+              {event.is_recurring && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Repeat className="w-3 h-3" />
+                  Recurrente
+                </Badge>
+              )}
+              {/* Badge de evento destacado */}
+              {/* {event.is_featured && (
+                <Badge variant="default" className="bg-yellow-500 flex items-center gap-1">
+                  <Star className="w-3 h-3" />
+                  Destacado
+                </Badge>
+              )} */}
+            </div>
+
             <h1 className="text-2xl lg:text-3xl font-bold text-balance mb-4">
               {event.event_name}
             </h1>
@@ -258,25 +302,78 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                 <Calendar className="w-5 h-5 flex-shrink-0" />
                 <span className="break-words">
                   {formatDate(event.start_date)}
-                  {event.end_date ? ` - ${formatTime(event.end_date)}` : ''}
+                  {event.end_date ? ` - ${formatDate(event.end_date)}` : ''}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <Clock1 className="w-5 h-5 flex-shrink-0" />
                 <span className="break-words">
                   {event?.time ? formatTime(event?.time) : 'No indicado'}
-                  {event?.duration ? ` · ${event.duration}` : ''}
+                  {event?.duration ? ` · ${event.duration} minutos` : ''}
                 </span>
               </div>
+
+              {/* Información de recurrencia */}
+              {event.is_recurring && event.recurrence_pattern && (
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <Repeat className="w-5 h-5 flex-shrink-0" />
+                  <span className="break-words">
+                    Patrón: {event.recurrence_pattern}
+                    {event.recurrence_interval &&
+                      ` cada ${event.recurrence_interval} días`}
+                    {event.recurrence_end_date &&
+                      ` hasta ${formatDate(event.recurrence_end_date)}`}
+                  </span>
+                </div>
+              )}
             </section>
 
             {/* Location */}
             <section>
               <h2 className="font-semibold text-lg mb-4">Ubicación</h2>
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <Globe className="w-5 h-5 flex-shrink-0" />
-                <span>En línea</span>
-              </div>
+
+              {/* Modo del evento */}
+              {eventModeInfo && (
+                <div className="flex items-center gap-3 text-muted-foreground mb-3">
+                  <eventModeInfo.icon className="w-5 h-5 flex-shrink-0" />
+                  <span>{eventModeInfo.label}</span>
+                </div>
+              )}
+
+              {/* Ubicación personalizada */}
+              {event.custom_location && (
+                <div className="flex items-center gap-3 text-muted-foreground mb-3">
+                  <MapPin className="w-5 h-5 flex-shrink-0" />
+                  <span>{event.custom_location}</span>
+                </div>
+              )}
+
+              {/* Enlace de reunión para eventos online/híbridos */}
+              {event.meeting_url &&
+                (event.event_mode === EventMode.VIRTUAL ||
+                  event.event_mode === EventMode.HIBRIDO) && (
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <Video className="w-5 h-5 flex-shrink-0" />
+                    <a
+                      href={event.meeting_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Unirse a la reunión
+                    </a>
+                  </div>
+                )}
+
+              {/* Fallback para cuando no hay información de ubicación */}
+              {!eventModeInfo &&
+                !event.custom_location &&
+                !event.meeting_url && (
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <Globe className="w-5 h-5 flex-shrink-0" />
+                    <span>Ubicación no especificada</span>
+                  </div>
+                )}
             </section>
 
             {/* Good to Know */}
@@ -285,14 +382,23 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
               <div className="space-y-3">
                 <h3 className="font-medium mb-3">Destacados</h3>
                 <div className="space-y-2">
+                  {/* Duración del evento */}
                   <div className="flex items-center gap-3 text-muted-foreground">
                     <Clock className="w-4 h-4 flex-shrink-0" />
-                    <span>3 horas</span>
+                    <span>
+                      {event.duration
+                        ? `${event.duration} minutos`
+                        : 'Duración no especificada'}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-3 text-muted-foreground">
-                    <Globe className="w-4 h-4 flex-shrink-0" />
-                    <span>En línea</span>
-                  </div>
+
+                  {/* Evento recurrente */}
+                  {event.is_recurring && (
+                    <div className="flex items-center gap-3 text-muted-foreground">
+                      <Repeat className="w-4 h-4 flex-shrink-0" />
+                      <span>Evento recurrente</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -311,6 +417,30 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                 </div>
               </div>
             </section>
+
+            {/* Información adicional */}
+            {(event.created_at || event.updated_at) && (
+              <section>
+                <h2 className="font-semibold text-lg mb-4">
+                  Información adicional
+                </h2>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  {event.created_at && (
+                    <p>
+                      Creado:{' '}
+                      {new Date(event.created_at).toLocaleDateString('es-ES')}
+                    </p>
+                  )}
+                  {event.updated_at &&
+                    event.updated_at !== event.created_at && (
+                      <p>
+                        Actualizado:{' '}
+                        {new Date(event.updated_at).toLocaleDateString('es-ES')}
+                      </p>
+                    )}
+                </div>
+              </section>
+            )}
           </div>
 
           {/* Sidebar */}
