@@ -72,22 +72,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="w-full max-w-6xl mx-auto px-4 pt-4">
-        {/* Hero Image con gradiente */}
-        <div className="relative w-full h-80 mb-6 rounded-2xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
-          <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
-            <div className="text-center text-white px-4">
-              <h1 className="text-2xl sm:text-4xl font-semibold mb-2">
-                {event?.categorydata?.name || 'Evento'}
-              </h1>
-              <h2 className="text-3xl sm:text-6xl font-bold leading-tight">
-                {event.event_name}
-              </h2>
-            </div>
-          </div>
-        </div>
-      </div>
+
       <div className="max-w-4xl mx-auto px-4 py-8 w-full grid grid-cols-1 gap-8">
         {/* Event Header */}
         <div className="flex justify-between items-start mb-8">
