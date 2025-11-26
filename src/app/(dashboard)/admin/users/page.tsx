@@ -3,6 +3,7 @@ import { UsersTableList } from '@/modules/core/components'
 import { getUsersPagintion } from '@/services/user.roles.services'
 import { SearchParams } from '@/types'
 import { getSupabase } from '@/services/core.supabase'
+import { getUserById } from '@/services/user.roles.services'
 
 interface PageProps {
   searchParams: SearchParams
@@ -30,7 +31,8 @@ export default async function Page(props: PageProps) {
     )
   }
 
-  const isAdmin = user?.user?.role?.includes('ADMIN') || false
+  const currentUser = await getUserById(user?.user?.id || '')
+  const isAdmin = currentUser?.role?.includes('ADMIN')
 
   return (
     <>
