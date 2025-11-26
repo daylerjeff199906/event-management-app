@@ -30,11 +30,11 @@ export default async function Page(props: PageProps) {
     )
   }
 
-  const isAdmin = user?.user?.role?.toUpperCase() === 'ADMIN'
+  const isAdmin = user?.user?.role?.includes('ADMIN') || false
 
   return (
     <>
-      <UsersTableList isAdmin={isAdmin} users={userList.users} />
+      <UsersTableList showActions={isAdmin} users={userList.users} />
     </>
   )
 }

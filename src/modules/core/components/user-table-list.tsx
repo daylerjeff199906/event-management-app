@@ -17,15 +17,13 @@ interface UsersTableProps {
   currentUserId?: string
   showActions?: boolean
   onEditUser?: (user: IUser) => void
-  isAdmin?: boolean
 }
 
 export function UsersTableList({
   users,
   currentUserId,
   showActions = false,
-  onEditUser,
-  isAdmin
+  onEditUser
 }: UsersTableProps) {
   const getInitials = (firstName: string, lastName: string) => {
     const firstInitial = firstName?.charAt(0) || ''
