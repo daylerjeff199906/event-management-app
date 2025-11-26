@@ -1,16 +1,9 @@
+'use client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import {
-  Calendar,
-  Clock,
-  Globe,
-  Heart,
-  Share,
-  Flag,
-  Clock1
-} from 'lucide-react'
+import { Calendar, Clock, Globe, Heart, Share, Clock1 } from 'lucide-react'
 import { EventItemDetails } from '@/types'
 import EventStickyBanner from './event-sticky-banner'
 import {
@@ -155,19 +148,22 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                         <div
                           className={`relative cursor-pointer overflow-hidden rounded-lg bg-gray-200 ${
                             eventImages.length === 1
-                              ? 'aspect-video'
+                              ? 'h-[400px]'
                               : eventImages.length === 2
-                              ? 'aspect-square'
+                              ? 'h-[300px]'
                               : index === 0
-                              ? 'aspect-video'
-                              : 'aspect-square'
+                              ? 'h-[400px]'
+                              : 'h-[200px]'
                           }`}
                         >
-                          <img
-                            src={image!}
-                            alt={`${event.event_name} - Imagen ${index + 1}`}
-                            className="w-full h-full object-cover transition-transform hover:scale-105"
-                          />
+                          <div className="w-full h-full flex items-center justify-center p-2">
+                            <img
+                              src={image!}
+                              alt={`${event.event_name} - Imagen ${index + 1}`}
+                              className="max-w-full max-h-full object-cover transition-transform hover:scale-105 rounded-md"
+                            />
+                          </div>
+
                           {eventImages.length > 1 &&
                             index === 0 &&
                             eventImages.length > 2 && (
@@ -385,18 +381,6 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
             </div>
           </Card>
         </section>
-
-        {/* Report Event */}
-        <div className="flex justify-center mt-8">
-          <Button
-            variant="ghost"
-            className="text-muted-foreground hover:text-blue-700"
-            size="sm"
-          >
-            <Flag className="w-4 h-4 mr-2" />
-            Reportar este evento
-          </Button>
-        </div>
       </div>
     </div>
   )
