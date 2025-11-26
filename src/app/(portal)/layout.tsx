@@ -1,4 +1,4 @@
-import { Footer } from '@/components/app/panel-admin/footer'
+import { FooterPortal } from '@/components/app/panel-admin/footer-portal'
 import { APP_URL } from '@/data/config-app-url'
 import { NavbarCustom } from '@/modules/portal/components'
 import { fetchCategories } from '@/services/categories.services'
@@ -27,7 +27,7 @@ export default async function Layout({ children }: LayoutProps) {
         }}
       />
       {children}
-      <Footer disabledOpen />
+      <FooterPortal />
     </>
   )
 }
