@@ -30,7 +30,7 @@ export default async function Page(props: PageProps) {
         currentUserId={user?.user?.id || undefined}
         isOwner={usersData?.some(
           (userRole) =>
-            userRole.role === 'institution_owner' &&
+            userRole.role.toLocaleUpperCase() === 'INSTITUTION_OWNER' &&
             userRole.user_id === user?.user?.id
         )}
       />

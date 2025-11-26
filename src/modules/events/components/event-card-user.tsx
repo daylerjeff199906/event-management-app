@@ -55,7 +55,7 @@ export function EventCardUser({
           <img
             src={event.cover_image_url || '/placeholder.svg'}
             alt={event.event_name}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 object-top"
           />
         ) : (
           <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">

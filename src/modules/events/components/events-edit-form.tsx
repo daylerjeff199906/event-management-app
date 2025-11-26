@@ -39,6 +39,26 @@ import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
 import { Textarea } from '@/components/ui/textarea'
 import { EventLocationSection } from './event-location-section'
+import { formatDate } from 'date-fns'
+import { es } from 'date-fns/locale'
+
+const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
+  if (!dateValue) return undefined
+
+  const [hours, minutes] = time.split(':').map((value) => Number(value) || 0)
+
+  const updatedDate = new Date(dateValue)
+
+  updatedDate.setHours(hours, minutes, 0, 0)
+
+  return updatedDate
+}
+
+const formatDateForInput = (date: Date | undefined) => {
+  if (!date) return ''
+
+  return date.toISOString().split('T')[0]
+}
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -96,19 +116,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const startDate = form.watch('start_date')
   const endDate = form.watch('end_date')
   const recurrencePattern = form.watch('recurrence_pattern')
-
-  const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
-    if (!dateValue) return undefined
-    const [hours, minutes] = time.split(':').map((value) => Number(value) || 0)
-    const updatedDate = new Date(dateValue)
-    updatedDate.setHours(hours, minutes, 0, 0)
-    return updatedDate
-  }
-
-  const formatDateForInput = (date: Date | undefined) => {
-    if (!date) return ''
-    return format(date, 'yyyy-MM-dd')
-  }
 
   useEffect(() => {
     if (!showEndDate) {
@@ -252,7 +259,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* URL de imagen de portada */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border">
             <CardHeader>
               <CardTitle>Agrega una imagen de portada para tu evento</CardTitle>
               <CardDescription>
@@ -271,7 +278,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Nombre del evento */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>¿Cuál es el nombre de tu evento?</CardTitle>
               <CardDescription>
@@ -301,7 +308,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Descripción */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>Descripción del evento</CardTitle>
               <CardDescription>
@@ -330,7 +337,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Fechas */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>¿Cuándo inicia y termina tu evento?</CardTitle>
             </CardHeader>
@@ -346,36 +353,46 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                         <FormControl>
                           <Input
                             type="date"
-                            value={formatDateForInput(field.value)}
+                            value={
+                              field.value ? formatDateForInput(field.value) : ''
+                            }
                             onChange={(e) => {
                               const selectedDate = e.target.value
                                 ? new Date(e.target.value)
                                 : undefined
-                              const timeString = field.value
-                                ? format(field.value, 'HH:mm')
-                                : '00:00'
-                              const updatedDate = mergeDateWithTime(
-                                selectedDate,
-                                timeString
-                              )
-                              field.onChange(updatedDate)
+                              // Preservar la hora actual si existe
+                              if (field.value && selectedDate) {
+                                const currentTime = format(field.value, 'HH:mm')
+                                const updatedDate = mergeDateWithTime(
+                                  selectedDate,
+                                  currentTime
+                                )
+                                field.onChange(updatedDate)
+                              } else {
+                                field.onChange(selectedDate)
+                              }
                             }}
-                            min={format(new Date(), 'yyyy-MM-dd')}
+                            min={formatDate(new Date(), 'yyyy-MM-dd', {
+                              locale: es
+                            })}
                           />
                         </FormControl>
                         <FormControl>
                           <Input
                             type="time"
                             value={
-                              field.value ? format(field.value, 'HH:mm') : ''
+                              field.value
+                                ? format(field.value, 'HH:mm')
+                                : '00:00'
                             }
-                            disabled={!field.value}
                             onChange={(e) => {
-                              const updatedDate = mergeDateWithTime(
-                                field.value,
-                                e.target.value
-                              )
-                              field.onChange(updatedDate)
+                              if (field.value) {
+                                const updatedDate = mergeDateWithTime(
+                                  field.value,
+                                  e.target.value || '00:00'
+                                )
+                                field.onChange(updatedDate)
+                              }
                             }}
                           />
                         </FormControl>
@@ -406,25 +423,35 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                             <FormControl>
                               <Input
                                 type="date"
-                                value={formatDateForInput(
-                                  field.value || undefined
-                                )}
+                                value={
+                                  field.value
+                                    ? formatDateForInput(field.value)
+                                    : ''
+                                }
                                 onChange={(e) => {
                                   const selectedDate = e.target.value
                                     ? new Date(e.target.value)
                                     : undefined
-                                  const timeString = field.value
-                                    ? format(field.value, 'HH:mm')
-                                    : '00:00'
-                                  const updatedDate = mergeDateWithTime(
-                                    selectedDate,
-                                    timeString
-                                  )
-                                  field.onChange(updatedDate)
+                                  // Preservar la hora actual si existe
+                                  if (field.value && selectedDate) {
+                                    const currentTime = format(
+                                      field.value,
+                                      'HH:mm'
+                                    )
+                                    const updatedDate = mergeDateWithTime(
+                                      selectedDate,
+                                      currentTime
+                                    )
+                                    field.onChange(updatedDate)
+                                  } else {
+                                    field.onChange(selectedDate)
+                                  }
                                 }}
                                 min={
                                   formatDateForInput(startDate) ||
-                                  format(new Date(), 'yyyy-MM-dd')
+                                  formatDate(new Date(), 'yyyy-MM-dd', {
+                                    locale: es
+                                  })
                                 }
                               />
                             </FormControl>
@@ -434,15 +461,16 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                                 value={
                                   field.value
                                     ? format(field.value, 'HH:mm')
-                                    : ''
+                                    : '00:00'
                                 }
-                                disabled={!field.value}
                                 onChange={(e) => {
-                                  const updatedDate = mergeDateWithTime(
-                                    field.value || undefined,
-                                    e.target.value
-                                  )
-                                  field.onChange(updatedDate)
+                                  if (field.value) {
+                                    const updatedDate = mergeDateWithTime(
+                                      field.value,
+                                      e.target.value || '00:00'
+                                    )
+                                    field.onChange(updatedDate)
+                                  }
                                 }}
                               />
                             </FormControl>
@@ -475,16 +503,25 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                         <Input
                           type="time"
                           value={
-                            field.value ? format(field.value, 'HH:mm') : ''
+                            field.value ? format(field.value, 'HH:mm') : '00:00'
                           }
                           onChange={(e) => {
-                            const timeString = e.target.value
-                            const currentDate = field.value || new Date()
-                            const updatedDate = mergeDateWithTime(
-                              currentDate,
-                              timeString
-                            )
-                            field.onChange(updatedDate)
+                            const timeValue = e.target.value || '00:00'
+                            // Si no hay fecha actual, crear una nueva con la hora
+                            if (!field.value) {
+                              const newDate = new Date()
+                              const updatedDate = mergeDateWithTime(
+                                newDate,
+                                timeValue
+                              )
+                              field.onChange(updatedDate)
+                            } else {
+                              const updatedDate = mergeDateWithTime(
+                                field.value,
+                                timeValue
+                              )
+                              field.onChange(updatedDate)
+                            }
                           }}
                         />
                       </FormControl>
@@ -525,7 +562,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           <EventLocationSection form={form} />
 
           {/* Evento recurrente */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>¿Es un evento recurrente?</CardTitle>
             </CardHeader>
@@ -618,9 +655,11 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           <FormControl>
                             <Input
                               type="date"
-                              value={formatDateForInput(
-                                field.value || undefined
-                              )}
+                              value={
+                                field.value
+                                  ? formatDateForInput(field.value)
+                                  : ''
+                              }
                               onChange={(e) => {
                                 const selectedDate = e.target.value
                                   ? new Date(e.target.value)
@@ -629,7 +668,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               }}
                               min={
                                 formatDateForInput(startDate) ||
-                                format(new Date(), 'yyyy-MM-dd')
+                                formatDate(new Date(), 'yyyy-MM-dd', {
+                                  locale: es
+                                })
                               }
                             />
                           </FormControl>
@@ -644,7 +685,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Categoría */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>Selecciona una categoría para tu evento</CardTitle>
               <CardDescription>
@@ -687,7 +728,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             </CardContent>
           </Card>
 
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>
                 ¿Quieres publicar el evento ahora o guardarlo como borrador?

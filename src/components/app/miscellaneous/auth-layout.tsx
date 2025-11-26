@@ -25,7 +25,7 @@ const DESCRIPTION =
 export function AuthLayout({
   children,
   subTitle = DESCRIPTION,
-  backgroundImage = configImages.BACKGROUND_DEFAULT.src,
+  backgroundImage = configImages.BACKGROUND_DEFAULT,
   gradientOpacity = 1,
   logoUrl = APP_CONFIG.logos.logoHorizontalDefault,
   logoAlt = 'Eventify',

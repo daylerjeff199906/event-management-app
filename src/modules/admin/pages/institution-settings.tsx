@@ -30,7 +30,8 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
       ? await updateInstitutionById(institutionData.id!.toString(), formData)
       : await createInstitution({
           ...formData,
-          status: InstitutionStatus.ACTIVE
+          status: InstitutionStatus.ACTIVE,
+          validation_status: 'approved'
         })
     setIsLoading(false)
 

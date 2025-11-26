@@ -37,6 +37,24 @@ export async function getfullUserRoleByInstitution(
   return data ?? []
 }
 
+export async function getUserRoleByIdInstitution(
+  userId: string,
+  institutionId: string
+): Promise<IUserRoleFull | null> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('*, user:user_id(*)')
+    .eq('user_id', userId)
+    .eq('institution_id', institutionId)
+    .single()
+  if (error) {
+    console.error('Error fetching user role by ID and institution:', error)
+    return null
+  }
+  return data as IUserRoleFull
+}
+
 export async function getUsersPagintion({
   page,
   pageSize,
@@ -60,6 +78,22 @@ export async function getUsersPagintion({
     return { users: [], total: 0 }
   }
   return { users: data ?? [], total: count ?? 0 }
+}
+
+export async function getUserById(
+  userId: string
+): Promise<IUser | null> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('users')
+    .select('*, user_roles(*)')
+    .eq('id', userId)
+    .single()
+  if (error) {
+    console.error('Error fetching user role by ID:', error)
+    return null
+  }
+  return data as IUser
 }
 
 export async function upsertUserRole({
