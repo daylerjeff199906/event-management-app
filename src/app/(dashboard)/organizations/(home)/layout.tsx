@@ -33,7 +33,7 @@ export default async function Layout(props: IProps) {
 
   if (!profile?.email) {
     // Si el perfil no tiene email, redirigir a la página de onboarding
-    redirect(APP_URL.PROFILE.ONBOARDING)
+    redirect(APP_URL.PORTAL.ONBOARDING)
   }
 
   const { data: institutions } = await supabase

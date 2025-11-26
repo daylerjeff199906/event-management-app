@@ -227,163 +227,165 @@ export function AdvancedFilterHorizontal({
   }).length
 
   return (
-    <div className="flex flex-wrap gap-2 w-fit md:items-end md:gap-4">
-      {/* Buscador Principal */}
-      {!hiddenSearchInput && (
-        <div className="flex gap-2">
-          <>
-            <div className="flex-1 relative rounded-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={
-                  searchFields.find((f) => f.key === searchField)
-                    ?.placeholder || 'Buscar...'
-                }
-                defaultValue={searchValue}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10 rounded-full"
-              />
-            </div>
-
-            {searchFields.length > 1 && (
-              <Select
-                value={searchField}
-                onValueChange={handleSearchFieldChange}
-              >
-                <SelectTrigger className="w-48 rounded-full">
-                  <SelectValue placeholder="Seleccionar campo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {searchFields.map((field) => (
-                    <SelectItem key={field.key} value={field.key}>
-                      {field.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </>
-        </div>
-      )}
-
-      {/* Filtros Activos */}
-      {!hiddenMoreFiltersButton && (
-        <div className="flex flex-wrap gap-4 items-end">
-          {filters.map((filter) => (
-            <div key={filter.key} className="flex flex-col gap-2">
-              <Label className="text-sm font-semibold">{filter.label}</Label>
-
-              {/* Text Input */}
-              {filter.type === 'text' && (
+    <div className="flex flex-col gap-2 w-fit md:gap-4">
+      <div className="flex flex-wrap gap-4 items-center w-full">
+        {/* Buscador Principal */}
+        {!hiddenSearchInput && (
+          <div className="flex gap-2 w-fit md:min-w-[300px] max-w-full">
+            <>
+              <div className="flex-1 relative rounded-full ">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={filter.placeholder}
-                  value={String(activeFilters[filter.key] ?? '')}
-                  onChange={(e) =>
-                    handleFilterChange(filter.key, e.target.value)
+                  placeholder={
+                    searchFields.find((f) => f.key === searchField)
+                      ?.placeholder || 'Buscar...'
                   }
-                  className="rounded-full"
+                  defaultValue={searchValue}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="pl-10 rounded-full"
                 />
-              )}
+              </div>
 
-              {/* Select */}
-              {filter.type === 'select' && filter.options && (
+              {searchFields.length > 1 && (
                 <Select
-                  value={
-                    typeof activeFilters[filter.key] === 'string'
-                      ? (activeFilters[filter.key] as string)
-                      : filter.defaultValue
-                      ? (filter.defaultValue as string)
-                      : ''
-                  }
-                  onValueChange={(value) =>
-                    handleFilterChange(filter.key, value)
-                  }
+                  value={searchField}
+                  onValueChange={handleSearchFieldChange}
                 >
-                  <SelectTrigger className="w-full rounded-full">
-                    <SelectValue placeholder={filter.placeholder} />
+                  <SelectTrigger className="w-48 rounded-full">
+                    <SelectValue placeholder="Seleccionar campo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {filter.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
+                    {searchFields.map((field) => (
+                      <SelectItem key={field.key} value={field.key}>
+                        {field.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
+            </>
+          </div>
+        )}
 
-              {/* Multi-Select */}
-              {filter.type === 'multiselect' && filter.options && (
-                <div className="flex flex-wrap gap-2">
-                  {filter.options.map((option) => (
-                    <label
-                      key={option.value}
-                      className="flex items-center space-x-2 bg-secondary px-4 py-2 rounded-full cursor-pointer hover:bg-opacity-80 transition-all"
-                    >
-                      <Checkbox
-                        id={`${filter.key}-${option.value}`}
-                        checked={
-                          Array.isArray(activeFilters[filter.key])
-                            ? (activeFilters[filter.key] as string[]).includes(
-                                option.value
-                              )
-                            : false
-                        }
-                        onCheckedChange={(checked) =>
-                          handleMultiSelectChange(
-                            filter.key,
-                            option.value,
-                            checked as boolean
-                          )
-                        }
-                      />
-                      <span className="text-sm font-medium">
-                        {option.label}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
+        {/* Filtros Activos */}
+        {!hiddenMoreFiltersButton && (
+          <div className="flex flex-wrap gap-4 items-end">
+            {filters.map((filter) => (
+              <div key={filter.key} className="flex flex-col gap-2">
+                <Label className="text-sm font-semibold">{filter.label}</Label>
 
-              {/* Date */}
-              {filter.type === 'date' && (
-                <Input
-                  type="date"
-                  value={String(activeFilters[filter.key] ?? '')}
-                  onChange={(e) =>
-                    handleFilterChange(filter.key, e.target.value)
-                  }
-                  className="rounded-full"
-                />
-              )}
-
-              {/* Date Range */}
-              {filter.type === 'daterange' && (
-                <div className="flex gap-2">
+                {/* Text Input */}
+                {filter.type === 'text' && (
                   <Input
-                    type="date"
-                    placeholder="Desde"
-                    value={String(activeFilters[`${filter.key}__gte`] ?? '')}
+                    placeholder={filter.placeholder}
+                    value={String(activeFilters[filter.key] ?? '')}
                     onChange={(e) =>
-                      handleFilterChange(`${filter.key}__gte`, e.target.value)
+                      handleFilterChange(filter.key, e.target.value)
                     }
                     className="rounded-full"
                   />
+                )}
+
+                {/* Select */}
+                {filter.type === 'select' && filter.options && (
+                  <Select
+                    value={
+                      typeof activeFilters[filter.key] === 'string'
+                        ? (activeFilters[filter.key] as string)
+                        : filter.defaultValue
+                        ? (filter.defaultValue as string)
+                        : ''
+                    }
+                    onValueChange={(value) =>
+                      handleFilterChange(filter.key, value)
+                    }
+                  >
+                    <SelectTrigger className="w-full rounded-full">
+                      <SelectValue placeholder={filter.placeholder} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filter.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                {/* Multi-Select */}
+                {filter.type === 'multiselect' && filter.options && (
+                  <div className="flex flex-wrap gap-2">
+                    {filter.options.map((option) => (
+                      <label
+                        key={option.value}
+                        className="flex items-center space-x-2 bg-secondary px-4 py-2 rounded-full cursor-pointer hover:bg-opacity-80 transition-all"
+                      >
+                        <Checkbox
+                          id={`${filter.key}-${option.value}`}
+                          checked={
+                            Array.isArray(activeFilters[filter.key])
+                              ? (
+                                  activeFilters[filter.key] as string[]
+                                ).includes(option.value)
+                              : false
+                          }
+                          onCheckedChange={(checked) =>
+                            handleMultiSelectChange(
+                              filter.key,
+                              option.value,
+                              checked as boolean
+                            )
+                          }
+                        />
+                        <span className="text-sm font-medium">
+                          {option.label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {/* Date */}
+                {filter.type === 'date' && (
                   <Input
                     type="date"
-                    placeholder="Hasta"
-                    value={String(activeFilters[`${filter.key}__lte`] ?? '')}
+                    value={String(activeFilters[filter.key] ?? '')}
                     onChange={(e) =>
-                      handleFilterChange(`${filter.key}__lte`, e.target.value)
+                      handleFilterChange(filter.key, e.target.value)
                     }
                     className="rounded-full"
                   />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+                )}
+
+                {/* Date Range */}
+                {filter.type === 'daterange' && (
+                  <div className="flex gap-2">
+                    <Input
+                      type="date"
+                      placeholder="Desde"
+                      value={String(activeFilters[`${filter.key}__gte`] ?? '')}
+                      onChange={(e) =>
+                        handleFilterChange(`${filter.key}__gte`, e.target.value)
+                      }
+                      className="rounded-full"
+                    />
+                    <Input
+                      type="date"
+                      placeholder="Hasta"
+                      value={String(activeFilters[`${filter.key}__lte`] ?? '')}
+                      onChange={(e) =>
+                        handleFilterChange(`${filter.key}__lte`, e.target.value)
+                      }
+                      className="rounded-full"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Filtros Activos */}
       <div className="flex items-center justify-start gap-2 flex-wrap w-full">

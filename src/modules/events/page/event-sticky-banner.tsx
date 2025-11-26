@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Calendar, Clock, MapPin, Heart, ShoppingCart } from 'lucide-react'
+import { Calendar, Clock, Heart, ShoppingCart } from 'lucide-react'
 import { Event } from '@/types'
 import { cn } from '@/lib/utils'
 
@@ -41,7 +41,6 @@ interface EventStickyBannerProps {
 
 export default function EventStickyBanner({
   event,
-  showLocation = true,
   showEndDate = false,
   showTime = true,
   actionText,
@@ -209,14 +208,6 @@ export default function EventStickyBanner({
             <div className="flex w-full gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span>{formatTime(event.start_date)}</span>
-            </div>
-          )}
-
-          {/* Location */}
-          {showLocation && event?.location && (
-            <div className="flex w-full gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              <span className="truncate max-w-[200px]">{event.location}</span>
             </div>
           )}
         </div>

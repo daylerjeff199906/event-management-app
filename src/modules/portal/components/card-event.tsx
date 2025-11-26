@@ -1,7 +1,7 @@
 'use client'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { MapPin, Calendar, Star } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { useState } from 'react'
 import { Event } from '@/types'
 
@@ -76,12 +76,12 @@ export function EventCardComponent({
             />
           </>
         )}
-        {event.is_featured && (
+        {/* {event.is_featured && (
           <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full flex items-center text-xs font-medium">
             <Star className="h-3 w-3 mr-1 fill-current" />
             Destacado
           </div>
-        )}
+        )} */}
 
         <div className="absolute bottom-3 left-3 bg-gray-900/70 px-3 py-5 rounded-md text-xs font-semibold shadow flex flex-col items-center gap-4">
           <div className="text-center flex flex-col gap-2 text-white">
@@ -111,13 +111,6 @@ export function EventCardComponent({
               {formatDate(event.start_date)} • {formatTime(event.start_date)}
             </span>
           </div>
-
-          {event.location && (
-            <div className="flex items-center text-sm">
-              <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span className="truncate">{event.location}</span>
-            </div>
-          )}
 
           {daysUntilEvent && (
             <div className="text-xs font-medium text-primary mt-2">
