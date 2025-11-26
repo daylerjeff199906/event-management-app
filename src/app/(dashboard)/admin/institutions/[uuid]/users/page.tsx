@@ -1,7 +1,10 @@
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { UsersTable } from '@/modules/core/components'
 import { getSupabase } from '@/services/core.supabase'
-import { getfullUserRoleByInstitution } from '@/services/user.roles.services'
+import {
+  getfullUserRoleByInstitution,
+  getUserById
+} from '@/services/user.roles.services'
 import { Params } from '@/types'
 import Image from 'next/image'
 
@@ -20,6 +23,8 @@ export default async function Page(props: PageProps) {
   }
 
   const usersData = await getfullUserRoleByInstitution(institutionId)
+  const currentUser = await getUserById(user?.user?.id || '')
+  const isAdmin = currentUser?.role?.includes('ADMIN')
 
   if (!usersData || usersData.length === 0) {
     return (
@@ -43,7 +48,7 @@ export default async function Page(props: PageProps) {
       <UsersTable
         users={usersData}
         currentUserId={user?.user?.id || undefined}
-        isOwner
+        isOwner={isAdmin}
       />
     </>
   )

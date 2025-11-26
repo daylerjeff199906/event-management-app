@@ -119,19 +119,15 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                       accessEnabled={userRole?.access_enabled || false}
                     />
                   )}
-                  {isOwner &&
-                    userRole?.access_enabled &&
-                    !(userRole?.user_id === currentUserId) && (
-                      <EditRoleUserModal
-                        key={userRole.id}
-                        idRole={userRole.id}
-                        value={userRole?.role}
-                        userId={userRole?.user_id}
-                        institutionId={
-                          userRole?.institution_id?.toString() || ''
-                        }
-                      />
-                    )}
+                  {isOwner && userRole?.access_enabled && (
+                    <EditRoleUserModal
+                      key={userRole.id}
+                      idRole={userRole.id}
+                      value={userRole?.role}
+                      userId={userRole?.user_id}
+                      institutionId={userRole?.institution_id?.toString() || ''}
+                    />
+                  )}
                 </div>
               </TableCell>
             </TableRow>
