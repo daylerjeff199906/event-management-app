@@ -352,7 +352,9 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                             <FormControl>
                               <Input
                                 type="date"
-                                value={formatDateForInput(field.value)}
+                                value={formatDateForInput(
+                                  field.value || undefined
+                                )}
                                 onChange={(e) => {
                                   const selectedDate = e.target.value
                                     ? new Date(e.target.value)
@@ -383,7 +385,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                                 disabled={!field.value}
                                 onChange={(e) => {
                                   const updatedDate = mergeDateWithTime(
-                                    field.value,
+                                    field.value || undefined,
                                     e.target.value
                                   )
                                   field.onChange(updatedDate)
@@ -449,7 +451,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                           <FormLabel>Patrón de recurrencia</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue={field.value || undefined}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -503,7 +505,9 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
                           <FormControl>
                             <Input
                               type="date"
-                              value={formatDateForInput(field.value)}
+                              value={formatDateForInput(
+                                field.value || undefined
+                              )}
                               onChange={(e) => {
                                 const selectedDate = e.target.value
                                   ? new Date(e.target.value)
