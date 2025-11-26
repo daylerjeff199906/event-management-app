@@ -25,7 +25,12 @@ export interface Event {
   time?: string | null
   duration?: string | null
   address_uuid?: string | null
-  is_featured?: boolean | null
+  // is_featured?: boolean | null
+  // Campos añadidos para recurrencia
+  is_recurring?: boolean | null
+  recurrence_pattern?: string | null
+  recurrence_interval?: number | null
+  recurrence_end_date?: string | null // ISO 8601 format
 }
 
 export interface Coordinates {

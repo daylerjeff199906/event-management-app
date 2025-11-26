@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarIcon, Loader } from 'lucide-react'
+import { Loader } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -24,12 +24,6 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
 import {
   Select,
   SelectContent,
@@ -58,30 +52,95 @@ interface EventsCreateFormProps {
 export const EventsEditForm = (props: EventsCreateFormProps) => {
   const { institutionId, urlReturn, authorId, categories, eventData } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showEndDate, setShowEndDate] = useState(!!eventData?.end_date)
+  const [showRecurring, setShowRecurring] = useState(
+    !!eventData?.is_recurring ||
+      !!eventData?.recurrence_pattern ||
+      !!eventData?.recurrence_end_date
+  )
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       event_name: eventData?.event_name || '',
       description: eventData?.description || '',
-      author_id: String(eventData?.author_id),
+      author_id: String(eventData?.author_id || authorId || ''),
       start_date: eventData?.start_date
         ? new Date(eventData.start_date)
         : undefined,
       end_date: eventData?.end_date ? new Date(eventData.end_date) : undefined,
       cover_image_url: eventData?.cover_image_url || '',
       category: eventData?.category || undefined,
-      status: eventData?.status || EventStatus.DRAFT
+      status: eventData?.status || EventStatus.DRAFT,
+      is_recurring: eventData?.is_recurring || false,
+      recurrence_pattern: eventData?.recurrence_pattern || undefined,
+      recurrence_interval: eventData?.recurrence_interval || undefined,
+      recurrence_end_date: eventData?.recurrence_end_date
+        ? new Date(eventData.recurrence_end_date)
+        : undefined,
+      time: eventData?.time
+        ? new Date(`1970-01-01T${eventData.time}`)
+        : undefined,
+      duration: eventData?.duration ? parseInt(eventData.duration) : undefined,
+      address_uuid: eventData?.address_uuid || undefined,
+      // is_featured: eventData?.is_featured || false,
+      institution_id: eventData?.institution_id || institutionId || undefined,
+      user_id: eventData?.user_id || undefined
     }
   })
 
   const isDirty = form.formState.isDirty
+  const startDate = form.watch('start_date')
+  const endDate = form.watch('end_date')
+  const recurrencePattern = form.watch('recurrence_pattern')
+  // const isRecurring = form.watch('is_recurring')
+  // const recurrenceInterval = form.watch('recurrence_interval')
+
+  const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
+    if (!dateValue) return undefined
+    const [hours, minutes] = time.split(':').map((value) => Number(value) || 0)
+    const updatedDate = new Date(dateValue)
+    updatedDate.setHours(hours, minutes, 0, 0)
+    return updatedDate
+  }
+
+  const formatDateForInput = (date: Date | undefined) => {
+    if (!date) return ''
+    return format(date, 'yyyy-MM-dd')
+  }
+
+  useEffect(() => {
+    if (!showEndDate) {
+      form.setValue('end_date', undefined)
+      return
+    }
+    if (showEndDate && startDate && !endDate) {
+      form.setValue('end_date', startDate, { shouldValidate: true })
+    }
+  }, [showEndDate, startDate, endDate, form])
+
+  useEffect(() => {
+    if (!showRecurring) {
+      form.setValue('is_recurring', false)
+      form.setValue('recurrence_pattern', undefined)
+      form.setValue('recurrence_interval', undefined)
+      form.setValue('recurrence_end_date', undefined)
+      return
+    }
+
+    form.setValue('is_recurring', true)
+
+    if (!recurrencePattern && eventData?.recurrence_pattern) {
+      form.setValue('recurrence_pattern', eventData.recurrence_pattern)
+    } else if (!recurrencePattern) {
+      form.setValue('recurrence_pattern', 'WEEKLY')
+    }
+  }, [showRecurring, recurrencePattern, eventData, form])
 
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true)
 
     try {
-      // Enviar datos al servicio de creación de eventos
       const response = await updateEvent(eventData.id, {
         ...data,
         institution_id: institutionId,
@@ -103,7 +162,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             description="El evento ha sido editado correctamente."
           />
         )
-        form.reset()
+        form.reset(data)
         if (urlReturn) {
           window.location.href = urlReturn
         } else {
@@ -190,6 +249,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               />
             </CardContent>
           </Card>
+
           {/* Nombre del evento */}
           <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
@@ -272,108 +332,155 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               <CardTitle>¿Cuándo inicia y termina tu evento?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
                   name="start_date"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Fecha de inicio *</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, 'dd/MM/yyyy', {
-                                  locale: es
-                                })
-                              ) : (
-                                <span>Selecciona la fecha de inicio</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date < new Date(new Date().setHours(0, 0, 0, 0))
-                            }
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormControl>
+                          <Input
+                            type="date"
+                            value={formatDateForInput(field.value)}
+                            onChange={(e) => {
+                              const selectedDate = e.target.value
+                                ? new Date(e.target.value)
+                                : undefined
+                              const timeString = field.value
+                                ? format(field.value, 'HH:mm')
+                                : '00:00'
+                              const updatedDate = mergeDateWithTime(
+                                selectedDate,
+                                timeString
+                              )
+                              field.onChange(updatedDate)
+                            }}
+                            min={format(new Date(), 'yyyy-MM-dd')}
                           />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="end_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fecha de finalización</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, 'dd/MM/yyyy', {
-                                  locale: es
-                                })
-                              ) : (
-                                <span>Selecciona la fecha de finalización</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => {
-                              const startDate = form.getValues('start_date')
-                              return startDate
-                                ? date < startDate
-                                : date <
-                                    new Date(new Date().setHours(0, 0, 0, 0))
+                        </FormControl>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            value={
+                              field.value ? format(field.value, 'HH:mm') : ''
+                            }
+                            disabled={!field.value}
+                            onChange={(e) => {
+                              const updatedDate = mergeDateWithTime(
+                                field.value,
+                                e.target.value
+                              )
+                              field.onChange(updatedDate)
                             }}
                           />
-                        </PopoverContent>
-                      </Popover>
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                {!showEndDate ? (
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 text-primary font-semibold h-auto"
+                    onClick={() => setShowEndDate(true)}
+                  >
+                    + Agregar fecha y hora de fin
+                  </Button>
+                ) : (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="end_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fecha de finalización</FormLabel>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormControl>
+                              <Input
+                                type="date"
+                                value={formatDateForInput(field.value)}
+                                onChange={(e) => {
+                                  const selectedDate = e.target.value
+                                    ? new Date(e.target.value)
+                                    : undefined
+                                  const timeString = field.value
+                                    ? format(field.value, 'HH:mm')
+                                    : '00:00'
+                                  const updatedDate = mergeDateWithTime(
+                                    selectedDate,
+                                    timeString
+                                  )
+                                  field.onChange(updatedDate)
+                                }}
+                                min={
+                                  formatDateForInput(startDate) ||
+                                  format(new Date(), 'yyyy-MM-dd')
+                                }
+                              />
+                            </FormControl>
+                            <FormControl>
+                              <Input
+                                type="time"
+                                value={
+                                  field.value
+                                    ? format(field.value, 'HH:mm')
+                                    : ''
+                                }
+                                disabled={!field.value}
+                                onChange={(e) => {
+                                  const updatedDate = mergeDateWithTime(
+                                    field.value,
+                                    e.target.value
+                                  )
+                                  field.onChange(updatedDate)
+                                }}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="px-0 text-destructive font-semibold h-auto"
+                      onClick={() => setShowEndDate(false)}
+                    >
+                      - Quitar fecha y hora de fin
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {/* Campos originales de tiempo y duración */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                 <FormField
                   control={form.control}
                   name="time"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Hora de inicio</FormLabel>
+                      <FormLabel>Hora de inicio específica</FormLabel>
                       <FormControl>
                         <Input
                           type="time"
-                          value={field.value || ''}
-                          onChange={field.onChange}
+                          value={
+                            field.value ? format(field.value, 'HH:mm') : ''
+                          }
+                          onChange={(e) => {
+                            const timeString = e.target.value
+                            const currentDate = field.value || new Date()
+                            const updatedDate = mergeDateWithTime(
+                              currentDate,
+                              timeString
+                            )
+                            field.onChange(updatedDate)
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -392,7 +499,13 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           min={0}
                           placeholder="Ej: 120"
                           value={field.value || ''}
-                          onChange={field.onChange}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -400,6 +513,123 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Evento recurrente */}
+          <Card className="shadow-none border border-gray-200 bg-white">
+            <CardHeader>
+              <CardTitle>¿Es un evento recurrente?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!showRecurring ? (
+                <Button
+                  type="button"
+                  variant="link"
+                  className="px-0 text-primary font-semibold h-auto"
+                  onClick={() => setShowRecurring(true)}
+                >
+                  + Configurar evento recurrente
+                </Button>
+              ) : (
+                <>
+                  <div className="space-y-4 p-4 border border-gray-200 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <FormLabel className="text-base">
+                        Evento recurrente
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="px-0 text-destructive font-semibold h-auto"
+                        onClick={() => setShowRecurring(false)}
+                      >
+                        - Desactivar recurrencia
+                      </Button>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="recurrence_pattern"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Patrón de recurrencia</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecciona un patrón" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="DAILY">Diario</SelectItem>
+                              <SelectItem value="WEEKLY">Semanal</SelectItem>
+                              <SelectItem value="MONTHLY">Mensual</SelectItem>
+                              <SelectItem value="YEARLY">Anual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="recurrence_interval"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Intervalo</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              placeholder="Ej: 1 (cada 1 semana/mes/etc.)"
+                              value={field.value || ''}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="recurrence_end_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fecha de fin de recurrencia</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              value={formatDateForInput(field.value)}
+                              onChange={(e) => {
+                                const selectedDate = e.target.value
+                                  ? new Date(e.target.value)
+                                  : undefined
+                                field.onChange(selectedDate)
+                              }}
+                              min={
+                                formatDateForInput(startDate) ||
+                                format(new Date(), 'yyyy-MM-dd')
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -447,7 +677,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             </CardContent>
           </Card>
 
-          {/* Estado del evento */}
           <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
               <CardTitle>
