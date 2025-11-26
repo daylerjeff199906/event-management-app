@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { ChevronRight, Mail, Phone } from 'lucide-react'
+import { ChevronRight, Mail } from 'lucide-react'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import Link from 'next/link'
 import { APP_URL } from '@/data/config-app-url'
@@ -94,15 +94,9 @@ export default function InstitutionsPage({
                       <div className="flex items-center gap-2">
                         <Mail className="h-3 w-3" />
                         <span className="truncate">
-                          {institution.institution_email}
+                          {institution.institution_email || 'No disponible'}
                         </span>
                       </div>
-                      {institution.contact_phone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-3 w-3" />
-                          <span>{institution.contact_phone}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
