@@ -10,12 +10,12 @@ export enum EventStatus {
 
 export interface Event {
   id: string
+  created_at?: string | null // ISO 8601 format
+  updated_at?: string | null // ISO 8601 format
   event_name: string
   description?: string | null
   start_date: string // ISO 8601 format
   end_date?: string | null // ISO 8601 format
-  created_at?: string | null // ISO 8601 format
-  updated_at?: string | null // ISO 8601 format
   institution_id?: string | null
   user_id?: string | null
   cover_image_url?: string | null
@@ -60,4 +60,13 @@ export interface EventItemDetails extends Event {
   adressdata: Address | null
   // Extended details
   infodata: EventDetails | null
+}
+
+
+//events types
+export interface EventType {
+  id: string
+  name: string
+  description?: string | null
+  created_at?: string | null // ISO 8601 format
 }

@@ -6,7 +6,8 @@ import {
   ResponsePagination,
   EventsFilters,
   EventStatus,
-  EventItemDetails
+  EventItemDetails,
+  EventType
 } from '@/types'
 
 import { EventFormData } from '@/modules/events/schemas'
@@ -300,6 +301,27 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
     return { data: data as EventItemDetails, error: null }
   } catch (err) {
     console.error('Unexpected error fetching event full details:', err)
+    return { data: null, error: err as Error }
+  }
+}
+
+export async function fetchEventTypes(): Promise<{
+  data: EventType[] | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('event_types')
+      .select('*')
+      .order('name', { ascending: true })
+    if (error) {
+      console.error('Error fetching event types:', error)
+      return { data: null, error }
+    }
+    return { data: data as EventType[], error: null }
+  } catch (err) {
+    console.error('Unexpected error fetching event types:', err)
     return { data: null, error: err as Error }
   }
 }
