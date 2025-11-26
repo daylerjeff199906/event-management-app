@@ -47,6 +47,30 @@ export async function updateAddress(
   }
 }
 
+export async function getAddressList(
+ {
+  search,
+  limit = 20
+ }:{
+  search?: string
+  limit?: number
+ }
+): Promise<{ data: Address[] | null; error: Error | null }> { 
+  try {
+    const supabase = await getSupabase()
+    const { data, error } = await supabase
+      .from('addresses')
+      .select('*')
+      .limit(limit)
+    if (error) throw error
+    return { data, error: null }
+  }
+  catch (error) {
+    return { data: null, error: error as Error }
+  }
+}
+
+
 export async function getAddressById(
   id: string
 ): Promise<{ data: Address | null; error: Error | null }> {

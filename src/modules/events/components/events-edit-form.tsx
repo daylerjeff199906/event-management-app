@@ -38,7 +38,7 @@ import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
 import { Textarea } from '@/components/ui/textarea'
-import { upsertAddress } from '@/services/address.services'
+import { EventLocationSection } from './event-location-section'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -520,6 +520,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Tipo de evento */}
+          <EventLocationSection form={form} />
 
           {/* Evento recurrente */}
           <Card className="shadow-none border border-gray-200 bg-white">
