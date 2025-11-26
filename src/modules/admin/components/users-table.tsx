@@ -1,5 +1,13 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell
+} from '@/components/ui/table'
 
 interface RecentUser {
   id: string
@@ -15,7 +23,7 @@ interface UsersTableProps {
 }
 
 export function UsersTable({ users }: UsersTableProps) {
-  // Format date to DD.MM.YYYY
+  // Formatea fecha a DD.MM.YYYY
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-ES', {
@@ -25,40 +33,30 @@ export function UsersTable({ users }: UsersTableProps) {
     })
   }
 
-  // Get initials for avatar
+  // Iniciales para avatar
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
   }
 
   return (
-    <div className="w-full bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <table className="w-full">
-        <thead className="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Usuario
-            </th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Nombre
-            </th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Correo
-            </th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Fecha de registro
-            </th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-700">
-              Estado
-            </th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="w-full rounded-lg border border-gray-200 overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Usuario</TableHead>
+            <TableHead>Nombre</TableHead>
+            <TableHead>Correo</TableHead>
+            <TableHead>Fecha de registro</TableHead>
+            <TableHead>Estado</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {users.map((user, index) => (
-            <tr
+            <TableRow
               key={user.id}
-              className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+              className="hover:bg-gray-50 transition-colors border-b border-gray-100"
             >
-              <td className="px-6 py-4">
+              <TableCell>
                 <div className="flex items-center">
                   <Avatar className="w-8 h-8 border-2 border-white">
                     {user.profile_image ? (
@@ -74,15 +72,19 @@ export function UsersTable({ users }: UsersTableProps) {
                     )}
                   </Avatar>
                 </div>
-              </td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">
+              </TableCell>
+
+              <TableCell className="font-medium">
                 {user.first_name} {user.last_name}
-              </td>
-              <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
-              <td className="px-6 py-4 text-sm text-gray-600">
+              </TableCell>
+
+              <TableCell className="text-gray-600">{user.email}</TableCell>
+
+              <TableCell className="text-gray-600">
                 {formatDate(user.created_at)}
-              </td>
-              <td className="px-6 py-4 text-sm">
+              </TableCell>
+
+              <TableCell>
                 <Badge
                   variant={index % 2 === 0 ? 'default' : 'secondary'}
                   className={
@@ -93,11 +95,11 @@ export function UsersTable({ users }: UsersTableProps) {
                 >
                   {index % 2 === 0 ? 'Active' : 'Pending'}
                 </Badge>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }
