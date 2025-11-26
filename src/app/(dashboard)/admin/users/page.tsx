@@ -1,14 +1,14 @@
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { UsersTableList } from '@/modules/core/components'
 import { getUsersPagintion } from '@/services/user.roles.services'
-import { Params } from '@/types'
+import { SearchParams } from '@/types'
 
 interface PageProps {
-  params: Params
+  searchParams: SearchParams
 }
 
 export default async function Page(props: PageProps) {
-  const params = await props.params
+  const params = await props.searchParams
 
   const query = (await params.query?.toString()) || ''
 
