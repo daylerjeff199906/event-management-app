@@ -160,7 +160,7 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
           <BreadcrumbList className="text-zinc-500 dark:text-zinc-400">
             <BreadcrumbItem>
               <BreadcrumbLink
-                href={APP_URL.DASHBOARD.BASE}
+                href={isPortal ? APP_URL.PORTAL.BASE : APP_URL.DASHBOARD.BASE}
                 className="hover:text-zinc-900 dark:hover:text-white transition-colors"
               >
                 Inicio
