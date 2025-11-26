@@ -190,7 +190,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                     {eventImages.map((image, index) => (
                       <PhotoView key={index} src={image!}>
                         <div
-                          className={`relative cursor-pointer overflow-hidden rounded-lg bg-gray-200 ${
+                          className={` cursor-pointer overflow-hidden rounded-lg bg-gray-200 ${
                             eventImages.length === 1
                               ? 'h-[400px]'
                               : eventImages.length === 2
