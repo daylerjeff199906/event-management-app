@@ -1,3 +1,4 @@
+import { EventMode } from '@/modules/events/schemas'
 import { Address, InstitutionEvent, IUser, Pagination } from '../core'
 import { Category } from './categories'
 import { EventDetails } from './events-details'
@@ -36,7 +37,7 @@ export interface Event {
   // Campos adicionales según el esquema SQL
   meeting_url?: string | null
   custom_location?: string | null
-  event_mode?: string | null
+  event_mode?: EventMode | null
 }
 
 export interface Coordinates {
