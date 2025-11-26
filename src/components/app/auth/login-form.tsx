@@ -122,12 +122,12 @@ export const LoginForm = () => {
           </div>
 
           {errorsList?.length > 0 && (
-            <section className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative dark:bg-red-500 dark:border-red-400 dark:text-red-100">
+            <section className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded relative dark:bg-transparent dark:border-red-700 dark:text-red-400">
               <ul className="flex flex-col gap-1">
                 {errorsList?.map((error, index) => (
                   <li
                     key={index}
-                    className="text-red-500 text-sm list-disc list-inside"
+                    className="text-red-500 text-sm list-disc list-inside dark:text-red-200"
                   >
                     {error}
                   </li>
