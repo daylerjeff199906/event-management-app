@@ -7,17 +7,16 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
+  // DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import {
   CalendarDays,
-  MapPin,
   Clock,
   MoreVertical,
-  Edit,
-  ImageIcon,
-  ToggleLeft
+  Edit
+  // ImageIcon,
+  // ToggleLeft
 } from 'lucide-react'
 import { Event } from '@/types'
 import { cn } from '@/lib/utils'
@@ -32,10 +31,10 @@ interface EventCardProps {
 
 export function EventCard({
   event,
-  onEdit,
-  onChangeImage,
-  onToggleStatus
-}: EventCardProps) {
+  onEdit
+}: // onChangeImage,
+// onToggleStatus
+EventCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-ES', {
@@ -72,7 +71,7 @@ export function EventCard({
         <img
           src={event.cover_image_url || BG_EVENT.src}
           alt={event.event_name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 object-top"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         <DropdownMenu>
@@ -94,7 +93,7 @@ export function EventCard({
               <Edit className="h-4 w-4 mr-2" />
               Editar evento
             </DropdownMenuItem>
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={() => onChangeImage?.(event)}
               className="cursor-pointer"
             >
@@ -108,7 +107,7 @@ export function EventCard({
             >
               <ToggleLeft className="h-4 w-4 mr-2" />
               Cambiar estado
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -116,16 +115,6 @@ export function EventCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg text-card-foreground group-hover:text-primary transition-colors text-balance">
-              {event.event_name}
-            </h3>
-            {event.description && (
-              <p className="text-sm text-muted-foreground mt-1 line-clamp-2 text-pretty">
-                {event.description}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
             {event.status && (
               <Badge
                 variant="secondary"
@@ -140,6 +129,14 @@ export function EventCard({
                   : event.status}
               </Badge>
             )}
+            <h3 className="font-semibold text-lg text-card-foreground group-hover:text-primary transition-colors text-balance line-clamp-2">
+              {event.event_name}
+            </h3>
+            {event.description && (
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-2 text-pretty">
+                {event.description}
+              </p>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -151,13 +148,6 @@ export function EventCard({
           <Clock className="h-4 w-4 shrink-0 ml-2" />
           <span>{formatTime(event.start_date)}</span>
         </div>
-
-        {event.location && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 shrink-0" />
-            <span className="truncate">{event.location}</span>
-          </div>
-        )}
 
         {event.end_date && (
           <div className="text-xs text-muted-foreground pt-2 border-t border-border">

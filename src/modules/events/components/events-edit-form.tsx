@@ -1,19 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  CalendarIcon,
-  MapPinIcon,
-  GlobeIcon,
-  ClockIcon,
-  Loader,
-  Pin
-} from 'lucide-react'
+import { Loader } from 'lucide-react'
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -25,19 +16,12 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
 import {
   Select,
   SelectContent,
@@ -48,36 +32,12 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { eventSchema, type EventFormData } from '@/modules/events/schemas'
-import { Address, Category, Event, EventStatus } from '@/types'
+import { Category, Event, EventStatus } from '@/types'
 import { updateEvent, updateEventField } from '@/services/events.services'
-import { upsertAddress } from '@/services/address.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
-import SearchLocation from '@/components/app/miscellaneous/search-location'
-import { AddressForm } from './address-form'
-import { AITextarea } from './ai-textarea'
-
-const locationTypes = [
-  {
-    value: 'venue',
-    label: 'Presencial',
-    icon: MapPinIcon,
-    description: 'Evento presencial en una ubicación específica'
-  },
-  {
-    value: 'online',
-    label: 'En línea',
-    icon: GlobeIcon,
-    description: 'Evento virtual o en línea'
-  },
-  {
-    value: 'tba',
-    label: 'Por anunciar',
-    icon: ClockIcon,
-    description: 'Ubicación por anunciar'
-  }
-]
+import { Textarea } from '@/components/ui/textarea'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -85,57 +45,123 @@ interface EventsCreateFormProps {
   urlReturn?: string
   categories?: Category[]
   eventData: Event
-  eventAddress?: Address | null
 }
 
 export const EventsEditForm = (props: EventsCreateFormProps) => {
-  const {
-    institutionId,
-    urlReturn,
-    authorId,
-    categories,
-    eventData,
-    eventAddress
-  } = props
+  const { institutionId, urlReturn, authorId, categories, eventData } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showMoreLocationOptions, setShowMoreLocationOptions] =
-    useState<boolean>(
-      eventData.location_type === 'venue' && !!eventAddress ? false : true
-    )
-  const [loadingAddress, setLoadingAddress] = useState(false)
+  const [showEndDate, setShowEndDate] = useState(!!eventData?.end_date)
+  const [showRecurring, setShowRecurring] = useState(
+    !!eventData?.is_recurring ||
+      !!eventData?.recurrence_pattern ||
+      !!eventData?.recurrence_end_date
+  )
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       event_name: eventData?.event_name || '',
       description: eventData?.description || '',
-      author_id: String(eventData?.author_id),
+      author_id: String(eventData?.author_id || authorId || ''),
       start_date: eventData?.start_date
         ? new Date(eventData.start_date)
         : undefined,
       end_date: eventData?.end_date ? new Date(eventData.end_date) : undefined,
-      location: eventData?.location || '',
-      location_type: eventData?.location_type || 'venue',
       cover_image_url: eventData?.cover_image_url || '',
       category: eventData?.category || undefined,
       status: eventData?.status || EventStatus.DRAFT,
-      lat: eventData?.lat || null,
-      lon: eventData?.lon || null,
-      link_meeting: eventData?.link_meeting || ''
+      is_recurring: eventData?.is_recurring || false,
+      recurrence_pattern: eventData?.recurrence_pattern || undefined,
+      recurrence_interval: eventData?.recurrence_interval || undefined,
+      recurrence_end_date: eventData?.recurrence_end_date
+        ? new Date(eventData.recurrence_end_date)
+        : undefined,
+      time: eventData?.time
+        ? new Date(`1970-01-01T${eventData.time}`)
+        : undefined,
+      duration: eventData?.duration ? parseInt(eventData.duration) : undefined,
+      address_uuid: eventData?.address_uuid || undefined,
+      // is_featured: eventData?.is_featured || false,
+      institution_id: eventData?.institution_id || institutionId || undefined,
+      user_id: eventData?.user_id || undefined
     }
   })
 
   const isDirty = form.formState.isDirty
+  const startDate = form.watch('start_date')
+  const endDate = form.watch('end_date')
+  const recurrencePattern = form.watch('recurrence_pattern')
+  // const isRecurring = form.watch('is_recurring')
+  // const recurrenceInterval = form.watch('recurrence_interval')
+
+  const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
+    if (!dateValue) return undefined
+    const [hours, minutes] = time.split(':').map((value) => Number(value) || 0)
+    const updatedDate = new Date(dateValue)
+    updatedDate.setHours(hours, minutes, 0, 0)
+    return updatedDate
+  }
+
+  const formatDateForInput = (date: Date | undefined) => {
+    if (!date) return ''
+    return format(date, 'yyyy-MM-dd')
+  }
+
+  useEffect(() => {
+    if (!showEndDate) {
+      form.setValue('end_date', undefined)
+      return
+    }
+    if (showEndDate && startDate && !endDate) {
+      form.setValue('end_date', startDate, { shouldValidate: true })
+    }
+  }, [showEndDate, startDate, endDate, form])
+
+  useEffect(() => {
+    if (!showRecurring) {
+      form.setValue('is_recurring', false)
+      form.setValue('recurrence_pattern', undefined)
+      form.setValue('recurrence_interval', undefined)
+      form.setValue('recurrence_end_date', undefined)
+      return
+    }
+
+    form.setValue('is_recurring', true)
+
+    if (!recurrencePattern && eventData?.recurrence_pattern) {
+      form.setValue('recurrence_pattern', eventData.recurrence_pattern)
+    } else if (!recurrencePattern) {
+      form.setValue('recurrence_pattern', 'WEEKLY')
+    }
+  }, [showRecurring, recurrencePattern, eventData, form])
+
+  const handleRemoveEndDate = () => {
+    form.setValue('end_date', undefined, { shouldValidate: true })
+    setShowEndDate(false)
+  }
+
+  const handleRemoveRecurring = () => {
+    form.setValue('is_recurring', false, { shouldValidate: true })
+    form.setValue('recurrence_pattern', null, { shouldValidate: true })
+    form.setValue('recurrence_interval', null, { shouldValidate: true })
+    form.setValue('recurrence_end_date', null, { shouldValidate: true })
+    setShowRecurring(false)
+  }
 
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true)
 
     try {
-      // Enviar datos al servicio de creación de eventos
       const response = await updateEvent(eventData.id, {
         ...data,
         institution_id: institutionId,
-        author_id: authorId
+        author_id: authorId,
+        // Asegurar que los campos desactivados se envíen como undefined
+        is_recurring: showRecurring ? data.is_recurring : false,
+        end_date: showEndDate ? data.end_date : null,
+        recurrence_pattern: showRecurring ? data.recurrence_pattern : null,
+        recurrence_interval: showRecurring ? data.recurrence_interval : null,
+        recurrence_end_date: showRecurring ? data.recurrence_end_date : null
       })
 
       if (response.error) {
@@ -153,7 +179,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             description="El evento ha sido editado correctamente."
           />
         )
-        form.reset()
+        form.reset(data)
         if (urlReturn) {
           window.location.href = urlReturn
         } else {
@@ -172,50 +198,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const onSubmitAddress = async (address: Address) => {
-    setLoadingAddress(true)
-    try {
-      const response = eventAddress?.id
-        ? await upsertAddress({
-            id: eventAddress.id,
-            address: address,
-            eventId: eventData.id
-          })
-        : await upsertAddress({
-            id: null,
-            address: address,
-            eventId: eventData.id
-          })
-
-      if (response.error) {
-        toast.error(
-          <ToastCustom
-            title="Error"
-            description={`No se pudo guardar la dirección: ${response.error.message}`}
-            variant="destructive"
-          />
-        )
-      } else {
-        toast.success(
-          <ToastCustom
-            title="Éxito"
-            description="La dirección ha sido guardada correctamente."
-          />
-        )
-      }
-    } catch (error) {
-      console.error('Error al guardar dirección:', error)
-      toast.error(
-        <ToastCustom
-          title="Error"
-          description="Ocurrió un error inesperado al guardar la dirección."
-          variant="destructive"
-        />
-      )
-    }
-    setLoadingAddress(false)
   }
 
   const onImageChange = async (imageUrl: string) => {
@@ -254,8 +236,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     }
   }
 
-  const selectedLocationType = form.watch('location_type')
-
   return (
     <div className="p-2 md:p-6 space-y-8">
       <div className="space-y-2">
@@ -286,6 +266,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               />
             </CardContent>
           </Card>
+
           {/* Nombre del evento */}
           <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
@@ -332,26 +313,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <AITextarea
+                      <Textarea
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
-                        eventContext={{
-                          titulo: form.getValues('event_name'),
-                          fechaInicio: form.getValues('start_date')
-                            ? format(
-                                form.getValues('start_date')!,
-                                'dd/MM/yyyy',
-                                {
-                                  locale: es
-                                }
-                              )
-                            : undefined,
-                          categoria: categories?.find(
-                            (cat) =>
-                              cat.id.toString() ===
-                              form.getValues('category')?.toString()
-                          )?.name
-                        }}
                         {...field}
                       />
                     </FormControl>
@@ -368,108 +332,157 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               <CardTitle>¿Cuándo inicia y termina tu evento?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <FormField
                   control={form.control}
                   name="start_date"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Fecha de inicio *</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, 'dd/MM/yyyy', {
-                                  locale: es
-                                })
-                              ) : (
-                                <span>Selecciona la fecha de inicio</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date < new Date(new Date().setHours(0, 0, 0, 0))
-                            }
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormControl>
+                          <Input
+                            type="date"
+                            value={formatDateForInput(field.value)}
+                            onChange={(e) => {
+                              const selectedDate = e.target.value
+                                ? new Date(e.target.value)
+                                : undefined
+                              const timeString = field.value
+                                ? format(field.value, 'HH:mm')
+                                : '00:00'
+                              const updatedDate = mergeDateWithTime(
+                                selectedDate,
+                                timeString
+                              )
+                              field.onChange(updatedDate)
+                            }}
+                            min={format(new Date(), 'yyyy-MM-dd')}
                           />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="end_date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fecha de finalización</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, 'dd/MM/yyyy', {
-                                  locale: es
-                                })
-                              ) : (
-                                <span>Selecciona la fecha de finalización</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => {
-                              const startDate = form.getValues('start_date')
-                              return startDate
-                                ? date < startDate
-                                : date <
-                                    new Date(new Date().setHours(0, 0, 0, 0))
+                        </FormControl>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            value={
+                              field.value ? format(field.value, 'HH:mm') : ''
+                            }
+                            disabled={!field.value}
+                            onChange={(e) => {
+                              const updatedDate = mergeDateWithTime(
+                                field.value,
+                                e.target.value
+                              )
+                              field.onChange(updatedDate)
                             }}
                           />
-                        </PopoverContent>
-                      </Popover>
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                {!showEndDate ? (
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 text-primary font-semibold h-auto"
+                    onClick={() => setShowEndDate(true)}
+                  >
+                    + Agregar fecha y hora de fin
+                  </Button>
+                ) : (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="end_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fecha de finalización</FormLabel>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormControl>
+                              <Input
+                                type="date"
+                                value={formatDateForInput(
+                                  field.value || undefined
+                                )}
+                                onChange={(e) => {
+                                  const selectedDate = e.target.value
+                                    ? new Date(e.target.value)
+                                    : undefined
+                                  const timeString = field.value
+                                    ? format(field.value, 'HH:mm')
+                                    : '00:00'
+                                  const updatedDate = mergeDateWithTime(
+                                    selectedDate,
+                                    timeString
+                                  )
+                                  field.onChange(updatedDate)
+                                }}
+                                min={
+                                  formatDateForInput(startDate) ||
+                                  format(new Date(), 'yyyy-MM-dd')
+                                }
+                              />
+                            </FormControl>
+                            <FormControl>
+                              <Input
+                                type="time"
+                                value={
+                                  field.value
+                                    ? format(field.value, 'HH:mm')
+                                    : ''
+                                }
+                                disabled={!field.value}
+                                onChange={(e) => {
+                                  const updatedDate = mergeDateWithTime(
+                                    field.value || undefined,
+                                    e.target.value
+                                  )
+                                  field.onChange(updatedDate)
+                                }}
+                              />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="px-0 text-destructive font-semibold h-auto"
+                      onClick={handleRemoveEndDate}
+                    >
+                      - Quitar fecha y hora de fin
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {/* Campos originales de tiempo y duración */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                 <FormField
                   control={form.control}
                   name="time"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Hora de inicio</FormLabel>
+                      <FormLabel>Hora de inicio específica</FormLabel>
                       <FormControl>
                         <Input
                           type="time"
-                          value={field.value || ''}
-                          onChange={field.onChange}
+                          value={
+                            field.value ? format(field.value, 'HH:mm') : ''
+                          }
+                          onChange={(e) => {
+                            const timeString = e.target.value
+                            const currentDate = field.value || new Date()
+                            const updatedDate = mergeDateWithTime(
+                              currentDate,
+                              timeString
+                            )
+                            field.onChange(updatedDate)
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -488,7 +501,13 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           min={0}
                           placeholder="Ej: 120"
                           value={field.value || ''}
-                          onChange={field.onChange}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -496,6 +515,125 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Evento recurrente */}
+          <Card className="shadow-none border border-gray-200 bg-white">
+            <CardHeader>
+              <CardTitle>¿Es un evento recurrente?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!showRecurring ? (
+                <Button
+                  type="button"
+                  variant="link"
+                  className="px-0 text-primary font-semibold h-auto"
+                  onClick={() => setShowRecurring(true)}
+                >
+                  + Configurar evento recurrente
+                </Button>
+              ) : (
+                <>
+                  <div className="space-y-4 p-4 border border-gray-200 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <FormLabel className="text-base">
+                        Evento recurrente
+                      </FormLabel>
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="px-0 text-destructive font-semibold h-auto"
+                        onClick={handleRemoveRecurring}
+                      >
+                        - Desactivar recurrencia
+                      </Button>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="recurrence_pattern"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Patrón de recurrencia</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value || ''}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Selecciona un patrón" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="DAILY">Diario</SelectItem>
+                              <SelectItem value="WEEKLY">Semanal</SelectItem>
+                              <SelectItem value="MONTHLY">Mensual</SelectItem>
+                              <SelectItem value="YEARLY">Anual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="recurrence_interval"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Intervalo</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              placeholder="Ej: 1 (cada 1 semana/mes/etc.)"
+                              value={field.value || ''}
+                              onChange={(e) =>
+                                field.onChange(
+                                  e.target.value
+                                    ? parseInt(e.target.value)
+                                    : undefined
+                                )
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="recurrence_end_date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Fecha de fin de recurrencia</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              value={formatDateForInput(
+                                field.value || undefined
+                              )}
+                              onChange={(e) => {
+                                const selectedDate = e.target.value
+                                  ? new Date(e.target.value)
+                                  : undefined
+                                field.onChange(selectedDate)
+                              }}
+                              min={
+                                formatDateForInput(startDate) ||
+                                format(new Date(), 'yyyy-MM-dd')
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -543,183 +681,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             </CardContent>
           </Card>
 
-          {/* Ubicación */}
-          <Card className="shadow-none border border-gray-200 bg-white">
-            <CardHeader>
-              <CardTitle>¿Dónde se llevará a cabo tu evento?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="location_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex flex-wrap gap-2">
-                        {locationTypes.map((type) => {
-                          const Icon = type.icon
-                          const isSelected = field.value === type.value
-                          return (
-                            <Button
-                              key={type.value}
-                              type="button"
-                              variant={isSelected ? 'default' : 'outline'}
-                              className="flex-1 h-auto p-3"
-                              onClick={() => field.onChange(type.value)}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Icon className="h-4 w-4" />
-                                <span>{type.label}</span>
-                              </div>
-                            </Button>
-                          )
-                        })}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {selectedLocationType === 'venue' && (
-                <div className="space-y-4">
-                  {/* Opción para ingresar dirección manualmente */}
-                  {showMoreLocationOptions ? (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Dirección del evento</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Ingresa la dirección del evento"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Puedes escribir la dirección manualmente o
-                              buscarla en el mapa.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-blue-600"
-                        onClick={() => setShowMoreLocationOptions(false)}
-                      >
-                        <Pin className="mr-1" />
-                        Buscar y configurar dirección avanzada
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      {/* Buscador y configuración avanzada de dirección */}
-                      <FormField
-                        control={form.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Buscar dirección</FormLabel>
-                            <FormControl>
-                              <div className="flex flex-col gap-2 relative">
-                                <SearchLocation
-                                  className="w-full"
-                                  onSelect={(address, lat, lon) => {
-                                    field.onChange(address)
-                                    form.setValue('lat', lat)
-                                    form.setValue('lon', lon)
-                                  }}
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                  Dirección seleccionada:{' '}
-                                  {form.getValues('location')}
-                                </p>
-                              </div>
-                            </FormControl>
-                            <FormDescription>
-                              Busca la dirección en el mapa y podrás
-                              configurarla con más detalles.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {/* Mapa de ubicación */}
-                      {form.watch('lat') && form.watch('lon') ? (
-                        <iframe
-                          title="Ubicación en el mapa"
-                          src={`https://maps.google.com/maps?q=${form.watch(
-                            'lat'
-                          )},${form.watch('lon')}&z=15&output=embed`}
-                          className="w-full h-48 rounded-lg border"
-                          allowFullScreen
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center">
-                          <div className="text-center text-muted-foreground">
-                            <MapPinIcon className="h-8 w-8 mx-auto mb-2" />
-                            <p>
-                              El mapa aparecerá aquí al seleccionar una
-                              dirección
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {/* Formulario avanzado para configurar información extra de la dirección */}
-                      <AddressForm
-                        defaultValues={eventAddress || undefined}
-                        onSubmit={(address) => onSubmitAddress(address)}
-                        isLoading={loadingAddress}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-blue-600 mt-2"
-                        onClick={() => setShowMoreLocationOptions(true)}
-                      >
-                        <MapPinIcon className="mr-1" />
-                        Volver a ingresar dirección manualmente
-                      </Button>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {selectedLocationType === 'online' && (
-                <FormField
-                  control={form.control}
-                  name="link_meeting"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Enlace de acceso en línea</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Ingresa el link de acceso (Zoom, Meet, etc.)"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="mt-1">
-                        Si el evento es en línea y tiene más de un enlace de
-                        acceso, puedes agregar los enlaces adicionales en la
-                        descripción del evento.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Estado del evento */}
           <Card className="shadow-none border border-gray-200 bg-white">
             <CardHeader>
               <CardTitle>
