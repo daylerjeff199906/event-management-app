@@ -53,7 +53,7 @@ export function UsersTableList({
   }
 
   return (
-    <div className="rounded-md border bg-white">
+    <div className="rounded-md border">
       <Table>
         <TableHeader className="bg-muted">
           <TableRow>

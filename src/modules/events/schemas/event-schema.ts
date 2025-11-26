@@ -1,6 +1,13 @@
 import { EventStatus } from '@/types'
 import { z } from 'zod'
 
+export enum EventMode {
+  PRESENCIAL = 'PRESENCIAL',
+  VIRTUAL = 'VIRTUAL',
+  HIBRIDO = 'HIBRIDO',
+}
+
+
 export const eventSchema = z
   .object({
     id: z.string().optional(),
@@ -27,7 +34,15 @@ export const eventSchema = z
     is_recurring: z.boolean().optional(),
     recurrence_pattern: z.string().optional().nullable(),
     recurrence_interval: z.number().optional().nullable(),
-    recurrence_end_date: z.date().optional().nullable()
+    recurrence_end_date: z.date().optional().nullable(),
+    address_id: z.string().optional().nullable(),
+    meeting_url: z.string().optional().nullable(),
+    custom_location: z.string().optional().nullable(),
+    event_mode: z.enum([
+      EventMode.PRESENCIAL,
+      EventMode.VIRTUAL,
+      EventMode.HIBRIDO
+    ]).optional()
   })
   .refine(
     (data) => {

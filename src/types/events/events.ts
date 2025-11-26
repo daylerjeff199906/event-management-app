@@ -1,3 +1,4 @@
+import { EventMode } from '@/modules/events/schemas'
 import { Address, InstitutionEvent, IUser, Pagination } from '../core'
 import { Category } from './categories'
 import { EventDetails } from './events-details'
@@ -10,27 +11,33 @@ export enum EventStatus {
 
 export interface Event {
   id: string
+  created_at?: string | null // ISO 8601 format
+  updated_at?: string | null // ISO 8601 format
   event_name: string
   description?: string | null
   start_date: string // ISO 8601 format
   end_date?: string | null // ISO 8601 format
-  created_at?: string | null // ISO 8601 format
-  updated_at?: string | null // ISO 8601 format
   institution_id?: string | null
   user_id?: string | null
   cover_image_url?: string | null
   status?: EventStatus
   category?: number | null
   author_id?: string | null
-  time?: string | null
-  duration?: string | null
+  // DB address key(s)
   address_uuid?: string | null
+  address_id?: string | null
+  time?: string | null
+  duration?: number | null
   // is_featured?: boolean | null
   // Campos añadidos para recurrencia
   is_recurring?: boolean | null
   recurrence_pattern?: string | null
   recurrence_interval?: number | null
   recurrence_end_date?: string | null // ISO 8601 format
+  // Campos adicionales según el esquema SQL
+  meeting_url?: string | null
+  custom_location?: string | null
+  event_mode?: EventMode | null
 }
 
 export interface Coordinates {
@@ -61,3 +68,4 @@ export interface EventItemDetails extends Event {
   // Extended details
   infodata: EventDetails | null
 }
+

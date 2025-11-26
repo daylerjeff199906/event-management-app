@@ -30,9 +30,9 @@ export function MetricCard({
   }
   return (
     <Link href={href}>
-      <div className="bg-gray-100 border border-border rounded-lg px-3 py-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col">
+      <div className="bg-gray-100 dark:bg-gray-800 border border-border dark:border-border rounded-lg px-3 py-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col">
         {/* Header con icono */}
-        <div className="flex items-center gap-4 border border-border p-2 py-3 mb-4 rounded-lg bg-white">
+        <div className="flex items-center gap-4 border border-border dark:border-border p-2 py-3 mb-4 rounded-lg bg-white dark:bg-gray-900">
           <div
             className={`${iconBg} p-3 rounded-lg flex items-center justify-center w-fit `}
           >
@@ -42,14 +42,20 @@ export function MetricCard({
           </div>
           {/* Valor grande */}
           <div>
-            <p className="text-3xl font-bold text-foreground">{value}</p>
-            <p className="text-sm text-muted-foreground">{sublabel}</p>
+            <p className="text-3xl font-bold text-foreground dark:text-foreground">
+              {value}
+            </p>
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+              {sublabel}
+            </p>
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-xs font-medium text-foreground">{label}</p>
-          <ArrowRight className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+          <p className="text-xs font-medium text-foreground dark:text-foreground">
+            {label}
+          </p>
+          <ArrowRight className="w-5 h-5 text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-foreground transition-colors" />
         </div>
       </div>
     </Link>

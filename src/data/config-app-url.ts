@@ -39,8 +39,6 @@ export const APP_URL = {
         `/organizations/${id}/events/${eventId}/ticket`,
       EVENT_INFO: (id: string, eventId: string) =>
         `/organizations/${id}/events/${eventId}/info`,
-      EVENT_ADDRESS: (id: string, eventId: string) =>
-        `/organizations/${id}/events/${eventId}/location`,     
       EVENTS: (id: string) => `/organizations/${id}/events`
     },
     EVENTS: {

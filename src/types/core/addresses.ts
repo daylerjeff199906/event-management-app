@@ -9,4 +9,11 @@ export interface Address {
   country?: string | null
   latitude?: string | null
   longitude?: string | null
+  // Nuevos campos agregados
+  place_name?: string | null
+  instructions?: string | null
+  online_url?: string | null
+  platform?: string | null
+  access_code?: string | null
+  is_online?: boolean | null
 }

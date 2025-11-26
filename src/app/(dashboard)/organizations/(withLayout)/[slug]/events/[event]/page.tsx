@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { EventsEditForm } from '@/modules/events'
 import { fetchCategories } from '@/services/categories.services'
 import { fetchEventById } from '@/services/events.services'
@@ -17,7 +18,12 @@ export default async function Page(props: PageProps) {
   const response = await fetchEventById(eventId?.toString() || '')
 
   if (response.error || !response.data) {
-    return <div>Error loading event data.</div>
+    return (
+      <EmptyState
+        title="Evento no encontrado"
+        description="El evento que estás buscando no existe o ha sido eliminado."
+      />
+    )
   }
 
   return (

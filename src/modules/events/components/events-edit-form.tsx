@@ -38,6 +38,7 @@ import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
 import { Textarea } from '@/components/ui/textarea'
+import { EventLocationSection } from './event-location-section'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -79,11 +80,15 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       time: eventData?.time
         ? new Date(`1970-01-01T${eventData.time}`)
         : undefined,
-      duration: eventData?.duration ? parseInt(eventData.duration) : undefined,
+      duration: eventData?.duration || undefined,
       address_uuid: eventData?.address_uuid || undefined,
       // is_featured: eventData?.is_featured || false,
       institution_id: eventData?.institution_id || institutionId || undefined,
-      user_id: eventData?.user_id || undefined
+      user_id: eventData?.user_id || undefined,
+      address_id: eventData?.address_id || undefined,
+      meeting_url: eventData?.meeting_url || undefined,
+      custom_location: eventData?.custom_location || undefined,
+      event_mode: eventData?.event_mode || undefined
     }
   })
 
@@ -91,8 +96,6 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const startDate = form.watch('start_date')
   const endDate = form.watch('end_date')
   const recurrencePattern = form.watch('recurrence_pattern')
-  // const isRecurring = form.watch('is_recurring')
-  // const recurrenceInterval = form.watch('recurrence_interval')
 
   const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
     if (!dateValue) return undefined
@@ -517,6 +520,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Tipo de evento */}
+          <EventLocationSection form={form} />
 
           {/* Evento recurrente */}
           <Card className="shadow-none border border-gray-200 bg-white">

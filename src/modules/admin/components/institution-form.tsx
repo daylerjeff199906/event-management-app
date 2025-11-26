@@ -69,7 +69,7 @@ export function InstitutionFormData({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Información General Section */}
-          <h2 className="text-lg font-medium text-gray-900 mb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-6 dark:text-gray-100">
             Información General
           </h2>
           <div className="border border-gray-200 rounded-lg p-6">
@@ -80,7 +80,7 @@ export function InstitutionFormData({
                   name="institution_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Nombre de la institución
                       </FormLabel>
                       <FormControl>
@@ -101,7 +101,7 @@ export function InstitutionFormData({
                   name="acronym"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Acrónimo
                       </FormLabel>
                       <FormControl>
@@ -122,7 +122,7 @@ export function InstitutionFormData({
                   name="institution_type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Tipo de institución
                       </FormLabel>
                       <Select
@@ -155,7 +155,7 @@ export function InstitutionFormData({
                   name="document_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Número de documento
                       </FormLabel>
                       <FormControl>
@@ -179,7 +179,7 @@ export function InstitutionFormData({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Descripción
                     </FormLabel>
                     <FormControl>
@@ -200,7 +200,7 @@ export function InstitutionFormData({
           </div>
 
           {/* Información de Contacto Section */}
-          <h2 className="text-lg font-medium text-gray-900 mb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-6 dark:text-gray-100">
             Información de Contacto
           </h2>
 
@@ -212,7 +212,7 @@ export function InstitutionFormData({
                   name="institution_email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Email institucional
                       </FormLabel>
                       <FormControl>
@@ -236,7 +236,7 @@ export function InstitutionFormData({
                   name="contact_phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-700">
+                      <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Teléfono de contacto
                       </FormLabel>
                       <FormControl>
@@ -257,7 +257,7 @@ export function InstitutionFormData({
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Dirección
                     </FormLabel>
                     <FormControl>
@@ -275,18 +275,18 @@ export function InstitutionFormData({
           </div>
 
           {/* Información Adicional Section */}
-          <h2 className="text-lg font-medium text-gray-900 mb-6">
+          {/* <h2 className="text-lg font-medium text-gray-900 mb-6">
             Información Adicional
-          </h2>
+          </h2> */}
 
-          <div className="border border-gray-200 rounded-lg p-6">
+          {/* <div className="border border-gray-200 rounded-lg p-6">
             <div className="space-y-6">
               <FormField
                 control={form.control}
                 name="map_iframe_url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">
+                    <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       URL del mapa (iframe)
                     </FormLabel>
                     <FormControl>
@@ -305,14 +305,14 @@ export function InstitutionFormData({
                 )}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Botones de acción */}
           <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
-              className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+              className="px-6 py-2 border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 bg-transparent"
               onClick={() => {
                 if (onCancel) {
                   onCancel()
