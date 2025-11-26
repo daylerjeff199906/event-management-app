@@ -30,7 +30,7 @@ export const EventModeSelector = ({ form }: EventModeSelectorProps) => {
           <FormLabel>Tipo de Evento *</FormLabel>
           <Select onValueChange={field.onChange} value={field.value || ''}>
             <FormControl>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecciona el tipo de evento" />
               </SelectTrigger>
             </FormControl>

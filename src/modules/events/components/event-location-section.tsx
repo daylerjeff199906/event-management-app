@@ -12,6 +12,7 @@ import { EventModeSelector } from './event-mode-selector'
 import { LocationSelector } from './location-selector'
 import { MeetingUrlInput } from './meeting-url-input'
 import { FormField } from '@/components/ui/form'
+import { useEffect } from 'react'
 
 interface EventLocationSectionProps {
   form: UseFormReturn<EventFormData>
@@ -20,19 +21,23 @@ interface EventLocationSectionProps {
 export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
   const eventMode = form.watch('event_mode')
 
-  // Limpiar campos cuando cambia el tipo de evento
-  //   const handleEventModeChange = (value: string) => {
-  //     form.setValue('event_mode', value as any)
+  //   Limpiar campos cuando cambia el tipo de evento
+  const handleEventModeChange = (value: string) => {
+    form.setValue('event_mode', value as EventFormData['event_mode'])
 
-  //     // Limpiar campos no relevantes
-  //     if (value === 'VIRTUAL') {
-  //       form.setValue('address_id', null)
-  //       form.setValue('custom_location', null)
-  //     } else if (value === 'PRESENCIAL') {
-  //       form.setValue('meeting_url', null)
-  //     }
-  //     // HÍBRIDO mantiene ambos campos
-  //   }
+    // Limpiar campos no relevantes
+    if (value === 'VIRTUAL') {
+      form.setValue('address_id', null)
+      form.setValue('custom_location', null)
+    } else if (value === 'PRESENCIAL') {
+      form.setValue('meeting_url', null)
+    }
+  }
+
+  useEffect(() => {
+    handleEventModeChange(eventMode || '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventMode])
 
   return (
     <Card className="shadow-none border border-gray-200 bg-white">
