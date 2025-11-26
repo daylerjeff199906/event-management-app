@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import {
-  // Calendar,
   Clock,
   Globe,
   MapPin,
@@ -11,7 +10,6 @@ import {
   Copy,
   Twitter,
   Facebook,
-  // ChevronRight,
   Repeat,
   Heart
 } from 'lucide-react'
@@ -19,7 +17,6 @@ import { PhotoProvider, PhotoView } from 'react-photo-view'
 import 'react-photo-view/dist/react-photo-view.css'
 
 import { Button } from '@/components/ui/button'
-// import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -32,7 +29,6 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
 
-// Asumiendo que estas importaciones existen en tu proyecto
 import { EventItemDetails } from '@/types'
 import { EventMode } from '../schemas'
 import { APP_URL } from '@/data/config-app-url'
@@ -40,9 +36,10 @@ import EventStickyBanner from './event-sticky-banner'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
+  isPortal?: boolean
 }
 
-export function EventDetailsPage({ event }: EventDetailsPageProps) {
+export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
   const [showShareOptions, setShowShareOptions] = useState(false)
 
   // --- Helpers de Formato ---
@@ -104,9 +101,11 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
   const eventModeInfo = getEventModeInfo()
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
-      {/* 1. Banner Hero (Estilo Poster) */}
-      <div className="relative w-full overflow-hidden border-y border-zinc-800">
+    // CAMBIO: bg-white por defecto, dark:bg-zinc-950. Textos oscuros por defecto, claros en dark.
+    <div className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
+      {/* 1. Banner Hero (Estilo Poster) - MANTENIDO OSCURO SIEMPRE */}
+      {/* Nota: Aquí usamos clases fijas bg-zinc-950 y text-white para ignorar el modo claro */}
+      <div className="relative w-full overflow-hidden bg-zinc-950 border-b border-zinc-800">
         {/* Fondo con imagen y overlay oscuro */}
         <div className="absolute inset-0 z-0">
           {event.cover_image_url && (
@@ -122,8 +121,8 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10" />
         </div>
 
-        {/* Contenido del Banner */}
-        <div className="relative z-20 container mx-auto px-4 py-20 lg:py-32 flex flex-col items-center justify-center text-center">
+        {/* Contenido del Banner - Texto siempre blanco */}
+        <div className="relative z-20 container mx-auto px-4 py-20 lg:py-32 flex flex-col items-center justify-center text-center text-white">
           {/* Etiquetas Superiores */}
           <div className="flex flex-wrap gap-2 mb-6 justify-center">
             {event.is_recurring && (
@@ -154,30 +153,35 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           </div>
         </div>
       </div>
-      {/* 2. Breadcrumbs (Fuera del banner para navegación limpia) */}
+
+      {/* 2. Breadcrumbs */}
       <div className="container mx-auto px-4 py-4 max-w-7xl">
         <Breadcrumb>
-          <BreadcrumbList className="text-zinc-400">
+          <BreadcrumbList className="text-zinc-500 dark:text-zinc-400">
             <BreadcrumbItem>
               <BreadcrumbLink
                 href={APP_URL.DASHBOARD.BASE}
-                className="hover:text-white transition-colors"
+                className="hover:text-zinc-900 dark:hover:text-white transition-colors"
               >
                 Inicio
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator className="text-zinc-600" />
+            <BreadcrumbSeparator className="text-zinc-400 dark:text-zinc-600" />
             <BreadcrumbItem>
               <BreadcrumbLink
-                href={APP_URL.DASHBOARD.EVENTS.BASE}
-                className="hover:text-white transition-colors"
+                href={
+                  isPortal
+                    ? APP_URL.PORTAL.EVENTS.BASE
+                    : APP_URL.DASHBOARD.EVENTS.BASE
+                }
+                className="hover:text-zinc-900 dark:hover:text-white transition-colors"
               >
                 Eventos
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator className="text-zinc-600" />
+            <BreadcrumbSeparator className="text-zinc-400 dark:text-zinc-600" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-white font-medium">
+              <BreadcrumbPage className="text-zinc-900 dark:text-white font-medium">
                 {event.event_name.length > 30
                   ? event.event_name.substring(0, 30) + '...'
                   : event.event_name}
@@ -187,10 +191,10 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </Breadcrumb>
       </div>
 
-      {/* 3. Contenido Principal (Estilo Grilla Oscura) */}
+      {/* 3. Contenido Principal */}
       <div className="container mx-auto px-4 py-12 lg:py-16 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Columna Izquierda: Metadatos (Sticky opcional) */}
+          {/* Columna Izquierda: Metadatos */}
           <div className="lg:col-span-4 space-y-8">
             <div className="space-y-6 lg:sticky lg:top-8">
               {/* Bloque: Hora */}
@@ -198,18 +202,18 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                 <h3 className="text-zinc-500 font-bold uppercase tracking-wider text-sm mb-2 group-hover:text-orange-500 transition-colors">
                   Empieza
                 </h3>
-                <div className="flex items-center gap-3 text-white text-lg font-medium">
-                  <Clock className="w-5 h-5 text-zinc-400" />
+                <div className="flex items-center gap-3 text-zinc-900 dark:text-white text-lg font-medium">
+                  <Clock className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
                   <span>
                     {event?.time ? formatTime(event?.time) : 'No indicado'}
                   </span>
                 </div>
                 {event.duration && (
-                  <p className="text-zinc-500 text-sm mt-1 ml-8">
+                  <p className="text-zinc-500 dark:text-zinc-500 text-sm mt-1 ml-8">
                     {event.duration} minutos
                   </p>
                 )}
-                <Separator className="mt-4 bg-zinc-800" />
+                <Separator className="mt-4 bg-zinc-200 dark:bg-zinc-800" />
               </div>
 
               {/* Bloque: Ubicación */}
@@ -219,34 +223,33 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                 </h3>
                 <div className="space-y-2">
                   {eventModeInfo && (
-                    <div className="flex items-center gap-3 text-white text-lg">
-                      <eventModeInfo.icon className="w-5 h-5 text-zinc-400" />
+                    <div className="flex items-center gap-3 text-zinc-900 dark:text-white text-lg">
+                      <eventModeInfo.icon className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
                       <span>{eventModeInfo.label}</span>
                     </div>
                   )}
 
                   {(event.custom_location || event.meeting_url) && (
-                    <div className="ml-8 text-zinc-300">
+                    <div className="ml-8 text-zinc-600 dark:text-zinc-300">
                       {event.custom_location && <p>{event.custom_location}</p>}
                       {event.meeting_url && (
                         <a
                           href={event.meeting_url}
                           target="_blank"
-                          className="text-orange-400 hover:text-orange-300 underline text-sm block mt-1"
+                          className="text-orange-600 dark:text-orange-400 hover:text-orange-500 dark:hover:text-orange-300 underline text-sm block mt-1"
                         >
                           Link de acceso
                         </a>
                       )}
                     </div>
                   )}
-                  {/* Fallback */}
                   {!event.custom_location &&
                     !event.meeting_url &&
                     !eventModeInfo && (
                       <p className="text-zinc-400">Ubicación por definir</p>
                     )}
                 </div>
-                <Separator className="mt-4 bg-zinc-800" />
+                <Separator className="mt-4 bg-zinc-200 dark:bg-zinc-800" />
               </div>
 
               {/* Bloque: Precio / Acción */}
@@ -254,9 +257,10 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                 <h3 className="text-zinc-500 font-bold uppercase tracking-wider text-sm mb-2 group-hover:text-orange-500 transition-colors">
                   Acceso
                 </h3>
-                <p className="text-2xl font-bold text-white mb-4">Gratis</p>
+                <p className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">
+                  Gratis
+                </p>
 
-                {/* Aquí integramos el Sticky Banner visualmente si se desea, o un botón directo */}
                 <div className="w-full">
                   <EventStickyBanner
                     event={event}
@@ -265,10 +269,11 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                     showEndDate={false}
                     showTime={false}
                     showLocation={false}
-                    cardClassName="w-full bg-zinc-900 border-zinc-800 text-white"
+                    // Adaptamos el banner también al modo claro/oscuro
+                    cardClassName="w-full bg-white border-zinc-200 text-zinc-900 dark:bg-zinc-900 dark:border-zinc-800 dark:text-white"
                   />
                 </div>
-                <Separator className="mt-4 bg-zinc-800" />
+                <Separator className="mt-4 bg-zinc-200 dark:bg-zinc-800" />
               </div>
 
               {/* Bloque: Compartir */}
@@ -280,7 +285,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="border-zinc-700 bg-transparent text-white hover:bg-zinc-800 hover:text-orange-400"
+                    className="border-zinc-300 bg-transparent text-zinc-700 hover:bg-zinc-100 hover:text-orange-600 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-800 dark:hover:text-orange-400"
                     onClick={handleShare}
                   >
                     <Share className="w-4 h-4" />
@@ -288,26 +293,26 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="border-zinc-700 bg-transparent text-white hover:bg-zinc-800 hover:text-red-500"
+                    className="border-zinc-300 bg-transparent text-zinc-700 hover:bg-zinc-100 hover:text-red-500 dark:border-zinc-700 dark:text-white dark:hover:bg-zinc-800 dark:hover:text-red-500"
                   >
                     <Heart className="w-4 h-4" />
                   </Button>
                 </div>
 
-                {/* Menú Dropdown de compartir personalizado */}
+                {/* Menú Dropdown de compartir */}
                 {showShareOptions && (
-                  <div className="absolute left-0 top-full mt-2 z-50 w-48 rounded-md border border-zinc-700 bg-zinc-900 shadow-xl">
+                  <div className="absolute left-0 top-full mt-2 z-50 w-48 rounded-md border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
                     <div className="p-1">
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800 h-9 px-2"
+                        className="w-full justify-start text-zinc-700 hover:text-black hover:bg-zinc-100 h-9 px-2 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800"
                         onClick={copyToClipboard}
                       >
                         <Copy className="mr-2 h-4 w-4" /> Copiar Link
                       </Button>
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800 h-9 px-2"
+                        className="w-full justify-start text-zinc-700 hover:text-black hover:bg-zinc-100 h-9 px-2 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800"
                         onClick={() =>
                           window.open(
                             `https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -321,7 +326,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                       </Button>
                       <Button
                         variant="ghost"
-                        className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800 h-9 px-2"
+                        className="w-full justify-start text-zinc-700 hover:text-black hover:bg-zinc-100 h-9 px-2 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800"
                         onClick={() =>
                           window.open(
                             `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -343,22 +348,22 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
           {/* Columna Derecha: Narrativa e Imágenes */}
           <div className="lg:col-span-8 space-y-12">
             {/* Descripción del evento */}
-            <div className="prose prose-invert prose-lg max-w-none">
-              <h3 className="text-2xl font-bold uppercase tracking-tight text-white mb-6 border-l-4 border-orange-500 pl-4">
+            <div className="prose prose-lg max-w-none text-zinc-700 dark:prose-invert dark:text-zinc-300">
+              <h3 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-6 border-l-4 border-orange-500 pl-4">
                 Sobre este evento
               </h3>
-              <p className="text-zinc-300 leading-relaxed whitespace-pre-line">
+              <p className="leading-relaxed whitespace-pre-line">
                 {event.description ||
                   'No hay descripción disponible para este evento. Únete para descubrir más detalles directamente con el organizador.'}
               </p>
             </div>
 
-            {/* Galería de Imágenes (Funcionalidad Preservada) */}
+            {/* Galería de Imágenes */}
             {eventImages.length > 0 && (
               <div className="space-y-4">
-                <h3 className="text-xl font-bold uppercase tracking-tight text-white mb-4 flex items-center gap-2">
+                <h3 className="text-xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
                   Galería{' '}
-                  <span className="text-xs font-normal text-zinc-500 bg-zinc-900 border border-zinc-700 px-2 py-1 rounded-full">
+                  <span className="text-xs font-normal text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-1 rounded-full dark:text-zinc-500 dark:bg-zinc-900 dark:border-zinc-700">
                     {eventImages.length} fotos
                   </span>
                 </h3>
@@ -374,7 +379,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                     {eventImages.map((image, index) => (
                       <PhotoView key={index} src={image}>
                         <div
-                          className={`relative cursor-pointer overflow-hidden rounded-lg bg-gray-200 ${
+                          className={`relative cursor-pointer overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-800 ${
                             eventImages.length === 1
                               ? 'h-[400px]'
                               : eventImages.length === 2
@@ -410,12 +415,12 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
             )}
 
             {/* Sección Organizado Por */}
-            <div className="pt-12 border-t border-zinc-800">
+            <div className="pt-12 border-t border-zinc-200 dark:border-zinc-800">
               <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-6">
                 Presentado por
               </h3>
-              <div className="flex items-center gap-6 bg-zinc-900/50 p-6 rounded-lg border border-zinc-800">
-                <Avatar className="w-20 h-20 border-2 border-zinc-700">
+              <div className="flex items-center gap-6 bg-zinc-50 p-6 rounded-lg border border-zinc-200 dark:bg-zinc-900/50 dark:border-zinc-800">
+                <Avatar className="w-20 h-20 border-2 border-zinc-200 dark:border-zinc-700">
                   <AvatarImage
                     src={
                       event.institution?.brand ||
@@ -423,7 +428,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                       ''
                     }
                   />
-                  <AvatarFallback className="bg-zinc-800 text-zinc-400 text-xl font-bold">
+                  <AvatarFallback className="bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 text-xl font-bold">
                     {
                       (event.institution?.institution_name ||
                         event.author?.first_name ||
@@ -432,18 +437,18 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <h4 className="text-xl font-bold text-white mb-1">
+                  <h4 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
                     {event.institution?.institution_name ||
                       `${event.author?.first_name} ${event.author?.last_name}`}
                   </h4>
-                  <p className="text-zinc-400 text-sm mb-4">
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">
                     Organizador oficial del evento
                   </p>
                   <div className="flex gap-3">
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-zinc-600 text-zinc-300 hover:text-white hover:bg-zinc-800"
+                      className="border-zinc-300 text-zinc-700 hover:text-black hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800"
                     >
                       Contactar
                     </Button>
@@ -461,7 +466,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
         </div>
       </div>
 
-      {/* Footer Call to Action similiar a la imagen "JOIN THE A-LIST" */}
+      {/* Footer Call to Action - Join the A-List */}
       <div className="bg-orange-500 text-black py-12 px-4">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 max-w-7xl">
           <div>

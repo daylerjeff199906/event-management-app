@@ -131,7 +131,7 @@ export default async function Page(props: PageProps) {
 
   return (
     <div className="min-h-screen">
-      <EventDetailsPage event={response.data} />
+      <EventDetailsPage event={response.data} isPortal />
     </div>
   )
 }
