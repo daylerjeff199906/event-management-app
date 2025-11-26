@@ -43,25 +43,21 @@ import { formatDate } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
-  if (!dateValue || isNaN(dateValue.getTime())) {
-    // Si no hay fecha válida, crear una nueva fecha con la hora
-    const [hours, minutes] = time.split(':').map((value) => Number(value) || 0)
-    const newDate = new Date()
-    newDate.setHours(hours, minutes, 0, 0)
-    return newDate
-  }
+  if (!dateValue) return undefined
 
   const [hours, minutes] = time.split(':').map((value) => Number(value) || 0)
+
   const updatedDate = new Date(dateValue)
+
   updatedDate.setHours(hours, minutes, 0, 0)
+
   return updatedDate
 }
 
 const formatDateForInput = (date: Date | undefined) => {
   if (!date) return ''
 
-  // Usar formatDate con el formato correcto para input date
-  return formatDate(date, 'yyyy-MM-dd', { locale: es })
+  return date.toISOString().split('T')[0]
 }
 
 interface EventsCreateFormProps {
@@ -358,20 +354,23 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           <Input
                             type="date"
                             value={
-                              field.value
-                                ? formatDate(field.value, 'HH:mm', {
-                                    locale: es
-                                  })
-                                : '00:00'
+                              field.value ? formatDateForInput(field.value) : ''
                             }
-                            disabled={!field.value}
                             onChange={(e) => {
-                              const timeValue = e.target.value || '00:00'
-                              const updatedDate = mergeDateWithTime(
-                                field.value,
-                                timeValue
-                              )
-                              field.onChange(updatedDate)
+                              const selectedDate = e.target.value
+                                ? new Date(e.target.value)
+                                : undefined
+                              // Preservar la hora actual si existe
+                              if (field.value && selectedDate) {
+                                const currentTime = format(field.value, 'HH:mm')
+                                const updatedDate = mergeDateWithTime(
+                                  selectedDate,
+                                  currentTime
+                                )
+                                field.onChange(updatedDate)
+                              } else {
+                                field.onChange(selectedDate)
+                              }
                             }}
                             min={formatDate(new Date(), 'yyyy-MM-dd', {
                               locale: es
@@ -382,15 +381,18 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           <Input
                             type="time"
                             value={
-                              field.value ? format(field.value, 'HH:mm') : ''
+                              field.value
+                                ? format(field.value, 'HH:mm')
+                                : '00:00'
                             }
-                            disabled={!field.value}
                             onChange={(e) => {
-                              const updatedDate = mergeDateWithTime(
-                                field.value,
-                                e.target.value
-                              )
-                              field.onChange(updatedDate)
+                              if (field.value) {
+                                const updatedDate = mergeDateWithTime(
+                                  field.value,
+                                  e.target.value || '00:00'
+                                )
+                                field.onChange(updatedDate)
+                              }
                             }}
                           />
                         </FormControl>
@@ -421,25 +423,35 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                             <FormControl>
                               <Input
                                 type="date"
-                                value={formatDateForInput(
-                                  field.value || undefined
-                                )}
+                                value={
+                                  field.value
+                                    ? formatDateForInput(field.value)
+                                    : ''
+                                }
                                 onChange={(e) => {
                                   const selectedDate = e.target.value
                                     ? new Date(e.target.value)
                                     : undefined
-                                  const timeString = field.value
-                                    ? format(field.value, 'HH:mm')
-                                    : '00:00'
-                                  const updatedDate = mergeDateWithTime(
-                                    selectedDate,
-                                    timeString
-                                  )
-                                  field.onChange(updatedDate)
+                                  // Preservar la hora actual si existe
+                                  if (field.value && selectedDate) {
+                                    const currentTime = format(
+                                      field.value,
+                                      'HH:mm'
+                                    )
+                                    const updatedDate = mergeDateWithTime(
+                                      selectedDate,
+                                      currentTime
+                                    )
+                                    field.onChange(updatedDate)
+                                  } else {
+                                    field.onChange(selectedDate)
+                                  }
                                 }}
                                 min={
                                   formatDateForInput(startDate) ||
-                                  format(new Date(), 'yyyy-MM-dd')
+                                  formatDate(new Date(), 'yyyy-MM-dd', {
+                                    locale: es
+                                  })
                                 }
                               />
                             </FormControl>
@@ -449,15 +461,16 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                                 value={
                                   field.value
                                     ? format(field.value, 'HH:mm')
-                                    : ''
+                                    : '00:00'
                                 }
-                                disabled={!field.value}
                                 onChange={(e) => {
-                                  const updatedDate = mergeDateWithTime(
-                                    field.value || undefined,
-                                    e.target.value
-                                  )
-                                  field.onChange(updatedDate)
+                                  if (field.value) {
+                                    const updatedDate = mergeDateWithTime(
+                                      field.value,
+                                      e.target.value || '00:00'
+                                    )
+                                    field.onChange(updatedDate)
+                                  }
                                 }}
                               />
                             </FormControl>
@@ -490,16 +503,25 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                         <Input
                           type="time"
                           value={
-                            field.value ? format(field.value, 'HH:mm') : ''
+                            field.value ? format(field.value, 'HH:mm') : '00:00'
                           }
                           onChange={(e) => {
-                            const timeString = e.target.value
-                            const currentDate = field.value || new Date()
-                            const updatedDate = mergeDateWithTime(
-                              currentDate,
-                              timeString
-                            )
-                            field.onChange(updatedDate)
+                            const timeValue = e.target.value || '00:00'
+                            // Si no hay fecha actual, crear una nueva con la hora
+                            if (!field.value) {
+                              const newDate = new Date()
+                              const updatedDate = mergeDateWithTime(
+                                newDate,
+                                timeValue
+                              )
+                              field.onChange(updatedDate)
+                            } else {
+                              const updatedDate = mergeDateWithTime(
+                                field.value,
+                                timeValue
+                              )
+                              field.onChange(updatedDate)
+                            }
                           }}
                         />
                       </FormControl>
@@ -633,9 +655,11 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           <FormControl>
                             <Input
                               type="date"
-                              value={formatDateForInput(
-                                field.value || undefined
-                              )}
+                              value={
+                                field.value
+                                  ? formatDateForInput(field.value)
+                                  : ''
+                              }
                               onChange={(e) => {
                                 const selectedDate = e.target.value
                                   ? new Date(e.target.value)
@@ -644,7 +668,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               }}
                               min={
                                 formatDateForInput(startDate) ||
-                                format(new Date(), 'yyyy-MM-dd')
+                                formatDate(new Date(), 'yyyy-MM-dd', {
+                                  locale: es
+                                })
                               }
                             />
                           </FormControl>
