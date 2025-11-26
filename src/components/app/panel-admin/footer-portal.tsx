@@ -1,37 +1,18 @@
 'use client'
-import { useSidebar, useStore } from '@/hooks'
-import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import React from 'react'
 import { LogoRender } from '../miscellaneous/logo-render'
 import { APP_URL } from '@/data/config-app-url'
 
-interface FooterProps {
-  disabledOpen?: boolean
-}
-
-export const Footer = ({ disabledOpen }: FooterProps) => {
-  const sidebar = useStore(useSidebar, (x) => x)
-  if (!sidebar) return null
-  const { getOpenState } = sidebar
-  const isCurrentlyOpen = getOpenState()
-
+export const FooterPortal = () => {
   return (
-    <footer
-      className={cn(
-        'py-12',
-        disabledOpen && 'mx-auto container',
-        isCurrentlyOpen && !disabledOpen && 'max-w-[calc(100vw-16rem)] ml-auto',
-        !isCurrentlyOpen &&
-          !disabledOpen &&
-          'lg:max-w-[calc(100vw-6.3rem)] ml-auto'
-      )}
-    >
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2 flex flex-col items-start gap-4">
+    <footer className="w-full bg-background border-t">
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Logo y descripción */}
+          <div className="lg:col-span-2 flex flex-col items-start gap-4">
             <LogoRender isOpened href={APP_URL.PORTAL.BASE} />
-            <p className="text-muted-foreground mb-4 max-w-md">
+            <p className="text-muted-foreground mb-4 max-w-md text-sm sm:text-base">
               La plataforma líder para descubrir y crear eventos locales en
               España. Conectamos comunidades a través de experiencias únicas.
             </p>
@@ -39,13 +20,17 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
               En beta - Seguimos mejorando para ti
             </p>
           </div>
-          <div>
-            <h4 className="font-semibold mb-4">Plataforma</h4>
+
+          {/* Plataforma */}
+          <div className="mt-6 sm:mt-0">
+            <h4 className="font-semibold mb-4 text-base sm:text-lg">
+              Plataforma
+            </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Explorar eventos
                 </Link>
@@ -53,7 +38,7 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Categorías
                 </Link>
@@ -61,7 +46,7 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Ciudades
                 </Link>
@@ -69,20 +54,22 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Crear evento
                 </Link>
               </li>
             </ul>
           </div>
-          <div>
-            <h4 className="font-semibold mb-4">Soporte</h4>
+
+          {/* Soporte */}
+          <div className="mt-6 sm:mt-0">
+            <h4 className="font-semibold mb-4 text-base sm:text-lg">Soporte</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Centro de ayuda
                 </Link>
@@ -90,7 +77,7 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Contacto
                 </Link>
@@ -98,7 +85,7 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Privacidad
                 </Link>
@@ -106,7 +93,7 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors block py-1"
                 >
                   Términos
                 </Link>
@@ -114,6 +101,8 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
             </ul>
           </div>
         </div>
+
+        {/* Copyright */}
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>
             &copy; {new Date().getFullYear()} VamoYA. Todos los derechos
