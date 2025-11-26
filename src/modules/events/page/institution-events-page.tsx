@@ -4,6 +4,7 @@ import { EventCard } from '../components'
 import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
+import { updateEventField } from '@/services/events.services'
 interface PageProps {
   eventsList: Event[]
   institutionId?: string
@@ -21,6 +22,16 @@ export const InstitutionEventsPage = ({
     )
   }
 
+  const handleToggleEventStatus = async (event: Event) => {
+    const newStatus = event.status === 'PUBLIC' ? 'DRAFT' : 'PUBLIC'
+    await updateEventField({
+      eventId: event.id,
+      fieldName: 'status',
+      fieldValue: newStatus
+    })
+    router.refresh()
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {eventsList?.length > 0 &&
@@ -29,6 +40,7 @@ export const InstitutionEventsPage = ({
             key={event.id}
             event={event}
             onEdit={() => handleEventClick(event.id)}
+            onToggleStatus={() => handleToggleEventStatus(event)}
           />
         ))}
       {eventsList.length === 0 && (
