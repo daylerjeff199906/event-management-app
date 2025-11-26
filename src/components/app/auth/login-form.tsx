@@ -108,7 +108,7 @@ export const LoginForm = () => {
       logoSize={160}
       title="¡Bienvenido!"
       subTitle="Ingresa tus credenciales para acceder a tu cuenta. Descubre las novedades que tenemos para ti."
-      backgroundImage={configImages.BACKGROUND_DEFAULT.src}
+      backgroundImage={configImages.BACKGROUND_DEFAULT}
     >
       <div className="space-y-6 w-full max-w-md mx-auto">
         <div className="flex flex-col gap-4">
