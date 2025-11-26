@@ -50,7 +50,7 @@ export const InstitutionEventsHeader = ({
       <AdvancedFilterHorizontal
         searchFields={[
           {
-            key: 'query',
+            key: 'search',
             label: '',
             placeholder: 'Buscar eventos...'
           }
