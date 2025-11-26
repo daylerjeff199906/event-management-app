@@ -127,7 +127,6 @@ export const LoginForm = () => {
                 {errorsList?.map((error, index) => (
                   <li
                     key={index}
-                    className="text-red-500 text-sm list-disc list-inside dark:text-red-200"
                   >
                     {error}
                   </li>
