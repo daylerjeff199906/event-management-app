@@ -130,7 +130,7 @@ export default async function Page(props: PageProps) {
   }
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="pt-20 ">
       <EventDetailsPage event={response.data} />
     </div>
   )

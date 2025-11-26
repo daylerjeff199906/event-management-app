@@ -80,7 +80,7 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
   ].filter(Boolean)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-4">
         <Breadcrumb>
           <BreadcrumbList>
@@ -156,19 +156,22 @@ export function EventDetailsPage({ event }: EventDetailsPageProps) {
                         <div
                           className={`relative cursor-pointer overflow-hidden rounded-lg bg-gray-200 ${
                             eventImages.length === 1
-                              ? 'aspect-video'
+                              ? 'h-[400px]'
                               : eventImages.length === 2
-                              ? 'aspect-square'
+                              ? 'h-[300px]'
                               : index === 0
-                              ? 'aspect-video'
-                              : 'aspect-square'
+                              ? 'h-[400px]'
+                              : 'h-[200px]'
                           }`}
                         >
-                          <img
-                            src={image!}
-                            alt={`${event.event_name} - Imagen ${index + 1}`}
-                            className="w-full h-full object-cover transition-transform hover:scale-105"
-                          />
+                          <div className="w-full h-full flex items-center justify-center p-2">
+                            <img
+                              src={image!}
+                              alt={`${event.event_name} - Imagen ${index + 1}`}
+                              className="max-w-full max-h-full object-cover transition-transform hover:scale-105 rounded-md"
+                            />
+                          </div>
+
                           {eventImages.length > 1 &&
                             index === 0 &&
                             eventImages.length > 2 && (
