@@ -15,8 +15,8 @@ import {
   Clock,
   MoreVertical,
   Edit,
-  ToggleLeft
-  // ImageIcon,
+  ToggleLeft,
+  ImageIcon
 } from 'lucide-react'
 import { Event } from '@/types'
 import { cn } from '@/lib/utils'
@@ -32,9 +32,9 @@ interface EventCardProps {
 export function EventCard({
   event,
   onEdit,
-  onToggleStatus
-}: // onChangeImage,
-EventCardProps) {
+  onToggleStatus,
+  onChangeImage
+}: EventCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-ES', {
@@ -93,14 +93,14 @@ EventCardProps) {
               <Edit className="h-4 w-4 mr-2" />
               Editar evento
             </DropdownMenuItem>
-            {/* <DropdownMenuItem
+            <DropdownMenuItem
               onClick={() => onChangeImage?.(event)}
               className="cursor-pointer"
             >
               <ImageIcon className="h-4 w-4 mr-2" />
               Cambiar imagen
             </DropdownMenuItem>
-            */}
+
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onToggleStatus?.(event)}
