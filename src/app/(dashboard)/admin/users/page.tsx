@@ -2,6 +2,7 @@ import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { UsersTableList } from '@/modules/core/components'
 import { getUsersPagintion } from '@/services/user.roles.services'
 import { SearchParams } from '@/types'
+import { getSupabase } from '@/services/core.supabase'
 
 interface PageProps {
   searchParams: SearchParams
@@ -9,11 +10,14 @@ interface PageProps {
 
 export default async function Page(props: PageProps) {
   const params = await props.searchParams
+  const supabase = await getSupabase()
+  const { data: user } = await supabase.auth.getUser()
 
   const query = (await params.query?.toString()) || ''
+  const page = parseInt((await params.page?.toString()) || '1', 10)
 
   const userList = await getUsersPagintion({
-    page: 1,
+    page: page,
     query: query
   })
 
@@ -26,9 +30,11 @@ export default async function Page(props: PageProps) {
     )
   }
 
+  const isAdmin = user?.user?.role?.toUpperCase() === 'ADMIN'
+
   return (
     <>
-      <UsersTableList users={userList.users} />
+      <UsersTableList isAdmin={isAdmin} users={userList.users} />
     </>
   )
 }
