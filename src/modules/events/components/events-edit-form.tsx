@@ -79,7 +79,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       time: eventData?.time
         ? new Date(`1970-01-01T${eventData.time}`)
         : undefined,
-      duration: eventData?.duration ? parseInt(eventData.duration) : undefined,
+      duration: eventData?.duration || undefined,
       address_uuid: eventData?.address_uuid || undefined,
       // is_featured: eventData?.is_featured || false,
       institution_id: eventData?.institution_id || institutionId || undefined,
