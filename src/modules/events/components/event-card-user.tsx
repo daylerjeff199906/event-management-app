@@ -4,7 +4,7 @@ import { type Event, EventStatus } from '@/types/events'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { CalendarDays, MapPin, Eye } from 'lucide-react'
+import { CalendarDays, Eye } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -92,13 +92,6 @@ export function EventCardUser({
                 ` - ${format(endDate, 'dd MMM yyyy', { locale: es })}`}
             </span>
           </div>
-
-          {event.location && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="w-4 h-4" />
-              <span className="line-clamp-1">{event.location}</span>
-            </div>
-          )}
         </div>
       </CardContent>
 
