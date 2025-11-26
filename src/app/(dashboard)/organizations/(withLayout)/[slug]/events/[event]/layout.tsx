@@ -30,18 +30,6 @@ export default async function Layout(props: LayoutProps) {
           )
         },
         {
-          id: APP_URL.ORGANIZATION.INSTITUTION.EVENT_ADDRESS(
-            institutionId || '',
-            eventId || ''
-          ),
-          label: 'Dirección',
-          description: 'Información adicional del evento',
-          href: APP_URL.ORGANIZATION.INSTITUTION.EVENT_ADDRESS(
-            institutionId || '',
-            eventId || ''
-          )
-        },
-        {
           id: APP_URL.ORGANIZATION.INSTITUTION.EVENT_INFO(
             institutionId || '',
             eventId || ''

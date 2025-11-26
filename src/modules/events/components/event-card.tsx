@@ -7,16 +7,16 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  // DropdownMenuSeparator,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import {
   CalendarDays,
   Clock,
   MoreVertical,
-  Edit
-  // ImageIcon,
-  // ToggleLeft
+  Edit,
+  ToggleLeft,
+  ImageIcon
 } from 'lucide-react'
 import { Event } from '@/types'
 import { cn } from '@/lib/utils'
@@ -31,10 +31,10 @@ interface EventCardProps {
 
 export function EventCard({
   event,
-  onEdit
-}: // onChangeImage,
-// onToggleStatus
-EventCardProps) {
+  onEdit,
+  onToggleStatus,
+  onChangeImage
+}: EventCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-ES', {
@@ -93,13 +93,14 @@ EventCardProps) {
               <Edit className="h-4 w-4 mr-2" />
               Editar evento
             </DropdownMenuItem>
-            {/* <DropdownMenuItem
+            <DropdownMenuItem
               onClick={() => onChangeImage?.(event)}
               className="cursor-pointer"
             >
               <ImageIcon className="h-4 w-4 mr-2" />
               Cambiar imagen
             </DropdownMenuItem>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onToggleStatus?.(event)}
@@ -107,7 +108,7 @@ EventCardProps) {
             >
               <ToggleLeft className="h-4 w-4 mr-2" />
               Cambiar estado
-            </DropdownMenuItem> */}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

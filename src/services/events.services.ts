@@ -6,7 +6,7 @@ import {
   ResponsePagination,
   EventsFilters,
   EventStatus,
-  EventItemDetails
+  EventItemDetails,
 } from '@/types'
 
 import { EventFormData } from '@/modules/events/schemas'
@@ -303,3 +303,4 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
     return { data: null, error: err as Error }
   }
 }
+
