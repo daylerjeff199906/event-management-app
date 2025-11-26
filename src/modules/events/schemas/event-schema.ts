@@ -25,9 +25,9 @@ export const eventSchema = z
     author_id: z.string().optional(),
     address_uuid: z.string().optional(),
     is_recurring: z.boolean().optional(),
-    recurrence_pattern: z.string().optional(),
-    recurrence_interval: z.number().optional(),
-    recurrence_end_date: z.date().optional()
+    recurrence_pattern: z.string().optional().nullable(),
+    recurrence_interval: z.number().optional().nullable(),
+    recurrence_end_date: z.date().optional().nullable()
   })
   .refine(
     (data) => {

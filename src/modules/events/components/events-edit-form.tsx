@@ -135,6 +135,19 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     }
   }, [showRecurring, recurrencePattern, eventData, form])
 
+  const handleRemoveEndDate = () => {
+    form.setValue('end_date', undefined, { shouldValidate: true })
+    setShowEndDate(false)
+  }
+
+  const handleRemoveRecurring = () => {
+    form.setValue('is_recurring', false, { shouldValidate: true })
+    form.setValue('recurrence_pattern', null, { shouldValidate: true })
+    form.setValue('recurrence_interval', null, { shouldValidate: true })
+    form.setValue('recurrence_end_date', null, { shouldValidate: true })
+    setShowRecurring(false)
+  }
+
   const onSubmit = async (data: EventFormData) => {
     setIsSubmitting(true)
 
@@ -142,7 +155,17 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       const response = await updateEvent(eventData.id, {
         ...data,
         institution_id: institutionId,
-        author_id: authorId
+        author_id: authorId,
+        // Asegurar que los campos desactivados se envíen como undefined
+        is_recurring: showRecurring ? data.is_recurring : false,
+        end_date: showEndDate ? data.end_date : undefined,
+        recurrence_pattern: showRecurring ? data.recurrence_pattern : undefined,
+        recurrence_interval: showRecurring
+          ? data.recurrence_interval
+          : undefined,
+        recurrence_end_date: showRecurring
+          ? data.recurrence_end_date
+          : undefined
       })
 
       if (response.error) {
@@ -431,7 +454,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                       type="button"
                       variant="link"
                       className="px-0 text-destructive font-semibold h-auto"
-                      onClick={() => setShowEndDate(false)}
+                      onClick={handleRemoveEndDate}
                     >
                       - Quitar fecha y hora de fin
                     </Button>
@@ -523,7 +546,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                         type="button"
                         variant="link"
                         className="px-0 text-destructive font-semibold h-auto"
-                        onClick={() => setShowRecurring(false)}
+                        onClick={handleRemoveRecurring}
                       >
                         - Desactivar recurrencia
                       </Button>
@@ -537,7 +560,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           <FormLabel>Patrón de recurrencia</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            defaultValue={field.value || ''}
                           >
                             <FormControl>
                               <SelectTrigger className="w-full">
@@ -591,7 +614,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                           <FormControl>
                             <Input
                               type="date"
-                              value={formatDateForInput(field.value)}
+                              value={formatDateForInput(
+                                field.value || undefined
+                              )}
                               onChange={(e) => {
                                 const selectedDate = e.target.value
                                   ? new Date(e.target.value)
