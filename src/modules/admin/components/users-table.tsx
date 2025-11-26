@@ -38,27 +38,42 @@ export function UsersTable({ users }: UsersTableProps) {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
   }
 
+  const getBadgeClasses = (isEven: boolean) =>
+    isEven
+      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+
   return (
-    <div className="w-full rounded-lg border border-gray-200 overflow-hidden">
+    <div className="w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700 overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Usuario</TableHead>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Correo</TableHead>
-            <TableHead>Fecha de registro</TableHead>
-            <TableHead>Estado</TableHead>
+            <TableHead className="text-gray-700 dark:text-gray-300">
+              Usuario
+            </TableHead>
+            <TableHead className="text-gray-700 dark:text-gray-300">
+              Nombre
+            </TableHead>
+            <TableHead className="text-gray-700 dark:text-gray-300">
+              Correo
+            </TableHead>
+            <TableHead className="text-gray-700 dark:text-gray-300">
+              Fecha de registro
+            </TableHead>
+            <TableHead className="text-gray-700 dark:text-gray-300">
+              Estado
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((user, index) => (
             <TableRow
               key={user.id}
-              className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+              className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-700"
             >
               <TableCell>
                 <div className="flex items-center">
-                  <Avatar className="w-8 h-8 border-2 border-white">
+                  <Avatar className="w-8 h-8 border-2 border-white dark:border-gray-800">
                     {user.profile_image ? (
                       <img
                         src={user.profile_image}
@@ -74,24 +89,22 @@ export function UsersTable({ users }: UsersTableProps) {
                 </div>
               </TableCell>
 
-              <TableCell className="font-medium">
+              <TableCell className="font-medium text-gray-900 dark:text-gray-100">
                 {user.first_name} {user.last_name}
               </TableCell>
 
-              <TableCell className="text-gray-600">{user.email}</TableCell>
+              <TableCell className="text-gray-600 dark:text-gray-300">
+                {user.email}
+              </TableCell>
 
-              <TableCell className="text-gray-600">
+              <TableCell className="text-gray-600 dark:text-gray-300">
                 {formatDate(user.created_at)}
               </TableCell>
 
               <TableCell>
                 <Badge
                   variant={index % 2 === 0 ? 'default' : 'secondary'}
-                  className={
-                    index % 2 === 0
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }
+                  className={getBadgeClasses(index % 2 === 0)}
                 >
                   {index % 2 === 0 ? 'Active' : 'Pending'}
                 </Badge>
