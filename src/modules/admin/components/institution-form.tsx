@@ -69,7 +69,7 @@ export function InstitutionFormData({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Información General Section */}
-          <h2 className="text-lg font-medium text-gray-900 mb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-6 dark:text-gray-100">
             Información General
           </h2>
           <div className="border border-gray-200 rounded-lg p-6">
@@ -200,7 +200,7 @@ export function InstitutionFormData({
           </div>
 
           {/* Información de Contacto Section */}
-          <h2 className="text-lg font-medium text-gray-900 mb-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-6 dark:text-gray-100">
             Información de Contacto
           </h2>
 
@@ -275,11 +275,11 @@ export function InstitutionFormData({
           </div>
 
           {/* Información Adicional Section */}
-          <h2 className="text-lg font-medium text-gray-900 mb-6">
+          {/* <h2 className="text-lg font-medium text-gray-900 mb-6">
             Información Adicional
-          </h2>
+          </h2> */}
 
-          <div className="border border-gray-200 rounded-lg p-6">
+          {/* <div className="border border-gray-200 rounded-lg p-6">
             <div className="space-y-6">
               <FormField
                 control={form.control}
@@ -305,7 +305,7 @@ export function InstitutionFormData({
                 )}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Botones de acción */}
           <div className="flex justify-end gap-3 pt-4">
