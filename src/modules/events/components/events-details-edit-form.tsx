@@ -166,7 +166,7 @@ export const EventDetailsEditForm = ({
     }
 
     return (
-      <Card className="shadow-none border border-gray-200 bg-white">
+      <Card className="shadow-none border border-gray-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon className="h-5 w-5" />
