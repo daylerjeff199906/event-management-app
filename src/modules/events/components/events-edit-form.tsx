@@ -5,8 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader } from 'lucide-react'
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -39,7 +37,7 @@ import { updateEvent, updateEventField } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
-import { AITextarea } from './ai-textarea'
+import { Textarea } from '@/components/ui/textarea'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -296,26 +294,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <AITextarea
+                      <Textarea
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
-                        eventContext={{
-                          titulo: form.getValues('event_name'),
-                          fechaInicio: form.getValues('start_date')
-                            ? format(
-                                form.getValues('start_date')!,
-                                'dd/MM/yyyy',
-                                {
-                                  locale: es
-                                }
-                              )
-                            : undefined,
-                          categoria: categories?.find(
-                            (cat) =>
-                              cat.id.toString() ===
-                              form.getValues('category')?.toString()
-                          )?.name
-                        }}
                         {...field}
                       />
                     </FormControl>
