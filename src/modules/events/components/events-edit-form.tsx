@@ -38,6 +38,7 @@ import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import ImageUpload from './image-upload'
 import { Textarea } from '@/components/ui/textarea'
+import { useEventTypes } from '@/modules/core/hooks'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -56,6 +57,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       !!eventData?.recurrence_pattern ||
       !!eventData?.recurrence_end_date
   )
+  const { eventTypes } = useEventTypes()
+  console.log('Event Types:', eventTypes)
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
