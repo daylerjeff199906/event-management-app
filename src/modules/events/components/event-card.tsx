@@ -7,16 +7,16 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
+  // DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import {
   CalendarDays,
   Clock,
   MoreVertical,
-  Edit,
-  ImageIcon,
-  ToggleLeft
+  Edit
+  // ImageIcon,
+  // ToggleLeft
 } from 'lucide-react'
 import { Event } from '@/types'
 import { cn } from '@/lib/utils'
@@ -31,10 +31,10 @@ interface EventCardProps {
 
 export function EventCard({
   event,
-  onEdit,
-  onChangeImage,
-  onToggleStatus
-}: EventCardProps) {
+  onEdit
+}: // onChangeImage,
+// onToggleStatus
+EventCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('es-ES', {
@@ -71,7 +71,7 @@ export function EventCard({
         <img
           src={event.cover_image_url || BG_EVENT.src}
           alt={event.event_name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 object-top"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         <DropdownMenu>
@@ -93,7 +93,7 @@ export function EventCard({
               <Edit className="h-4 w-4 mr-2" />
               Editar evento
             </DropdownMenuItem>
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={() => onChangeImage?.(event)}
               className="cursor-pointer"
             >
@@ -107,7 +107,7 @@ export function EventCard({
             >
               <ToggleLeft className="h-4 w-4 mr-2" />
               Cambiar estado
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

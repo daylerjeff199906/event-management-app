@@ -10,7 +10,7 @@ export const eventSchema = z
       .max(255, 'El nombre es muy largo'),
     description: z.string().optional(),
     start_date: z.date('La fecha de inicio es requerida'),
-    end_date: z.date().optional(),
+    end_date: z.date().optional().nullable(),
     created_at: z.date().optional(),
     updated_at: z.date().optional(),
     time: z.date().optional(),

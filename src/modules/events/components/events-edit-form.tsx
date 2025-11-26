@@ -158,14 +158,10 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         author_id: authorId,
         // Asegurar que los campos desactivados se envíen como undefined
         is_recurring: showRecurring ? data.is_recurring : false,
-        end_date: showEndDate ? data.end_date : undefined,
-        recurrence_pattern: showRecurring ? data.recurrence_pattern : undefined,
-        recurrence_interval: showRecurring
-          ? data.recurrence_interval
-          : undefined,
-        recurrence_end_date: showRecurring
-          ? data.recurrence_end_date
-          : undefined
+        end_date: showEndDate ? data.end_date : null,
+        recurrence_pattern: showRecurring ? data.recurrence_pattern : null,
+        recurrence_interval: showRecurring ? data.recurrence_interval : null,
+        recurrence_end_date: showRecurring ? data.recurrence_end_date : null
       })
 
       if (response.error) {
@@ -407,7 +403,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                             <FormControl>
                               <Input
                                 type="date"
-                                value={formatDateForInput(field.value)}
+                                value={formatDateForInput(
+                                  field.value || undefined
+                                )}
                                 onChange={(e) => {
                                   const selectedDate = e.target.value
                                     ? new Date(e.target.value)
@@ -438,7 +436,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                                 disabled={!field.value}
                                 onChange={(e) => {
                                   const updatedDate = mergeDateWithTime(
-                                    field.value,
+                                    field.value || undefined,
                                     e.target.value
                                   )
                                   field.onChange(updatedDate)
