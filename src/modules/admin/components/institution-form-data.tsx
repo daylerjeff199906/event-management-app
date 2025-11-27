@@ -31,6 +31,7 @@ import { ImageUploadModal } from '@/modules/admin'
 import { useEffect } from 'react'
 import { Globe, Instagram, Linkedin, LinkIcon, Twitter } from 'lucide-react'
 import Facebook from 'next-auth/providers/facebook'
+import { institutionTypes } from '@/modules/portal/lib/register.institution'
 
 // --- Configuración de Iconos para limpieza visual ---
 const SOCIAL_NETWORKS = [
@@ -84,6 +85,44 @@ const SectionHeader = ({
   </div>
 )
 
+const normalizeSocialMedia = (
+  social?: InstitutionForm['social_media']
+): InstitutionForm['social_media'] => ({
+  website: social?.website ?? '',
+  facebook: social?.facebook ?? '',
+  instagram: social?.instagram ?? '',
+  linkedin: social?.linkedin ?? '',
+  twitter: social?.twitter ?? ''
+})
+
+const normalizeInstitutionForm = (data?: InstitutionForm): InstitutionForm => ({
+  id: data?.id,
+  institution_name: data?.institution_name ?? '',
+  institution_type: data?.institution_type ?? '',
+  institution_email: data?.institution_email ?? '',
+  mission: data?.mission ?? '',
+  vision: data?.vision ?? '',
+  primary_color: data?.primary_color ?? '',
+  whatsapp_number: data?.whatsapp_number ?? '',
+  description: data?.description ?? '',
+  contact_phone: data?.contact_phone ?? '',
+  address: data?.address ?? '',
+  acronym: data?.acronym ?? '',
+  document_number: data?.document_number ?? '',
+  brand: data?.brand ?? '',
+  cover_image_url: data?.cover_image_url ?? '',
+  slug: data?.slug ?? '',
+  social_media: normalizeSocialMedia(data?.social_media),
+  status: data?.status,
+  validation_status: data?.validation_status,
+  logo_url: data?.logo_url,
+  about_us: data?.about_us,
+  map_iframe_url: data?.map_iframe_url ?? undefined,
+  documents: data?.documents,
+  created_at: data?.created_at,
+  updated_at: data?.updated_at
+})
+
 interface InstitutionFormDataProps {
   initialData?: InstitutionForm
   onSubmit: (data: InstitutionForm) => void
@@ -101,19 +140,7 @@ export const InstitutionFormData = ({
 }: InstitutionFormDataProps) => {
   const form = useForm<InstitutionForm>({
     resolver: zodResolver(institutionSchema),
-    defaultValues: initialData || {
-      institution_name: '',
-      institution_type: '',
-      institution_email: '',
-      // Inicializar objetos anidados es buena práctica
-      social_media: {
-        website: '',
-        facebook: '',
-        instagram: '',
-        linkedin: '',
-        twitter: ''
-      }
-    }
+    defaultValues: normalizeInstitutionForm(initialData)
   })
 
   // Generador automático de slug simple si el nombre cambia (UX)
@@ -165,14 +192,16 @@ export const InstitutionFormData = ({
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccionar tipo" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="university">Universidad</SelectItem>
-                      <SelectItem value="institute">Instituto</SelectItem>
-                      <SelectItem value="school">Escuela</SelectItem>
+                      {institutionTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

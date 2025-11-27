@@ -34,13 +34,7 @@ export const institutionSchema = z.object({
   logo_url: z.string().optional(), // Logo específico
   cover_image_url: z.string().optional(), // Banner
   brand: z.string().optional().nullable(), // Nombre de marca o slogan
-  primary_color: z
-    .string()
-    .regex(
-      /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
-      'Debe ser un código Hex válido'
-    )
-    .optional(), // Para botones/temas
+  primary_color: z.string().optional(), // Para botones/temas
 
   // --- Contenido ---
   description: z.string().optional(), // Descripción corta
