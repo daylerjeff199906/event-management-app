@@ -192,6 +192,15 @@ export const adminMenu: SectionElement[] = [
           icon: 'Layers'
         },
         submenus: []
+      },
+      {
+        menu: {
+          id: 4,
+          name: 'Categorías',
+          url: APP_URL.ADMIN.CATEGORIES.BASE,
+          icon: 'Grid'
+        },
+        submenus: []
       }
     ]
   },
@@ -211,7 +220,7 @@ export const adminMenu: SectionElement[] = [
         submenus: []
       }
     ]
-  },
+  }
   // {
   //   section: {
   //     id: 4,

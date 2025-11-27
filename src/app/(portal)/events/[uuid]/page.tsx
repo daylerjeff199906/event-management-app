@@ -88,7 +88,7 @@ export async function generateMetadata({
                 url: siteConfig.ogImage,
                 width: 1200,
                 height: 630,
-                alt: siteConfig.name
+                alt: siteConfig.ogImage
               }
             ]
       },
@@ -130,8 +130,8 @@ export default async function Page(props: PageProps) {
   }
 
   return (
-    <div className="pt-20 ">
-      <EventDetailsPage event={response.data} />
+    <div className="min-h-screen">
+      <EventDetailsPage event={response.data} isPortal />
     </div>
   )
 }

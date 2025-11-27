@@ -214,7 +214,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Nombre del evento */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>¿Cuál es el nombre de tu evento?</CardTitle>
               <CardDescription>
@@ -245,7 +245,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Descripción */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>
                 ¿Puedes describir brevemente de qué trata tu evento?
@@ -276,7 +276,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Fechas */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>¿Cuándo inicia y termina tu evento?</CardTitle>
             </CardHeader>
@@ -412,7 +412,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Evento recurrente */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>¿Es un evento recurrente?</CardTitle>
             </CardHeader>
@@ -531,7 +531,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Categoría */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>Selecciona una categoría para tu evento</CardTitle>
               <CardDescription>
@@ -575,7 +575,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Estado del evento */}
-          <Card className="shadow-none border border-gray-200 bg-white">
+          <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
               <CardTitle>
                 ¿Quieres publicar el evento ahora o guardarlo como borrador?
