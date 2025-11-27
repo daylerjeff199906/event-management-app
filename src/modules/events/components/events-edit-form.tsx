@@ -308,12 +308,10 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             </CardContent>
           </Card>
 
-          <AiDescriptionGenerator form={form} categories={categories} />
-
           {/* Descripción */}
           <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
-              <CardTitle>Descripción del evento</CardTitle>
+              <CardTitle>Descripción corta del evento</CardTitle>
               <CardDescription>
                 Proporciona más detalles sobre tu evento para ayudar a los
                 asistentes a entender qué pueden esperar.
@@ -330,6 +328,37 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
                         {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Descripción completa con IA */}
+          <Card className="shadow-none border border-gray-200 ">
+            <CardHeader>
+              <CardTitle>Descripción completa del evento</CardTitle>
+              <CardDescription>
+                Usa inteligencia artificial para generar una descripción
+                atractiva y detallada para tu evento.
+                <AiDescriptionGenerator form={form} categories={categories} />
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="full_description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Descripción completa del evento..."
+                        className="min-h-[150px]"
+                        {...field}
+                        value={field.value || ''}
                       />
                     </FormControl>
                     <FormMessage />

@@ -68,7 +68,7 @@ export const AiDescriptionGenerator = ({
         toast.error(`Error: ${result.error}`)
       } else if (result.data) {
         // 4. Escribir en el formulario (con efecto de máquina de escribir opcional o directo)
-        form.setValue('description', result.data, {
+        form.setValue('full_description', result.data, {
           shouldDirty: true,
           shouldValidate: true
         })
