@@ -69,6 +69,11 @@ export const APP_URL = {
       DETAIL: (id: string) => `/admin/users/${id}`,
       ADD_USER: '/admin/users/add'
     },
+    CATEGORIES: {
+      BASE: '/admin/categories',
+      ADD_CATEGORY: '/admin/categories/create',
+      EDIT: (id: string | number) => `/admin/categories/${id}`
+    },
     INSTITUTIONS: {
       BASE: '/admin/institutions',
       EDIT: (id: string) => `/admin/institutions/${id}`,
