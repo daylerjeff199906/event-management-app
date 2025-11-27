@@ -23,6 +23,7 @@ export const eventSchema = z
     time: z.date().optional(),
     duration: z.number().optional(),
     cover_image_url: z.string().optional(),
+    full_description: z.string().optional().nullable(),
     status: z
       .enum([EventStatus.DRAFT, EventStatus.PUBLIC, EventStatus.DELETE])
       .optional(),
