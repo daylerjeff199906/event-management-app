@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { ImageUploadModal, InstitutionFormData } from '@/modules/admin'
 import {
   InstitutionForm,
-  InstitutionStatus
+  InstitutionStatus,
+  InstitutionValidationStatus
 } from '@/modules/portal/lib/register.institution'
 import {
   createInstitution,
@@ -31,7 +32,7 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
       : await createInstitution({
           ...formData,
           status: InstitutionStatus.ACTIVE,
-          validation_status: 'approved'
+          validation_status: InstitutionValidationStatus.APPROVED
         })
     setIsLoading(false)
 
