@@ -41,6 +41,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { EventLocationSection } from './event-location-section'
 import { formatDate } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { AiDescriptionGenerator } from '@/modules/dashboard/components/ai-description-generator'
 
 const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
   if (!dateValue) return undefined
@@ -306,6 +307,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
               />
             </CardContent>
           </Card>
+
+          <AiDescriptionGenerator form={form} categories={categories} />
 
           {/* Descripción */}
           <Card className="shadow-none border border-gray-200 ">
