@@ -33,6 +33,7 @@ import { EventItemDetails } from '@/types'
 import { EventMode } from '../schemas'
 import { APP_URL } from '@/data/config-app-url'
 import EventStickyBanner from './event-sticky-banner'
+import Link from 'next/link'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -479,10 +480,10 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
             </p>
           </div>
           <Button
-            disabled
             className="bg-black text-white hover:bg-zinc-800 px-8 py-6 text-lg font-bold uppercase tracking-wider rounded-none"
+            asChild
           >
-            Registrarse Ahora
+            <Link href={APP_URL.AUTH.REGISTER}>Suscribirse</Link>
           </Button>
         </div>
       </div>
