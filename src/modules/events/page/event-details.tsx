@@ -429,7 +429,7 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                 <Avatar className="w-20 h-20 border-2 border-zinc-200 dark:border-zinc-700">
                   <AvatarImage
                     src={
-                      event.institution?.brand ||
+                      event.institution?.logo_url ||
                       event.author?.profile_image ||
                       ''
                     }

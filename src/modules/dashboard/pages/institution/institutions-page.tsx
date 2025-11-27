@@ -42,7 +42,7 @@ export default function InstitutionsPage({
                   {/* Avatar cuando no hay brand/logo */}
                   <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarImage
-                      src={institution.brand || undefined}
+                      src={institution.logo_url || undefined}
                       alt={institution.institution_name}
                       className="object-cover"
                     />
@@ -69,7 +69,7 @@ export default function InstitutionsPage({
                     <div className="flex gap-2 mb-3">
                       <Badge
                         variant="secondary"
-                        className="text-xs rounded-full capitalize  "
+                        className="text-xs rounded-full capitalize"
                       >
                         {institution.institution_type}
                       </Badge>

@@ -1,7 +1,8 @@
 import { EventMode } from '@/modules/events/schemas'
-import { Address, InstitutionEvent, IUser, Pagination } from '../core'
+import { Address, IUser, Pagination } from '../core'
 import { Category } from './categories'
 import { EventDetails } from './events-details'
+import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 
 export enum EventStatus {
   DRAFT = 'DRAFT',
@@ -61,7 +62,7 @@ export interface EventsFilters extends Pagination {
 
 export interface EventItemDetails extends Event {
   categorydata: Category | null
-  institution: InstitutionEvent | null
+  institution: InstitutionForm | null
   user: IUser | null
   author: IUser | null
   // Database external key
@@ -69,4 +70,3 @@ export interface EventItemDetails extends Event {
   // Extended details
   infodata: EventDetails | null
 }
-

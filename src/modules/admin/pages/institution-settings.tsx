@@ -1,93 +1,99 @@
 'use client'
+
 import { useState } from 'react'
-import { ImageUploadModal, InstitutionFormData } from '@/modules/admin'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
+import { ImageUploadModal } from '@/modules/admin' // Tu componente existente
+import { InstitutionFormData } from '../components/institution-form-data'
 import {
   InstitutionForm,
-  InstitutionStatus
+  InstitutionStatus,
+  InstitutionValidationStatus
 } from '@/modules/portal/lib/register.institution'
 import {
   createInstitution,
   updateInstitutionById,
   upsertInstitutionById
 } from '@/services/institution.services'
-import { toast } from 'react-toastify'
-import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
-import { useRouter } from 'next/navigation'
 
 interface InstitutionSettingsProps {
   institutionData?: InstitutionForm
   urlRedirect?: string
+  isAdmin?: boolean // Prop para controlar permisos
 }
 
 export const InstitutionSettings = (props: InstitutionSettingsProps) => {
-  const { institutionData, urlRedirect } = props
+  const { institutionData, urlRedirect, isAdmin = false } = props
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
+  // Manejo del envío del formulario completo
   const handleSubmit = async (formData: InstitutionForm) => {
     setIsLoading(true)
-    const { error } = institutionData
-      ? await updateInstitutionById(institutionData.id!.toString(), formData)
-      : await createInstitution({
-          ...formData,
-          status: InstitutionStatus.ACTIVE,
-          validation_status: 'approved'
-        })
-    setIsLoading(false)
+    try {
+      const { error } = institutionData?.id
+        ? await updateInstitutionById(institutionData.id, formData)
+        : await createInstitution({
+            ...formData,
+            // Si no es admin y está creando, valores por defecto seguros
+            status: institutionData
+              ? formData.status
+              : InstitutionStatus.ACTIVE,
+            validation_status: institutionData
+              ? formData.validation_status
+              : InstitutionValidationStatus.PENDING
+          })
 
-    if (error) {
-      toast.error(
-        <ToastCustom
-          title="Error"
-          description={`No se pudo actualizar la institución: ${error}`}
-        />
-      )
-    } else {
+      if (error) throw new Error(error)
+
       toast.success(
         <ToastCustom
           title="Éxito"
           description={
-            institutionData
-              ? 'Institución actualizada con éxito.'
-              : 'Institución creada con éxito.'
+            institutionData ? 'Institución actualizada.' : 'Institución creada.'
           }
         />
       )
+
       if (urlRedirect) {
         router.push(urlRedirect)
-      }
-    }
-    setIsLoading(false)
-  }
-
-  const onAvatarChange = async (url: string) => {
-    try {
-      const response = await upsertInstitutionById({
-        id: institutionData?.id?.toString() || '',
-        updates: {
-          ...institutionData,
-          brand: url
-        }
-      })
-      if (response.data) {
-        toast.success(
-          <ToastCustom
-            title="Perfil actualizado"
-            description="Tu perfil se ha actualizado con éxito."
-          />
-        )
-
-        // window.location.reload()
-      }
+      } else router.refresh()
     } catch (error) {
-      const errorMessage =
-        typeof error === 'object' && error !== null && 'message' in error
-          ? (error as { message?: string }).message || 'Error desconocido'
-          : 'Error desconocido'
+      const err = error as Error
+      const message = err.message || 'Error desconocido'
       toast.error(
         <ToastCustom
-          title="Error al actualizar el avatar"
-          description={errorMessage}
+          title="Error"
+          description={`No se pudo guardar: ${message}`}
+        />
+      )
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Manejo específico para cambio rápido de logo (Header)
+  const onLogoChange = async (url: string) => {
+    if (!institutionData?.id) return
+
+    try {
+      await upsertInstitutionById({
+        id: institutionData.id,
+        updates: { ...institutionData, logo_url: url } // Actualizado a logo_url
+      })
+      toast.success(
+        <ToastCustom
+          title="Logo actualizado"
+          description="El logo se ha actualizado correctamente."
+        />
+      )
+      router.refresh()
+    } catch {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description="No se pudo actualizar el logo."
         />
       )
     }
@@ -95,44 +101,38 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
 
   return (
     <>
+      {/* Header con cambio rápido de logo (solo si existe data previa) */}
       {institutionData && (
-        <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center border rounded-md p-4">
+        <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center border rounded-md p-4 bg-background shadow-sm">
           <div className="flex items-center gap-4">
             <ImageUploadModal
-              onUpload={onAvatarChange}
-              title="Cambiar Logo de la Institución"
-              defaultImage={institutionData?.brand || undefined}
-              nameInstitution={
-                institutionData?.acronym ||
-                institutionData?.institution_name ||
-                'Institución'
-              }
-              description="Logo de la institución (se recomienda una imagen cuadrada para mejores resultados)"
-              folder="institutions"
+              onUpload={onLogoChange}
+              title="Cambiar Logo"
+              defaultImage={institutionData.logo_url || undefined}
+              nameInstitution={institutionData.institution_name}
+              folder="institutions/logos"
             />
             <div>
-              <h2 className="text-base font-semibold text-foreground">
-                {institutionData?.institution_name ||
-                  'Nombre de la Institución'}
+              <h2 className="text-xl font-bold text-foreground">
+                {institutionData.institution_name}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {institutionData?.institution_email || '    '}
+                {institutionData.institution_email}
               </p>
             </div>
           </div>
         </div>
       )}
+
+      {/* Formulario Principal */}
       <InstitutionFormData
         initialData={institutionData}
         onSubmit={handleSubmit}
-        onCancel={() => {
-          if (urlRedirect) {
-            router.push(urlRedirect)
-          } else {
-            router.back()
-          }
-        }}
+        onCancel={() =>
+          urlRedirect ? router.push(urlRedirect) : router.back()
+        }
         isLoading={isLoading}
+        canChangeStatus={isAdmin} // Pasamos el control de permisos
       />
     </>
   )
