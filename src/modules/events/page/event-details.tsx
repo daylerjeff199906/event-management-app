@@ -34,6 +34,7 @@ import { EventMode } from '../schemas'
 import { APP_URL } from '@/data/config-app-url'
 import EventStickyBanner from './event-sticky-banner'
 import Link from 'next/link'
+import { ReactMarkdownContent } from '@/components/app/miscellaneous/react-markdown-content'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -413,6 +414,10 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                   </div>
                 </PhotoProvider>
               </div>
+            )}
+
+            {event.full_description && (
+              <ReactMarkdownContent content={event.full_description} />
             )}
 
             {/* Sección Organizado Por */}

@@ -41,6 +41,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { EventLocationSection } from './event-location-section'
 import { formatDate } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { AiDescriptionGenerator } from '@/modules/dashboard/components/ai-description-generator'
+import { RichTextEditor } from './rich-text-editor'
 
 const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
   if (!dateValue) return undefined
@@ -108,7 +110,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       address_id: eventData?.address_id || undefined,
       meeting_url: eventData?.meeting_url || undefined,
       custom_location: eventData?.custom_location || undefined,
-      event_mode: eventData?.event_mode || undefined
+      event_mode: eventData?.event_mode || undefined,
+      full_description: eventData?.full_description || undefined
     }
   })
 
@@ -310,7 +313,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           {/* Descripción */}
           <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
-              <CardTitle>Descripción del evento</CardTitle>
+              <CardTitle>Descripción corta del evento</CardTitle>
               <CardDescription>
                 Proporciona más detalles sobre tu evento para ayudar a los
                 asistentes a entender qué pueden esperar.
@@ -327,6 +330,43 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                         placeholder="Describe a las personas qué pueden esperar de tu evento..."
                         className="min-h-[100px]"
                         {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Descripción completa con IA */}
+          <Card className="shadow-none border border-gray-200 ">
+            <CardHeader>
+              <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
+                <div className="space-y-1.5">
+                  <CardTitle>Descripción del evento</CardTitle>
+                  <CardDescription>
+                    Proporciona más detalles sobre tu evento. Puedes usar
+                    negritas y listas para resaltar lo importante.
+                  </CardDescription>
+                </div>
+                {/* Generador IA */}
+                <AiDescriptionGenerator form={form} categories={categories} />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="full_description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      {/* Aquí usamos el nuevo componente */}
+                      <RichTextEditor
+                        value={field.value || '// ... resto del contenido'}
+                        onChange={field.onChange}
+                        placeholder="Escribe o genera una descripción increíble..."
+                        className="min-h-[200px]"
                       />
                     </FormControl>
                     <FormMessage />
