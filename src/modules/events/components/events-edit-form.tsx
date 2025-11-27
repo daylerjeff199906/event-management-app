@@ -357,7 +357,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             <CardContent>
               <FormField
                 control={form.control}
-                name="description"
+                name="full_description"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
