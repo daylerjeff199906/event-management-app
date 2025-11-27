@@ -28,6 +28,7 @@ export interface Event {
   address_id?: string | null
   time?: string | null
   duration?: number | null
+  full_description?: string | null
   // is_featured?: boolean | null
   // Campos añadidos para recurrencia
   is_recurring?: boolean | null
