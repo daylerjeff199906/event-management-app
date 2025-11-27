@@ -109,7 +109,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       address_id: eventData?.address_id || undefined,
       meeting_url: eventData?.meeting_url || undefined,
       custom_location: eventData?.custom_location || undefined,
-      event_mode: eventData?.event_mode || undefined
+      event_mode: eventData?.event_mode || undefined,
+      full_description: eventData?.full_description || undefined
     }
   })
 

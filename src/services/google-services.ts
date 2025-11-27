@@ -49,9 +49,11 @@ const prompt = `
     model: "gemini-2.5-flash",
     contents: prompt,
   });
+
    
   const resJson = await response.text
-  const description = resJson?.trim()
+  const description = resJson?.trim() || ''
+
   
     return { success: true, data: description }
   } catch (error) {
