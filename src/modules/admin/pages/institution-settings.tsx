@@ -56,7 +56,9 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
         />
       )
 
-      if (urlRedirect) router.push(urlRedirect)
+      if (urlRedirect) {
+        router.push(urlRedirect)
+      } else router.refresh()
     } catch (error) {
       const err = error as Error
       const message = err.message || 'Error desconocido'

@@ -65,8 +65,8 @@ export const institutionSchema = z.object({
   status: z
     .enum([InstitutionStatus.ACTIVE, InstitutionStatus.INACTIVE])
     .optional(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional()
+  created_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 // Esquema para el formulario de búsqueda
