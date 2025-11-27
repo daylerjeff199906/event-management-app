@@ -179,6 +179,7 @@ export const InstitutionFormData = ({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="acronym"
@@ -333,7 +334,7 @@ export const InstitutionFormData = ({
         </section>
 
         {/* --- 4. Contacto y Redes --- */}
-        <section>
+        <section className="space-y-6">
           <SectionHeader title="Contacto y Redes Sociales" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
@@ -385,45 +386,45 @@ export const InstitutionFormData = ({
                 </FormItem>
               )}
             />
-
-            {/* --- SECCIÓN 4: REDES SOCIALES (ACTUALIZADA) --- */}
-            <section>
-              <div className="mb-4">
-                <h3 className="text-lg font-medium flex items-center gap-2">
-                  <LinkIcon className="w-5 h-5" /> Redes Sociales
-                </h3>
-                <Separator className="my-2" />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {SOCIAL_NETWORKS.map(({ key, label, placeholder }) => (
-                  <FormField
-                    key={key}
-                    control={form.control}
-                    // NOTA IMPORTANTE: Usamos notación de punto para acceder al objeto
-                    name={`social_media.${key}`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2 text-sm font-medium">
-                          {/* <Icon className="w-4 h-4 text-muted-foreground" /> */}
-                          {label}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={placeholder}
-                            {...field}
-                            // Aseguramos que nunca sea null para evitar advertencias de React
-                            value={field.value || ''}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-              </div>
-            </section>
           </div>
+
+          {/* --- SECCIÓN 4: REDES SOCIALES (ACTUALIZADA) --- */}
+          <section>
+            <div className="mb-4">
+              <h3 className="text-lg font-medium flex items-center gap-2">
+                <LinkIcon className="w-5 h-5" /> Redes Sociales
+              </h3>
+              <Separator className="my-2" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {SOCIAL_NETWORKS.map(({ key, label, placeholder }) => (
+                <FormField
+                  key={key}
+                  control={form.control}
+                  // NOTA IMPORTANTE: Usamos notación de punto para acceder al objeto
+                  name={`social_media.${key}`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                        {/* <Icon className="w-4 h-4 text-muted-foreground" /> */}
+                        {label}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={placeholder}
+                          {...field}
+                          // Aseguramos que nunca sea null para evitar advertencias de React
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+          </section>
         </section>
 
         {/* --- 5. Administración (Solo Admin) --- */}

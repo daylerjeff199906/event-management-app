@@ -106,9 +106,7 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
             <ImageUploadModal
               onUpload={onLogoChange}
               title="Cambiar Logo"
-              defaultImage={
-                institutionData.logo_url || institutionData.brand || undefined
-              }
+              defaultImage={institutionData.logo_url || undefined}
               nameInstitution={institutionData.institution_name}
               folder="institutions/logos"
             />
