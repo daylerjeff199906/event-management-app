@@ -34,6 +34,7 @@ import { EventMode } from '../schemas'
 import { APP_URL } from '@/data/config-app-url'
 import EventStickyBanner from './event-sticky-banner'
 import Link from 'next/link'
+import { ReactMarkdownContent } from '@/components/app/miscellaneous/react-markdown-content'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -357,6 +358,9 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                 {event.description ||
                   'No hay descripción disponible para este evento. Únete para descubrir más detalles directamente con el organizador.'}
               </p>
+              {event.full_description && (
+                <ReactMarkdownContent content={event.full_description} />
+              )}
             </div>
 
             {/* Galería de Imágenes */}
