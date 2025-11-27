@@ -21,10 +21,7 @@ import {
   CategoryFormValues,
   categorySchema
 } from '@/modules/admin/schemas/category-schema'
-import {
-  createCategory,
-  updateCategory
-} from '@/services/categories.services'
+import { createCategory, updateCategory } from '@/services/categories.services'
 import { Category } from '@/types'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
@@ -133,6 +130,7 @@ export function CategoryForm({ category, mode = 'create' }: CategoryFormProps) {
                     {...field}
                     placeholder="Texto breve sobre la categoria"
                     className="min-h-[120px]"
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -148,9 +146,10 @@ export function CategoryForm({ category, mode = 'create' }: CategoryFormProps) {
                 <FormLabel>Icono (opcional)</FormLabel>
                 <FormControl>
                   <Input
-                    {...field}
                     placeholder="Ej: Music, Calendar, Star"
                     autoComplete="off"
+                    {...field}
+                    value={field.value ?? ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -170,13 +169,15 @@ export function CategoryForm({ category, mode = 'create' }: CategoryFormProps) {
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || (mode === 'edit' && !form.formState.isDirty)}
+            disabled={
+              isSubmitting || (mode === 'edit' && !form.formState.isDirty)
+            }
           >
             {isSubmitting
               ? 'Guardando...'
               : mode === 'edit'
-                ? 'Guardar cambios'
-                : 'Crear categoria'}
+              ? 'Guardar cambios'
+              : 'Crear categoria'}
           </Button>
         </div>
       </form>
