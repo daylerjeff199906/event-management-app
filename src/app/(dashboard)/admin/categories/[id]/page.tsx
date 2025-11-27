@@ -1,13 +1,20 @@
 import { notFound } from 'next/navigation'
 import { CategoryForm } from '@/modules/admin'
 import { fetchCategoryById } from '@/services/categories.services'
+import { Params } from '@/types'
 
 type PageProps = {
-  params: { id: string }
+  params: Params
 }
 
-export default async function Page({ params }: PageProps) {
-  const category = await fetchCategoryById(params.id)
+export default async function Page(props: PageProps) {
+  const params = await props.params
+  const id = params.id as string
+
+  if (!id) {
+    notFound()
+  }
+  const category = await fetchCategoryById(id)
 
   if (!category) {
     notFound()
