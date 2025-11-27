@@ -358,9 +358,6 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                 {event.description ||
                   'No hay descripción disponible para este evento. Únete para descubrir más detalles directamente con el organizador.'}
               </p>
-              {event.full_description && (
-                <ReactMarkdownContent content={event.full_description} />
-              )}
             </div>
 
             {/* Galería de Imágenes */}
@@ -417,6 +414,10 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                   </div>
                 </PhotoProvider>
               </div>
+            )}
+
+            {event.full_description && (
+              <ReactMarkdownContent content={event.full_description} />
             )}
 
             {/* Sección Organizado Por */}
