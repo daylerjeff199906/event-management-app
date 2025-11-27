@@ -16,3 +16,17 @@ export async function fetchCategories(): Promise<Category[]> {
   }
   return data || []
 }
+
+export async function fetchCategoryById(id: string): Promise<Category | null> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error) {
+    console.error('Error fetching category by ID:', error)
+    return null
+  }
+  return data || null
+}
