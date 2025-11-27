@@ -42,7 +42,7 @@ export default function InstitutionsPage({
                   {/* Avatar cuando no hay brand/logo */}
                   <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarImage
-                      src={institution.brand || undefined}
+                      src={institution.logo_url || undefined}
                       alt={institution.institution_name}
                       className="object-cover"
                     />
