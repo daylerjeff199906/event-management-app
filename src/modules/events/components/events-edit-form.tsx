@@ -42,6 +42,7 @@ import { EventLocationSection } from './event-location-section'
 import { formatDate } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { AiDescriptionGenerator } from '@/modules/dashboard/components/ai-description-generator'
+import { RichTextEditor } from './rich-text-editor'
 
 const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
   if (!dateValue) return undefined
@@ -341,25 +342,31 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           {/* Descripción completa con IA */}
           <Card className="shadow-none border border-gray-200 ">
             <CardHeader>
-              <CardTitle>Descripción completa del evento</CardTitle>
-              <CardDescription>
-                Usa inteligencia artificial para generar una descripción
-                atractiva y detallada para tu evento.
+              <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
+                <div className="space-y-1.5">
+                  <CardTitle>Descripción del evento</CardTitle>
+                  <CardDescription>
+                    Proporciona más detalles sobre tu evento. Puedes usar
+                    negritas y listas para resaltar lo importante.
+                  </CardDescription>
+                </div>
+                {/* Generador IA */}
                 <AiDescriptionGenerator form={form} categories={categories} />
-              </CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
               <FormField
                 control={form.control}
-                name="full_description"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Textarea
-                        placeholder="Descripción completa del evento..."
-                        className="min-h-[150px]"
-                        {...field}
-                        value={field.value || ''}
+                      {/* Aquí usamos el nuevo componente */}
+                      <RichTextEditor
+                        value={field.value || '// ... resto del contenido'}
+                        onChange={field.onChange}
+                        placeholder="Escribe o genera una descripción increíble..."
+                        className="min-h-[200px]"
                       />
                     </FormControl>
                     <FormMessage />
