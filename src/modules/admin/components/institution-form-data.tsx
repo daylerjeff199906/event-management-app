@@ -27,7 +27,6 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
-import { useEffect } from 'react'
 import { Globe, Instagram, Linkedin, LinkIcon, Twitter } from 'lucide-react'
 import Facebook from 'next-auth/providers/facebook'
 import { institutionTypes } from '@/modules/portal/lib/register.institution'
@@ -143,18 +142,6 @@ export const InstitutionFormData = ({
 
   const errors = form.formState.errors
 
-  // Generador automático de slug simple si el nombre cambia (UX)
-  const name = form.watch('institution_name')
-  useEffect(() => {
-    if (!initialData && name) {
-      const slug = name
-        .toLowerCase()
-        .replace(/ /g, '-')
-        .replace(/[^\w-]+/g, '')
-      form.setValue('slug', slug)
-    }
-  }, [name, initialData, form])
-
   return (
     <>
       {Object.keys(errors).length > 0 && (
@@ -254,9 +241,7 @@ export const InstitutionFormData = ({
                 name="document_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                        N. Documento
-                    </FormLabel>
+                    <FormLabel>N. Documento</FormLabel>
                     <FormControl>
                       <Input placeholder="123456789" {...field} />
                     </FormControl>
@@ -490,7 +475,7 @@ export const InstitutionFormData = ({
 
           {/* --- 5. Administración (Solo Admin) --- */}
           {canChangeStatus && (
-            <section className="bg-red-50 p-4 rounded-lg border border-red-100">
+            <section className="bg-red-50 p-4 rounded-lg border border-red-100 dark:bg-red-900/10 dark:border-red-800">
               <SectionHeader
                 title="Zona Administrativa"
                 description="Control de estado y validación."

@@ -1,6 +1,7 @@
 import { InstitutionSettings } from '@/modules/admin'
 import { Params } from '@/types'
 import { getInstitutionById } from '@/services/institution.services'
+import { APP_URL } from '@/data/config-app-url'
 
 interface PageProps {
   params: Params
@@ -28,7 +29,11 @@ export default async function Page(props: PageProps) {
 
   return (
     <>
-      <InstitutionSettings institutionData={institutionData} />
+      <InstitutionSettings
+        isAdmin
+        urlRedirect={APP_URL.ADMIN.INSTITUTIONS.BASE}
+        institutionData={institutionData}
+      />
     </>
   )
 }
