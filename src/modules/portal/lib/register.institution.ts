@@ -27,13 +27,7 @@ export const institutionSchema = z.object({
     .string()
     .min(2, 'El nombre debe tener al menos 2 caracteres'),
   // Slug para URL amigable (ej: universidad-central)
-  slug: z
-    .string()
-    .min(3, 'El slug es necesario para la URL')
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'El slug solo puede contener letras minúsculas, números y guiones'
-    ),
+  slug: z.string().optional(),
   institution_type: z.string().min(1, 'Selecciona el tipo'),
   document_number: z.string().optional(), // RUC / NIT
   // --- Branding y Visual ---
