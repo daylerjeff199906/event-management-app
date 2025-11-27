@@ -10,7 +10,6 @@ import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import InstitutionFound from '@/modules/portal/pages/institution/institution-found'
-import { APP_URL } from '@/data/config-app-url'
 import Image from 'next/image'
 import { BG_AUTH_INSTITUTION } from '@/assets/images'
 
@@ -26,6 +25,8 @@ export default function HomePage() {
 
   const handleInstitutionNotFound = (term: string) => {
     setSearchTerm(term)
+    setFoundInstitution(null)
+    setInstitutionCreated(null)
     setCurrentStep('register')
   }
 
@@ -47,10 +48,13 @@ export default function HomePage() {
     setCurrentStep('search')
     setSearchTerm('')
     setFoundInstitution(null)
+    setInstitutionCreated(null)
   }
 
   const handleBack = () => {
     setCurrentStep('search')
+    setFoundInstitution(null)
+    setInstitutionCreated(null)
   }
 
   if (foundInstitution) {
@@ -72,9 +76,7 @@ export default function HomePage() {
             institution_email: foundInstitution.institution_email,
             institution_name: foundInstitution.institution_name
           }}
-          onBack={() =>
-            window.location.replace(APP_URL.PORTAL.INSTITUTION_REQUEST)
-          }
+          onBack={handleStartOver}
         />
       </div>
     )
