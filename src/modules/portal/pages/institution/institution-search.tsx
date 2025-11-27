@@ -63,6 +63,8 @@ export function InstitutionSearch({
         query: query.search_term
       })
 
+      console.log('Resultados de búsqueda:', data, error)
+
       if (error) {
         console.error('Error al buscar institución:', error)
         onInstitutionNotFound(query.search_term)
