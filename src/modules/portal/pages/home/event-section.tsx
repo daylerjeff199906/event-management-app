@@ -5,6 +5,8 @@ import { fetchEventList } from '@/services/events.services'
 import { EventCardUser } from '@/modules/events'
 import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
+import Link from 'next/link'
+import { EventCardSkeleton } from '../../components/event-card-skeleton'
 
 export function EventsSection() {
   const [events, setEvents] = useState<Event[]>([])
@@ -20,7 +22,8 @@ export function EventsSection() {
   const loadEvents = async () => {
     try {
       const data = await fetchEventList({
-        status: EventStatus.PUBLIC
+        status: EventStatus.PUBLIC,
+        pageSize: 9
       })
       setEvents(data.data?.data || [])
     } catch (error) {
@@ -44,7 +47,7 @@ export function EventsSection() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {loading
           ? // Skeleton loading
             Array.from({ length: 4 }).map((_, index) => (
@@ -59,28 +62,15 @@ export function EventsSection() {
               />
             ))}
       </div>
-    </div>
-  )
-}
 
-// Componente Skeleton para loading
-function EventCardSkeleton() {
-  return (
-    <div className="border rounded-2xl overflow-hidden animate-pulse">
-      <div className="h-48 bg-gray-200"></div>
-      <div className="p-5">
-        <div className="h-6 bg-gray-200 rounded mb-3"></div>
-        <div className="h-4 bg-gray-200 rounded mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-        <div className="flex items-center mb-3">
-          <div className="h-4 w-4 bg-gray-200 rounded mr-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        </div>
-        <div className="flex items-center mb-4">
-          <div className="h-4 w-4 bg-gray-200 rounded mr-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-        </div>
-        <div className="h-10 bg-gray-200 rounded"></div>
+      <div className="text-center">
+        <Link
+          href={APP_URL.PORTAL.EVENTS.BASE}
+          className="mx-auto mt-8 inline-block bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-colors duration-300 dark:hover:bg-primary/80"
+          passHref
+        >
+          Ver todos los eventos
+        </Link>
       </div>
     </div>
   )

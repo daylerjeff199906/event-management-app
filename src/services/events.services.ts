@@ -170,6 +170,31 @@ export async function fetchEventList(filter: EventsFilters): Promise<{
   }
 }
 
+export async function fetchEventsExcludingId(eventId: string): Promise<{
+  data: Event[] | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .neq('id', eventId)
+      .eq('status', EventStatus.PUBLIC)
+      .order('event_name')
+      .limit(4)
+
+    if (error) {
+      console.error('Error fetching events excluding id:', error)
+      return { data: null, error }
+    }
+
+    return { data: (data as Event[]) ?? [], error: null }
+  } catch (err) {
+    console.error('Unexpected error fetching events excluding id:', err)
+    return { data: null, error: err as Error }
+  }
+}
 export async function createEvent(eventData: EventFormData): Promise<{
   data: Event | null
   error: Error | null
