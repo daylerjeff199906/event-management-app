@@ -168,7 +168,7 @@ export function EventManageLayout({
         className={cn(
           'flex-1 p-6 lg:pl-8 lg:pr-12 lg:py-8',
           sidebarOpen ? 'opacity-50 pointer-events-none' : 'opacity-100',
-          'max-w-4xl mx-auto w-full'
+          'max-w-5xl mx-auto w-full'
         )}
       >
         {children}
