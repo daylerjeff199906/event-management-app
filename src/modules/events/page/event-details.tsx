@@ -446,10 +446,20 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <h4 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
-                    {event.institution?.institution_name ||
-                      `${event.author?.first_name} ${event.author?.last_name}`}
-                  </h4>
+                  <Link
+                    href={
+                      event.institution
+                        ? APP_URL.PORTAL.PLACES.INSTITUTIONS.DETAIL(
+                            event?.institution?.slug ?? ''
+                          )
+                        : '#'
+                    }
+                  >
+                    <h4 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
+                      {event.institution?.institution_name ||
+                        `${event.author?.first_name} ${event.author?.last_name}`}
+                    </h4>
+                  </Link>
                   <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">
                     Organizador oficial del evento
                   </p>

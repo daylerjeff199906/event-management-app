@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 import { siteConfig } from '@/lib/siteConfig'
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { getInstitutionBySlug } from '@/services/institution.services'
+import { InstitutionLandingPage } from '@/modules/places'
 
 interface PageProps {
   params: Params
@@ -131,5 +132,7 @@ export default async function Page(props: PageProps) {
     )
   }
 
-  return <div className="min-h-screen"></div>
+  const institution = response.data
+
+  return <InstitutionLandingPage data={institution} />
 }
