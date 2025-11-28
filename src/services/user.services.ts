@@ -6,6 +6,7 @@ import {
 } from '@/modules/portal/lib/validations'
 import { getSupabase } from './core.supabase'
 import { IUser, IUserFilter, ResponsePagination } from '@/types'
+import { revalidatePath } from 'next/cache'
 
 export async function insertUserData(formData: PersonalInfo) {
   const supabase = await getSupabase()
@@ -96,6 +97,48 @@ export async function updateUserData({
     .eq('id', id)
     .select()
     .single()
+
+  return { error, data, status, statusText }
+}
+
+export async function updateUserField<K extends keyof PersonalInfo>(
+  id: string,
+  field: K,
+  value: PersonalInfo[K]
+) {
+  const supabase = await getSupabase()
+  const payload = { [field]: value } as Record<string, unknown>
+
+  const { error, data, status, statusText } = await supabase
+    .from('users')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single()
+
+  return { error, data, status, statusText }
+}
+
+export async function updateUserRoles({
+  userId,
+  roles,
+  revalidateUrl
+}: {
+  userId: string
+  roles: string[] | null
+  revalidateUrl?: string
+}) {
+  const supabase = await getSupabase()
+  const { error, data, status, statusText } = await supabase
+    .from('users')
+    .update({ role: roles && roles.length > 0 ? roles : null })
+    .eq('id', userId)
+    .select()
+    .single()
+
+  if (revalidateUrl) {
+    revalidatePath(revalidateUrl)
+  }
 
   return { error, data, status, statusText }
 }

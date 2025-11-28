@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Upload, ImageIcon, Move, Check, Loader2 } from 'lucide-react'
+import { Upload, Camera, Loader2, ImageIcon } from 'lucide-react' // Agregué Camera
 import {
   Dialog,
   DialogContent,
@@ -13,13 +13,14 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PutBlobResult } from '@vercel/blob'
+// import { PutBlobResult } from '@vercel/blob' // Descomenta si usas vercel blob
 
 interface BannerUploadModalProps {
   defaultImage?: string
   onUpload: (imageUrl: string) => void
   title?: string
   description?: string
-  aspectRatio?: number // Ej: 3/1 para banners anchos
+  aspectRatio?: number
   folder?: string
 }
 
@@ -28,10 +29,10 @@ export function BannerUploadModal({
   onUpload,
   title = 'Actualizar Portada',
   description = 'Arrastra la imagen para ajustarla al espacio del banner.',
-  aspectRatio = 3 / 1, // Relación de aspecto estándar para banners
+  aspectRatio = 3 / 1,
   folder = 'institutions/covers'
 }: BannerUploadModalProps) {
-  // Estados
+  // --- ESTADOS (Lógica original intacta) ---
   const [isOpen, setIsOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -40,31 +41,27 @@ export function BannerUploadModal({
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
 
-  // Refs
+  // --- REFS ---
   const imageRef = useRef<HTMLImageElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // --- Handlers de Archivos ---
-
+  // --- HANDLERS (Lógica original intacta) ---
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) processFile(file)
   }
 
   const processFile = (file: File) => {
-    if (file.size > 5 * 1024 * 1024) return alert('Máximo 5MB') // Banners pueden ser más pesados
-
+    if (file.size > 5 * 1024 * 1024) return alert('Máximo 5MB')
     const reader = new FileReader()
     reader.onload = () => {
       setSelectedImage(reader.result as string)
-      setOffset({ x: 0, y: 0 }) // Reset posición
-      setZoom(1) // Reset zoom
+      setOffset({ x: 0, y: 0 })
+      setZoom(1)
     }
     reader.readAsDataURL(file)
   }
-
-  // --- Lógica de Arrastre (Drag) ---
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -84,48 +81,26 @@ export function BannerUploadModal({
   const handleMouseUp = () => setIsDragging(false)
   const handleMouseLeave = () => setIsDragging(false)
 
-  // --- Lógica de Recorte y Subida (Canvas) ---
-
   const getCroppedImageBlob = async (): Promise<Blob | null> => {
     if (!imageRef.current || !containerRef.current) return null
-
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
     if (!ctx) return null
 
-    // Dimensiones reales del contenedor visual
     const containerRect = containerRef.current.getBoundingClientRect()
-
-    // Configurar canvas para alta resolución (doble del tamaño visual para calidad retina)
     const scaleFactor = 2
     canvas.width = containerRect.width * scaleFactor
     canvas.height = containerRect.height * scaleFactor
 
-    // Dibujar
-    // La lógica aquí replica lo que se ve en pantalla (CSS transform) al Canvas
-    // Calculamos la posición relativa de la imagen dentro del contenedor
-
     const image = imageRef.current
-
-    // Cuánto mide la imagen renderizada en pantalla actualmente (con zoom)
-    // Nota: Esta es una aproximación visual. Para precisión matemática absoluta
-    // se suele usar librerías, pero esto funciona para casos de uso general.
-
-    // Simplificación: Dibujamos la imagen completa desplazada
-    ctx.scale(scaleFactor, scaleFactor)
-
-    // Necesitamos "clippear" el área. Pero como el canvas tiene el tamaño exacto del crop,
-    // solo necesitamos dibujar la imagen con el offset y escala correctos.
-
-    // Centro del canvas
     const centerX = containerRect.width / 2
     const centerY = containerRect.height / 2
 
+    ctx.scale(scaleFactor, scaleFactor)
     ctx.translate(centerX, centerY)
     ctx.translate(offset.x, offset.y)
     ctx.scale(zoom, zoom)
     ctx.translate(-image.width / 2, -image.height / 2)
-
     ctx.drawImage(image, 0, 0, image.width, image.height)
 
     return new Promise((resolve) => {
@@ -165,50 +140,60 @@ export function BannerUploadModal({
     }
   }
 
-  // Estilo dinámico para la imagen arrastrable
   const imageStyle: React.CSSProperties = {
     transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
     cursor: isDragging ? 'grabbing' : 'grab',
     transition: isDragging ? 'none' : 'transform 0.1s ease-out'
   }
 
+  // --- RENDERIZADO (DISEÑO ACTUALIZADO) ---
   return (
     <>
-      {/* TRIGGER: La vista previa en el formulario */}
-      <div className="group relative w-full rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/10 hover:bg-muted/20 transition-colors overflow-hidden">
+      {/* TRIGGER VISUAL: Banner completo estilo Facebook/LinkedIn */}
+      <div
+        className="group relative w-full overflow-hidden bg-muted/30"
+        style={{ aspectRatio }} // Mantiene la proporción del contenedor
+      >
         {defaultImage ? (
-          // Si hay imagen, mostramos el banner con su aspect ratio
-          <div className="relative w-full bg-gray-100" style={{ aspectRatio }}>
+          // CASO: Hay imagen
+          <>
             <img
               src={defaultImage}
-              alt="Banner"
+              alt="Portada Institución"
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Button variant="secondary" onClick={() => setIsOpen(true)}>
-                <Move className="mr-2 h-4 w-4" /> Ajustar / Cambiar
+            {/* Overlay oscuro suave al hacer hover */}
+            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-300" />
+
+            {/* Botón flotante en la esquina inferior derecha */}
+            <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsOpen(true)}
+                className="shadow-lg"
+              >
+                <Camera className="mr-2 h-4 w-4" /> Editar portada
               </Button>
             </div>
-          </div>
+          </>
         ) : (
-          // Estado vacío
+          // CASO: Estado vacío (Placeholder elegante)
           <div
-            className="flex flex-col items-center justify-center p-8 text-center"
-            style={{ aspectRatio }}
+            className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-slate-100 to-slate-200 cursor-pointer hover:from-slate-200 hover:to-slate-300 transition-all"
             onClick={() => setIsOpen(true)}
           >
-            <div className="p-4 rounded-full bg-background shadow-sm mb-3 cursor-pointer">
-              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            <div className="p-3 bg-white/50 rounded-full mb-2 backdrop-blur-sm">
+              <ImageIcon className="h-6 w-6 text-slate-500" />
             </div>
-            <p className="text-sm font-medium text-foreground">Subir Banner</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              1920 x 640 recomendado
-            </p>
+            <span className="text-sm font-medium text-slate-600">
+              Agregar foto de portada
+            </span>
           </div>
         )}
       </div>
 
-      {/* MODAL DE EDICIÓN */}
+      {/* --- MODAL (Sin cambios estructurales, solo UI interna) --- */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
@@ -216,17 +201,24 @@ export function BannerUploadModal({
             <DialogDescription>{description}</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-6 py-4">
             {!selectedImage ? (
-              // STEP 1: Selección de archivo
+              // STEP 1: Selección
               <div
-                className="border-2 border-dashed rounded-lg p-12 text-center hover:bg-muted/50 transition-colors cursor-pointer"
+                className="border-2 border-dashed rounded-xl p-10 text-center hover:bg-muted/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-3"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-sm font-medium">
-                  Click para seleccionar imagen
-                </p>
+                <div className="p-4 rounded-full bg-primary/10 text-primary">
+                  <Upload className="h-8 w-8" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">
+                    Haz clic para subir imagen
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Recomendado: 1200x400px o superior
+                  </p>
+                </div>
                 <Input
                   ref={fileInputRef}
                   type="file"
@@ -236,19 +228,17 @@ export function BannerUploadModal({
                 />
               </div>
             ) : (
-              // STEP 2: Editor (Crop)
+              // STEP 2: Editor
               <div className="space-y-4">
-                {/* Contenedor de Recorte (Viewport) */}
                 <div
                   ref={containerRef}
-                  className="relative w-full bg-slate-900 rounded-lg overflow-hidden shadow-inner select-none"
+                  className="relative w-full bg-slate-900 rounded-lg overflow-hidden shadow-inner select-none cursor-grab active:cursor-grabbing"
                   style={{ aspectRatio }}
                   onMouseDown={handleMouseDown}
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseLeave}
                 >
-                  {/* Imagen Fantasma (Para centrar inicialmente) */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <img
                       ref={imageRef}
@@ -257,49 +247,49 @@ export function BannerUploadModal({
                       draggable={false}
                       style={imageStyle}
                       className="max-w-none max-h-none select-none"
-                      // onLoad para centrar imagen si quisieras agregar lógica extra
                     />
                   </div>
-
-                  {/* Guías visuales (Opcional) */}
-                  <div className="absolute inset-0 border border-white/20 pointer-events-none" />
+                  {/* Grid overlay opcional para ayudar al encuadre */}
+                  <div className="absolute inset-0 border border-white/20 pointer-events-none grid grid-cols-3 grid-rows-1">
+                    <div className="border-r border-white/10" />
+                    <div className="border-r border-white/10" />
+                  </div>
                 </div>
 
-                {/* Controles de Zoom */}
-                <div className="flex items-center gap-4 px-2">
-                  <span className="text-xs font-medium w-12">Zoom</span>
-                  {/* Usa tu componente Slider o un input range simple */}
+                {/* Slider de Zoom mejorado */}
+                <div className="flex items-center gap-4 px-1">
+                  <span className="text-xs font-medium text-muted-foreground w-12">
+                    Alejar
+                  </span>
                   <input
                     type="range"
                     min="0.5"
                     max="3"
-                    step="0.1"
+                    step="0.05"
                     value={zoom}
                     onChange={(e) => setZoom(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    className="flex-1 h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
                   />
-                </div>
-
-                <div className="flex justify-center">
-                  <p className="text-xs text-muted-foreground">
-                    <Move className="inline w-3 h-3 mr-1" /> Arrastra para
-                    encuadrar
-                  </p>
+                  <span className="text-xs font-medium text-muted-foreground w-12 text-right">
+                    Acercar
+                  </span>
                 </div>
               </div>
             )}
           </div>
 
-          <DialogFooter className="flex gap-2 sm:justify-between">
+          <DialogFooter className="flex gap-2 sm:justify-between sm:items-center">
             {selectedImage && (
               <Button
                 variant="ghost"
+                size="sm"
                 onClick={() => {
                   setSelectedImage(null)
                   if (fileInputRef.current) fileInputRef.current.value = ''
                 }}
+                className="text-muted-foreground hover:text-foreground"
               >
-                Cambiar Imagen
+                Elegir otra
               </Button>
             )}
             <div className="flex gap-2 justify-end w-full">
@@ -311,12 +301,10 @@ export function BannerUploadModal({
                   {isUploading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
-                      Procesando...
+                      Guardando...
                     </>
                   ) : (
-                    <>
-                      <Check className="mr-2 h-4 w-4" /> Guardar Banner
-                    </>
+                    <>Guardar cambios</>
                   )}
                 </Button>
               )}

@@ -21,8 +21,6 @@ export default async function Page(props: PageProps) {
     page: page,
     query: query
   })
-  console.log('userList', userList)
-  
 
   if (!userList || userList.users.length === 0) {
     return (

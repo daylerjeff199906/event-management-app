@@ -16,6 +16,7 @@ import {
   updateInstitutionById,
   upsertInstitutionById
 } from '@/services/institution.services'
+import { BannerUploadModal } from '../components/banner-upload-modal'
 
 interface InstitutionSettingsProps {
   institutionData?: InstitutionForm
@@ -99,26 +100,72 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
     }
   }
 
+  // Manejo específico para cambio rápido de banner (Header)
+  const onBannerChange = async (url: string) => {
+    if (!institutionData?.id) return
+    try {
+      await upsertInstitutionById({
+        id: institutionData.id,
+        updates: { ...institutionData, cover_image_url: url }
+      })
+      toast.success(
+        <ToastCustom
+          title="Portada actualizada"
+          description="La portada se ha actualizado correctamente."
+        />
+      )
+      router.refresh()
+    } catch {
+      toast.error(
+        <ToastCustom
+          title="Error"
+          description="No se pudo actualizar la portada."
+        />
+      )
+    }
+  }
+
   return (
     <>
       {/* Header con cambio rápido de logo (solo si existe data previa) */}
       {institutionData && (
-        <div className="max-w-5xl mx-auto mb-6 flex justify-between items-center border rounded-md p-4 bg-background shadow-sm">
-          <div className="flex items-center gap-4">
-            <ImageUploadModal
-              onUpload={onLogoChange}
-              title="Cambiar Logo"
-              defaultImage={institutionData.logo_url || undefined}
-              nameInstitution={institutionData.institution_name}
-              folder="institutions/logos"
+        <div className="max-w-5xl mx-auto mb-6 bg-background rounded-xl shadow-sm border overflow-hidden">
+          {/* 1. SECCIÓN DEL BANNER (Ocupa todo el ancho superior) */}
+          <div className="w-full relative">
+            <BannerUploadModal
+              onUpload={onBannerChange}
+              defaultImage={institutionData.cover_image_url || undefined}
+              title="Subir Portada"
+              description="Arrastra y ajusta tu portada"
+              folder="institutions/covers"
             />
-            <div>
-              <h2 className="text-xl font-bold text-foreground">
-                {institutionData.institution_name}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {institutionData.institution_email}
-              </p>
+          </div>
+
+          {/* 2. SECCIÓN DE PERFIL (Logo superpuesto + Info) */}
+          <div className="px-6 pb-6">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              {/* Contenedor del Logo con margen negativo para subirlo sobre el banner */}
+              <div className="-mt-12 relative z-10">
+                <div className="p-1.5 bg-background rounded-full shadow-sm">
+                  <ImageUploadModal
+                    onUpload={onLogoChange}
+                    title="Cambiar Logo"
+                    defaultImage={institutionData.logo_url || undefined}
+                    nameInstitution={institutionData.institution_name}
+                    folder="institutions/logos"
+                  />
+                </div>
+              </div>
+
+              {/* Información de texto (Alineada a la derecha del logo) */}
+              <div className="mt-2 sm:mt-4 space-y-1 flex-1">
+                <h2 className="text-2xl font-bold text-foreground">
+                  {institutionData.institution_name}
+                </h2>
+                <p className="text-muted-foreground">
+                  {institutionData.institution_email}
+                </p>
+              </div>
             </div>
           </div>
         </div>
