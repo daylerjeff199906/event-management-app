@@ -224,6 +224,23 @@ export async function getInstitutionById(id: string): Promise<{
   return { data, error: null }
 }
 
+export async function getInstitutionBySlug(slug: string): Promise<{
+  data: InstitutionForm | null
+  error: string | null
+}> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('institutions')
+    .select('*')
+    .eq('slug', slug)
+    .single()
+  if (error) {
+    console.error('Error obteniendo institución por slug:', error)
+    return { data: null, error: error.message }
+  }
+  return { data, error: null }
+}
+
 export async function updateInstitutionById(
   id: string,
   updates: Partial<InstitutionForm>

@@ -36,7 +36,12 @@ export default async function Page(props: PageProps) {
 
   return (
     <>
-      <UsersTableList showActions={isAdmin} users={userList.users} />
+      <UsersTableList
+        key="user-table-list"
+        canManageRoles={isAdmin}
+        currentUserId={user?.user?.id || ''}
+        users={userList.users}
+      />
     </>
   )
 }

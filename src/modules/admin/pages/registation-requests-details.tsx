@@ -162,7 +162,7 @@ export default function RequestDetailsPage({
       </div>
 
       <div className="space-y-8">
-        <Card className="shadow-none border border-border bg-white">
+        <Card className="shadow-none border border-border">
           <CardHeader className="py-0">
             <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
               <FileText className="h-5 w-5 text-foreground/70" />

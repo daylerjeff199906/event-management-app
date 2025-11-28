@@ -30,7 +30,6 @@ import { Separator } from '@/components/ui/separator'
 import { Globe, Instagram, Linkedin, LinkIcon, Twitter } from 'lucide-react'
 import Facebook from 'next-auth/providers/facebook'
 import { institutionTypes } from '@/modules/portal/lib/register.institution'
-import { BannerUploadModal } from './banner-upload-modal'
 
 // --- Configuración de Iconos para limpieza visual ---
 const SOCIAL_NETWORKS = [
@@ -112,9 +111,9 @@ const normalizeInstitutionForm = (data?: InstitutionForm): InstitutionForm => ({
   cover_image_url: data?.cover_image_url ?? '',
   slug: data?.slug ?? '',
   social_media: normalizeSocialMedia(data?.social_media),
-  status: data?.status,
+  status: (data?.status as InstitutionStatus) ?? InstitutionStatus.ACTIVE,
   validation_status: data?.validation_status,
-  logo_url: data?.logo_url,
+  logo_url: data?.logo_url ?? '',
   about_us: data?.about_us,
   map_iframe_url: data?.map_iframe_url ?? undefined,
   documents: data?.documents
@@ -259,20 +258,6 @@ export const InstitutionFormData = ({
               description="Personaliza la apariencia en el portal."
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              {/* Wrapper para el Cover Image */}
-              <div className="space-y-2">
-                <FormLabel>Imagen de Portada (Banner)</FormLabel>
-                <div className="border rounded-lg p-4 bg-muted/20">
-                  <BannerUploadModal
-                    onUpload={(url) => form.setValue('cover_image_url', url)}
-                    defaultImage={form.getValues('cover_image_url')}
-                    title="Subir Portada"
-                    description="1920x400 recomendado"
-                    folder="institutions/covers"
-                  />
-                </div>
-              </div>
-
               <div className="space-y-4">
                 <FormField
                   control={form.control}
@@ -489,7 +474,7 @@ export const InstitutionFormData = ({
                       <FormLabel>Estado del Sistema</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={field.value ?? InstitutionStatus.ACTIVE}
                       >
                         <FormControl>
                           <SelectTrigger>

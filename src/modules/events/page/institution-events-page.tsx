@@ -67,6 +67,7 @@ export const InstitutionEventsPage = ({
     })
 
     router.refresh()
+    window.location.reload()
     handleCloseImageUpload()
   }
 
