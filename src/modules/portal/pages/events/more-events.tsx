@@ -39,24 +39,28 @@ export function MoreEventsSection({ uuid_event }: MoreEventsSectionProps) {
   }, [])
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <h2 className="text-2xl text-foreground">También te puede interesar</h2>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {loading
-          ? // Skeleton loading
-            Array.from({ length: 4 }).map((_, index) => (
-              <EventCardSkeleton key={index} />
-            ))
-          : events.map((event) => (
-              <EventCardUser
-                key={event.id}
-                event={event}
-                onViewDetails={handleViewDetails}
-                hiddenStatus
-              />
-            ))}
+    <div className="my-16 md:my-24 px-4 md:px-8 lg:px-16">
+      <div className="container mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h2 className="text-2xl text-foreground">
+            También te puede interesar
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {loading
+            ? // Skeleton loading
+              Array.from({ length: 4 }).map((_, index) => (
+                <EventCardSkeleton key={index} />
+              ))
+            : events.map((event) => (
+                <EventCardUser
+                  key={event.id}
+                  event={event}
+                  onViewDetails={handleViewDetails}
+                  hiddenStatus
+                />
+              ))}
+        </div>
       </div>
     </div>
   )
