@@ -45,20 +45,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const resolvedParams = await params
-    const uuid = resolvedParams.uuid
+    const slug = resolvedParams.slug
 
-    if (!uuid) {
+    if (!slug) {
       return staticMetadata
     }
 
-    const response = await getInstitutionBySlug(uuid.toString())
+    const response = await getInstitutionBySlug(slug.toString())
 
     if (response.error || !response.data) {
       return staticMetadata
     }
 
     const institution = response.data
-    const institutionUrl = `${siteConfig.url}/institutions/${uuid}`
+    const institutionUrl = `${siteConfig.url}/institutions/${slug}`
 
     // Metadata dinámica basada en la institución
     const dynamicMetadata: Metadata = {
@@ -114,9 +114,9 @@ export async function generateMetadata({
 
 export default async function Page(props: PageProps) {
   const params = await props.params
-  const uuid = params.uuid
+  const slug = params.slug
 
-  const response = await getInstitutionBySlug(uuid?.toString() || '')
+  const response = await getInstitutionBySlug(slug?.toString() || '')
 
   if (response.error) {
     return <EmptyState title="Error" description={response.error} />
