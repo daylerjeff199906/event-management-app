@@ -448,12 +448,14 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                 <div className="flex-1">
                   <Link
                     href={
-                      event.institution
+                      event.institution && event.institution.slug
                         ? APP_URL.PORTAL.PLACES.INSTITUTIONS.DETAIL(
-                            event?.institution?.slug ?? ''
+                            event?.institution?.slug
                           )
                         : '#'
                     }
+                    target="_blank"
+                    className="hover:underline"
                   >
                     <h4 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
                       {event.institution?.institution_name ||
