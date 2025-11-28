@@ -43,7 +43,7 @@ export const institutionSchema = z.object({
   vision: z.string().optional(),
 
   // --- Contacto y Ubicación ---
-  institution_email: z.string().email('Ingresa un correo válido'),
+  institution_email: z.string().optional(),
   contact_phone: z.string().optional(),
   whatsapp_number: z.string().optional(), // Muy útil para botón flotante de chat
   address: z.string().optional(),

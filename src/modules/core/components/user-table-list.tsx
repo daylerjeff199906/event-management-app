@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -46,9 +46,7 @@ interface RoleModalProps {
 
 const RoleUpdateModal = ({ user, onRolesUpdated }: RoleModalProps) => {
   const [open, setOpen] = useState(false)
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(
-    user.role ?? []
-  )
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(user.role ?? [])
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
@@ -70,7 +68,7 @@ const RoleUpdateModal = ({ user, onRolesUpdated }: RoleModalProps) => {
     startTransition(async () => {
       const rolesToSave = selectedRoles.length ? selectedRoles : null
       const { error, data } = await updateUserRoles({
-        userId: user.id,
+        userId: user?.id || '',
         roles: rolesToSave,
         revalidateUrl: '/dashboard/admin/users'
       })
@@ -190,24 +188,21 @@ export function UsersTableList({
     return genderMap[gender.toLowerCase()] || gender
   }
 
-  const renderRoles = useMemo(
-    () => (roles?: string[] | null) => {
-      if (!roles || roles.length === 0) {
-        return <span className="text-xs text-muted-foreground">Sin roles</span>
-      }
+  const renderRoles = (roles?: string[] | null) => {
+    if (!roles || roles.length === 0) {
+      return <span className="text-xs text-muted-foreground">Sin roles</span>
+    }
 
-      return (
-        <div className="flex flex-wrap gap-2">
-          {roles.map((role) => (
-            <Badge key={role} variant="outline">
-              {role}
-            </Badge>
-          ))}
-        </div>
-      )
-    },
-    []
-  )
+    return (
+      <div className="flex flex-wrap gap-2">
+        {roles.map((role) => (
+          <Badge key={role} variant="outline">
+            {role}
+          </Badge>
+        ))}
+      </div>
+    )
+  }
 
   const handleRolesUpdated = (userId: string, roles: string[] | null) => {
     setUserList((prev) =>
@@ -321,8 +316,8 @@ export function UsersTableList({
                         {isSelf
                           ? 'No puedes editarte.'
                           : isSuperAdmin
-                            ? 'Protegido.'
-                            : 'Sin acciones.'}
+                          ? 'Protegido.'
+                          : 'Sin acciones.'}
                       </span>
                     )}
                   </TableCell>

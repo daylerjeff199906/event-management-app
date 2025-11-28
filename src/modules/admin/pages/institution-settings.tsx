@@ -163,7 +163,8 @@ export const InstitutionSettings = (props: InstitutionSettingsProps) => {
                   {institutionData.institution_name}
                 </h2>
                 <p className="text-muted-foreground">
-                  {institutionData.institution_email}
+                  {institutionData.institution_email ||
+                    'Sin correo de contacto'}
                 </p>
               </div>
             </div>

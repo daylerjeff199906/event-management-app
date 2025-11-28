@@ -111,9 +111,9 @@ const normalizeInstitutionForm = (data?: InstitutionForm): InstitutionForm => ({
   cover_image_url: data?.cover_image_url ?? '',
   slug: data?.slug ?? '',
   social_media: normalizeSocialMedia(data?.social_media),
-  status: data?.status,
+  status: (data?.status as InstitutionStatus) ?? InstitutionStatus.ACTIVE,
   validation_status: data?.validation_status,
-  logo_url: data?.logo_url,
+  logo_url: data?.logo_url ?? '',
   about_us: data?.about_us,
   map_iframe_url: data?.map_iframe_url ?? undefined,
   documents: data?.documents
@@ -474,7 +474,7 @@ export const InstitutionFormData = ({
                       <FormLabel>Estado del Sistema</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={field.value ?? InstitutionStatus.ACTIVE}
                       >
                         <FormControl>
                           <SelectTrigger>
