@@ -41,4 +41,4 @@ export const eventActivitySchema = z
         }
     )
 
-export type EventActivity = z.infer<typeof eventActivitySchema>
+export type EventActivityForm = z.infer<typeof eventActivitySchema>
