@@ -66,7 +66,7 @@ export function EventsSection() {
       <div className="text-center">
         <Link
           href={APP_URL.PORTAL.EVENTS.BASE}
-          className="mx-auto mt-8 inline-block bg-primary text-white px-6 py-3 rounded-md font-semibold hover:bg-primary/90 transition-colors duration-300 dark:hover:bg-primary/80"
+          className="mx-auto mt-8 inline-block bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-colors duration-300 dark:hover:bg-primary/80"
           passHref
         >
           Ver todos los eventos
