@@ -140,7 +140,7 @@ export function InstitutionSearch({
           <InstitutionFound
             searchResults={{
               institution_name: searchResults.institution_name,
-              institution_email: searchResults.institution_email
+              institution_email: searchResults.institution_email ?? ''
             }}
           />
         )}
