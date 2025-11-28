@@ -5,6 +5,7 @@ import { fetchEventList } from '@/services/events.services'
 import { EventCardUser } from '@/modules/events'
 import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
+import Link from 'next/link'
 
 export function EventsSection() {
   const [events, setEvents] = useState<Event[]>([])
@@ -20,7 +21,8 @@ export function EventsSection() {
   const loadEvents = async () => {
     try {
       const data = await fetchEventList({
-        status: EventStatus.PUBLIC
+        status: EventStatus.PUBLIC,
+        pageSize: 9
       })
       setEvents(data.data?.data || [])
     } catch (error) {
@@ -44,7 +46,7 @@ export function EventsSection() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {loading
           ? // Skeleton loading
             Array.from({ length: 4 }).map((_, index) => (
@@ -58,6 +60,16 @@ export function EventsSection() {
                 hiddenStatus
               />
             ))}
+      </div>
+
+      <div className="text-center">
+        <Link
+          href={APP_URL.PORTAL.EVENTS.BASE}
+          className="mx-auto mt-8 inline-block bg-primary text-white px-6 py-3 rounded-md font-semibold hover:bg-primary/90 transition-colors duration-300 dark:hover:bg-primary/80"
+          passHref
+        >
+          Ver todos los eventos
+        </Link>
       </div>
     </div>
   )
