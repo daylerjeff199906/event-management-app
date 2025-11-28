@@ -6,7 +6,14 @@ export const APP_URL = {
       BASE: '/events',
       DETAIL: (uuid: string) => `/events/${uuid}`
     },
-    INSTITUTION_REQUEST: '/institution-request'
+    INSTITUTION_REQUEST: '/institution-request',
+    PLACES: {
+      BASE: '/places',
+      INSTITUTIONS: {
+        BASE: '/places/institutions',
+        DETAIL: (slug: string) => `/places/institutions/${slug}`
+      }
+    }
   },
   AUTH: {
     LOGIN: '/login',

@@ -5,29 +5,68 @@ export enum InstitutionStatus {
   INACTIVE = 'INACTIVE'
 }
 
-// Esquema para la tabla institutions
+// Schema para redes sociales (opcional para mantener orden)
+const socialMediaSchema = z.object({
+  facebook: z.string().optional().or(z.literal('')),
+  instagram: z.string().optional().or(z.literal('')),
+  linkedin: z.string().optional().or(z.literal('')),
+  twitter: z.string().optional().or(z.literal('')),
+  website: z.string().optional().or(z.literal(''))
+})
+
+export enum InstitutionValidationStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected'
+}
+
 export const institutionSchema = z.object({
+  // --- Identificación Básica ---
   id: z.string().optional(),
   institution_name: z
     .string()
-    .min(2, 'El nombre de la institución debe tener al menos 2 caracteres'),
-  institution_type: z.string().min(1, 'Selecciona el tipo de institución'),
-  description: z.string().optional(),
-  institution_email: z.string('Ingresa un correo electrónico válido'),
-  document_number: z.string().optional(),
-  brand: z.string().optional().nullable(),
-  acronym: z.string().optional(),
-  cover_image_url: z.string().optional(),
-  map_iframe_url: z.string().optional().nullable(),
+    .min(2, 'El nombre debe tener al menos 2 caracteres'),
+  // Slug para URL amigable (ej: universidad-central)
+  slug: z.string().optional(),
+  institution_type: z.string().min(1, 'Selecciona el tipo'),
+  document_number: z.string().optional(), // RUC / NIT
+  // --- Branding y Visual ---
+  logo_url: z.string().optional(), // Logo específico
+  cover_image_url: z.string().optional(), // Banner
+  brand: z.string().optional().nullable(), // Nombre de marca o slogan
+  primary_color: z.string().optional(), // Para botones/temas
+
+  // --- Contenido ---
+  description: z.string().optional(), // Descripción corta
+  about_us: z.string().optional(), // Historia o descripción larga
+  mission: z.string().optional(),
+  vision: z.string().optional(),
+
+  // --- Contacto y Ubicación ---
+  institution_email: z.string().optional(),
   contact_phone: z.string().optional(),
+  whatsapp_number: z.string().optional(), // Muy útil para botón flotante de chat
   address: z.string().optional(),
-  documents: z.any().optional(), // jsonb field
-  validation_status: z.enum(['pending', 'approved', 'rejected']).optional(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
+  map_iframe_url: z.string().optional().nullable(),
+
+  // --- Redes Sociales (Agrupadas o planas, según prefieras en DB) ---
+  social_media: socialMediaSchema.optional(),
+
+  // --- Sistema ---
+  acronym: z.string().optional(),
+  documents: z.any().optional(),
+  validation_status: z
+    .enum([
+      InstitutionValidationStatus.PENDING,
+      InstitutionValidationStatus.APPROVED,
+      InstitutionValidationStatus.REJECTED
+    ])
+    .optional(),
   status: z
     .enum([InstitutionStatus.ACTIVE, InstitutionStatus.INACTIVE])
-    .optional()
+    .optional(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional()
 })
 
 // Esquema para el formulario de búsqueda

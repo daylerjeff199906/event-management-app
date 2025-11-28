@@ -166,7 +166,7 @@ export const ToggleAccessModal = (props: IProps) => {
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader className={isActive ? 'bg-gray-50' : 'bg-green-50'}>
+            <DialogHeader>
               <DialogTitle>{modalTitle}</DialogTitle>
             </DialogHeader>
 

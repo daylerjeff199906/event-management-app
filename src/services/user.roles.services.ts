@@ -65,12 +65,13 @@ export async function getUsersPagintion({
   query?: string
 }): Promise<{ users: IUser[]; total: number }> {
   const supabase = await getSupabase()
+  const limit = pageSize ?? 20
   let queryBuilder = supabase
     .from('users')
     .select('*', { count: 'exact' })
-    .range((page - 1) * (pageSize || 20), page * (pageSize || 20) - 1)
+    .range((page - 1) * limit, page * limit - 1)
   if (query) {
-    queryBuilder = queryBuilder.ilike('user.email', `%${query}%`)
+    queryBuilder = queryBuilder.ilike('email', `%${query}%`)
   }
   const { data, error, count } = await queryBuilder
   if (error) {
@@ -80,9 +81,7 @@ export async function getUsersPagintion({
   return { users: data ?? [], total: count ?? 0 }
 }
 
-export async function getUserById(
-  userId: string
-): Promise<IUser | null> {
+export async function getUserById(userId: string): Promise<IUser | null> {
   const supabase = await getSupabase()
   const { data, error } = await supabase
     .from('users')

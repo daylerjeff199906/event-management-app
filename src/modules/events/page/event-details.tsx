@@ -35,6 +35,7 @@ import { APP_URL } from '@/data/config-app-url'
 import EventStickyBanner from './event-sticky-banner'
 import Link from 'next/link'
 import { ReactMarkdownContent } from '@/components/app/miscellaneous/react-markdown-content'
+import { Fade } from '@/components/animate-ui/primitives/effects/fade'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -105,8 +106,6 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
   return (
     // CAMBIO: bg-white por defecto, dark:bg-zinc-950. Textos oscuros por defecto, claros en dark.
     <div className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans selection:bg-orange-500 selection:text-white">
-      {/* 1. Banner Hero (Estilo Poster) - MANTENIDO OSCURO SIEMPRE */}
-      {/* Nota: Aquí usamos clases fijas bg-zinc-950 y text-white para ignorar el modo claro */}
       <div className="relative w-full overflow-hidden bg-zinc-950 border-b border-zinc-800">
         {/* Fondo con imagen y overlay oscuro */}
         <div className="absolute inset-0 z-0">
@@ -137,22 +136,26 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
             )}
             <Badge
               variant="outline"
-              className="text-orange-400 border-orange-500/50 uppercase tracking-wider text-xs px-3 py-1"
+              className="text-orange-400 border-orange-500/50 uppercase tracking-wider text-xs px-3 py-1 rounded-full"
             >
               {event.categorydata?.name || 'Evento'}
             </Badge>
           </div>
 
           {/* Título Masivo */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-white mb-6 max-w-5xl leading-[0.9]">
-            {event.event_name}
-          </h1>
+          <Fade>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-white mb-6 max-w-5xl leading-[0.9]">
+              {event.event_name}
+            </h1>
+          </Fade>
 
           {/* Fecha Principal */}
-          <div className="text-lg md:text-2xl font-medium text-zinc-300 uppercase tracking-widest border-t border-b border-zinc-700 py-2 px-8">
-            {formatDate(event.start_date)}
-            {event.end_date && ` - ${formatDate(event.end_date)}`}
-          </div>
+          <Fade delay={0.1}>
+            <div className="text-lg md:text-2xl font-medium text-zinc-300 uppercase tracking-widest border-t border-b border-zinc-700 py-2 px-8">
+              {formatDate(event.start_date)}
+              {event.end_date && ` - ${formatDate(event.end_date)}`}
+            </div>
+          </Fade>
         </div>
       </div>
 
@@ -429,7 +432,7 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                 <Avatar className="w-20 h-20 border-2 border-zinc-200 dark:border-zinc-700">
                   <AvatarImage
                     src={
-                      event.institution?.brand ||
+                      event.institution?.logo_url ||
                       event.author?.profile_image ||
                       ''
                     }
@@ -443,10 +446,22 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <h4 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
-                    {event.institution?.institution_name ||
-                      `${event.author?.first_name} ${event.author?.last_name}`}
-                  </h4>
+                  <Link
+                    href={
+                      event.institution && event.institution.slug
+                        ? APP_URL.PORTAL.PLACES.INSTITUTIONS.DETAIL(
+                            event?.institution?.slug
+                          )
+                        : '#'
+                    }
+                    target="_blank"
+                    className="hover:underline"
+                  >
+                    <h4 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
+                      {event.institution?.institution_name ||
+                        `${event.author?.first_name} ${event.author?.last_name}`}
+                    </h4>
+                  </Link>
                   <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">
                     Organizador oficial del evento
                   </p>

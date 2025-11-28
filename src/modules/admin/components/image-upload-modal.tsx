@@ -171,6 +171,7 @@ export function ImageUploadModal({
           variant="secondary"
           className="absolute -bottom-1 -right-0 rounded-full w-8 h-8 p-0 shadow-lg"
           onClick={() => setIsModalOpen(true)}
+          type="button"
         >
           <Edit2 className="w-4 h-4" />
         </Button>
