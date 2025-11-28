@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+/* app/globals.css */
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+@import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -172,4 +175,20 @@
       box-shadow: 0 0 0 8px var(--pulse-color);
     }
   }
+}
+
+
+
+/* Personalización básica para que se vea más moderno con Tailwind */
+.rbc-calendar {
+    @apply font-sans text-sm;
+}
+.rbc-header {
+    @apply py-2 font-semibold text-muted-foreground border-b;
+}
+.rbc-event {
+    @apply bg-primary text-primary-foreground rounded-md shadow-sm border-none;
+}
+.rbc-today {
+    @apply bg-accent/20;
 }

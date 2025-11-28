@@ -1,30 +1,104 @@
-// app/dashboard/events/[id]/cronograma/page.tsx
-import { EventScheduler } from '@/modules/events/components/event-scheduler'
-import { Params } from '@/types'
+'use client'
 
-interface CronogramaPageProps {
-  params: Params
-}
+import { useEffect, useState, useCallback } from 'react'
+import { CustomScheduler } from '@/modules/events/components/custom-scheduler'
+import {
+  fetchAllEventActivities,
+  createEventActivity,
+  updateEventActivity,
+  deleteEventActivity
+} from '@/services/events.activities.service'
+import { EventActivity } from '@/types'
+import { EventActivityForm } from '@/modules/events/schemas'
+import { toast } from 'react-toastify'
+import { Loader2 } from 'lucide-react'
 
-export default async function CronogramaPage(props: CronogramaPageProps) {
-  const params = await props.params
-  const eventId = params.event as string
+export default function SchedulerPage({
+  params
+}: {
+  params: { event: string }
+}) {
+  const [activities, setActivities] = useState<EventActivity[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Cargar datos
+  const loadData = useCallback(async () => {
+    try {
+      const { data, error } = await fetchAllEventActivities({
+        event_id: params.event
+      })
+      if (error) throw error
+      if (data) setActivities(data)
+    } catch {
+      toast.error('Error cargando actividades')
+    } finally {
+      setLoading(false)
+    }
+  }, [params.event])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  // Handlers para el Scheduler
+  const handleCreate = async (formData: EventActivityForm) => {
+    const { error } = await createEventActivity(formData)
+    if (error) {
+      toast.error('Error al crear')
+      return
+    }
+    toast.success('Actividad creada')
+    await loadData() // Refrescar
+  }
+
+  const handleUpdate = async (
+    id: string,
+    formData: Partial<EventActivityForm>
+  ) => {
+    // Optimistic UI (opcional): Actualizar estado local antes
+    const { error } = await updateEventActivity(id, formData)
+    if (error) {
+      toast.error('Error al actualizar')
+      return
+    }
+    // toast.success("Actividad actualizada") // Puede ser molesto en drag&drop
+    await loadData()
+  }
+
+  const handleDelete = async (id: string) => {
+    const { error } = await deleteEventActivity(id)
+    if (error) {
+      toast.error('Error al eliminar')
+      return
+    }
+    toast.success('Eliminado')
+    await loadData()
+  }
+
+  if (loading)
+    return (
+      <div className="flex h-[500px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+      </div>
+    )
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Cronograma del Evento
-        </h1>
-        <p className="text-muted-foreground">
-          Gestiona las actividades, horarios y modalidades.
-        </p>
+    <div className="container mx-auto py-6 space-y-4">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Cronograma</h1>
+          <p className="text-muted-foreground">
+            Arrastra y suelta para organizar las actividades.
+          </p>
+        </div>
       </div>
 
-      <EventScheduler
-        eventId={eventId}
-        // Opcional: pasar una fecha específica si el evento es en el futuro
-        // defaultDate={new Date('2024-12-01')}
+      <CustomScheduler
+        eventId={params.event}
+        activities={activities}
+        onCreateEvent={handleCreate}
+        onUpdateEvent={handleUpdate}
+        onDeleteEvent={handleDelete}
       />
     </div>
   )

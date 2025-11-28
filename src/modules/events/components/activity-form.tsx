@@ -77,6 +77,8 @@ export function ActivityForm({
     }
   })
 
+//   const errors = form.formState.errors
+//   console.log('Form Errors:', errors)
   const handleDelete = async () => {
     if (initialData?.id && onDelete) {
       await onDelete(initialData.id)
