@@ -1,5 +1,6 @@
 // app/dashboard/events/[id]/cronograma/page.tsx
 import { EventScheduler } from '@/modules/events/components/event-scheduler'
+import { fetchEventById } from '@/services/events.services'
 import { Params } from '@/types'
 
 interface CronogramaPageProps {
@@ -9,6 +10,9 @@ interface CronogramaPageProps {
 export default async function CronogramaPage(props: CronogramaPageProps) {
   const params = await props.params
   const eventId = params.event as string
+
+  const eventData = await fetchEventById(eventId)
+  const event = eventData?.data
 
   return (
     <div className="container mx-auto py-6">
@@ -23,6 +27,7 @@ export default async function CronogramaPage(props: CronogramaPageProps) {
 
       <EventScheduler
         eventId={eventId}
+        defaultDate={event ? new Date(event.start_date) : new Date()}
         // Opcional: pasar una fecha específica si el evento es en el futuro
         // defaultDate={new Date('2024-12-01')}
       />
