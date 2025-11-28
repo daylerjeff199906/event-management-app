@@ -12,7 +12,6 @@ import {
 import { Badge } from '@/components/ui/badge'
 import Autoplay from 'embla-carousel-autoplay'
 import { isWithinInterval, parseISO } from 'date-fns'
-import { CalendarSearch } from 'lucide-react' // Icono para el default
 
 // --- Tipos ---
 export interface AdBanner {
@@ -97,7 +96,7 @@ export function EventBannerCarousel({
               {/* Usamos <a> normal si es un ancla (#), o Link de next si es ruta interna */}
               <Link
                 href={banner.linkUrl}
-                className={`block relative overflow-hidden rounded-2xl ${
+                className={`block relative overflow-hidden rounded-b-4xl ${
                   displayBanners.length > 1
                     ? 'cursor-grab active:cursor-grabbing'
                     : 'cursor-default'
@@ -125,27 +124,28 @@ export function EventBannerCarousel({
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-90" />
 
                   {/* Contenido */}
-                  <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 flex flex-col items-start gap-3 md:gap-4 container mx-auto">
-                    {banner.tag && (
-                      <Badge className="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 text-xs uppercase tracking-wide mb-1 border-none rounded-full">
-                        {banner.tag}
-                      </Badge>
-                    )}
+                  <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 flex flex-col items-start gap-3 md:gap-4">
+                    <div className="flex flex-col container mx-auto gap-3 md:gap-4">
+                      {banner.tag && (
+                        <Badge className="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 text-xs uppercase tracking-wide mb-1 border-none rounded-full">
+                          {banner.tag}
+                        </Badge>
+                      )}
 
-                    {banner.title && (
-                      <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-none tracking-tight drop-shadow-md">
-                        {banner.title}
-                      </h2>
-                    )}
+                      {banner.title && (
+                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-none tracking-tight drop-shadow-md">
+                          {banner.title}
+                        </h2>
+                      )}
 
-                    {banner.description && (
-                      <div className="flex items-center gap-2">
-                       
-                        <p className="text-gray-200 text-sm md:text-lg max-w-2xl line-clamp-2 md:line-clamp-none font-medium">
-                          {banner.description}
-                        </p>
-                      </div>
-                    )}
+                      {banner.description && (
+                        <div className="flex items-center gap-2">
+                          <p className="text-gray-200 text-sm md:text-lg max-w-2xl line-clamp-2 md:line-clamp-none font-medium">
+                            {banner.description}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Link>
