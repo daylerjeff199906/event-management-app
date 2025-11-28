@@ -4,6 +4,7 @@ import { EventDetailsPage } from '@/modules/events/page'
 import { Metadata } from 'next'
 import { siteConfig } from '@/lib/siteConfig'
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
+import { MoreEventsSection } from '@/modules/portal/pages/events/more-events'
 
 interface PageProps {
   params: Params
@@ -132,6 +133,7 @@ export default async function Page(props: PageProps) {
   return (
     <div className="min-h-screen">
       <EventDetailsPage event={response.data} isPortal />
+      <MoreEventsSection uuid_event={response.data.id} />
     </div>
   )
 }

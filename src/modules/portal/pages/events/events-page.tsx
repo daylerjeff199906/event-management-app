@@ -6,6 +6,7 @@ import { EventStatus, type Event, type ResponsePagination } from '@/types'
 import { EventsList } from '@/modules/events/page/events-list'
 import { fetchEventList } from '@/services/events.services'
 import { APP_URL } from '@/data/config-app-url'
+import { EventCardSkeleton } from '../../components/event-card-skeleton'
 
 export const EventsPage = () => {
   const router = useRouter()
@@ -77,11 +78,16 @@ export const EventsPage = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Cargando eventos...</p>
-          </div>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h1 className="text-2xl text-foreground">
+            ¿Qué evento quieres descubrir hoy?
+          </h1>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[400px]">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <EventCardSkeleton key={index} />
+          ))}
         </div>
       </div>
     )
