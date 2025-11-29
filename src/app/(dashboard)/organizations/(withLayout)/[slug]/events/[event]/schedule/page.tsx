@@ -28,8 +28,6 @@ export default async function CronogramaPage(props: CronogramaPageProps) {
       <EventScheduler
         eventId={eventId}
         defaultDate={event ? new Date(event.start_date) : new Date()}
-        // Opcional: pasar una fecha específica si el evento es en el futuro
-        // defaultDate={new Date('2024-12-01')}
       />
     </div>
   )

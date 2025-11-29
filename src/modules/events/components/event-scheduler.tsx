@@ -6,9 +6,8 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'react-toastify'
-import { Maximize2, Minimize2 } from 'lucide-react' // Iconos para fullscreen
+import { Maximize2, Minimize2 } from 'lucide-react'
 
-// IMPORTANTE: Estilos CSS base de la librería
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 
@@ -19,7 +18,7 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button' // Botón de Shadcn
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ActivityForm } from './activity-form'
 
@@ -31,6 +30,7 @@ import {
 } from '@/services/events.activities.service'
 import { EventActivity } from '@/types'
 import { EventActivityForm } from '@/modules/events/schemas'
+import { ConfirmAlertDialog } from '@/components/app/miscellaneous/confirm-alert-dialog'
 
 // 1. Configuración del Localizer
 const locales = {
@@ -63,7 +63,6 @@ interface CalendarEvent {
 const DnDCalendar = withDragAndDrop<CalendarEvent>(Calendar)
 
 // --- UTILS PARA COLORES ---
-// Paleta de colores pastel profesionales
 const pastelColors = [
   '#BFDBFE', // Blue 200
   '#BBF7D0', // Green 200
@@ -91,17 +90,17 @@ export function EventScheduler({
   defaultDate = new Date()
 }: EventSchedulerProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [view, setView] = useState<View>(Views.MONTH)
+  const [view, setView] = useState<View>(Views.WEEK)
   const [date, setDate] = useState(defaultDate)
-
-  // Estado para Fullscreen
   const [isFullscreen, setIsFullscreen] = useState(false)
-
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<
     Partial<EventActivityForm> | undefined
   >(undefined)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Estado del modal de confirmación
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   const loadActivities = useCallback(async () => {
     const { data, error } = await fetchAllEventActivities({ event_id: eventId })
@@ -215,61 +214,68 @@ export function EventScheduler({
     }
   }
 
-  const onDeleteEvent = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta actividad?')) return
+  // --- LÓGICA DE ELIMINACIÓN ---
+
+  // 1. Interceptor para cumplir con la interfaz (id: string) => Promise<void>
+  // Se ignora el ID porque usamos selectedActivity, pero se mantiene la firma.
+  const handleDeleteRequest = async () => {
+    setIsConfirmOpen(true)
+  }
+
+  // 2. Acción real de eliminación al confirmar
+  const handleConfirmDelete = async () => {
+    if (!selectedActivity?.id) return
 
     setIsSubmitting(true)
     try {
-      const { error } = await deleteEventActivity(id)
+      const { error } = await deleteEventActivity(selectedActivity.id)
       if (error) throw error
 
       toast.success('Actividad eliminada')
       await loadActivities()
-      setIsModalOpen(false)
+      setIsModalOpen(false) // Cierra el formulario
     } catch {
       toast.error('Error al eliminar')
     } finally {
       setIsSubmitting(false)
+      setIsConfirmOpen(false) // Cierra la confirmación
     }
   }
 
-  // --- CONFIGURACIÓN DE ESTILOS DE EVENTOS ---
   const eventPropGetter = useCallback((event: CalendarEvent) => {
     const backgroundColor = getEventColor(event.id)
     return {
       style: {
         backgroundColor,
-        color: '#1e293b', // Slate 800 para contraste con pasteles
+        color: '#1e293b',
         borderLeft: '4px solid rgba(0,0,0,0.1)',
-        fontSize: '0.75rem', // text-xs
+        fontSize: '0.75rem',
         fontWeight: 600
       }
     }
   }, [])
 
-  // --- ESTILOS PERSONALIZADOS (CSS IN JS) ---
   const customStyles = `
     /* Variables Base (Light) */
     :root {
       --rbc-bg: #ffffff;
-      --rbc-text: #334155; /* slate-700 */
-      --rbc-border: #e2e8f0; /* slate-200 */
-      --rbc-header-bg: #f8fafc; /* slate-50 */
-      --rbc-today-bg: #f1f5f9; /* slate-100 */
+      --rbc-text: #334155;
+      --rbc-border: #e2e8f0;
+      --rbc-header-bg: #f8fafc;
+      --rbc-today-bg: #f1f5f9;
       --rbc-off-range-bg: #fcfcfc;
     }
 
     /* Dark Mode variables */
     .dark {
-      --rbc-bg: #09090b; /* zinc-950 */
-      --rbc-text: #e2e8f0; /* slate-200 */
-      --rbc-border: #27272a; /* zinc-800 */
-      --rbc-header-bg: #18181b; /* zinc-900 */
-      --rbc-today-bg: #27272a; /* zinc-800 */
+      --rbc-bg: #09090b;
+      --rbc-text: #e2e8f0;
+      --rbc-border: #27272a;
+      --rbc-header-bg: #18181b;
+      --rbc-today-bg: #27272a;
       --rbc-off-range-bg: #000000;
     }
 
-    /* Contenedor Principal */
     .rbc-calendar {
       background-color: var(--rbc-bg);
       color: var(--rbc-text);
@@ -277,16 +283,14 @@ export function EventScheduler({
       border-radius: 0.5rem;
     }
 
-    /* Bordes y Estructura */
     .rbc-month-view, .rbc-time-view, .rbc-header, .rbc-month-row, .rbc-day-bg {
       border-color: var(--rbc-border) !important;
     }
 
-    /* Headers (Días de la semana) */
     .rbc-header {
       padding: 8px 0;
       font-weight: 600;
-      font-size: 0.75rem; /* text-xs */
+      font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       background-color: var(--rbc-header-bg);
@@ -294,17 +298,40 @@ export function EventScheduler({
       color: var(--rbc-text);
     }
 
-    /* Celda de "Hoy" */
     .rbc-today {
       background-color: var(--rbc-today-bg) !important;
     }
 
-    /* Días fuera del mes */
     .rbc-off-range-bg {
       background-color: var(--rbc-off-range-bg) !important;
     }
 
-    /* Eventos (Cards) - Estilos base, el color viene de eventPropGetter */
+    /* ESTILOS DE HOVER Y CURSOR */
+    .rbc-day-bg {
+      cursor: cell !important; 
+      transition: background-color 0.15s ease;
+    }
+    .rbc-day-bg:hover {
+      background-color: rgba(100, 116, 139, 0.2) !important; 
+    }
+
+    .rbc-time-view .rbc-time-slot {
+       cursor: cell !important;
+       transition: background-color 0.1s ease;
+    }
+    .rbc-time-view .rbc-time-slot:hover {
+       background-color: rgba(100, 116, 139, 0.2) !important;
+    }
+
+    .rbc-agenda-view table.rbc-agenda-table tbody > tr {
+       cursor: pointer !important;
+       transition: background-color 0.15s ease;
+    }
+    .rbc-agenda-view table.rbc-agenda-table tbody > tr:hover {
+       background-color: rgba(100, 116, 139, 0.2) !important;
+    }
+    /* ------------------------------------- */
+
     .rbc-event {
       border-radius: 4px !important;
       border: none !important;
@@ -322,10 +349,9 @@ export function EventScheduler({
     }
 
     .rbc-event-label {
-      font-size: 0.7rem !important; /* text-xs ajustado */
+      font-size: 0.7rem !important;
     }
 
-    /* Grid de Hora (Agenda Semanal) */
     .rbc-timeslot-group {
       border-bottom-color: var(--rbc-border) !important;
       min-height: 50px !important; 
@@ -336,16 +362,15 @@ export function EventScheduler({
     }
     
     .rbc-time-view .rbc-label {
-      font-size: 0.7rem; /* text-xs */
+      font-size: 0.7rem;
       color: var(--rbc-text);
       opacity: 0.6;
       font-weight: 500;
     }
     
-    /* Fechas dentro del grid */
     .rbc-date-cell {
       padding: 4px 8px;
-      font-size: 0.75rem; /* text-xs */
+      font-size: 0.75rem;
       font-weight: 500;
     }
     
@@ -354,7 +379,6 @@ export function EventScheduler({
         opacity: 0.8;
     }
 
-    /* Toolbar (Botones Anterior/Siguiente/Hoy) */
     .rbc-toolbar {
       margin-bottom: 1rem !important;
       flex-wrap: wrap;
@@ -366,7 +390,7 @@ export function EventScheduler({
       border: 1px solid var(--rbc-border) !important;
       border-radius: 0.375rem !important;
       padding: 0.35rem 0.75rem !important;
-      font-size: 0.75rem !important; /* text-xs */
+      font-size: 0.75rem !important;
       font-weight: 500;
       transition: all 0.2s;
     }
@@ -377,26 +401,24 @@ export function EventScheduler({
     
     .rbc-toolbar button.rbc-active {
       background-color: var(--rbc-text) !important;
-      color: var(--rbc-bg) !important; /* Invertido */
+      color: var(--rbc-bg) !important;
       font-weight: 600;
       border-color: var(--rbc-text) !important;
     }
     
     .rbc-toolbar-label {
-      font-size: 1rem !important; /* text-base/sm */
+      font-size: 1rem !important;
       font-weight: 700 !important;
       color: var(--rbc-text);
       text-transform: capitalize;
     }
 
-    /* Ajustes para Fullscreen */
     .calendar-fullscreen {
       position: fixed;
       inset: 0;
       z-index: 50;
       padding: 1.5rem;
       overflow: hidden;
-      /* Background manejado por Tailwind clases ahora */
     }
     
     .calendar-fullscreen .rbc-calendar {
@@ -408,16 +430,14 @@ export function EventScheduler({
     <>
       <style>{customStyles}</style>
 
-      {/* Contenedor Principal (Normal o Fullscreen) */}
       <div
         className={cn(
           'flex flex-col transition-all duration-300 ease-in-out',
           isFullscreen
-            ? 'calendar-fullscreen bg-white dark:bg-zinc-950' // Corrección: detecta modo claro/oscuro
+            ? 'calendar-fullscreen bg-white dark:bg-zinc-950'
             : 'h-full space-y-4'
         )}
       >
-        {/* Barra Superior con Botón Fullscreen */}
         <div className="flex justify-between items-center mb-2">
           {!isFullscreen && (
             <div className="text-sm text-muted-foreground font-medium">
@@ -430,7 +450,7 @@ export function EventScheduler({
             size="sm"
             onClick={() => setIsFullscreen(!isFullscreen)}
             className={cn(
-              'ml-auto gap-2 text-xs', // text-xs
+              'ml-auto gap-2 text-xs',
               isFullscreen &&
                 'absolute top-4 right-4 z-[60] bg-white dark:bg-black'
             )}
@@ -449,7 +469,6 @@ export function EventScheduler({
           </Button>
         </div>
 
-        {/* Contenedor del Calendario */}
         <div
           className={cn(
             'bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 transition-all',
@@ -470,7 +489,6 @@ export function EventScheduler({
             views={[Views.MONTH, Views.WEEK, Views.AGENDA]}
             selectable
             resizable
-            // Props añadidas para colores pastel
             eventPropGetter={eventPropGetter}
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
@@ -494,7 +512,6 @@ export function EventScheduler({
           />
         </div>
 
-        {/* Modal de Creación/Edición */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -511,13 +528,25 @@ export function EventScheduler({
                 eventId={eventId}
                 initialData={selectedActivity}
                 onSubmit={onFormSubmit}
-                onDelete={onDeleteEvent}
+                onDelete={handleDeleteRequest}
                 onCancel={() => setIsModalOpen(false)}
                 isSubmitting={isSubmitting}
               />
             )}
           </DialogContent>
         </Dialog>
+
+        <ConfirmAlertDialog
+          open={isConfirmOpen}
+          onOpenChange={setIsConfirmOpen}
+          title="¿Eliminar Actividad?"
+          description="Esta acción no se puede deshacer. La actividad será eliminada permanentemente del horario."
+          confirmText="Eliminar"
+          cancelText="Cancelar"
+          confirmVariant="destructive"
+          onConfirm={handleConfirmDelete}
+          isLoading={isSubmitting}
+        />
       </div>
     </>
   )

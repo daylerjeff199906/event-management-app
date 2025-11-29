@@ -77,8 +77,8 @@ export function ActivityForm({
     }
   })
 
-//   const errors = form.formState.errors
-//   console.log('Form Errors:', errors)
+  //   const errors = form.formState.errors
+  //   console.log('Form Errors:', errors)
   const handleDelete = async () => {
     if (initialData?.id && onDelete) {
       await onDelete(initialData.id)
@@ -145,7 +145,7 @@ export function ActivityForm({
                         type="time"
                         onChange={(e) => {
                           const [hours, minutes] = e.target.value.split(':')
-                          const newDate = new Date(field.value)
+                          const newDate = new Date(field.value || '')
                           newDate.setHours(parseInt(hours), parseInt(minutes))
                           field.onChange(newDate)
                         }}
@@ -196,7 +196,7 @@ export function ActivityForm({
                         type="time"
                         onChange={(e) => {
                           const [hours, minutes] = e.target.value.split(':')
-                          const newDate = new Date(field.value)
+                          const newDate = new Date(field.value || '')
                           newDate.setHours(parseInt(hours), parseInt(minutes))
                           field.onChange(newDate)
                         }}

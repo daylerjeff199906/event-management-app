@@ -70,12 +70,12 @@ export function EventManageLayout({
       {/* Sidebar */}
       <aside
         className={cn(
-          'sticky left-0 top-0 lg:top-14 z-50 h-fit w-80 transform  border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:z-auto',
+          'sticky left-0 top-0 lg:top-14 z-50 h-fit w-64 transform  border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:z-auto',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex h-full flex-col">
-          <div className="p-6">
+          <div className="p-2">
             {urlBack && (
               <Button
                 variant="ghost"
@@ -90,20 +90,17 @@ export function EventManageLayout({
             )}
 
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-4">
-                Opciones
-              </h3>
-              <div className="space-y-4">
+              <h3 className="text-sm font-medium text-gray-500">Opciones</h3>
+              <div className="space-y-2">
                 {menuItems.map((item) => {
                   const isActive = isActiveItem(item.id)
-                  const isCompleted = !item.disabled
 
                   return (
                     <Link
                       key={item.id}
                       onClick={() => handleItemClick(item)}
                       className={cn(
-                        'w-full text-left group p-2 ',
+                        'w-full text-left group p-2',
                         item.disabled
                           ? 'cursor-not-allowed opacity-50'
                           : 'hover:cursor-pointer'
@@ -113,7 +110,7 @@ export function EventManageLayout({
                       <div className="flex items-start gap-3">
                         <div
                           className={cn(
-                            'w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0',
+                            'w-4 h-4 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0',
                             isActive
                               ? 'bg-primary border-primary'
                               : 'border-gray-300 bg-white dark:bg-gray-800'
@@ -128,16 +125,18 @@ export function EventManageLayout({
                           <h4
                             className={cn(
                               'font-medium text-sm',
-                              isActive || isCompleted
+                              isActive && !item.disabled
                                 ? 'text-gray-900 dark:text-gray-100'
-                                : 'text-gray-400 dark:text-gray-500'
+                                : !isActive
+                                ? 'text-gray-700 dark:text-gray-300'
+                                : 'text-gray-500 dark:text-gray-400'
                             )}
                           >
                             {item.label}
                           </h4>
 
                           {isActive && item.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
                               {item.description}
                             </p>
                           )}
