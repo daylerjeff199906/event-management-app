@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { Event } from '@/types'
 import { fetchEventsExcludingId } from '@/services/events.services'
 import { EventCardUser } from '@/modules/events'
-import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
 import { EventCardSkeleton } from '../../components/event-card-skeleton'
 
@@ -15,13 +14,6 @@ interface MoreEventsSectionProps {
 export function MoreEventsSection({ uuid_event }: MoreEventsSectionProps) {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-
-  const router = useRouter()
-
-  const handleViewDetails = (eventId: string) => {
-    // Implementar navegación a página de detalles
-    router.push(APP_URL.PORTAL.EVENTS.DETAIL(eventId))
-  }
 
   const loadEvents = async () => {
     try {
@@ -56,7 +48,7 @@ export function MoreEventsSection({ uuid_event }: MoreEventsSectionProps) {
                 <EventCardUser
                   key={event.id}
                   event={event}
-                  onViewDetails={handleViewDetails}
+                  href={APP_URL.PORTAL.EVENTS.DETAIL(event.id)}
                   hiddenStatus
                 />
               ))}

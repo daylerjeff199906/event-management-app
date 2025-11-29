@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/badge'
 import { CalendarDays, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import Link from 'next/link'
 
 interface EventCardProps {
   event: Event
-  onViewDetails: (eventId: string) => void
+  onViewDetails?: (eventId: string) => void
   hiddenStatus?: boolean
+  href?: string
 }
 
 const getStatusColor = (status?: EventStatus) => {
@@ -43,7 +45,8 @@ const getStatusText = (status?: EventStatus) => {
 export function EventCardUser({
   event,
   onViewDetails,
-  hiddenStatus
+  hiddenStatus,
+  href
 }: EventCardProps) {
   const startDate = new Date(event.start_date)
   const endDate = event.end_date ? new Date(event.end_date) : null
@@ -95,12 +98,21 @@ export function EventCardUser({
       <CardContent className="p-0 space-y-3">
         {/* Título Principal */}
         {/* group-hover:text-white: El título se vuelve blanco */}
-        <h3
-          className="font-bold text-2xl leading-tight text-gray-900 dark:text-white cursor-pointer group-hover:text-white group-hover:underline decoration-2 underline-offset-4 decoration-primary transition-colors duration-300"
-          onClick={() => onViewDetails(event.id)}
-        >
-          {event.event_name}
-        </h3>
+        {href ? (
+          <Link
+            href={href}
+            className="font-bold text-2xl leading-tight text-gray-900 dark:text-white cursor-pointer group-hover:text-white group-hover:underline decoration-2 underline-offset-4 decoration-primary transition-colors duration-300"
+          >
+            {event.event_name}
+          </Link>
+        ) : (
+          <h3
+            className="font-bold text-2xl leading-tight text-gray-900 dark:text-white cursor-pointer group-hover:text-white group-hover:underline decoration-2 underline-offset-4 decoration-primary transition-colors duration-300"
+            onClick={() => onViewDetails?.(event.id)}
+          >
+            {event.event_name}
+          </h3>
+        )}
 
         {/* Descripción */}
         {/* group-hover:text-gray-300: El texto descriptivo se vuelve gris claro */}
@@ -112,14 +124,31 @@ export function EventCardUser({
       </CardContent>
 
       <CardFooter className="p-0 mt-6">
-        <Button
-          onClick={() => onViewDetails(event.id)}
-          // group-hover:bg-white y group-hover:text-black: El botón se invierte para resaltar en el fondo oscuro
-          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all 
+        {href ? (
+          <>
+            <Button
+              // group-hover:bg-white y group-hover:text-black: El botón se invierte para resaltar en el fondo oscuro
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all 
                      group-hover:translate-x-1 group-hover:bg-white group-hover:text-black"
-        >
-          Ver Evento <ArrowRight className="ml-2 w-4 h-4" />
-        </Button>
+              asChild
+            >
+              <Link href={href}>
+                Ver Evento <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              onClick={() => onViewDetails?.(event.id)}
+              // group-hover:bg-white y group-hover:text-black: El botón se invierte para resaltar en el fondo oscuro
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all 
+                     group-hover:translate-x-1 group-hover:bg-white group-hover:text-black"
+            >
+              Ver Evento <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+          </>
+        )}
       </CardFooter>
     </Card>
   )
