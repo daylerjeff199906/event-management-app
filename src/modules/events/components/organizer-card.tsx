@@ -10,7 +10,7 @@ import {
   unfollowInstitution
 } from '@/services/institution.follow.service'
 import { usePathname } from 'next/navigation'
-import { Loader2, UserPlus, Check } from 'lucide-react'
+import { Loader2, FolderPlus, Bell } from 'lucide-react'
 import { AuthModal } from '@/modules/core/components/auth-modal'
 import { EventItemDetails } from '@/types'
 import { APP_URL } from '@/data/config-app-url'
@@ -68,11 +68,6 @@ export function OrganizerCard({
           setIsFollowing(!newState) // Revertir
           toast.error(response.error)
         } else {
-          toast.success(
-            newState
-              ? `Siguiendo a ${entityName}`
-              : `Dejaste de seguir a ${entityName}`
-          )
         }
       } catch {
         setIsFollowing(!newState) // Revertir
@@ -87,7 +82,7 @@ export function OrganizerCard({
         <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-6">
           Presentado por
         </h3>
-        <div className="flex items-center gap-6 bg-zinc-50 p-6 rounded-lg border border-zinc-200 dark:bg-zinc-900/50 dark:border-zinc-800">
+        <div className="flex items-center gap-6 ">
           <Avatar className="w-20 h-20 border-2 border-zinc-200 dark:border-zinc-700">
             <AvatarImage src={entityImage} />
             <AvatarFallback className="bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 text-xl font-bold">
@@ -132,7 +127,7 @@ export function OrganizerCard({
                     border-none transition-all duration-200 min-w-[100px]
                     ${
                       isFollowing
-                        ? 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-200'
+                        ? 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-zinc-900 dark:text-white'
                         : 'bg-orange-600 hover:bg-orange-700 text-white'
                     }
                   `}
@@ -141,11 +136,11 @@ export function OrganizerCard({
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : isFollowing ? (
                     <>
-                      <Check className="w-4 h-4 mr-1.5" /> Siguiendo
+                      <Bell className="w-4 h-4 mr-1.5" /> Siguiendo
                     </>
                   ) : (
                     <>
-                      <UserPlus className="w-4 h-4 mr-1.5" /> Seguir
+                      <FolderPlus className="w-4 h-4 mr-1.5" /> Seguir
                     </>
                   )}
                 </Button>
