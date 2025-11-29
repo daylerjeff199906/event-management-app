@@ -110,7 +110,7 @@ export function EventManageLayout({
                       <div className="flex items-start gap-3">
                         <div
                           className={cn(
-                            'w-4 h-4 rounded-full border-2 flex items-center justify-center mt-0.5 flex-shrink-0',
+                            'w-4 h-4 rounded-full border-2 flex items-center justify-center mt-0.5 shrink-0',
                             isActive
                               ? 'bg-primary border-primary'
                               : 'border-gray-300 bg-white dark:bg-gray-800'

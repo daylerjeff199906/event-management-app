@@ -31,6 +31,7 @@ import {
 import { EventActivity } from '@/types'
 import { EventActivityForm } from '@/modules/events/schemas'
 import { ConfirmAlertDialog } from '@/components/app/miscellaneous/confirm-alert-dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 // 1. Configuración del Localizer
 const locales = {
@@ -452,7 +453,7 @@ export function EventScheduler({
             className={cn(
               'ml-auto gap-2 text-xs',
               isFullscreen &&
-                'absolute top-4 right-4 z-[60] bg-white dark:bg-black'
+                'absolute top-4 right-4 z-[60px] bg-white dark:bg-black'
             )}
           >
             {isFullscreen ? (
@@ -513,7 +514,7 @@ export function EventScheduler({
         </div>
 
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] ">
             <DialogHeader>
               <DialogTitle>
                 {selectedActivity?.id ? 'Editar Actividad' : 'Nueva Actividad'}
@@ -522,17 +523,18 @@ export function EventScheduler({
                 Complete los detalles del evento a continuación.
               </DialogDescription>
             </DialogHeader>
-
-            {isModalOpen && (
-              <ActivityForm
-                eventId={eventId}
-                initialData={selectedActivity}
-                onSubmit={onFormSubmit}
-                onDelete={handleDeleteRequest}
-                onCancel={() => setIsModalOpen(false)}
-                isSubmitting={isSubmitting}
-              />
-            )}
+            <ScrollArea className="h-[90vh] mt-4 pr-4">
+              {isModalOpen && (
+                <ActivityForm
+                  eventId={eventId}
+                  initialData={selectedActivity}
+                  onSubmit={onFormSubmit}
+                  onDelete={handleDeleteRequest}
+                  onCancel={() => setIsModalOpen(false)}
+                  isSubmitting={isSubmitting}
+                />
+              )}
+            </ScrollArea>
           </DialogContent>
         </Dialog>
 

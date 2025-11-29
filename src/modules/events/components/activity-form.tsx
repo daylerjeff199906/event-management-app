@@ -108,21 +108,21 @@ export function ActivityForm({
   return (
     <Form {...form}>
       {/* --- BANNER MINIMALISTA (Live Preview) --- */}
-      <div className="bg-slate-50 dark:bg-zinc-900 border-l-4 border-primary/70 p-4 mb-6 rounded-r-md shadow-sm transition-all duration-300">
+      <div className="bg-slate-50 dark:bg-zinc-900 border-primary/70 p-4 mb-6 rounded-lg border transition-all duration-300">
         <div className="flex flex-col space-y-2">
           {/* Título */}
           <h3
             className={cn(
-              'font-semibold text-lg leading-none tracking-tight',
+              'font-semibold text-sm leading-none tracking-tight',
               !wName && 'text-muted-foreground italic'
             )}
           >
             {wName || 'Sin título'}
           </h3>
 
-          <div className="text-sm text-muted-foreground space-y-1">
+          <div className="text-xs text-muted-foreground space-y-1">
             {/* Fechas */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ">
               <Clock className="w-3.5 h-3.5 text-primary/60" />
               <span className="capitalize">
                 {wStart ? formatDatePE(wStart) : '--'}
@@ -210,7 +210,6 @@ export function ActivityForm({
                         field.onChange(newDate)
                       }}
                       disabled={(date) => date < new Date('1900-01-01')}
-                      initialFocus
                       locale={es} // Calendario en español
                     />
                     <div className="p-3 border-t bg-slate-50 dark:bg-zinc-900">
@@ -302,7 +301,7 @@ export function ActivityForm({
         </div>
 
         {/* Modalidad y Ubicación (Nuevo campo) */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4">
           <FormField
             control={form.control}
             name="activity_mode"
@@ -314,7 +313,7 @@ export function ActivityForm({
                   defaultValue={field.value || undefined}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Seleccione" />
                     </SelectTrigger>
                   </FormControl>
