@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ExternalLink, Loader } from 'lucide-react'
+import { ChevronLeft, ExternalLink, Loader } from 'lucide-react'
 import { addDays, addMonths, addWeeks, addYears, format } from 'date-fns'
 // import { es } from 'da  te-fns/locale'
 import { Button } from '@/components/ui/button'
@@ -40,6 +40,7 @@ import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
 import { Textarea } from '@/components/ui/textarea'
+import { APP_URL } from '@/data/config-app-url'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -196,6 +197,19 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
 
   return (
     <div className="max-w-2xl mx-auto p-2 md:p-6 space-y-8">
+      <Button
+        variant="ghost"
+        className="mb-6 p-0 h-auto text-blue-600 hover:text-blue-700 hover:bg-transparent font-normal"
+        asChild
+      >
+        <Link
+          href={APP_URL.ORGANIZATION.EVENTS.EVENTS_INSTITUTION(institutionId!)}
+          className="flex items-center"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Volver a eventos
+        </Link>
+      </Button>
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-balance">
           Crea tu evento al instante

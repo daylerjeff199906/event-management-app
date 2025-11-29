@@ -70,7 +70,7 @@ export function EventCardUser({
       </div>
 
       {/* Contenedor de Imagen */}
-      <div className="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 aspect-[16/9] mb-4">
+      <div className="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 aspect-video mb-4">
         {event.cover_image_url ? (
           <img
             src={event.cover_image_url || '/placeholder.svg'}

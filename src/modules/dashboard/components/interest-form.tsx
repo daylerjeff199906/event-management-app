@@ -115,7 +115,7 @@ export function InterestForm({ data, idUser }: StepTwoProps) {
                                       onCheckedChange={(checked) => {
                                         return checked
                                           ? field.onChange([
-                                              ...field.value,
+                                              ...(field.value || []),
                                               interest.id
                                             ])
                                           : field.onChange(
@@ -195,7 +195,7 @@ export function InterestForm({ data, idUser }: StepTwoProps) {
                                     onCheckedChange={(checked) => {
                                       return checked
                                         ? field.onChange([
-                                            ...field.value,
+                                            ...(field.value || []),
                                             eventType.id
                                           ])
                                         : field.onChange(
@@ -222,7 +222,7 @@ export function InterestForm({ data, idUser }: StepTwoProps) {
                                       )
                                     } else {
                                       field.onChange([
-                                        ...field.value,
+                                        ...(field.value || []),
                                         eventType.id
                                       ])
                                     }

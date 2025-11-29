@@ -39,13 +39,13 @@ export const APP_URL = {
       CONFIG: (id: string) => `/organizations/${id}/config`,
       CREATE_EVENT: (id: string) => `/organizations/${id}/create-event`,
       EDIT_EVENT: (id: string, eventId: string) =>
-        `/organizations/${id}/events/${eventId}`,
+        `/organizations/${id}/event/${eventId}`,
       ADD_SCHEDULE: (id: string, eventId: string) =>
-        `/organizations/${id}/events/${eventId}/schedule`,
+        `/organizations/${id}/event/${eventId}/schedule`,
       ADD_TICKET: (id: string, eventId: string) =>
-        `/organizations/${id}/events/${eventId}/ticket`,
+        `/organizations/${id}/event/${eventId}/ticket`,
       EVENT_INFO: (id: string, eventId: string) =>
-        `/organizations/${id}/events/${eventId}/info`,
+        `/organizations/${id}/event/${eventId}/info`,
       EVENTS: (id: string) => `/organizations/${id}/events`
     },
     EVENTS: {
