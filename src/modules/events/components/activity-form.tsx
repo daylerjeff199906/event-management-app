@@ -374,7 +374,7 @@ export function ActivityForm({
           )}
         />
 
-        <DialogFooter className="gap-2 sm:gap-0 mt-4">
+        <DialogFooter className="gap-2 sm:gap-0 mt-4 flex flex-col sm:flex-row sm:justify-between">
           {initialData?.id && (
             <Button
               type="button"

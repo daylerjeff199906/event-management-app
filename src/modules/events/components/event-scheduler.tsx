@@ -1,12 +1,18 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { Calendar, dateFnsLocalizer, View, Views } from 'react-big-calendar'
+import { useState, useCallback, useEffect, useMemo } from 'react' // Agregado useMemo
+import { Calendar, dateFnsLocalizer, View, Views } from 'react-big-calendar' // Agregado Components type
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toast } from 'react-toastify'
-import { Maximize2, Minimize2 } from 'lucide-react'
+import {
+  Maximize2,
+  Minimize2,
+  Clock,
+  AlignLeft,
+  CalendarDays
+} from 'lucide-react' // Iconos agregados para el popover
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
@@ -18,6 +24,12 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog'
+// Importamos HoverCard para el efecto solicitado
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger
+} from '@/components/ui/hover-card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ActivityForm } from './activity-form'
@@ -32,6 +44,7 @@ import { EventActivity } from '@/types'
 import { EventActivityForm } from '@/modules/events/schemas'
 import { ConfirmAlertDialog } from '@/components/app/miscellaneous/confirm-alert-dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator' // Opcional, para estética del popover
 
 // 1. Configuración del Localizer
 const locales = {
@@ -216,14 +229,10 @@ export function EventScheduler({
   }
 
   // --- LÓGICA DE ELIMINACIÓN ---
-
-  // 1. Interceptor para cumplir con la interfaz (id: string) => Promise<void>
-  // Se ignora el ID porque usamos selectedActivity, pero se mantiene la firma.
   const handleDeleteRequest = async () => {
     setIsConfirmOpen(true)
   }
 
-  // 2. Acción real de eliminación al confirmar
   const handleConfirmDelete = async () => {
     if (!selectedActivity?.id) return
 
@@ -234,12 +243,12 @@ export function EventScheduler({
 
       toast.success('Actividad eliminada')
       await loadActivities()
-      setIsModalOpen(false) // Cierra el formulario
+      setIsModalOpen(false)
     } catch {
       toast.error('Error al eliminar')
     } finally {
       setIsSubmitting(false)
-      setIsConfirmOpen(false) // Cierra la confirmación
+      setIsConfirmOpen(false)
     }
   }
 
@@ -255,6 +264,71 @@ export function EventScheduler({
       }
     }
   }, [])
+
+  // --- NUEVA LÓGICA: Componente personalizado para el Evento con HoverCard ---
+  const { components } = useMemo(
+    () => ({
+      components: {
+        event: ({
+          event,
+          title
+        }: {
+          event: CalendarEvent
+          title: React.ReactNode
+        }) => {
+          return (
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                {/* Contenedor invisible que ocupa todo el espacio del evento para detectar el hover */}
+                <div className="w-full h-full cursor-pointer truncate">
+                  {title}
+                </div>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 z-50 p-4 shadow-lg border-zinc-200 dark:border-zinc-800">
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-semibold leading-none">
+                      {event.title}
+                    </h4>
+                    <p className="text-xs text-muted-foreground">
+                      Detalles de la actividad
+                    </p>
+                  </div>
+                  <Separator />
+                  <div className="grid gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span className="text-xs">
+                        {format(event.start, 'HH:mm a', { locale: es })} -{' '}
+                        {format(event.end, 'HH:mm a', { locale: es })}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      <span className="text-xs">
+                        {format(event.start, "EEEE, d 'de' MMMM", {
+                          locale: es
+                        })}
+                      </span>
+                    </div>
+                    {event.resource?.description && (
+                      <div className="flex items-start gap-2 text-muted-foreground mt-1">
+                        <AlignLeft className="h-3.5 w-3.5 mt-0.5" />
+                        <p className="text-xs leading-relaxed max-h-[100px] overflow-y-auto">
+                          {event.resource.description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          )
+        }
+      }
+    }),
+    []
+  )
 
   const customStyles = `
     /* Variables Base (Light) */
@@ -340,6 +414,7 @@ export function EventScheduler({
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
       transition: all 0.2s ease;
       outline: none;
+      /* overflow: visible !important;  <- Importante quitar esto si es necesario, pero HoverCard usa portal así que no afecta */
     }
     
     .rbc-event:hover {
@@ -490,6 +565,8 @@ export function EventScheduler({
             views={[Views.MONTH, Views.WEEK, Views.AGENDA]}
             selectable
             resizable
+            // AQUI SE AGREGA LA PROPIEDAD COMPONENTS
+            components={components}
             eventPropGetter={eventPropGetter}
             onSelectSlot={handleSelectSlot}
             onSelectEvent={handleSelectEvent}
