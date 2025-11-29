@@ -414,11 +414,11 @@ export function EventDetailsPage({
                             <div
                               className={`relative cursor-pointer overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-800 ${
                                 eventImages.length === 1
-                                  ? 'h-[400px]'
+                                  ? 'h-[500px]'
                                   : eventImages.length === 2
-                                  ? 'h-[300px]'
+                                  ? 'h-[500px]'
                                   : index === 0
-                                  ? 'h-[400px]'
+                                  ? 'h-[500px]'
                                   : 'h-[200px]'
                               }`}
                             >
