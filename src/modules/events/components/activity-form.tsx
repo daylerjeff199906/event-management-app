@@ -4,8 +4,16 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
-import { CalendarIcon, Loader2, Trash2 } from 'lucide-react'
-import { cn } from '@/lib/utils' // Tu utilidad de shadcn
+import { es } from 'date-fns/locale' // Importante para español
+import {
+  CalendarIcon,
+  Loader2,
+  Trash2,
+  MapPin,
+  Clock,
+  AlignLeft
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -33,10 +41,10 @@ import { Calendar } from '@/components/ui/calendar'
 import { DialogFooter } from '@/components/ui/dialog'
 import {
   eventActivitySchema,
-  EventActivityForm
-} from '@/modules/events/schemas' // Tu path
-import { EventStatus } from '@/types' // Tus tipos
-import { EventMode } from '@/modules/events/schemas'
+  EventActivityForm,
+  EventMode
+} from '@/modules/events/schemas'
+import { EventStatus } from '@/types'
 
 interface ActivityFormProps {
   eventId: string
@@ -55,7 +63,6 @@ export function ActivityForm({
   isSubmitting = false,
   onCancel
 }: ActivityFormProps) {
-  // Configuración del formulario con valores por defecto inteligentes
   const form = useForm<EventActivityForm>({
     resolver: zodResolver(eventActivitySchema),
     defaultValues: {
@@ -72,21 +79,71 @@ export function ActivityForm({
         (initialData?.activity_mode as EventMode) || EventMode.PRESENCIAL,
       status: (initialData?.status as EventStatus) || EventStatus.DRAFT,
       meeting_url: initialData?.meeting_url || '',
-      custom_location: initialData?.custom_location || '',
-      id: initialData?.id // Importante para updates
+      custom_location: initialData?.custom_location || '', // Campo de ubicación
+      id: initialData?.id
     }
   })
 
-  //   const errors = form.formState.errors
-  //   console.log('Form Errors:', errors)
+  // --- LOGICA DEL BANNER EN VIVO ---
+  // Observamos los valores para actualizar el banner en tiempo real
+  const watchedValues = form.watch([
+    'activity_name',
+    'start_time',
+    'end_time',
+    'custom_location'
+  ])
+  const [wName, wStart, wEnd, wLocation] = watchedValues
+
   const handleDelete = async () => {
     if (initialData?.id && onDelete) {
       await onDelete(initialData.id)
     }
   }
 
+  // Helper para formato en español
+  const formatDatePE = (date: Date) => {
+    return format(date, "EEEE d 'de' MMMM, h:mm a", { locale: es })
+  }
+
   return (
     <Form {...form}>
+      {/* --- BANNER MINIMALISTA (Live Preview) --- */}
+      <div className="bg-slate-50 dark:bg-zinc-900 border-l-4 border-primary/70 p-4 mb-6 rounded-r-md shadow-sm transition-all duration-300">
+        <div className="flex flex-col space-y-2">
+          {/* Título */}
+          <h3
+            className={cn(
+              'font-semibold text-lg leading-none tracking-tight',
+              !wName && 'text-muted-foreground italic'
+            )}
+          >
+            {wName || 'Sin título'}
+          </h3>
+
+          <div className="text-sm text-muted-foreground space-y-1">
+            {/* Fechas */}
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-primary/60" />
+              <span className="capitalize">
+                {wStart ? formatDatePE(wStart) : '--'}
+              </span>
+              <span className="text-xs px-1">hasta</span>
+              <span className="capitalize">
+                {wEnd ? format(wEnd, 'h:mm a', { locale: es }) : '--'}
+              </span>
+            </div>
+
+            {/* Ubicación (si existe) */}
+            {wLocation && (
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                <MapPin className="w-3.5 h-3.5" />
+                <span className="font-medium">{wLocation}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {/* Nombre de la Actividad */}
         <FormField
@@ -96,15 +153,23 @@ export function ActivityForm({
             <FormItem>
               <FormLabel>Nombre de la actividad</FormLabel>
               <FormControl>
-                <Input placeholder="Ej. Taller de React" {...field} />
+                <div className="relative">
+                  <AlignLeft className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Ej. Taller de React"
+                    className="pl-9"
+                    {...field}
+                  />
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          {/* Fecha Inicio - Simplificado, idealmente usarías un TimePicker combo */}
+        {/* Grid de Fechas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Fecha Inicio */}
           <FormField
             control={form.control}
             name="start_time"
@@ -117,12 +182,12 @@ export function ActivityForm({
                       <Button
                         variant={'outline'}
                         className={cn(
-                          'w-full pl-3 text-left font-normal',
+                          'w-full pl-3 text-left font-normal capitalize',
                           !field.value && 'text-muted-foreground'
                         )}
                       >
                         {field.value ? (
-                          format(field.value, 'PPP p') // Fecha y hora
+                          format(field.value, 'EEE d, p', { locale: es })
                         ) : (
                           <span>Seleccionar fecha</span>
                         )}
@@ -134,18 +199,31 @@ export function ActivityForm({
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(newDate) => {
+                        // Preservar la hora al cambiar el día
+                        if (newDate && field.value) {
+                          newDate.setHours(
+                            field.value.getHours(),
+                            field.value.getMinutes()
+                          )
+                        }
+                        field.onChange(newDate)
+                      }}
                       disabled={(date) => date < new Date('1900-01-01')}
                       initialFocus
+                      locale={es} // Calendario en español
                     />
-                    {/* Nota: Shadcn Calendar por defecto no tiene selector de hora. 
-                         Para producción, recomiendo instalar un TimePicker component o inputs de tipo 'datetime-local' */}
-                    <div className="p-3 border-t">
+                    <div className="p-3 border-t bg-slate-50 dark:bg-zinc-900">
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        Modificar Hora
+                      </label>
                       <Input
                         type="time"
+                        className="w-full"
+                        value={field.value ? format(field.value, 'HH:mm') : ''}
                         onChange={(e) => {
                           const [hours, minutes] = e.target.value.split(':')
-                          const newDate = new Date(field.value || '')
+                          const newDate = new Date(field.value || new Date())
                           newDate.setHours(parseInt(hours), parseInt(minutes))
                           field.onChange(newDate)
                         }}
@@ -171,12 +249,12 @@ export function ActivityForm({
                       <Button
                         variant={'outline'}
                         className={cn(
-                          'w-full pl-3 text-left font-normal',
+                          'w-full pl-3 text-left font-normal capitalize',
                           !field.value && 'text-muted-foreground'
                         )}
                       >
                         {field.value ? (
-                          format(field.value, 'PPP p')
+                          format(field.value, 'EEE d, p', { locale: es })
                         ) : (
                           <span>Seleccionar fecha</span>
                         )}
@@ -188,15 +266,28 @@ export function ActivityForm({
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
+                      onSelect={(newDate) => {
+                        if (newDate && field.value) {
+                          newDate.setHours(
+                            field.value.getHours(),
+                            field.value.getMinutes()
+                          )
+                        }
+                        field.onChange(newDate)
+                      }}
+                      locale={es}
                     />
-                    <div className="p-3 border-t">
+                    <div className="p-3 border-t bg-slate-50 dark:bg-zinc-900">
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                        Modificar Hora
+                      </label>
                       <Input
                         type="time"
+                        className="w-full"
+                        value={field.value ? format(field.value, 'HH:mm') : ''}
                         onChange={(e) => {
                           const [hours, minutes] = e.target.value.split(':')
-                          const newDate = new Date(field.value || '')
+                          const newDate = new Date(field.value || new Date())
                           newDate.setHours(parseInt(hours), parseInt(minutes))
                           field.onChange(newDate)
                         }}
@@ -210,7 +301,7 @@ export function ActivityForm({
           />
         </div>
 
-        {/* Modalidad y Estado */}
+        {/* Modalidad y Ubicación (Nuevo campo) */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -224,7 +315,7 @@ export function ActivityForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccione modalidad" />
+                      <SelectValue placeholder="Seleccione" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -239,9 +330,31 @@ export function ActivityForm({
               </FormItem>
             )}
           />
-          {/* ... Puedes agregar el campo de Estado aquí similar al de Modalidad ... */}
+
+          <FormField
+            control={form.control}
+            name="custom_location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Lugar / Sala</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Ej. Auditorio A"
+                      className="pl-9"
+                      {...field}
+                      value={field.value || ''}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
+        {/* Descripción */}
         <FormField
           control={form.control}
           name="description"
@@ -251,6 +364,8 @@ export function ActivityForm({
               <FormControl>
                 <Textarea
                   placeholder="Detalles de la actividad..."
+                  className="resize-none"
+                  rows={3}
                   {...field}
                   value={field.value || ''}
                 />
@@ -260,7 +375,7 @@ export function ActivityForm({
           )}
         />
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2 sm:gap-0 mt-4">
           {initialData?.id && (
             <Button
               type="button"
@@ -273,7 +388,7 @@ export function ActivityForm({
             </Button>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto justify-end">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
             </Button>
