@@ -154,7 +154,7 @@ export default async function Page(props: PageProps) {
   return (
     <div className="min-h-screen">
       <EventDetailsPage
-        isAuthenticated={!user}
+        isAuthenticated={user.user ? true : false}
         initialIsFollowing={initialIsFollowing}
         event={response.data}
         schedule={
