@@ -3,7 +3,15 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, Building2, Mail, Phone, User, FileText, CheckCircle2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Building2,
+  Mail,
+  Phone,
+  User,
+  FileText,
+  CheckCircle2
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -228,8 +236,7 @@ export function RegistrationForm({
         { id: 'contact', label: 'Informacion de contacto' }
       ].map((step) => {
         const isActive = currentStep === step.id
-        const isDone =
-          currentStep === 'contact' && step.id === 'institution'
+        const isDone = currentStep === 'contact' && step.id === 'institution'
         return (
           <div key={step.id} className="flex items-center gap-2">
             <div
@@ -237,8 +244,8 @@ export function RegistrationForm({
                 isDone
                   ? 'bg-green-100 text-green-700 border-green-200'
                   : isActive
-                    ? 'bg-primary/10 text-primary border-primary/30'
-                    : 'bg-muted text-muted-foreground border-border'
+                  ? 'bg-primary/10 text-primary border-primary/30'
+                  : 'bg-muted text-muted-foreground border-border'
               }`}
             >
               {isDone ? (
@@ -270,7 +277,9 @@ export function RegistrationForm({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <CardTitle className="text-xl">Registro de nueva institucion</CardTitle>
+            <CardTitle className="text-xl">
+              Registro de nueva institucion
+            </CardTitle>
             <CardDescription>
               Completa los datos de tu institucion para solicitar el registro
             </CardDescription>
@@ -297,7 +306,7 @@ export function RegistrationForm({
                           placeholder="Ej. Universidad Nacional"
                           {...field}
                           onBlur={async () => {
-                            await validateInstitutionName(field.value)
+                            await validateInstitutionName(field.value || '')
                           }}
                         />
                       </FormControl>
@@ -397,9 +406,12 @@ export function RegistrationForm({
             {currentStep === 'contact' && (
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="col-span-1 md:col-span-2">
-                  <h3 className="text-lg font-semibold">Informacion de contacto</h3>
+                  <h3 className="text-lg font-semibold">
+                    Informacion de contacto
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    El contacto ingresado sera registrado con el rol de Owner y recibira todas las indicaciones.
+                    El contacto ingresado sera registrado con el rol de Owner y
+                    recibira todas las indicaciones.
                   </p>
                 </div>
 
@@ -513,7 +525,8 @@ export function RegistrationForm({
                   </div>
                   {!termsAccepted || !privacyAccepted ? (
                     <p className="text-xs text-destructive">
-                      Debes aceptar los términos y la política de privacidad para continuar.
+                      Debes aceptar los términos y la política de privacidad
+                      para continuar.
                     </p>
                   ) : null}
                 </div>
@@ -534,10 +547,14 @@ export function RegistrationForm({
                   </Button>
                   <Button
                     type="submit"
-                    disabled={isSubmitting || !termsAccepted || !privacyAccepted}
+                    disabled={
+                      isSubmitting || !termsAccepted || !privacyAccepted
+                    }
                     className="flex-1"
                   >
-                    {isSubmitting ? 'Enviando solicitud...' : 'Enviar solicitud'}
+                    {isSubmitting
+                      ? 'Enviando solicitud...'
+                      : 'Enviar solicitud'}
                   </Button>
                 </>
               ) : (
