@@ -326,7 +326,7 @@ export default function AgendaDownloadButton({
         />
       }
       fileName={`agenda-${format(new Date(), 'dd-MM-yyyy')}.pdf`}
-      className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors ${className}`}
+      className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors ${className}`}
     >
       {({ blob, url, loading, error }) =>
         loading ? (

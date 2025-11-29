@@ -187,7 +187,7 @@ interface DayGroupProps {
 const DayGroup = ({ dateKey, activities }: DayGroupProps) => {
   return (
     <div className="relative">
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur px-4 py-3 border-b border-gray-100 mb-2 dark:bg-gray-900/95 dark:border-gray-700 flex items-center justify-between sm:justify-start">
+      <div className="sticky top-16 z-10 bg-white/95 backdrop-blur px-4 py-3 border-b border-gray-100 mb-2 dark:bg-gray-900/95 dark:border-gray-700 flex items-center justify-between sm:justify-start">
         <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider dark:text-gray-100">
           {formatDateHeader(dateKey)}
         </h2>
