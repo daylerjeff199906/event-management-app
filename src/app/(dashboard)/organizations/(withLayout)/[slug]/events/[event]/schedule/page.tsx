@@ -1,4 +1,5 @@
 // app/dashboard/events/[id]/cronograma/page.tsx
+import BulkEventUploader from '@/modules/events/components/bulk-event-uploader'
 import { EventScheduler } from '@/modules/events/components/event-scheduler'
 import { fetchEventById } from '@/services/events.services'
 import { Params } from '@/types'
@@ -15,20 +16,12 @@ export default async function CronogramaPage(props: CronogramaPageProps) {
   const event = eventData?.data
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Cronograma del Evento
-        </h1>
-        <p className="text-muted-foreground">
-          Gestiona las actividades, horarios y modalidades.
-        </p>
-      </div>
-
+    <div className="container mx-auto py-6 flex flex-col gap-4">
       <EventScheduler
         eventId={eventId}
         defaultDate={event ? new Date(event.start_date) : new Date()}
       />
+      <BulkEventUploader eventId={eventId} />
     </div>
   )
 }

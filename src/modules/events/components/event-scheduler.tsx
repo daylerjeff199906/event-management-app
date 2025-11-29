@@ -508,16 +508,21 @@ export function EventScheduler({
 
       <div
         className={cn(
-          'flex flex-col transition-all duration-300 ease-in-out',
+          'flex flex-col transition-all duration-300 ease-in-out gap-4',
           isFullscreen
             ? 'calendar-fullscreen bg-white dark:bg-zinc-950'
-            : 'h-full space-y-4'
+            : 'h-full'
         )}
       >
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center mb-2 gap-4">
           {!isFullscreen && (
-            <div className="text-sm text-muted-foreground font-medium">
-              Gestión de Horarios
+            <div className="">
+              <h2 className="text-lg font-bold tracking-tight">
+                Cronograma del Evento
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                Gestiona las actividades, horarios y modalidades.
+              </p>
             </div>
           )}
 

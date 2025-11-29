@@ -165,7 +165,7 @@ export function EventManageLayout({
       {/* Contenido principal */}
       <main
         className={cn(
-          'flex-1 p-6 lg:pl-8 lg:pr-12 lg:py-8',
+          'flex-1 p-6 lg:pl-8 lg:pr-12 py-0',
           sidebarOpen ? 'opacity-50 pointer-events-none' : 'opacity-100',
           'max-w-5xl mx-auto w-full'
         )}

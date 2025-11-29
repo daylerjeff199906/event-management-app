@@ -69,6 +69,9 @@ export function ActivityForm({
       event_id: eventId,
       activity_name: initialData?.activity_name || '',
       description: initialData?.description || '',
+      start_date: initialData?.start_date
+        ? new Date(initialData.start_date)
+        : null,
       start_time: initialData?.start_time
         ? new Date(initialData.start_time)
         : new Date(),

@@ -2,11 +2,15 @@
 
 import { useState } from 'react'
 import * as XLSX from 'xlsx'
-import { bulkCreateEventActivities } from '@/services/bulk-events'
-import { EventMode } from '../schemas'
-import { EventFormData } from '@/modules/events/schemas'
+import { bulkCreateEventActivities } from '@/services/bulk-events' // Ajusta ruta
+import { EventActivityForm, EventMode } from '@/modules/events/schemas' // Ajusta ruta
+import { EventStatus } from '@/types'
 
-export default function BulkEventUploader() {
+interface Props {
+  eventId: string // OBLIGATORIO: Necesitamos saber a qué evento pertenecen estas actividades
+}
+
+export default function BulkEventUploader({ eventId }: Props) {
   const [loading, setLoading] = useState(false)
   const [report, setReport] = useState<{
     success: number
@@ -14,52 +18,55 @@ export default function BulkEventUploader() {
     errors: string[]
   } | null>(null)
 
-  // Función para descargar la plantilla
+  // 1. Plantilla Actualizada con campos necesarios para calcular Start/End Time
   const handleDownloadTemplate = () => {
     const headers = [
       {
-        'Nombre del Evento (Obligatorio)': 'Taller de React',
+        'Nombre Actividad (Obligatorio)': 'Taller de React',
         Descripción: 'Introducción a Hooks',
-        'Fecha Inicio (DD/MM/AAAA) (Obligatorio)': '25/12/2024',
+        'Ubicación (Opcional)': 'Sala 1',
+        'Fecha (DD/MM/AAAA) (Obligatorio)': '25/12/2024',
         'Hora Inicio (HH:MM) (Obligatorio)': '14:30',
-        'Fecha Fin (DD/MM/AAAA)': '25/12/2024',
+        'Hora Fin (HH:MM) (Opcional)': '15:30', // Si no se pone, se calcula +1h
         'Modalidad (PRESENCIAL, VIRTUAL, HIBRIDO)': 'VIRTUAL'
       }
     ]
 
     const ws = XLSX.utils.json_to_sheet(headers)
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Plantilla Eventos')
-    XLSX.writeFile(wb, 'plantilla_carga_eventos.xlsx')
+    XLSX.utils.book_append_sheet(wb, ws, 'Actividades')
+    XLSX.writeFile(wb, 'plantilla_actividades.xlsx')
   }
 
-  // Convertir fecha Excel a JS Date
+  // Utilidad: Parsear Fecha Excel a JS Date (Solo día/mes/año)
   const excelDateToJSDate = (serial: number | string): Date | null => {
     if (!serial) return null
-    // Si es string tipo '25/12/2024'
     if (typeof serial === 'string') {
       const parts = serial.split('/')
       if (parts.length === 3)
-        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`)
+        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00`)
       return new Date(serial)
     }
-    // Si es numero serial de Excel
     const utc_days = Math.floor(serial - 25569)
     const utc_value = utc_days * 86400
     const date_info = new Date(utc_value * 1000)
+    // Ajuste por zona horaria Excel
     return new Date(
-      date_info.getFullYear(),
-      date_info.getMonth(),
-      date_info.getDate() + 1
+      date_info.getUTCFullYear(),
+      date_info.getUTCMonth(),
+      date_info.getUTCDate()
     )
   }
 
-  // Parsear hora texto "14:30" o decimal excel
-  const parseTime = (baseDate: Date, timeInput: string | number): Date => {
+  // Utilidad: Combinar Fecha Base con Hora (HH:MM)
+  const combineDateAndTime = (
+    baseDate: Date,
+    timeInput: string | number
+  ): Date => {
     const newDate = new Date(baseDate)
 
     if (typeof timeInput === 'number') {
-      // Excel time decimal (fraction of day)
+      // Decimal Excel (0.5 = 12:00 PM)
       const totalSeconds = Math.floor(timeInput * 86400)
       const hours = Math.floor(totalSeconds / 3600)
       const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -75,6 +82,10 @@ export default function BulkEventUploader() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    if (!eventId) {
+      alert('Error: No se ha detectado el ID del evento padre.')
+      return
+    }
 
     setLoading(true)
     setReport(null)
@@ -88,30 +99,37 @@ export default function BulkEventUploader() {
         const ws = wb.Sheets[wsname]
         const data = XLSX.utils.sheet_to_json(ws)
 
-        const eventsToUpload: EventFormData[] = []
+        const activitiesToUpload: Partial<EventActivityForm>[] = []
 
-        // Mapeo de columnas Excel a Schema
+        // Iterar filas del Excel
         for (const row of data as {
           [key: string]: string | number | undefined
         }[]) {
-          const rawName = row['Nombre del Evento (Obligatorio)']
-          const rawDate = row['Fecha Inicio (DD/MM/AAAA) (Obligatorio)']
-          const rawTime = row['Hora Inicio (HH:MM) (Obligatorio)']
+          const rawName = row['Nombre Actividad (Obligatorio)']
+          const rawDate = row['Fecha (DD/MM/AAAA) (Obligatorio)']
+          const rawTimeStart = row['Hora Inicio (HH:MM) (Obligatorio)']
+          const rawTimeEnd = row['Hora Fin (HH:MM) (Opcional)'] // Opcional en Excel, pero obligatorio en DB
 
-          if (!rawName || !rawDate) continue // Saltar filas vacías obligatorias
+          // Validaciones básicas de fila
+          if (!rawName || !rawDate || !rawTimeStart) continue
 
-          let startDate = excelDateToJSDate(rawDate) || new Date()
-          if (rawTime) {
-            startDate = parseTime(startDate, rawTime)
+          // 1. Obtener fecha base
+          const baseDate = excelDateToJSDate(rawDate) || new Date()
+
+          // 2. Calcular Start Time (Fecha + Hora)
+          const startTime = combineDateAndTime(baseDate, rawTimeStart)
+
+          // 3. Calcular End Time
+          // Si el usuario puso hora fin, la usamos. Si no, sumamos 1 hora al inicio.
+          let endTime: Date
+          if (rawTimeEnd) {
+            endTime = combineDateAndTime(baseDate, rawTimeEnd)
+          } else {
+            endTime = new Date(startTime)
+            endTime.setHours(endTime.getHours() + 1) // Default 1 hora duración
           }
 
-          // Manejo fecha fin opcional
-          let endDate = null
-          if (row['Fecha Fin (DD/MM/AAAA)']) {
-            endDate = excelDateToJSDate(row['Fecha Fin (DD/MM/AAAA)'])
-          }
-
-          // Validar Enum de Modo
+          // 4. Modalidad
           let mode = EventMode.PRESENCIAL
           const rawMode = row['Modalidad (PRESENCIAL, VIRTUAL, HIBRIDO)']
             ?.toString()
@@ -123,28 +141,37 @@ export default function BulkEventUploader() {
             mode = rawMode as EventMode
           }
 
-          // Construir objeto alineado al Schema
-          const eventObj: EventFormData = {
-            event_name: String(rawName),
-            start_date: startDate,
-            end_date: endDate,
+          // 5. Construir Objeto
+          // Nota: No incluimos event_id aquí, se inyecta en el server action o se podría poner aquí.
+          // Como usamos Partial<EventActivityForm>, typescript no se queja si falta event_id aun.
+          const activityObj: Partial<EventActivityForm> = {
+            activity_name: String(rawName),
             description: row['Descripción'] ? String(row['Descripción']) : '',
-            event_mode: mode,
-            // Valores por defecto requeridos por TS pero opcionales en logica
-            status: undefined
+            custom_location: row['Ubicación (Opcional)']
+              ? String(row['Ubicación (Opcional)'])
+              : null,
+            start_time: startTime,
+            end_time: endTime,
+            activity_mode: mode,
+            // Datos que el usuario no llena en excel:
+            meeting_url: null,
+            status: EventStatus.PUBLIC
           }
 
-          eventsToUpload.push(eventObj)
+          activitiesToUpload.push(activityObj)
         }
 
-        if (eventsToUpload.length === 0) {
-          alert('No se encontraron eventos válidos en el archivo')
+        if (activitiesToUpload.length === 0) {
+          alert('No se encontraron actividades válidas en el archivo')
           setLoading(false)
           return
         }
 
-        // Enviar al server action
-        const response = await bulkCreateEventActivities(eventsToUpload)
+        // Llamada al Server Action pasando el ID
+        const response = await bulkCreateEventActivities(
+          eventId,
+          activitiesToUpload
+        )
 
         if (response.data) {
           setReport({
@@ -153,14 +180,13 @@ export default function BulkEventUploader() {
             errors: response.data.errors
           })
         } else {
-          alert('Error al procesar: ' + response.error)
+          alert('Error: ' + response.error)
         }
       } catch (error) {
         console.error(error)
-        alert('Error leyendo el archivo Excel')
+        alert('Error procesando el archivo Excel')
       } finally {
         setLoading(false)
-        // Limpiar input
         e.target.value = ''
       }
     }
@@ -168,38 +194,36 @@ export default function BulkEventUploader() {
   }
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Carga Masiva de Eventos
+    <div className="p-6 bg-white rounded-lg border border-gray-200">
+      <h3 className="text-sm font-semibold text-gray-800 mb-4">
+        Carga Masiva de Actividades
       </h3>
 
       <div className="flex flex-col gap-4">
-        {/* Paso 1: Descargar Plantilla */}
+        {/* Paso 1 */}
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded border border-dashed border-gray-300">
           <div>
             <p className="text-sm font-medium text-gray-700">
               1. Descarga la plantilla
             </p>
-            <p className="text-xs text-gray-500">
-              Usa este formato para llenar tus datos.
-            </p>
+            <p className="text-xs text-gray-500">Usa este formato exacto.</p>
           </div>
           <button
             onClick={handleDownloadTemplate}
-            className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+            className="px-4 py-2 cursor-pointer text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
           >
             Descargar Excel
           </button>
         </div>
 
-        {/* Paso 2: Subir Archivo */}
+        {/* Paso 2 */}
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded border border-dashed border-gray-300">
           <div>
             <p className="text-sm font-medium text-gray-700">
-              2. Sube tu archivo lleno
+              2. Sube tu archivo
             </p>
             <p className="text-xs text-gray-500">
-              Solo se procesarán los eventos válidos.
+              Se asignarán al evento actual.
             </p>
           </div>
           <label
@@ -218,10 +242,10 @@ export default function BulkEventUploader() {
           </label>
         </div>
 
-        {/* Reporte de Resultados */}
+        {/* Reporte */}
         {report && (
           <div className="mt-4 p-4 border rounded-md bg-gray-50">
-            <h4 className="font-medium mb-2">Resultados de la carga:</h4>
+            <h4 className="font-medium mb-2 text-sm">Resultados:</h4>
             <div className="grid grid-cols-3 gap-4 mb-4 text-center">
               <div className="bg-green-100 p-2 rounded text-green-800">
                 <span className="block text-2xl font-bold">
@@ -233,7 +257,7 @@ export default function BulkEventUploader() {
                 <span className="block text-2xl font-bold">
                   {report.skipped}
                 </span>
-                <span className="text-xs">Duplicados (Omitidos)</span>
+                <span className="text-xs">Duplicados</span>
               </div>
               <div className="bg-red-100 p-2 rounded text-red-800">
                 <span className="block text-2xl font-bold">
