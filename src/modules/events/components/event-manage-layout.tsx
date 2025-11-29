@@ -58,7 +58,7 @@ export function EventManageLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row container mx-auto">
       {/* Overlay para móvil */}
       {sidebarOpen && (
         <div
@@ -70,7 +70,7 @@ export function EventManageLayout({
       {/* Sidebar */}
       <aside
         className={cn(
-          'sticky left-0 top-0 lg:top-14 z-50 h-fit w-64 transform  border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:z-auto',
+          'sticky left-0 top-0 lg:top-16 z-50 h-fit w-64 transform  border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:z-auto',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
