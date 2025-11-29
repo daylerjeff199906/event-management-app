@@ -4,6 +4,8 @@ import { X, LockKeyhole } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { APP_URL } from '@/data/config-app-url'
+import { usePathname } from 'next/navigation'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -17,6 +19,7 @@ export function AuthModal({
   institutionName
 }: AuthModalProps) {
   const [isVisible, setIsVisible] = useState(false)
+  const pathname = usePathname()
 
   // Manejo de animación de entrada/salida
   useEffect(() => {
@@ -35,6 +38,14 @@ export function AuthModal({
   }, [isOpen])
 
   if (!isVisible && !isOpen) return null
+
+  // Construir URLs con redirección
+  // Codificamos el pathname para asegurar que caracteres especiales pasen correctamente
+  const redirectParam = pathname
+    ? `?redirect=${encodeURIComponent(pathname)}`
+    : ''
+  const loginUrl = `${APP_URL.AUTH.LOGIN}${redirectParam}`
+  const registerUrl = `${APP_URL.AUTH.REGISTER}${redirectParam}`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
@@ -99,7 +110,7 @@ export function AuthModal({
           </div>
 
           <div className="flex flex-col gap-3 space-y-1">
-            <Link href="/login" className="w-full" onClick={onClose}>
+            <Link href={loginUrl} className="w-full" onClick={onClose}>
               <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold h-12 text-base shadow-lg shadow-orange-500/20 transition-all hover:scale-[1.02]">
                 Iniciar Sesión
               </Button>
@@ -116,7 +127,7 @@ export function AuthModal({
               </div>
             </div>
 
-            <Link href="/register" className="w-full" onClick={onClose}>
+            <Link href={registerUrl} className="w-full" onClick={onClose}>
               <Button
                 variant="outline"
                 className="w-full border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 h-11"
