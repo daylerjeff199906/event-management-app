@@ -13,6 +13,7 @@ export const eventActivitySchema = z
       .max(255, 'El nombre es muy largo'),
     description: z.string().optional().nullable(),
     start_date: z.date().optional().nullable(),
+    end_date: z.date().optional().nullable(),
     start_time: z.date('La hora de inicio es requerida'),
     end_time: z.date('La hora de fin es requerida'),
     duration: z.number().optional().nullable(),

@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import * as XLSX from 'xlsx'
-import { bulkCreateEventActivities } from '@/services/bulk-events' // Ajusta ruta
-import { EventActivityForm, EventMode } from '@/modules/events/schemas' // Ajusta ruta
+import { bulkCreateEventActivities } from '@/services/bulk-events'
+import { EventActivityForm, EventMode } from '@/modules/events/schemas'
 import { EventStatus } from '@/types'
 
 interface Props {
-  eventId: string // OBLIGATORIO: Necesitamos saber a qué evento pertenecen estas actividades
+  eventId: string
 }
 
 export default function BulkEventUploader({ eventId }: Props) {
@@ -18,17 +18,18 @@ export default function BulkEventUploader({ eventId }: Props) {
     errors: string[]
   } | null>(null)
 
-  // 1. Plantilla Actualizada con campos necesarios para calcular Start/End Time
+  // 1. ACTUALIZADO: Cabeceras estandarizadas (sin espacios, sin tildes, snake_case)
   const handleDownloadTemplate = () => {
     const headers = [
       {
-        'Nombre Actividad (Obligatorio)': 'Taller de React',
-        Descripción: 'Introducción a Hooks',
-        'Ubicación (Opcional)': 'Sala 1',
-        'Fecha (DD/MM/AAAA) (Obligatorio)': '25/12/2024',
-        'Hora Inicio (HH:MM) (Obligatorio)': '14:30',
-        'Hora Fin (HH:MM) (Opcional)': '15:30', // Si no se pone, se calcula +1h
-        'Modalidad (PRESENCIAL, VIRTUAL, HIBRIDO)': 'VIRTUAL'
+        nombre_actividad: 'Taller de React',
+        descripcion: 'Introducción a Hooks',
+        ubicacion: 'Sala 1',
+        fecha: '25/12/2024',
+        fecha_fin: '26/12/2024',
+        hora_inicio: '14:30',
+        hora_fin: '15:30',
+        modalidad: 'PRESENCIAL'
       }
     ]
 
@@ -38,7 +39,7 @@ export default function BulkEventUploader({ eventId }: Props) {
     XLSX.writeFile(wb, 'plantilla_actividades.xlsx')
   }
 
-  // Utilidad: Parsear Fecha Excel a JS Date (Solo día/mes/año)
+  // Utilidad: Parsear Fecha Excel a JS Date
   const excelDateToJSDate = (serial: number | string): Date | null => {
     if (!serial) return null
     if (typeof serial === 'string') {
@@ -50,7 +51,7 @@ export default function BulkEventUploader({ eventId }: Props) {
     const utc_days = Math.floor(serial - 25569)
     const utc_value = utc_days * 86400
     const date_info = new Date(utc_value * 1000)
-    // Ajuste por zona horaria Excel
+
     return new Date(
       date_info.getUTCFullYear(),
       date_info.getUTCMonth(),
@@ -58,7 +59,7 @@ export default function BulkEventUploader({ eventId }: Props) {
     )
   }
 
-  // Utilidad: Combinar Fecha Base con Hora (HH:MM)
+  // Utilidad: Combinar Fecha Base con Hora
   const combineDateAndTime = (
     baseDate: Date,
     timeInput: string | number
@@ -66,7 +67,6 @@ export default function BulkEventUploader({ eventId }: Props) {
     const newDate = new Date(baseDate)
 
     if (typeof timeInput === 'number') {
-      // Decimal Excel (0.5 = 12:00 PM)
       const totalSeconds = Math.floor(timeInput * 86400)
       const hours = Math.floor(totalSeconds / 3600)
       const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -101,73 +101,80 @@ export default function BulkEventUploader({ eventId }: Props) {
 
         const activitiesToUpload: Partial<EventActivityForm>[] = []
 
-        // Iterar filas del Excel
+        // Iterar filas del Excel usando las nuevas keys
         for (const row of data as {
           [key: string]: string | number | undefined
         }[]) {
-          const rawName = row['Nombre Actividad (Obligatorio)']
-          const rawDate = row['Fecha (DD/MM/AAAA) (Obligatorio)']
-          const rawTimeStart = row['Hora Inicio (HH:MM) (Obligatorio)']
-          const rawTimeEnd = row['Hora Fin (HH:MM) (Opcional)'] // Opcional en Excel, pero obligatorio en DB
+          // 2. ACTUALIZADO: Lectura usando las nuevas claves estandarizadas
+          const rawName = row['nombre_actividad']
+          const rawDate = row['fecha']
+          const rawEndDate = row['fecha_fin']
+          const rawTimeStart = row['hora_inicio']
+          const rawTimeEnd = row['hora_fin']
 
-          // Validaciones básicas de fila
+          const rawDescription = row['descripcion']
+          const rawLocation = row['ubicacion']
+          const rawMode = row['modalidad']
+
+          // Validaciones básicas de fila (Campos obligatorios)
           if (!rawName || !rawDate || !rawTimeStart) continue
 
-          // 1. Obtener fecha base
+          // --- Lógica de procesamiento de fechas (Igual que antes) ---
           const baseDate = excelDateToJSDate(rawDate) || new Date()
-
-          // 2. Calcular Start Time (Fecha + Hora)
           const startTime = combineDateAndTime(baseDate, rawTimeStart)
+          let durationHours: number | null = null
+          // Calcular duración solo si existe hora de inicio y hora de fin en la fila
+          if (rawTimeStart && rawTimeEnd) {
+            const computedEnd = combineDateAndTime(baseDate, rawTimeEnd)
+            const diffMs = computedEnd.getTime() - startTime.getTime()
+            const hours = diffMs / (1000 * 60 * 60)
+            // Redondea a 2 decimales y evita valores negativos
+            durationHours = Math.max(0, Math.round(hours * 100) / 100)
+          }
 
-          // 3. Calcular End Time
-          // Si el usuario puso hora fin, la usamos. Si no, sumamos 1 hora al inicio.
           let endTime: Date
           if (rawTimeEnd) {
             endTime = combineDateAndTime(baseDate, rawTimeEnd)
           } else {
             endTime = new Date(startTime)
-            endTime.setHours(endTime.getHours() + 1) // Default 1 hora duración
+            endTime.setHours(endTime.getHours() + 1)
           }
 
-          // 4. Modalidad
           let mode = EventMode.PRESENCIAL
-          const rawMode = row['Modalidad (PRESENCIAL, VIRTUAL, HIBRIDO)']
-            ?.toString()
-            .toUpperCase()
+          const modeString = rawMode?.toString().toUpperCase()
           if (
-            rawMode &&
-            Object.values(EventMode).includes(rawMode as EventMode)
+            modeString &&
+            Object.values(EventMode).includes(modeString as EventMode)
           ) {
-            mode = rawMode as EventMode
+            mode = modeString as EventMode
           }
 
-          // 5. Construir Objeto
-          // Nota: No incluimos event_id aquí, se inyecta en el server action o se podría poner aquí.
-          // Como usamos Partial<EventActivityForm>, typescript no se queja si falta event_id aun.
+          // Construir Objeto
           const activityObj: Partial<EventActivityForm> = {
             activity_name: String(rawName),
-            description: row['Descripción'] ? String(row['Descripción']) : '',
-            custom_location: row['Ubicación (Opcional)']
-              ? String(row['Ubicación (Opcional)'])
-              : null,
+            description: rawDescription ? String(rawDescription) : '',
+            custom_location: rawLocation ? String(rawLocation) : null,
+            start_date: baseDate,
+            end_date: rawEndDate ? excelDateToJSDate(rawEndDate) : null,
+            duration: durationHours || null,
             start_time: startTime,
             end_time: endTime,
             activity_mode: mode,
-            // Datos que el usuario no llena en excel:
             meeting_url: null,
-            status: EventStatus.PUBLIC
+            status: EventStatus.PUBLIC // O el estado que prefieras por defecto
           }
 
           activitiesToUpload.push(activityObj)
         }
 
         if (activitiesToUpload.length === 0) {
-          alert('No se encontraron actividades válidas en el archivo')
+          alert(
+            'No se encontraron actividades válidas en el archivo. Revisa que las cabeceras sean correctas (ej: nombre_actividad, fecha, etc).'
+          )
           setLoading(false)
           return
         }
 
-        // Llamada al Server Action pasando el ID
         const response = await bulkCreateEventActivities(
           eventId,
           activitiesToUpload
@@ -206,7 +213,9 @@ export default function BulkEventUploader({ eventId }: Props) {
             <p className="text-sm font-medium text-gray-700">
               1. Descarga la plantilla
             </p>
-            <p className="text-xs text-gray-500">Usa este formato exacto.</p>
+            <p className="text-xs text-gray-500">
+              Formato estandarizado (sin tildes ni espacios).
+            </p>
           </div>
           <button
             onClick={handleDownloadTemplate}
