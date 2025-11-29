@@ -38,6 +38,7 @@ import Link from 'next/link'
 import { ReactMarkdownContent } from '@/components/app/miscellaneous/react-markdown-content'
 import { Fade } from '@/components/animate-ui/primitives/effects/fade'
 import AgendaView from './agenda-view'
+import { AgendaDownloadButton } from '../components'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
@@ -459,7 +460,14 @@ export function EventDetailsPage({
                   <h3 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-6 border-l-4 border-orange-500 pl-4">
                     Programa del Evento
                   </h3>
+
                   <AgendaView activities={schedule} />
+                  <AgendaDownloadButton
+                    eventName={event.event_name}
+                    institutionName={event.institution?.institution_name}
+                    activities={schedule}
+                    className="mb-6"
+                  />
                 </div>
               </TabsContent>
             )}

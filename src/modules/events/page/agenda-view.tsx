@@ -58,14 +58,13 @@ const DateStatusBadge = ({ dateString }: { dateString: string }) => {
   const today = new Date()
   const diff = differenceInCalendarDays(date, today)
 
+  // No render for past dates
+  if (diff < 0) return null
+
   let label = ''
   let styleClass = ''
 
-  if (diff < 0) {
-    label = 'Ya pasó'
-    styleClass =
-      'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-  } else if (diff === 0) {
+  if (diff === 0) {
     label = 'Hoy'
     styleClass =
       'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
