@@ -119,7 +119,7 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
               />
             </>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10" />
+          <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-transparent to-transparent z-10" />
         </div>
 
         {/* Contenido del Banner - Texto siempre blanco */}
