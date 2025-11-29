@@ -6,6 +6,8 @@ import { siteConfig } from '@/lib/siteConfig'
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { MoreEventsSection } from '@/modules/portal/pages/events/more-events'
 import { fetchAllEventActivities } from '@/services/events.activities.service'
+import { getSupabase } from '@/services/core.supabase'
+import { getInstitutionFollowStatus } from '@/services/institution.follow.service'
 
 interface PageProps {
   params: Params
@@ -117,6 +119,8 @@ export default async function Page(props: PageProps) {
   const uuid = params.uuid
 
   const response = await fetchEventFullDetails(uuid?.toString() || '')
+  const supabase = await getSupabase()
+  const { data: user } = await supabase.auth.getUser()
 
   if (response.error) {
     return <EmptyState title="Error" description={response.error.message} />
@@ -136,9 +140,22 @@ export default async function Page(props: PageProps) {
     status: EventStatus.PUBLIC
   })
 
+  let initialIsFollowing = false
+  if (user && response.data.institution) {
+    try {
+      const institutionId = response.data.institution.id
+      const status = await getInstitutionFollowStatus(institutionId as string)
+      initialIsFollowing = !!status?.isFollowing
+    } catch (err) {
+      console.error('Error fetching follow status:', err)
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <EventDetailsPage
+        isAuthenticated={!user}
+        initialIsFollowing={initialIsFollowing}
         event={response.data}
         schedule={
           activitiesSchedule.data && activitiesSchedule.data.length > 0

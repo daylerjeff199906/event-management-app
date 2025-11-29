@@ -9,7 +9,7 @@ export default function HomePage() {
           <EventsGrid />
         </main>
       </div> */}
-      <UserEventsPage />
+      <UserEventsPage isAuthenticated />
     </>
   )
 }

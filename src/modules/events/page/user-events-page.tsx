@@ -7,7 +7,13 @@ import { EventsList } from './events-list'
 import { fetchEventList } from '@/services/events.services'
 import { APP_URL } from '@/data/config-app-url'
 
-export default function UserEventsPage() {
+interface UserEventsPageProps {
+  isAuthenticated: boolean
+}
+
+export default function UserEventsPage({
+  isAuthenticated
+}: UserEventsPageProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentPage = parseInt(searchParams.get('page') || '1')
@@ -102,6 +108,7 @@ export default function UserEventsPage() {
         onLoadMore={handleLoadMore}
         onViewDetails={handleViewDetails}
         currentPage={currentPage}
+        isAuthenticated={isAuthenticated}
       />
     </div>
   )

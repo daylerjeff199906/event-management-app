@@ -6,6 +6,7 @@ import type { Event, ResponsePagination } from '@/types'
 import { EventCardUser } from '../components'
 import { Button } from '@/components/ui/button'
 import { Loader2, Calendar } from 'lucide-react'
+import { APP_URL } from '@/data/config-app-url'
 
 interface EventsListProps {
   initialData?: ResponsePagination<Event>
@@ -16,12 +17,13 @@ interface EventsListProps {
   }>
   onViewDetails?: (eventId: string) => void
   currentPage?: number
+  isAuthenticated?: boolean
 }
 
 export function EventsList({
   initialData,
   onLoadMore,
-  onViewDetails = () => {}
+  isAuthenticated
 }: EventsListProps) {
   const searchParams = useSearchParams()
   const urlPage = parseInt(searchParams.get('page') || '1')
@@ -80,7 +82,11 @@ export function EventsList({
           <EventCardUser
             key={event.id}
             event={event}
-            onViewDetails={onViewDetails}
+            href={
+              isAuthenticated
+                ? APP_URL.DASHBOARD.EVENTS.DETAIL(event.id)
+                : APP_URL.PORTAL.EVENTS.DETAIL(event.id)
+            }
             hiddenStatus
           />
         ))}

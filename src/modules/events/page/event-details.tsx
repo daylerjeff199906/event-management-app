@@ -15,9 +15,7 @@ import {
 } from 'lucide-react'
 import { PhotoProvider, PhotoView } from 'react-photo-view'
 import 'react-photo-view/dist/react-photo-view.css'
-
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
   Breadcrumb,
@@ -39,17 +37,22 @@ import { ReactMarkdownContent } from '@/components/app/miscellaneous/react-markd
 import { Fade } from '@/components/animate-ui/primitives/effects/fade'
 import AgendaView from './agenda-view'
 import { AgendaDownloadButton } from '../components'
+import { OrganizerCard } from '../components/organizer-card'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
   schedule?: EventActivity[]
   isPortal?: boolean
+  isAuthenticated: boolean
+  initialIsFollowing: boolean
 }
 
 export function EventDetailsPage({
   event,
   isPortal,
-  schedule
+  schedule,
+  isAuthenticated,
+  initialIsFollowing
 }: EventDetailsPageProps) {
   const [showShareOptions, setShowShareOptions] = useState(false)
 
@@ -414,11 +417,11 @@ export function EventDetailsPage({
                             <div
                               className={`relative cursor-pointer overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-800 ${
                                 eventImages.length === 1
-                                  ? 'h-[400px]'
+                                  ? 'h-[500px]'
                                   : eventImages.length === 2
-                                  ? 'h-[300px]'
+                                  ? 'h-[500px]'
                                   : index === 0
-                                  ? 'h-[400px]'
+                                  ? 'h-[500px]'
                                   : 'h-[200px]'
                               }`}
                             >
@@ -472,65 +475,11 @@ export function EventDetailsPage({
               </TabsContent>
             )}
             {/* Sección Organizado Por */}
-            <div className="pt-12 border-t border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-6">
-                Presentado por
-              </h3>
-              <div className="flex items-center gap-6 bg-zinc-50 p-6 rounded-lg border border-zinc-200 dark:bg-zinc-900/50 dark:border-zinc-800">
-                <Avatar className="w-20 h-20 border-2 border-zinc-200 dark:border-zinc-700">
-                  <AvatarImage
-                    src={
-                      event.institution?.logo_url ||
-                      event.author?.profile_image ||
-                      ''
-                    }
-                  />
-                  <AvatarFallback className="bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 text-xl font-bold">
-                    {
-                      (event.institution?.institution_name ||
-                        event.author?.first_name ||
-                        'A')[0]
-                    }
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Link
-                    href={
-                      event.institution && event.institution.slug
-                        ? APP_URL.PORTAL.PLACES.INSTITUTIONS.DETAIL(
-                            event?.institution?.slug
-                          )
-                        : '#'
-                    }
-                    target="_blank"
-                    className="hover:underline"
-                  >
-                    <h4 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">
-                      {event.institution?.institution_name ||
-                        `${event.author?.first_name} ${event.author?.last_name}`}
-                    </h4>
-                  </Link>
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">
-                    Organizador oficial del evento
-                  </p>
-                  <div className="flex gap-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-zinc-300 text-zinc-700 hover:text-black hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800"
-                    >
-                      Contactar
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-orange-600 hover:bg-orange-700 text-white border-none"
-                    >
-                      Seguir
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <OrganizerCard
+              event={event}
+              initialIsFollowing={initialIsFollowing}
+              isAuthenticated={isAuthenticated}
+            />
           </Tabs>
         </div>
       </div>

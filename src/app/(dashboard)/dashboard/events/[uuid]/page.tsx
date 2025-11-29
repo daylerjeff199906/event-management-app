@@ -3,6 +3,8 @@ import { fetchEventFullDetails } from '@/services/events.services'
 import { EventDetailsPage } from '@/modules/events/page'
 import { Metadata } from 'next'
 import { siteConfig } from '@/lib/siteConfig'
+import { getSupabase } from '@/services/core.supabase'
+import { getInstitutionFollowStatus } from '@/services/institution.follow.service'
 
 interface PageProps {
   params: Params
@@ -62,6 +64,8 @@ export const metadata: Metadata = {
 export default async function Page(props: PageProps) {
   const params = await props.params
   const uuid = params.uuid
+  const supabase = await getSupabase()
+  const { data: user } = await supabase.auth.getUser()
 
   const response = await fetchEventFullDetails(uuid?.toString() || '')
 
@@ -73,9 +77,24 @@ export default async function Page(props: PageProps) {
     return <div>No event details found.</div>
   }
 
+  let initialIsFollowing = false
+  if (user && response.data.institution) {
+    try {
+      const institutionId = response.data.institution.id
+      const status = await getInstitutionFollowStatus(institutionId as string)
+      initialIsFollowing = !!status?.isFollowing
+    } catch (err) {
+      console.error('Error fetching follow status:', err)
+    }
+  }
+
   return (
     <>
-      <EventDetailsPage event={response.data} />
+      <EventDetailsPage
+        event={response.data}
+        isAuthenticated={!!user}
+        initialIsFollowing={initialIsFollowing}
+      />
     </>
   )
 }
