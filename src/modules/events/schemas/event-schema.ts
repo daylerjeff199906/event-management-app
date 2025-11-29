@@ -4,9 +4,8 @@ import { z } from 'zod'
 export enum EventMode {
   PRESENCIAL = 'PRESENCIAL',
   VIRTUAL = 'VIRTUAL',
-  HIBRIDO = 'HIBRIDO',
+  HIBRIDO = 'HIBRIDO'
 }
-
 
 export const eventSchema = z
   .object({
@@ -39,14 +38,16 @@ export const eventSchema = z
     address_id: z.string().optional().nullable(),
     meeting_url: z.string().optional().nullable(),
     custom_location: z.string().optional().nullable(),
-    event_mode: z.enum([
-      EventMode.PRESENCIAL,
-      EventMode.VIRTUAL,
-      EventMode.HIBRIDO
-    ]).optional()
+    event_mode: z
+      .enum([EventMode.PRESENCIAL, EventMode.VIRTUAL, EventMode.HIBRIDO])
+      .optional()
   })
   .refine(
     (data) => {
+      // Only enforce end_date >= start_date when creating a new event (no id)
+      if (data.id) {
+        return true
+      }
       if (data.end_date && data.start_date) {
         return data.end_date >= data.start_date
       }

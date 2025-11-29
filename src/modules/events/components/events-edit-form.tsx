@@ -58,10 +58,9 @@ const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
 
 const formatDateForInput = (date: Date | undefined) => {
   if (!date) return ''
-
-  return date.toISOString().split('T')[0]
+  // Cambio: Usar format() en lugar de toISOString() para evitar conversión a UTC
+  return format(date, 'yyyy-MM-dd')
 }
-
 interface EventsCreateFormProps {
   institutionId?: string
   authorId?: string
@@ -397,10 +396,11 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               field.value ? formatDateForInput(field.value) : ''
                             }
                             onChange={(e) => {
+                              // Cambio: Agregar 'T00:00:00' para forzar hora local
                               const selectedDate = e.target.value
-                                ? new Date(e.target.value)
+                                ? new Date(`${e.target.value}T00:00:00`)
                                 : undefined
-                              // Preservar la hora actual si existe
+
                               if (field.value && selectedDate) {
                                 const currentTime = format(field.value, 'HH:mm')
                                 const updatedDate = mergeDateWithTime(
@@ -469,10 +469,11 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                                     : ''
                                 }
                                 onChange={(e) => {
+                                  // Cambio: Agregar 'T00:00:00' para forzar hora local
                                   const selectedDate = e.target.value
-                                    ? new Date(e.target.value)
+                                    ? new Date(`${e.target.value}T00:00:00`)
                                     : undefined
-                                  // Preservar la hora actual si existe
+
                                   if (field.value && selectedDate) {
                                     const currentTime = format(
                                       field.value,
@@ -701,8 +702,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                                   : ''
                               }
                               onChange={(e) => {
+                                // Cambio: Agregar 'T00:00:00'
                                 const selectedDate = e.target.value
-                                  ? new Date(e.target.value)
+                                  ? new Date(`${e.target.value}T00:00:00`)
                                   : undefined
                                 field.onChange(selectedDate)
                               }}

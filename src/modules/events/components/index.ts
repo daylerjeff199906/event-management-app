@@ -5,6 +5,7 @@ import { EventManageLayout } from './event-manage-layout'
 import { EventsEditForm } from './events-edit-form'
 import { EventDetailsEditForm } from './events-details-edit-form'
 import { AddressForm } from './address-form'
+import AgendaDownloadButton from './agenda-PDF'
 
 export {
   EventCard,
@@ -13,5 +14,6 @@ export {
   EventManageLayout,
   EventsEditForm,
   EventDetailsEditForm,
-  AddressForm
+  AddressForm,
+  AgendaDownloadButton
 }

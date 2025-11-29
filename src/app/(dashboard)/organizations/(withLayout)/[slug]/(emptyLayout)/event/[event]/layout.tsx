@@ -51,8 +51,7 @@ export default async function Layout(props: LayoutProps) {
           href: APP_URL.ORGANIZATION.INSTITUTION.ADD_SCHEDULE(
             institutionId || '',
             eventId || ''
-          ),
-          disabled: true
+          )
         },
         {
           id: APP_URL.ORGANIZATION.INSTITUTION.ADD_TICKET(
