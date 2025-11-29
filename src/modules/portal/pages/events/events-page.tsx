@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { EventStatus, type Event, type ResponsePagination } from '@/types'
 import { EventsList } from '@/modules/events/page/events-list'
 import { fetchEventList } from '@/services/events.services'
-import { APP_URL } from '@/data/config-app-url'
 import { EventCardSkeleton } from '../../components/event-card-skeleton'
 
 export const EventsPage = () => {
@@ -70,11 +69,6 @@ export const EventsPage = () => {
     }
   }
 
-  const handleViewDetails = (eventId: string) => {
-    // Implementar navegación a página de detalles
-    router.push(APP_URL.PORTAL.EVENTS.DETAIL(eventId))
-  }
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -106,7 +100,6 @@ export const EventsPage = () => {
       <EventsList
         initialData={initialData}
         onLoadMore={handleLoadMore}
-        onViewDetails={handleViewDetails}
         currentPage={currentPage}
       />
     </div>
