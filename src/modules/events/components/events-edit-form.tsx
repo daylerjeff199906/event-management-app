@@ -82,6 +82,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
+      id: eventData?.id || undefined,
       event_name: eventData?.event_name || '',
       description: eventData?.description || '',
       author_id: String(eventData?.author_id || authorId || ''),
@@ -412,9 +413,13 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                                 field.onChange(selectedDate)
                               }
                             }}
-                            min={formatDate(new Date(), 'yyyy-MM-dd', {
-                              locale: es
-                            })}
+                            min={
+                              eventData?.id
+                                ? undefined
+                                : formatDate(new Date(), 'yyyy-MM-dd', {
+                                    locale: es
+                                  })
+                            }
                           />
                         </FormControl>
                         <FormControl>
