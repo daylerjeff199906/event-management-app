@@ -13,7 +13,9 @@ import {
   Instagram,
   Linkedin,
   Twitter,
-  Globe
+  Globe,
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react'
 import { Button } from '@/components/ui/button' // Asumo que usas Shadcn UI o similar
 import { cn } from '@/lib/utils' // Utilidad estándar de clases en Shadcn/Tailwind
@@ -45,10 +47,10 @@ export type InstitutionData = {
   institution_email?: string
   contact_phone?: string
   whatsapp_number?: string
-  address?: string
-  map_iframe_url?: string | null
   social_media?: SocialMedia
   acronym?: string
+  map_iframe_url?: string | null
+  address?: string
 }
 
 interface LandingProps {
@@ -77,84 +79,123 @@ const Navbar = ({
   const navLinks = [
     { name: 'Inicio', id: 'hero' },
     { name: 'Nosotros', id: 'about' },
-    { name: 'Misión y Visión', id: 'identity' },
+    { name: 'Historia', id: 'history' },
+    { name: 'Misión', id: 'identity' },
     { name: 'Contacto', id: 'contact' }
   ]
+
+  // Lógica de colores dinámica
+  const textColorClass = isScrolled ? 'text-foreground' : 'text-white'
 
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b',
         isScrolled
-          ? 'bg-background/95 backdrop-blur-md shadow-sm py-2'
-          : 'bg-transparent border-transparent py-4'
+          ? 'bg-background/85 backdrop-blur-xl shadow-md py-3 border-border/40' // Scrolled: Compacto y fondo sólido
+          : 'bg-transparent border-transparent py-6' // Top: Alto y transparente
       )}
     >
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        {/* Logo o Nombre en Nav */}
+      <div className="container mx-auto px-6 flex justify-between items-center">
+        {/* Logo */}
         <div
-          className="flex items-center gap-2 cursor-pointer font-bold text-xl text-primary"
+          className="flex items-center gap-3 cursor-pointer group"
           onClick={() => scrollToSection('hero')}
-          style={{ color: data.primary_color }}
         >
-          {isScrolled && data.logo_url && (
-            <img
-              src={data.logo_url}
-              alt="Logo"
-              className="w-8 h-8 rounded-full object-cover"
-            />
+          {data.logo_url && (
+            <div
+              className={cn(
+                'transition-all duration-300 overflow-hidden rounded-full border-2',
+                isScrolled
+                  ? 'w-10 h-10 border-transparent'
+                  : 'w-12 h-12 border-white/20 bg-white/10 backdrop-blur-sm'
+              )}
+            >
+              <img
+                src={data.logo_url}
+                alt="Logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
           )}
-          <span>{data.acronym || data.institution_name}</span>
+          <span
+            className={cn(
+              'font-bold text-lg md:text-xl tracking-tight transition-colors duration-300',
+              isScrolled ? 'text-foreground' : 'text-white'
+            )}
+          >
+            {data.acronym || data.institution_name}
+          </span>
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex gap-6">
+        <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <button
               key={link.name}
               onClick={() => scrollToSection(link.id)}
-              className="text-sm font-medium hover:text-primary transition-colors"
-              style={
-                { '--hover-color': data.primary_color } as React.CSSProperties
-              }
+              className={cn(
+                'text-sm font-medium transition-all duration-300 relative group py-1',
+                textColorClass
+              )}
             >
               {link.name}
+              <span
+                className="absolute bottom-0 left-0 w-0 h-0.5 bg-current transition-all duration-300 group-hover:w-full"
+                style={{ color: isScrolled ? data.primary_color : 'white' }}
+              />
             </button>
           ))}
+
+          <Button
+            onClick={() => scrollToSection('contact')}
+            className={cn(
+              'rounded-full px-6 transition-all duration-300 shadow-lg',
+              !isScrolled && 'bg-white text-black hover:bg-white/90 border-none'
+            )}
+            style={isScrolled ? { backgroundColor: data.primary_color } : {}}
+          >
+            Contáctanos
+          </Button>
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
+        <button
+          className={cn('md:hidden p-2 transition-colors', textColorClass)}
+          onClick={() => setIsOpen(!isOpen)}
+        >
           {isOpen ? <X /> : <Menu />}
         </button>
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-background border-b shadow-lg absolute w-full p-4 flex flex-col gap-4">
-          {navLinks.map((link) => (
-            <button
-              key={link.name}
-              onClick={() => {
-                scrollToSection(link.id)
-                setIsOpen(false)
-              }}
-              className="text-left py-2 px-4 hover:bg-muted rounded-md"
-            >
-              {link.name}
-            </button>
-          ))}
-        </div>
-      )}
+      <div
+        className={cn(
+          'absolute top-full left-0 w-full bg-background/95 backdrop-blur-xl border-b shadow-xl transition-all duration-300 overflow-hidden md:hidden flex flex-col',
+          isOpen ? 'max-h-[400px] py-4' : 'max-h-0 py-0'
+        )}
+      >
+        {navLinks.map((link) => (
+          <button
+            key={link.name}
+            onClick={() => {
+              scrollToSection(link.id)
+              setIsOpen(false)
+            }}
+            className="text-left py-3 px-6 hover:bg-muted font-medium text-foreground"
+          >
+            {link.name}
+          </button>
+        ))}
+      </div>
     </nav>
   )
 }
-
 const HeroSection = ({ data }: { data: InstitutionData }) => {
   return (
     <section
       id="hero"
-      className="relative w-full min-h-[80vh] flex items-center justify-center overflow-hidden"
+      className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden"
     >
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
@@ -167,7 +208,7 @@ const HeroSection = ({ data }: { data: InstitutionData }) => {
         ) : (
           <div className="w-full h-full bg-slate-900" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-black/40" />
+        <div className="absolute inset-0 bg-linear-to-t from-background via-background/60 to-black/40" />
       </div>
 
       {/* Content */}
@@ -253,7 +294,7 @@ const IdentitySection = ({ data }: { data: InstitutionData }) => {
 
   return (
     <section id="identity" className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-5xl space-y-12">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           {/* Misión */}
           {data.mission && (
@@ -295,7 +336,7 @@ const IdentitySection = ({ data }: { data: InstitutionData }) => {
 const ContactSection = ({ data }: { data: InstitutionData }) => {
   return (
     <section id="contact" className="py-20 bg-background">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-5xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Ponte en Contacto</h2>
           <p className="text-muted-foreground">
@@ -427,21 +468,128 @@ const ContactSection = ({ data }: { data: InstitutionData }) => {
 
 const Footer = ({ data }: { data: InstitutionData }) => {
   return (
-    <footer className="bg-slate-900 text-slate-200 py-12 border-t border-slate-800">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="text-center md:text-left">
-          <h3 className="text-lg font-bold text-white mb-2">
-            {data.institution_name}
-          </h3>
-          <p className="text-sm text-slate-400">
-            {data.institution_type}{' '}
-            {data.document_number && `• ${data.document_number}`}
-          </p>
+    <footer className="bg-slate-950 text-slate-200 pt-20 pb-10 rounded-t-[3rem] mt-12 relative overflow-hidden">
+      <div className="container mx-auto px-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          {/* Brand Col */}
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+              {data.institution_name}
+            </h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              {data.institution_type} compremetida con el desarrollo y la
+              innovación. Construyendo el futuro paso a paso.
+            </p>
+            {/* Social Icons */}
+            {data.social_media && (
+              <div className="flex gap-3">
+                {Object.entries(data.social_media).map(([key, url]) => {
+                  if (!url) return null
+                  const Icon = key.includes('facebook')
+                    ? Facebook
+                    : key.includes('instagram')
+                    ? Instagram
+                    : key.includes('twitter')
+                    ? Twitter
+                    : Globe
+                  return (
+                    <a
+                      key={key}
+                      href={url as string}
+                      target="_blank"
+                      className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"
+                    >
+                      <Icon className="w-5 h-5" />
+                    </a>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Links Col 1 */}
+          <div>
+            <h4 className="text-white font-bold mb-6">Explorar</h4>
+            <ul className="space-y-4 text-sm text-slate-400">
+              <li>
+                <button
+                  onClick={() => scrollToSection('about')}
+                  className="hover:text-white transition-colors flex items-center gap-2"
+                >
+                  <ChevronRight className="w-3 h-3" /> Nosotros
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => scrollToSection('history')}
+                  className="hover:text-white transition-colors flex items-center gap-2"
+                >
+                  <ChevronRight className="w-3 h-3" /> Historia
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => scrollToSection('identity')}
+                  className="hover:text-white transition-colors flex items-center gap-2"
+                >
+                  <ChevronRight className="w-3 h-3" /> Misión y Visión
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Links Col 2 */}
+          <div>
+            <h4 className="text-white font-bold mb-6">Legal</h4>
+            <ul className="space-y-4 text-sm text-slate-400">
+              <li>
+                <a href="#" className="hover:text-white transition-colors">
+                  Términos y condiciones
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-white transition-colors">
+                  Política de privacidad
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-white transition-colors">
+                  Libro de reclamaciones
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Newsletter / Contact mini */}
+          <div>
+            <h4 className="text-white font-bold mb-6">Mantente informado</h4>
+            <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+              <p className="text-xs text-slate-400 mb-3">
+                Suscríbete a nuestras noticias
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:border-slate-500"
+                />
+                <button className="bg-white text-black rounded-lg px-3 py-2 font-bold hover:bg-slate-200 transition-colors">
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="text-sm text-slate-500">
-          © {new Date().getFullYear()} {data.acronym || 'Institución'}. Todos
-          los derechos reservados.
+        <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+          <p>
+            © {new Date().getFullYear()} {data.acronym || data.institution_name}
+            . Todos los derechos reservados.
+          </p>
+          <div className="flex gap-6">
+            <span>{data.document_number}</span>
+            <span>Desarrollado con ❤️</span>
+          </div>
         </div>
       </div>
     </footer>
