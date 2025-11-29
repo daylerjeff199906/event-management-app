@@ -28,21 +28,28 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { EventItemDetails } from '@/types'
+import { EventActivity, EventItemDetails } from '@/types'
 import { EventMode } from '../schemas'
 import { APP_URL } from '@/data/config-app-url'
 import EventStickyBanner from './event-sticky-banner'
 import Link from 'next/link'
 import { ReactMarkdownContent } from '@/components/app/miscellaneous/react-markdown-content'
 import { Fade } from '@/components/animate-ui/primitives/effects/fade'
+import AgendaView from './agenda-view'
 
 interface EventDetailsPageProps {
   event: EventItemDetails
+  schedule?: EventActivity[]
   isPortal?: boolean
 }
 
-export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
+export function EventDetailsPage({
+  event,
+  isPortal,
+  schedule
+}: EventDetailsPageProps) {
   const [showShareOptions, setShowShareOptions] = useState(false)
 
   // --- Helpers de Formato ---
@@ -351,78 +358,111 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
           </div>
 
           {/* Columna Derecha: Narrativa e Imágenes */}
-          <div className="lg:col-span-8 space-y-12">
-            {/* Descripción del evento */}
-            <div className="prose prose-lg max-w-none text-zinc-700 dark:prose-invert dark:text-zinc-300">
-              <h3 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-6 border-l-4 border-orange-500 pl-4">
-                Sobre este evento
-              </h3>
-              <p className="leading-relaxed whitespace-pre-line">
-                {event.description ||
-                  'No hay descripción disponible para este evento. Únete para descubrir más detalles directamente con el organizador.'}
-              </p>
-            </div>
-
-            {/* Galería de Imágenes */}
-            {eventImages.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
-                  Galería{' '}
-                  <span className="text-xs font-normal text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-1 rounded-full dark:text-zinc-500 dark:bg-zinc-900 dark:border-zinc-700">
-                    {eventImages.length} fotos
-                  </span>
-                </h3>
-
-                <PhotoProvider>
-                  <div
-                    className={`grid gap-4 ${
-                      eventImages.length === 1
-                        ? 'grid-cols-1'
-                        : 'grid-cols-1 md:grid-cols-2'
-                    }`}
+          <Tabs defaultValue="description" className="lg:col-span-8">
+            {schedule && schedule.length > 0 && (
+              <TabsList className="mb-6 border-b border-zinc-200 dark:border-zinc-800">
+                <TabsTrigger
+                  value="description"
+                  className="text-zinc-900 dark:text-white font-medium"
+                >
+                  Descripción
+                </TabsTrigger>
+                {schedule && schedule.length > 0 && (
+                  <TabsTrigger
+                    value="agenda"
+                    className="text-zinc-900 dark:text-white font-medium"
                   >
-                    {eventImages.map((image, index) => (
-                      <PhotoView key={index} src={image}>
-                        <div
-                          className={`relative cursor-pointer overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-800 ${
-                            eventImages.length === 1
-                              ? 'h-[400px]'
-                              : eventImages.length === 2
-                              ? 'h-[300px]'
-                              : index === 0
-                              ? 'h-[400px]'
-                              : 'h-[200px]'
-                          }`}
-                        >
-                          <div className="w-full h-full flex items-center justify-center p-2">
-                            <img
-                              src={image!}
-                              alt={`${event.event_name} - Imagen ${index + 1}`}
-                              className="max-w-full max-h-full object-cover transition-transform hover:scale-105 rounded-md"
-                            />
-                          </div>
+                    Agenda
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            )}
+            <TabsContent value="description">
+              <div className="lg:col-span-8 space-y-12">
+                {/* Descripción del evento */}
+                <div className="prose prose-lg max-w-none text-zinc-700 dark:prose-invert dark:text-zinc-300">
+                  <h3 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-6 border-l-4 border-orange-500 pl-4">
+                    Sobre este evento
+                  </h3>
+                  <p className="leading-relaxed whitespace-pre-line">
+                    {event.description ||
+                      'No hay descripción disponible para este evento. Únete para descubrir más detalles directamente con el organizador.'}
+                  </p>
+                </div>
 
-                          {eventImages.length > 1 &&
-                            index === 0 &&
-                            eventImages.length > 2 && (
-                              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                                <span className="text-white font-semibold text-lg">
-                                  +{eventImages.length - 1} imágenes
-                                </span>
+                {/* Galería de Imágenes */}
+                {eventImages.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+                      Galería{' '}
+                      <span className="text-xs font-normal text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-1 rounded-full dark:text-zinc-500 dark:bg-zinc-900 dark:border-zinc-700">
+                        {eventImages.length} fotos
+                      </span>
+                    </h3>
+
+                    <PhotoProvider>
+                      <div
+                        className={`grid gap-4 ${
+                          eventImages.length === 1
+                            ? 'grid-cols-1'
+                            : 'grid-cols-1 md:grid-cols-2'
+                        }`}
+                      >
+                        {eventImages.map((image, index) => (
+                          <PhotoView key={index} src={image}>
+                            <div
+                              className={`relative cursor-pointer overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-800 ${
+                                eventImages.length === 1
+                                  ? 'h-[400px]'
+                                  : eventImages.length === 2
+                                  ? 'h-[300px]'
+                                  : index === 0
+                                  ? 'h-[400px]'
+                                  : 'h-[200px]'
+                              }`}
+                            >
+                              <div className="w-full h-full flex items-center justify-center p-2">
+                                <img
+                                  src={image!}
+                                  alt={`${event.event_name} - Imagen ${
+                                    index + 1
+                                  }`}
+                                  className="max-w-full max-h-full object-cover transition-transform hover:scale-105 rounded-md"
+                                />
                               </div>
-                            )}
-                        </div>
-                      </PhotoView>
-                    ))}
+
+                              {eventImages.length > 1 &&
+                                index === 0 &&
+                                eventImages.length > 2 && (
+                                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                                    <span className="text-white font-semibold text-lg">
+                                      +{eventImages.length - 1} imágenes
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
+                          </PhotoView>
+                        ))}
+                      </div>
+                    </PhotoProvider>
                   </div>
-                </PhotoProvider>
+                )}
+
+                {event.full_description && (
+                  <ReactMarkdownContent content={event.full_description} />
+                )}
               </div>
+            </TabsContent>
+            {schedule && schedule.length > 0 && (
+              <TabsContent value="agenda">
+                <div className="prose prose-lg max-w-none text-zinc-700 dark:prose-invert dark:text-zinc-300">
+                  <h3 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-6 border-l-4 border-orange-500 pl-4">
+                    Programa del Evento
+                  </h3>
+                  <AgendaView activities={schedule} />
+                </div>
+              </TabsContent>
             )}
-
-            {event.full_description && (
-              <ReactMarkdownContent content={event.full_description} />
-            )}
-
             {/* Sección Organizado Por */}
             <div className="pt-12 border-t border-zinc-200 dark:border-zinc-800">
               <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-500 mb-6">
@@ -483,7 +523,7 @@ export function EventDetailsPage({ event, isPortal }: EventDetailsPageProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </Tabs>
         </div>
       </div>
 

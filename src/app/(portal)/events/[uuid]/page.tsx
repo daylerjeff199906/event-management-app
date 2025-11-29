@@ -1,10 +1,11 @@
-import { Params } from '@/types'
+import { EventStatus, Params } from '@/types'
 import { fetchEventFullDetails } from '@/services/events.services'
 import { EventDetailsPage } from '@/modules/events/page'
 import { Metadata } from 'next'
 import { siteConfig } from '@/lib/siteConfig'
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { MoreEventsSection } from '@/modules/portal/pages/events/more-events'
+import { fetchAllEventActivities } from '@/services/events.activities.service'
 
 interface PageProps {
   params: Params
@@ -130,9 +131,22 @@ export default async function Page(props: PageProps) {
     )
   }
 
+  const activitiesSchedule = await fetchAllEventActivities({
+    event_id: response.data.id,
+    status: EventStatus.PUBLIC
+  })
+
   return (
     <div className="min-h-screen">
-      <EventDetailsPage event={response.data} isPortal />
+      <EventDetailsPage
+        event={response.data}
+        schedule={
+          activitiesSchedule.data && activitiesSchedule.data.length > 0
+            ? activitiesSchedule.data
+            : undefined
+        }
+        isPortal
+      />
       <MoreEventsSection uuid_event={response.data.id} />
     </div>
   )
