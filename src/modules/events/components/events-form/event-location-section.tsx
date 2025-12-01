@@ -9,8 +9,8 @@ import {
 import { UseFormReturn } from 'react-hook-form'
 import { EventFormData } from '@/modules/events/schemas'
 import { EventModeSelector } from './event-mode-selector'
-import { LocationSelector } from './location-selector'
-import { MeetingUrlInput } from './meeting-url-input'
+import { LocationSelector } from '../location-selector'
+import { MeetingUrlInput } from '../meeting-url-input'
 import { FormField } from '@/components/ui/form'
 import { useEffect } from 'react'
 
