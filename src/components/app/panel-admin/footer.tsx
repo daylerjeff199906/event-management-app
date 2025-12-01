@@ -33,7 +33,7 @@ export const Footer = ({ disabledOpen }: FooterProps) => {
             <LogoRender isOpened href={APP_URL.PORTAL.BASE} />
             <p className="text-muted-foreground mb-4 max-w-md">
               La plataforma líder para descubrir y crear eventos locales en
-              España. Conectamos comunidades a través de experiencias únicas.
+              Iquitos. Conectamos comunidades a través de experiencias únicas.
             </p>
             <p className="text-sm text-muted-foreground">
               En beta - Seguimos mejorando para ti
