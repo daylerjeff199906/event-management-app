@@ -16,6 +16,7 @@ export default async function Layout(props: LayoutProps) {
   return (
     <EventManageLayout
       backLabel="Volver a eventos"
+      variant="tabs"
       menuItems={[
         {
           id: APP_URL.ORGANIZATION.INSTITUTION.EDIT_EVENT(
