@@ -32,7 +32,7 @@ import { Input } from '@/components/ui/input'
 import {
   eventDetailsSchema,
   type EventDetailsFormData
-} from '../schemas/events-details-schema'
+} from '../../schemas/events-details-schema'
 import { upsertInstitutionDetails } from '@/services/events.info.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'

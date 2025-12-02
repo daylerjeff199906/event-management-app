@@ -31,18 +31,23 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { eventSchema, type EventFormData } from '@/modules/events/schemas'
+import {
+  Address,
+  eventSchema,
+  type EventFormData
+} from '@/modules/events/schemas'
 import { Category, Event, EventStatus } from '@/types'
 import { updateEvent, updateEventField } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
-import ImageUpload from './image-upload'
+import ImageUpload from '../image-upload'
 import { Textarea } from '@/components/ui/textarea'
 import { EventLocationSection } from './event-location-section'
 import { formatDate } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { AiDescriptionGenerator } from '@/modules/dashboard/components/ai-description-generator'
 import { RichTextEditor } from './rich-text-editor'
+import { useRouter } from 'next/navigation'
 
 const mergeDateWithTime = (dateValue: Date | undefined, time: string) => {
   if (!dateValue) return undefined
@@ -67,10 +72,18 @@ interface EventsCreateFormProps {
   urlReturn?: string
   categories?: Category[]
   eventData: Event
+  addressData?: Address
 }
 
 export const EventsEditForm = (props: EventsCreateFormProps) => {
-  const { institutionId, urlReturn, authorId, categories, eventData } = props
+  const {
+    institutionId,
+    urlReturn,
+    authorId,
+    categories,
+    eventData,
+    addressData
+  } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showEndDate, setShowEndDate] = useState(!!eventData?.end_date)
   const [showRecurring, setShowRecurring] = useState(
@@ -78,6 +91,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
       !!eventData?.recurrence_pattern ||
       !!eventData?.recurrence_end_date
   )
+  const router = useRouter()
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
@@ -605,7 +619,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Tipo de evento */}
-          <EventLocationSection form={form} />
+          <EventLocationSection form={form} addressData={addressData} />
 
           {/* Evento recurrente */}
           <Card className="shadow-none border border-gray-200 ">
@@ -831,24 +845,53 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Botones de acción */}
-          <div className="flex gap-4 pt-6 flex-col md:flex-row">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 bg-transparent"
-              onClick={() => form.reset()}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={isSubmitting || !isDirty}
-            >
-              {isSubmitting ? 'Editando...' : 'Editar evento'}
-              {isSubmitting && <Loader className="ml-2 h-4 w-4 animate-spin" />}
-            </Button>
-          </div>
+          <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t bg-primary-foreground/50 backdrop-blur-md">
+            {/* Contenedor principal con limitador de ancho para pantallas grandes */}
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="flex h-16 items-center justify-between">
+                {/* Lado Izquierdo (Logo o vacío, según la mancha roja de tu imagen) */}
+                <div className="shrink-0">
+                  {/* Si necesitas el logo rojo de la izquierda, iría aquí */}
+                  <div className="w-8 h-8 rounded-full bg-red-500/20 md:hidden"></div>
+                </div>
+
+                {/* Lado Derecho: Botones de Acción */}
+                <div className="flex items-center gap-4">
+                  {/* Botón EXIT (Estilo texto azul) */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      if (urlReturn) {
+                        router.push(urlReturn)
+                      } else {
+                        router.back()
+                      }
+                    }}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-medium text-sm"
+                  >
+                    Salir sin guardar
+                  </Button>
+
+                  {/* Botón CREATE EVENT (Estilo sólido naranja) */}
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting || !isDirty}
+                    className="bg-[#D64518] hover:bg-[#b53a14] text-white font-semibold shadow-sm px-6"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        Creando...{' '}
+                        <Loader className="ml-2 h-4 w-4 animate-spin" />
+                      </>
+                    ) : (
+                      'Guardar cambios'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </aside>
         </form>
       </Form>
     </div>

@@ -1,5 +1,6 @@
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { EventsEditForm } from '@/modules/events'
+import { getAddressById } from '@/services/address.services'
 import { fetchCategories } from '@/services/categories.services'
 import { fetchEventById } from '@/services/events.services'
 import { Params } from '@/types'
@@ -26,11 +27,15 @@ export default async function Page(props: PageProps) {
     )
   }
 
+  const addressId = response.data.address_id
+  const addressData = await getAddressById(addressId || '')
+
   return (
     <EventsEditForm
       institutionId={institutionId!}
       categories={categories}
       eventData={response.data}
+      addressData={addressData.data || undefined}
     />
   )
 }

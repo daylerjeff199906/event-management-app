@@ -7,18 +7,23 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { UseFormReturn } from 'react-hook-form'
-import { EventFormData } from '@/modules/events/schemas'
+import { Address, EventFormData } from '@/modules/events/schemas'
 import { EventModeSelector } from './event-mode-selector'
-import { LocationSelector } from './location-selector'
-import { MeetingUrlInput } from './meeting-url-input'
+import { LocationSelector } from '../location-selector'
+import { MeetingUrlInput } from '../meeting-url-input'
 import { FormField } from '@/components/ui/form'
 import { useEffect } from 'react'
+import { AddressForm } from '../address-form'
 
 interface EventLocationSectionProps {
   form: UseFormReturn<EventFormData>
+  addressData?: Address
 }
 
-export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
+export const EventLocationSection = ({
+  form,
+  addressData
+}: EventLocationSectionProps) => {
   const eventMode = form.watch('event_mode')
 
   //   Limpiar campos cuando cambia el tipo de evento
@@ -64,6 +69,11 @@ export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
         {/* Meeting URL (solo para VIRTUAL e HÍBRIDO) */}
         {(eventMode === 'VIRTUAL' || eventMode === 'HIBRIDO') && (
           <MeetingUrlInput form={form} />
+        )}
+
+        {/*Add location details if needed*/}
+        {(eventMode === 'PRESENCIAL' || eventMode === 'HIBRIDO') && (
+          <AddressForm form={form} defaultValues={addressData} />
         )}
       </CardContent>
     </Card>

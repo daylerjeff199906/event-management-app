@@ -1,6 +1,6 @@
 // app/dashboard/events/[id]/cronograma/page.tsx
-import BulkEventUploader from '@/modules/events/components/bulk-event-uploader'
-import { EventScheduler } from '@/modules/events/components/event-scheduler'
+import BulkEventUploader from '@/modules/events/components/events-form/bulk-event-uploader'
+import { EventScheduler } from '@/modules/events/components/events-form/event-scheduler'
 import { fetchEventById } from '@/services/events.services'
 import { Params } from '@/types'
 
