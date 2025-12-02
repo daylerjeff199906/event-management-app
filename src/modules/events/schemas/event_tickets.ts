@@ -21,3 +21,38 @@ export const eventTicketSchema = z.object({
 })
 
 export type EventTicketform = z.infer<typeof eventTicketSchema>
+
+// Events Maps ticket schema
+export const eventMapSchema = z.object({
+    id: z.string().optional(),
+    event_id: z.string(),
+    background_image_url: z.string().nullable().optional(),
+    width: z.number().int().nonnegative().optional().default(800),
+    height: z.number().int().nonnegative().optional().default(600),
+    created_at: z.string().optional().default(() => new Date().toISOString()),
+})
+
+export type EventMap = z.infer<typeof eventMapSchema>
+
+
+//Events Maps zone schema
+export const eventMapZoneSchema = z.object({
+    id: z.string().optional(),
+    map_id: z.string(),
+    ticket_id: z.string().nullable().optional(),
+    element_type: z.enum(['STAGE', 'SEATING_AREA', 'OBJECT']).optional().default('SEATING_AREA'),
+    label: z.string().nullable().optional(),
+    geometry_data: z
+        .object({
+            x: z.number(),
+            y: z.number(),
+            width: z.number().nonnegative(),
+            height: z.number().nonnegative(),
+            rotation: z.number().optional().default(0),
+            shape: z.string(), // e.g. "rect", "circle", "polygon"
+            color: z.string().optional(),
+        }),
+    created_at: z.string().optional().default(() => new Date().toISOString()),
+})
+
+export type EventMapZone = z.infer<typeof eventMapZoneSchema>
