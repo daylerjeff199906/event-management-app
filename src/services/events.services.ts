@@ -6,7 +6,7 @@ import {
   ResponsePagination,
   EventsFilters,
   EventStatus,
-  EventItemDetails,
+  EventItemDetails
 } from '@/types'
 
 import { EventFormData } from '@/modules/events/schemas'
@@ -220,7 +220,7 @@ export async function createEvent(eventData: EventFormData): Promise<{
 
 export async function updateEvent(
   eventId: string,
-  eventData: EventFormData
+  eventData: Partial<EventFormData>
 ): Promise<{
   data: Event | null
   error: Error | null
@@ -328,4 +328,3 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
     return { data: null, error: err as Error }
   }
 }
-

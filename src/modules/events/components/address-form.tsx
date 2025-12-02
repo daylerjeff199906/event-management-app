@@ -22,6 +22,7 @@ import { Label } from '@/components/ui/label'
 import { Loader2, MapPin, Trash2, Save } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { upsertAddress, deleteAddress } from '@/services/address.services'
+import { updateEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { cn } from '@/lib/utils'
 import { PERU_LOCATIONS } from '../data/ubigeo'
@@ -129,78 +130,96 @@ export function AddressForm({
   }
 
   // --- ACCIONES ---
-
+  // --- LÓGICA DE GUARDADO Y VINCULACIÓN ---
   const handleSaveAddress = async () => {
     try {
       setIsSaving(true)
 
-      // Validación simple
+      // 1. Validación simple
       if (
         !addressData.address_line1 ||
         !addressData.city ||
         !addressData.state
       ) {
-        toast.error(
-          'Por favor completa los campos obligatorios (Dirección, Departamento, Provincia)'
-        )
+        toast.error('Por favor completa: Dirección, Departamento y Provincia')
         return
       }
 
-      // Preparar payload
+      // 2. Preparar payload y Guardar Dirección (Upsert)
       const payload = addressSchemaForm.parse({
         ...addressData,
-        // Asegurar campos opcionales
         country: 'Perú'
       })
-
-      // Llamada al servicio (asumiendo que upsertAddress devuelve la dirección creada/actualizada)
       const savedAddress = await upsertAddress({
         address: payload,
         id: form.getValues('address_id') || null
       })
 
-      if (savedAddress && savedAddress.data?.id) {
-        // ACTUALIZAR FORMULARIO PADRE
-        form.setValue('address_id', savedAddress.data.id, {
-          shouldValidate: true,
-          shouldDirty: true
+      if (!savedAddress.data?.id)
+        throw new Error('Error al obtener ID de la dirección')
+
+      const newAddressId = savedAddress.data.id
+
+      // 3. Actualizar estado del formulario local
+      form.setValue('address_id', newAddressId, {
+        shouldValidate: true,
+        shouldDirty: true
+      })
+      setAddressData(savedAddress.data)
+
+      // 4. 🔥 LÓGICA AGREGADA: Actualizar Evento si ya existe 🔥
+      const eventId = form.getValues('id') // Obtenemos el ID del evento del formulario
+
+      if (eventId) {
+        // Si hay un ID de evento, actualizamos la tabla 'events' directamente
+        const updateResponse = await updateEvent(eventId, {
+          address_id: newAddressId,
+          custom_location: null // Limpiamos custom location si existía
         })
 
-        // Actualizar estado local con la data confirmada
-        setAddressData(savedAddress.data)
-        toast.success('Dirección guardada y vinculada correctamente')
+        if (updateResponse.error) throw updateResponse.error
+        toast.success('Dirección guardada y evento actualizado correctamente')
       } else {
-        throw new Error('No se recibió el ID de la dirección')
+        // Si es un evento nuevo (sin ID), solo avisamos que la dirección se guardó en memoria/form
+        toast.success('Dirección guardada. Finaliza creando el evento.')
       }
     } catch (error) {
       console.error(error)
-      toast.error('Error al guardar la dirección')
+      toast.error('Error al procesar la dirección')
     } finally {
       setIsSaving(false)
     }
   }
 
+  // --- LÓGICA DE ELIMINACIÓN Y DESVINCULACIÓN ---
   const handleRemoveAddress = async () => {
     try {
       setIsSaving(true)
-      const currentId = form.getValues('address_id')
+      const currentAddressId = form.getValues('address_id')
+      const eventId = form.getValues('id')
 
-      // 1. Desvincular del formulario padre inmediatamente
+      // 1. Desvincular en el formulario (UI)
       form.setValue('address_id', null, {
         shouldValidate: true,
         shouldDirty: true
       })
 
-      // 2. Opcional: Eliminar de la base de datos si existe ID
-      if (currentId) {
-        // Si la lógica de negocio dice que se borre de la BD:
-        await deleteAddress(currentId)
-        toast.info('Dirección desvinculada y eliminada')
-      } else {
-        toast.info('Detalles de dirección removidos')
+      // 2. 🔥 LÓGICA AGREGADA: Actualizar Evento en BD si existe 🔥
+      if (eventId) {
+        // Desvinculamos en la base de datos inmediatamente
+        await updateEvent(eventId, {
+          address_id: null
+        })
+        toast.info('Dirección desvinculada del evento')
       }
 
-      // 3. Resetear UI
+      // 3. Opcional: Eliminar la dirección física de la tabla addresses
+      // (Depende de tu lógica de negocio si quieres "Hard Delete" o solo desvincular)
+      if (currentAddressId) {
+        await deleteAddress(currentAddressId)
+      }
+
+      // 4. Resetear UI
       setShowLocationDetails(false)
       setAddressData({
         country: 'Perú',
@@ -215,7 +234,7 @@ export function AddressForm({
       setSelectedDist('')
     } catch (error) {
       const err = error as Error
-      toast.error(`Error al eliminar la dirección: ${err.message}`)
+      toast.error(`Error: ${err.message}`)
     } finally {
       setIsSaving(false)
     }
