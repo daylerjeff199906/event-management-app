@@ -131,15 +131,17 @@ export function AddressForm({
               </div>
             </CardContent>
           </Card>
-          <Button
-            type="button"
-            variant="link"
-            className="px-0 text-secondary font-semibold h-auto"
-            onClick={() => setShowLocationDetails(false)}
-          >
-            <Minus className="h-4 w-4 mr-2" />
-            No agregar detalles de la dirección
-          </Button>
+          <div>
+            <Button
+              type="button"
+              variant="link"
+              className="px-0 font-semibold h-auto text-red-700 hover:text-red-800"
+              onClick={() => setShowLocationDetails(false)}
+            >
+              <Minus className="h-4 w-4 mr-2" />
+              No agregar detalles de la dirección
+            </Button>
+          </div>
         </div>
       )}
     </>
