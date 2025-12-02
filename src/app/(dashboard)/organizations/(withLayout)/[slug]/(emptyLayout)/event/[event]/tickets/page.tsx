@@ -1,6 +1,7 @@
 import { EventMapDesigner } from '@/modules/events/components/ticket-desing/ticket-desing-form'
 import { fetchEventMapZonesByEventId } from '@/services/event.map.zones.service'
 import { fetchEventTicketsByEventId } from '@/services/events.ticket.service'
+import { fetchEventMapsByEventId } from '@/services/events.maps.service'
 import { Params } from '@/types'
 
 interface TicketsPageProps {
@@ -13,6 +14,7 @@ export default async function TicketsPage(props: TicketsPageProps) {
 
   const { data: mapZones } = await fetchEventMapZonesByEventId(eventId)
   const { data: eventTickets } = await fetchEventTicketsByEventId(eventId)
+  const { data: eventMaps } = await fetchEventMapsByEventId(eventId)
 
   return (
     <>
@@ -20,7 +22,7 @@ export default async function TicketsPage(props: TicketsPageProps) {
         eventId={eventId}
         initialTickets={eventTickets || []}
         initialZones={mapZones || []}
-        mapId=''
+        initialMaps={eventMaps || []}
       />
     </>
   )

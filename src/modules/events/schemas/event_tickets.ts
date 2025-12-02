@@ -27,9 +27,9 @@ export const eventMapSchema = z.object({
     id: z.string().optional(),
     event_id: z.string(),
     background_image_url: z.string().nullable().optional(),
-    width: z.number().int().nonnegative().optional().default(800),
-    height: z.number().int().nonnegative().optional().default(600),
-    created_at: z.string().optional().default(() => new Date().toISOString()),
+    width: z.number().int().nonnegative().optional(),
+    height: z.number().int().nonnegative().optional(),
+    created_at: z.string().optional(),
 })
 
 export type EventMap = z.infer<typeof eventMapSchema>
