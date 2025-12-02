@@ -10,9 +10,7 @@ export const addressSchemaForm = z.object({
   department: z.string().nullable().optional(),
   country: z.string().nullable().optional(),
   postal_code: z.string().nullable().optional(),
-
   reference: z.string().nullable().optional(),
-
   latitude: z.number().nullable().optional(),
   longitude: z.number().nullable().optional(),
   place_name: z.string().nullable().optional(),

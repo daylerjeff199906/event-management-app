@@ -7,7 +7,7 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { UseFormReturn } from 'react-hook-form'
-import { EventFormData } from '@/modules/events/schemas'
+import { Address, EventFormData } from '@/modules/events/schemas'
 import { EventModeSelector } from './event-mode-selector'
 import { LocationSelector } from '../location-selector'
 import { MeetingUrlInput } from '../meeting-url-input'
@@ -17,9 +17,13 @@ import { AddressForm } from '../address-form'
 
 interface EventLocationSectionProps {
   form: UseFormReturn<EventFormData>
+  addressData?: Address
 }
 
-export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
+export const EventLocationSection = ({
+  form,
+  addressData
+}: EventLocationSectionProps) => {
   const eventMode = form.watch('event_mode')
 
   //   Limpiar campos cuando cambia el tipo de evento
@@ -69,7 +73,7 @@ export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
 
         {/*Add location details if needed*/}
         {(eventMode === 'PRESENCIAL' || eventMode === 'HIBRIDO') && (
-          <AddressForm form={form} />
+          <AddressForm form={form} defaultValues={addressData} />
         )}
       </CardContent>
     </Card>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react' // Agregar useEffect
 import { Address, EventFormData, addressSchemaForm } from '../schemas'
 import { Input } from '@/components/ui/input'
 import {
@@ -21,15 +21,11 @@ import {
 import { Label } from '@/components/ui/label'
 import { Loader2, MapPin, Trash2, Save } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
-import {
-  upsertAddress,
-  deleteAddress,
-  getAddressById
-} from '@/services/address.services'
+import { upsertAddress, deleteAddress } from '@/services/address.services'
 import { updateEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { cn } from '@/lib/utils'
-import { PERU_LOCATIONS } from '../data/ubigeo'
+import { PERU_LOCATIONS, ubigeoUtils } from '../data/ubigeo'
 
 interface AddressFormProps {
   defaultValues?: Partial<Address> | null
@@ -38,162 +34,163 @@ interface AddressFormProps {
   form: UseFormReturn<EventFormData>
 }
 
+// Función mejorada para normalizar nombres
+const normalizeName = (name: string | null | undefined): string => {
+  if (!name) return ''
+  return name
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '')
+}
+
+// Función para buscar ID por nombre normalizado
+const findUbigeoIdByName = (
+  normalizedName: string,
+  list: Array<{ id: string; name: string }>
+): string => {
+  if (!normalizedName) return ''
+
+  return (
+    list.find((item) => normalizeName(item.name) === normalizedName)?.id || ''
+  )
+}
+
 export function AddressForm({
   defaultValues,
   className,
   isLoading: parentLoading = false,
   form
 }: AddressFormProps) {
-  const [showLocationDetails, setShowLocationDetails] = useState<boolean>(false)
+  const [showLocationDetails, setShowLocationDetails] = useState<boolean>(
+    !!defaultValues
+  )
   const [isSaving, setIsSaving] = useState(false)
 
-  // 1. ESTADO ACTUALIZADO CON NUEVOS NOMBRES
   const [addressData, setAddressData] = useState<Partial<Address>>({
     country: 'Perú',
-    department: '', // Antes: state
-    province: '', // Antes: city
-    street: '', // Antes: address_line1
-    district: '', // Antes: address_line2
+    department: '',
+    province: '',
+    street: '',
+    district: '',
     postal_code: '',
-    reference: '', // Antes: instructions
+    reference: '',
     ...defaultValues
   })
 
+  // IDs para controlar la UI de los Selects
   const [selectedDept, setSelectedDept] = useState<string>('')
   const [selectedProv, setSelectedProv] = useState<string>('')
   const [selectedDist, setSelectedDist] = useState<string>('')
 
-  // 2. EFECTO ACTUALIZADO PARA MAPEAR LOS NUEVOS CAMPOS
+  // Efecto para sincronizar defaultValues
   useEffect(() => {
-    const addressId = form.getValues('address_id') || defaultValues?.id
+    if (defaultValues) {
+      setAddressData((prev) => ({
+        ...prev,
+        ...defaultValues
+      }))
 
-    // Verificar si hay datos por defecto usando los nuevos nombres
-    const hasDefaultData = defaultValues?.department && defaultValues?.province
+      setShowLocationDetails(true)
 
-    if (!addressId && !hasDefaultData) return
-
-    setShowLocationDetails(true)
-
-    let mounted = true
-    const fetchAndSetData = async () => {
-      try {
-        let data = defaultValues || {}
-
-        if (addressId) {
-          setIsSaving(true)
-          const res = await getAddressById(addressId)
-          if (res?.data) data = res.data
-        }
-
-        if (!mounted) return
-
-        setAddressData(data)
-
-        // Helper de búsqueda
-        const findIdByName = (
-          list: { id: string; name: string }[],
-          nameToFind: string | null | undefined
-        ) => {
-          if (!nameToFind) return ''
-          const normalizedName = nameToFind.trim().toLowerCase()
-          const item = list.find(
-            (i) => i.name.trim().toLowerCase() === normalizedName
-          )
-          return item ? item.id : ''
-        }
-
-        // --- RECONSTRUIR CASCADA CON NUEVOS CAMPOS ---
-
-        // A. Departamento (data.department)
-        const deptId = findIdByName(PERU_LOCATIONS.departments, data.department)
-        setSelectedDept(deptId)
-
-        // B. Provincia (data.province)
-        let provId = ''
+      // Buscar IDs basados en los nombres normalizados
+      if (defaultValues.department) {
+        const deptId = findUbigeoIdByName(
+          normalizeName(defaultValues.department),
+          PERU_LOCATIONS.departments
+        )
         if (deptId) {
-          const provList =
-            PERU_LOCATIONS.provinces[
-              deptId as keyof typeof PERU_LOCATIONS.provinces
-            ] || []
-          provId = findIdByName(provList, data.province)
-          setSelectedProv(provId)
-        }
+          setSelectedDept(deptId)
 
-        // C. Distrito (data.district)
-        if (provId) {
-          const distList =
-            PERU_LOCATIONS.districts[
-              provId as keyof typeof PERU_LOCATIONS.districts
-            ] || []
-          const distId = findIdByName(distList, data.district)
-          setSelectedDist(distId)
+          // Buscar provincia si existe
+          if (defaultValues.province) {
+            const provinces = ubigeoUtils.getProvincesByDepartment(deptId)
+            const provId = findUbigeoIdByName(
+              normalizeName(defaultValues.province),
+              provinces
+            )
+            if (provId) {
+              setSelectedProv(provId)
+
+              // Buscar distrito si existe
+              if (defaultValues.district) {
+                const districts = ubigeoUtils.getDistrictsByProvince(provId)
+                const distId = findUbigeoIdByName(
+                  normalizeName(defaultValues.district),
+                  districts
+                )
+                if (distId) {
+                  setSelectedDist(distId)
+                }
+              }
+            }
+          }
         }
-      } catch (err) {
-        console.error(err)
-        toast.error('Error al cargar los detalles de la dirección')
-      } finally {
-        if (mounted) setIsSaving(false)
       }
     }
+  }, [defaultValues])
 
-    fetchAndSetData()
+  // Listas calculadas
+  const availableProvinces = useMemo(() => {
+    return selectedDept
+      ? ubigeoUtils.getProvincesByDepartment(selectedDept)
+      : []
+  }, [selectedDept])
 
-    return () => {
-      mounted = false
-    }
-  }, [form, defaultValues, ])
+  const availableDistricts = useMemo(() => {
+    return selectedProv ? ubigeoUtils.getDistrictsByProvince(selectedProv) : []
+  }, [selectedProv])
 
   const handleInputChange = (field: keyof Address, value: string) => {
     setAddressData((prev) => ({ ...prev, [field]: value }))
   }
 
-  // --- HANDLERS ACTUALIZADOS ---
-
   const handleDeptChange = (deptId: string) => {
-    const deptName =
-      PERU_LOCATIONS.departments.find((d) => d.id === deptId)?.name || ''
+    const dept = PERU_LOCATIONS.departments.find((d) => d.id === deptId)
+
     setSelectedDept(deptId)
     setSelectedProv('')
     setSelectedDist('')
+
     setAddressData((prev) => ({
       ...prev,
-      department: deptName, // Guardamos como department
+      department: dept ? normalizeName(dept.name) : '',
       province: '',
       district: ''
     }))
   }
 
   const handleProvChange = (provId: string) => {
-    const provList =
-      PERU_LOCATIONS.provinces[
-        selectedDept as keyof typeof PERU_LOCATIONS.provinces
-      ] || []
-    const provName = provList.find((p) => p.id === provId)?.name || ''
+    const prov = availableProvinces.find((p) => p.id === provId)
+
     setSelectedProv(provId)
     setSelectedDist('')
+
     setAddressData((prev) => ({
       ...prev,
-      province: provName, // Guardamos como province
+      province: prov ? normalizeName(prov.name) : '',
       district: ''
     }))
   }
 
   const handleDistChange = (distId: string) => {
-    const distList =
-      PERU_LOCATIONS.districts[
-        selectedProv as keyof typeof PERU_LOCATIONS.districts
-      ] || []
-    const distName = distList.find((d) => d.id === distId)?.name || ''
+    const dist = availableDistricts.find((d) => d.id === distId)
+
     setSelectedDist(distId)
-    setAddressData((prev) => ({ ...prev, district: distName })) // Guardamos como district
+
+    setAddressData((prev) => ({
+      ...prev,
+      district: dist ? normalizeName(dist.name) : ''
+    }))
   }
 
-  // --- GUARDADO ---
   const handleSaveAddress = async () => {
     try {
       setIsSaving(true)
 
-      // Validación con nuevos campos
+      // Validación
       if (
         !addressData.street ||
         !addressData.province ||
@@ -203,6 +200,7 @@ export function AddressForm({
         return
       }
 
+      // Payload final
       const payload = addressSchemaForm.parse({
         ...addressData,
         country: 'Perú'
@@ -213,9 +211,8 @@ export function AddressForm({
         id: form.getValues('address_id') || null
       })
 
-      // Verificación segura del retorno
       const finalData = savedAddress.data
-      if (!finalData?.id) throw new Error('Error al obtener ID de la dirección')
+      if (!finalData?.id) throw new Error('Error ID')
 
       const newAddressId = finalData.id
 
@@ -232,13 +229,13 @@ export function AddressForm({
           custom_location: null
         })
         if (updateResponse.error) throw updateResponse.error
-        toast.success('Dirección guardada y evento actualizado correctamente')
+        toast.success('Dirección guardada correctamente')
       } else {
-        toast.success('Dirección guardada. Finaliza creando el evento.')
+        toast.success('Dirección guardada')
       }
     } catch (error) {
       console.error(error)
-      toast.error('Error al procesar la dirección')
+      toast.error('Error al guardar')
     } finally {
       setIsSaving(false)
     }
@@ -255,17 +252,10 @@ export function AddressForm({
         shouldDirty: true
       })
 
-      if (eventId) {
-        await updateEvent(eventId, { address_id: null })
-        toast.info('Dirección desvinculada del evento')
-      }
-
-      if (currentAddressId) {
-        await deleteAddress(currentAddressId)
-      }
+      if (eventId) await updateEvent(eventId, { address_id: null })
+      if (currentAddressId) await deleteAddress(currentAddressId)
 
       setShowLocationDetails(false)
-      // Reset con nuevos campos
       setAddressData({
         country: 'Perú',
         department: '',
@@ -280,7 +270,7 @@ export function AddressForm({
       setSelectedDist('')
     } catch (error) {
       const err = error as Error
-      toast.error(`Error: ${err.message}`)
+      toast.error(`Error al eliminar: ${err.message}`)
     } finally {
       setIsSaving(false)
     }
@@ -322,13 +312,13 @@ export function AddressForm({
                 disabled={isSaving || parentLoading}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Quitar ubicación
+                Quitar
               </Button>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {/* Fila 1: País y Departamento */}
+            {/* País y Departamento */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>País</Label>
@@ -349,7 +339,9 @@ export function AddressForm({
                   disabled={isSaving}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona..." />
+                    <SelectValue
+                      placeholder={isSaving ? 'Cargando...' : 'Selecciona...'}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {PERU_LOCATIONS.departments.map((dept) => (
@@ -362,7 +354,7 @@ export function AddressForm({
               </div>
             </div>
 
-            {/* Fila 2: Provincia y Distrito */}
+            {/* Provincia y Distrito */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>
@@ -374,14 +366,18 @@ export function AddressForm({
                   disabled={!selectedDept || isSaving}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona..." />
+                    <SelectValue
+                      placeholder={
+                        !selectedDept
+                          ? 'Selecciona departamento primero'
+                          : isSaving
+                          ? 'Cargando...'
+                          : 'Selecciona...'
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    {(
-                      PERU_LOCATIONS.provinces[
-                        selectedDept as keyof typeof PERU_LOCATIONS.provinces
-                      ] || []
-                    ).map((prov) => (
+                    {availableProvinces.map((prov) => (
                       <SelectItem key={prov.id} value={prov.id}>
                         {prov.name}
                       </SelectItem>
@@ -398,14 +394,18 @@ export function AddressForm({
                   disabled={!selectedProv || isSaving}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona..." />
+                    <SelectValue
+                      placeholder={
+                        !selectedProv
+                          ? 'Selecciona provincia primero'
+                          : isSaving
+                          ? 'Cargando...'
+                          : 'Selecciona...'
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    {(
-                      PERU_LOCATIONS.districts[
-                        selectedProv as keyof typeof PERU_LOCATIONS.districts
-                      ] || []
-                    ).map((dist) => (
+                    {availableDistricts.map((dist) => (
                       <SelectItem key={dist.id} value={dist.id}>
                         {dist.name}
                       </SelectItem>
@@ -415,7 +415,7 @@ export function AddressForm({
               </div>
             </div>
 
-            {/* Fila 3: Dirección Exacta (STREET) */}
+            {/* Dirección Exacta */}
             <div className="space-y-2">
               <Label>
                 Dirección (Calle, Av., Nro){' '}
@@ -423,23 +423,21 @@ export function AddressForm({
               </Label>
               <Input
                 placeholder="Ej. Av. Abelardo Quiñones Km 2.5"
-                value={addressData.street || ''} // Actualizado
-                onChange={
-                  (e) => handleInputChange('street', e.target.value) // Actualizado
-                }
+                value={addressData.street || ''}
+                onChange={(e) => handleInputChange('street', e.target.value)}
                 disabled={isSaving}
               />
             </div>
 
-            {/* Fila 4: Referencia y Código Postal */}
+            {/* Referencia y CP */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2 space-y-2">
                 <Label>Referencia (Opcional)</Label>
                 <Input
                   placeholder="Ej. Frente al gobierno regional..."
-                  value={addressData.reference || ''} // Actualizado (reference)
-                  onChange={
-                    (e) => handleInputChange('reference', e.target.value) // Actualizado
+                  value={addressData.reference || ''}
+                  onChange={(e) =>
+                    handleInputChange('reference', e.target.value)
                   }
                   disabled={isSaving}
                 />
@@ -465,7 +463,7 @@ export function AddressForm({
                   isSaving ||
                   !selectedDept ||
                   !selectedProv ||
-                  !addressData.street // Actualizado
+                  !addressData.street
                 }
                 className="bg-primary hover:bg-primary/90 text-white min-w-[140px]"
               >

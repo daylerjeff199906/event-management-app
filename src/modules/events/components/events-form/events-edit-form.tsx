@@ -31,7 +31,11 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { eventSchema, type EventFormData } from '@/modules/events/schemas'
+import {
+  Address,
+  eventSchema,
+  type EventFormData
+} from '@/modules/events/schemas'
 import { Category, Event, EventStatus } from '@/types'
 import { updateEvent, updateEventField } from '@/services/events.services'
 import { toast } from 'react-toastify'
@@ -68,10 +72,18 @@ interface EventsCreateFormProps {
   urlReturn?: string
   categories?: Category[]
   eventData: Event
+  addressData?: Address
 }
 
 export const EventsEditForm = (props: EventsCreateFormProps) => {
-  const { institutionId, urlReturn, authorId, categories, eventData } = props
+  const {
+    institutionId,
+    urlReturn,
+    authorId,
+    categories,
+    eventData,
+    addressData
+  } = props
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showEndDate, setShowEndDate] = useState(!!eventData?.end_date)
   const [showRecurring, setShowRecurring] = useState(
@@ -607,7 +619,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Tipo de evento */}
-          <EventLocationSection form={form} />
+          <EventLocationSection form={form} addressData={addressData} />
 
           {/* Evento recurrente */}
           <Card className="shadow-none border border-gray-200 ">
