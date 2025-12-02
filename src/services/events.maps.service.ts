@@ -1,11 +1,11 @@
 'use server'
 import { getSupabase } from './core.supabase'
-import { EventMapZone } from "@/modules/events/schemas";
+import { EventMap } from "@/modules/events/schemas";
 import { revalidatePath } from 'next/cache'
 
-export async function fetchEventMapZonesByEventId(
+export async function fetchEventMapsByEventId(
     eventId: string
-): Promise<{ data: EventMapZone[] | null; error: string }> {
+): Promise<{ data: EventMap[] | null; error: string }> {
     try {
         const client = await getSupabase()
         const result = await client
@@ -14,7 +14,7 @@ export async function fetchEventMapZonesByEventId(
             .eq('event_id', eventId)
 
         return {
-            data: result.data as EventMapZone[] | null,
+            data: result.data as EventMap[] | null,
             error: result.error ? result.error.message : ''
         }
     } catch (e) {
@@ -23,9 +23,9 @@ export async function fetchEventMapZonesByEventId(
     }
 }
 
-export async function fetchEventMapZoneById(
+export async function fetchEventMapById(
     zoneId: string
-): Promise<{ data: EventMapZone | null; error: string }> {
+): Promise<{ data: EventMap | null; error: string }> {
     try {
         const client = await getSupabase()
         const result = await client
@@ -35,7 +35,7 @@ export async function fetchEventMapZoneById(
             .single()
 
         return {
-            data: result.data as EventMapZone | null,
+            data: result.data as EventMap | null,
             error: result.error ? result.error.message : ''
         }
     } catch (e) {
@@ -44,9 +44,9 @@ export async function fetchEventMapZoneById(
     }
 }
 
-export async function createEventMapZone(
-    zone: EventMapZone
-): Promise<{ data: EventMapZone | null; error: string }> {
+export async function createEventMap(
+    zone: EventMap
+): Promise<{ data: EventMap | null; error: string }> {
     try {
         const client = await getSupabase()
         const result = await client
@@ -58,7 +58,7 @@ export async function createEventMapZone(
         revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/maps')
 
         return {
-            data: result.data as EventMapZone | null,
+            data: result.data as EventMap | null,
             error: result.error ? result.error.message : ''
         }
     } catch (e) {
@@ -67,10 +67,10 @@ export async function createEventMapZone(
     }
 }
 
-export async function updateEventMapZone(
+export async function updateEventMap(
     zoneId: string,
-    patch: Partial<EventMapZone>
-): Promise<{ data: EventMapZone | null; error: string }> {
+    patch: Partial<EventMap>
+): Promise<{ data: EventMap | null; error: string }> {
     try {
         const client = await getSupabase()
         const result = await client
@@ -83,7 +83,7 @@ export async function updateEventMapZone(
         revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/maps')
 
         return {
-            data: result.data as EventMapZone | null,
+            data: result.data as EventMap | null,
             error: result.error ? result.error.message : ''
         }
     } catch (e) {
@@ -92,18 +92,18 @@ export async function updateEventMapZone(
     }
 }
 
-export async function upsertEventMapZone({
+export async function upsertEventMap({
     zoneId,
     payload
 }: {
     zoneId?: string
-    payload: Partial<EventMapZone>
-}): Promise<{ data: EventMapZone | null; error: string }> {
+    payload: Partial<EventMap>
+}): Promise<{ data: EventMap | null; error: string }> {
     try {
         if (zoneId) {
-            return await updateEventMapZone(zoneId, payload)
+            return await updateEventMap(zoneId, payload)
         } else {
-            return await createEventMapZone(payload as EventMapZone)
+            return await createEventMap(payload as EventMap)
         }
     } catch (e) {
         console.error('Could not upsert map zone:', e)
@@ -111,9 +111,9 @@ export async function upsertEventMapZone({
     }
 }
 
-export async function deleteEventMapZone(
+export async function deleteEventMap(
     zoneId: string
-): Promise<{ data: EventMapZone | null; error: string }> {
+): Promise<{ data: EventMap | null; error: string }> {
     try {
         const client = await getSupabase()
         const result = await client
@@ -126,7 +126,7 @@ export async function deleteEventMapZone(
         revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/maps')
 
         return {
-            data: result.data as EventMapZone | null,
+            data: result.data as EventMap | null,
             error: result.error ? result.error.message : ''
         }
     } catch (e) {
@@ -134,3 +134,4 @@ export async function deleteEventMapZone(
         return { data: null, error: e instanceof Error ? e.message : 'Unknown error' }
     }
 }
+
