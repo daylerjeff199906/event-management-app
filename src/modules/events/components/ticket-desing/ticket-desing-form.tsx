@@ -44,6 +44,7 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog'
+import { DesingnerForm } from './desingner-form'
 
 interface EventMapDesignerProps {
   eventId: string
@@ -451,14 +452,13 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           <div className="flex gap-2">
             <Button
               onClick={openCreateModal}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold uppercase tracking-wider flex items-center gap-2"
             >
               <Plus size={18} />
-              Crear Ticket
+              CREAR TICKET
             </Button>
             <Button
               onClick={() => setIsDesignerOpen(true)}
-              className="bg-black hover:bg-gray-800 text-white font-bold uppercase tracking-wider flex items-center gap-2"
+              variant='outline'
             >
               <Edit3 size={18} />
               DISEÑAR ESCENARIO
@@ -662,202 +662,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       {/* --- MODAL: DISEÑADOR DE ESCENARIO (FULL SCREEN) --- */}
       {/* ... (Este bloque se mantiene igual que tu código original) ... */}
       {isDesignerOpen && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200">
-          {/* Header del Modal */}
-          <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20">
-            <div className="flex items-center gap-4">
-              <LayoutGrid className="text-pink-500" />
-              <div>
-                <h2 className="font-black tracking-wider text-lg leading-none">
-                  DISEÑADOR DE ESCENARIO
-                </h2>
-                <p className="text-xs text-gray-400 font-mono">
-                  Arrastra los tickets creados al lienzo
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setIsDesignerOpen(false)}
-                className="px-4 py-2 rounded text-sm font-bold text-gray-400 hover:text-white transition-colors"
-              >
-                CANCELAR
-              </button>
-              <button
-                onClick={handleSaveMap}
-                disabled={isPending}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold uppercase tracking-wider flex items-center gap-2"
-              >
-                {isPending ? (
-                  <Loader2 className="animate-spin" size={16} />
-                ) : (
-                  <Save size={16} />
-                )}
-                GUARDAR MAPA
-              </button>
-            </div>
-          </div>
-
-          {/* Cuerpo del Diseñador (Sidebar + Canvas) */}
-          <div className="flex flex-1 overflow-hidden">
-            {/* Sidebar Draggable (Dentro del Modal) */}
-            <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto">
-              <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">
-                Elementos Disponibles
-              </h3>
-
-              <div
-                draggable
-                onDragStart={(e) =>
-                  handleDragStartFromSidebar(e, { label: 'ESCENARIO' }, 'STAGE')
-                }
-                className="p-4 bg-gray-900 text-white rounded cursor-grab flex items-center justify-center gap-2 mb-6 hover:scale-105 transition-transform shadow-lg"
-              >
-                <MonitorPlay size={20} />{' '}
-                <span className="font-bold">ESCENARIO</span>
-              </div>
-
-              <div className="space-y-3">
-                {tickets.map((t, idx) => (
-                  <div
-                    key={t.id}
-                    draggable
-                    onDragStart={(e) =>
-                      handleDragStartFromSidebar(e, t, 'TICKET_ZONE')
-                    }
-                    className="p-3 bg-white border-2 border-transparent hover:border-black rounded shadow-sm cursor-grab active:cursor-grabbing group relative select-none"
-                    style={{
-                      borderLeftColor:
-                        PRESET_COLORS[idx % PRESET_COLORS.length],
-                      borderLeftWidth: '4px'
-                    }}
-                  >
-                    <div className="font-black text-sm text-gray-800 uppercase mb-1">
-                      {t.name}
-                    </div>
-                    <div className="text-xs text-gray-500 flex justify-between">
-                      <span>S/ {t.price}</span>
-                      <span>Cap: {t.quantity_total}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Canvas Area */}
-            <div className="flex-1 bg-[#e5e5e5] relative overflow-hidden flex flex-col">
-              {/* Toolbar Flotante Canvas */}
-              <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2">
-                <Move size={14} /> ARRASTRA Y SUELTA PARA DISTRIBUIR
-              </div>
-
-              {/* Viewport Scrollable */}
-              <div className="flex-1 overflow-auto flex items-center justify-center p-20">
-                <div
-                  className="absolute inset-0 pointer-events-none opacity-20"
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-                    backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`
-                  }}
-                />
-
-                {/* The Canvas */}
-                <div
-                  ref={canvasRef}
-                  className="relative min-w-[1200px] min-h-[1000px] bg-white shadow-2xl"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                >
-                  {/* Renderizado de Items */}
-                  {visualItems.map((item) => {
-                    const isVertical = item.height > item.width
-                    return (
-                      <div
-                        key={item.id}
-                        onMouseDown={(e) => startMovingItem(e, item.id)}
-                        className={`absolute group hover:z-50 transition-shadow ${
-                          dragItem?.id === item.id
-                            ? 'cursor-grabbing z-50 ring-4 ring-yellow-400'
-                            : 'cursor-grab z-10 hover:ring-2 hover:ring-black/20'
-                        }`}
-                        style={{
-                          left: item.x,
-                          top: item.y,
-                          width: item.width,
-                          height: item.height,
-                          backgroundColor:
-                            item.type === 'STAGE' ? '#000000' : item.color,
-                          boxShadow:
-                            '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                        }}
-                      >
-                        <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden">
-                          {item.type === 'STAGE' ? (
-                            <>
-                              <div className="absolute top-0 w-1/3 h-2 bg-gray-800"></div>
-                              <h3 className="text-white font-black text-2xl tracking-[0.2em] z-10 text-center leading-none">
-                                ESCENARIO
-                              </h3>
-                              <div className="w-full h-1 bg-gray-800 mt-2"></div>
-                            </>
-                          ) : (
-                            <>
-                              <div
-                                className="flex flex-col items-center justify-center"
-                                style={{
-                                  transform: isVertical
-                                    ? 'rotate(-90deg)'
-                                    : 'none',
-                                  width: isVertical ? item.height - 10 : '100%',
-                                  maxWidth: isVertical
-                                    ? item.height
-                                    : item.width
-                                }}
-                              >
-                                <h3
-                                  className={`text-white font-black tracking-wide text-center uppercase drop-shadow-md leading-none select-none wrap-break-words ${
-                                    isVertical
-                                      ? 'text-lg'
-                                      : 'text-2xl md:text-3xl'
-                                  }`}
-                                >
-                                  {item.name}
-                                </h3>
-                              </div>
-                              <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none">
-                                <div className="bg-black/20 px-2 py-0.5 rounded text-white text-[10px] font-mono font-bold tracking-widest backdrop-blur-sm">
-                                  CAP: {item.capacity}
-                                </div>
-                              </div>
-                            </>
-                          )}
-
-                          {/* Botón Borrar */}
-                          <button
-                            onClick={(e) => deleteItem(e, item.id)}
-                            className="absolute top-1 right-1 bg-black text-white hover:bg-red-600 rounded p-1 opacity-0 group-hover:opacity-100 transition-all z-30"
-                          >
-                            <X size={12} />
-                          </button>
-
-                          {/* Manija de Resize */}
-                          <div
-                            onMouseDown={(e) =>
-                              startResizingItem(e, item.id, 'se')
-                            }
-                            className="absolute w-4 h-4 bg-white border-2 border-black rounded-full z-20 hover:scale-125 cursor-se-resize shadow-md"
-                            style={{ bottom: -6, right: -6 }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DesingnerForm />
       )}
 
       <ConfirmAlertDialog

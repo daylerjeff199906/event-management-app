@@ -152,3 +152,32 @@ export async function deleteEventMapZone(
     }
   }
 }
+
+export async function bulkUpsertEventMapZones(
+  eventId: string,
+  zones: Partial<EventMapZone>[]
+): Promise<{ data: EventMapZone[] | null; error: string }> {
+  try {
+    const client = await getSupabase()
+    const zonesWithEventId = zones.map((zone) => ({
+      ...zone,
+      event_id: eventId
+    }))
+    const result = await client
+      .from('events_map_zones')
+      .upsert(zonesWithEventId)
+      .select('*')
+    revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/maps')
+
+    return {
+      data: result.data as EventMapZone[] | null,
+      error: result.error ? result.error.message : ''
+    }
+  } catch (e) {
+    console.error('Could not bulk upsert map zones:', e)
+    return {
+      data: null,
+      error: e instanceof Error ? e.message : 'Unknown error'
+    }
+  }
+}
