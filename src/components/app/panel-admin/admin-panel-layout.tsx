@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils'
 import { SideBar } from './side-bar'
 import { SectionElement } from '@/types'
 import { NavBarCustom } from '../navbar-custom/nav-bar-custom'
-import { Footer } from './footer'
 
 // SubmenuElement
 
@@ -62,7 +61,6 @@ export default function AdminPanelLayout({
           {children}
         </div>
       </main>
-      <Footer disabledOpen={hiddenSidebar} />
     </>
   )
 }
