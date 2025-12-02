@@ -22,7 +22,7 @@ import {
   snapToGrid,
   PRESET_COLORS,
   GRID_SIZE
-} from '../../data/types'
+} from '../../data/types' // Ajusta tus rutas de importación si es necesario
 import {
   upsertEventMapZone,
   deleteEventMapZone
@@ -33,13 +33,23 @@ import {
   updateEventTicket
 } from '@/services/events.ticket.service'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input' // Asumo que tienes un componente Input, si no usa <input> nativo
+import { Label } from '@/components/ui/label' // Asumo que tienes Label
 import { ConfirmAlertDialog } from '@/components/app/miscellaneous/confirm-alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog'
 
 interface EventMapDesignerProps {
   eventId: string
   initialTickets: EventTicketform[]
   initialZones: EventMapZone[]
-  mapId: string // Necesario para guardar las zonas
+  mapId: string
 }
 
 export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
@@ -56,7 +66,10 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     initialZones.map((z) => mapZoneToCanvasItem(z, initialTickets))
   )
 
-  const [isDesignerOpen, setIsDesignerOpen] = useState(false) // Estado del Modal
+  const [isDesignerOpen, setIsDesignerOpen] = useState(false) // Estado del Modal del Diseñador (Canvas)
+
+  // --- NUEVO: Estado del Modal de Ticket ---
+  const [isTicketFormOpen, setIsTicketFormOpen] = useState(false)
 
   // Estado del Formulario
   const [newTicket, setNewTicket] = useState({
@@ -65,12 +78,12 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     totalCapacity: '',
     description: ''
   })
-  const [editingId, setEditingId] = useState<string | null>(null) // ID del ticket en edición
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   // Estado para AlertDialog de eliminación
   const [ticketToDelete, setTicketToDelete] = useState<string | null>(null)
 
-  // Estados del Canvas (Drag & Drop / Resize)
+  // Estados del Canvas
   const [dragItem, setDragItem] = useState<{
     id: string
     startX: number
@@ -92,8 +105,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   const [isPending, startTransition] = useTransition()
   const canvasRef = useRef<HTMLDivElement>(null)
-
-  // Estado para trackear eliminaciones en el canvas (para el botón Guardar)
   const [deletedIds, setDeletedIds] = useState<string[]>([])
 
   // --- Helpers Visuales ---
@@ -124,7 +135,29 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   const visualItems = getVisualItems()
 
-  // --- Handlers: Gestión de Tickets (Crear / Editar / Eliminar) ---
+  // --- Handlers: Gestión de Tickets ---
+
+  const openCreateModal = () => {
+    setEditingId(null)
+    setNewTicket({
+      name: '',
+      price: '',
+      totalCapacity: '',
+      description: ''
+    })
+    setIsTicketFormOpen(true)
+  }
+
+  const startEditing = (ticket: EventTicketform) => {
+    setEditingId(ticket.id!)
+    setNewTicket({
+      name: ticket.name,
+      price: ticket.price.toString(),
+      totalCapacity: ticket.quantity_total.toString(),
+      description: ticket.description || ''
+    })
+    setIsTicketFormOpen(true)
+  }
 
   const handleSaveTicketType = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -150,10 +183,9 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           return
         }
 
-        // Actualizar lista de tickets
         setTickets((prev) => prev.map((t) => (t.id === editingId ? data : t)))
 
-        // Actualizar visualmente las zonas en el canvas si cambió el nombre
+        // Actualizar visualmente las zonas
         setCanvasItems((prev) =>
           prev.map((item) => {
             if (item.ticketId === editingId) {
@@ -162,8 +194,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
             return item
           })
         )
-
-        cancelEditing()
       } else {
         // --- MODO CREACIÓN ---
         const { data, error } = await createEventTicket(
@@ -174,32 +204,15 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           return
         }
         setTickets((prev) => [...prev, data])
-        setNewTicket({
-          name: '',
-          price: '',
-          totalCapacity: '',
-          description: ''
-        })
       }
+
+      // Limpieza y cierre de modal
+      setIsTicketFormOpen(false)
+      setNewTicket({ name: '', price: '', totalCapacity: '', description: '' })
+      setEditingId(null)
     })
   }
 
-  const startEditing = (ticket: EventTicketform) => {
-    setEditingId(ticket.id!)
-    setNewTicket({
-      name: ticket.name,
-      price: ticket.price.toString(),
-      totalCapacity: ticket.quantity_total.toString(),
-      description: ticket.description || ''
-    })
-  }
-
-  const cancelEditing = () => {
-    setEditingId(null)
-    setNewTicket({ name: '', price: '', totalCapacity: '', description: '' })
-  }
-
-  // Confirmación de eliminación (Triggered by Dialog)
   const handleConfirmDelete = async () => {
     if (!ticketToDelete) return
 
@@ -218,8 +231,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   }
 
   // --- Handlers: Canvas (Drag & Drop) ---
-
-  // Ajuste de tipos para el drag handler
+  // (Lógica intacta del drag & drop)
   type SidebarDragType = 'STAGE' | 'TICKET_ZONE'
   type SidebarDragData = { label?: string } | EventTicketform
 
@@ -237,7 +249,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     e.preventDefault()
     if (!canvasRef.current) return
     const canvasRect = canvasRef.current.getBoundingClientRect()
-
     const rawX = e.clientX - canvasRect.left
     const rawY = e.clientY - canvasRect.top
     const x = snapToGrid(rawX - 50)
@@ -278,7 +289,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           isNew: true,
           isDirty: true
         }
-
         setCanvasItems((prev) => [...prev, newItem])
       }
     } catch (err) {
@@ -286,7 +296,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     }
   }
 
-  // --- Handlers: Manipulación Items ---
   const startMovingItem = (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     if (resizeItem) return
@@ -385,17 +394,14 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     }
   }, [dragItem, resizeItem])
 
-  // --- Guardar ---
   const handleSaveMap = async () => {
     startTransition(async () => {
       try {
-        // 1. Eliminar
         for (const id of deletedIds) {
           await deleteEventMapZone(id)
         }
         setDeletedIds([])
 
-        // 2. Upsert
         const itemsToSave = canvasItems.filter((i) => i.isNew || i.isDirty)
         for (const item of itemsToSave) {
           const payload = mapCanvasItemToZonePayload(item, mapId)
@@ -403,7 +409,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
             zoneId: item.dbId,
             payload
           })
-
           if (response.data) {
             setCanvasItems((prev) =>
               prev.map((p) =>
@@ -420,7 +425,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           }
         }
         alert('Mapa guardado correctamente')
-        setIsDesignerOpen(false) // Cerrar modal al guardar
+        setIsDesignerOpen(false)
       } catch (e) {
         console.error(e)
         alert('Error al guardar')
@@ -432,7 +437,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   return (
     <div className="w-full">
-      {/* --- VISTA PRINCIPAL: GESTIÓN DE TICKETS (TABLA) --- */}
+      {/* --- VISTA PRINCIPAL: GESTIÓN DE TICKETS --- */}
       <div className="w-full flex flex-col gap-6">
         <div className="flex justify-between items-end border-b pb-4">
           <div>
@@ -443,128 +448,22 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
               Define los tipos de entrada y luego distribúyelos en el escenario.
             </p>
           </div>
-          <Button
-            onClick={() => setIsDesignerOpen(true)}
-            className="bg-black hover:bg-gray-800 text-white font-bold uppercase tracking-wider flex items-center gap-2"
-          >
-            <Edit3 size={18} />
-            DISEÑAR ESCENARIO / MAPA
-          </Button>
-        </div>
-
-        {/* Formulario Creación / Edición */}
-        <div
-          className={`p-6 rounded-xl border border-gray-200 transition-colors ${
-            editingId
-              ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900 dark:border-indigo-700'
-              : 'bg-gray-50 dark:bg-gray-800'
-          }`}
-        >
-          <h3
-            className={`font-bold text-sm uppercase mb-4 flex items-center gap-2 ${
-              editingId
-                ? 'text-indigo-600 dark:text-indigo-400'
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            <Ticket size={16} />
-            {editingId ? 'Editar Zona / Ticket' : 'Crear Nueva Zona / Ticket'}
-          </h3>
-          <form
-            onSubmit={handleSaveTicketType}
-            className="flex gap-4 items-end flex-wrap"
-          >
-            <div className="flex-1 min-w-[200px]">
-              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
-                Nombre Zona
-              </label>
-              <input
-                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none font-bold uppercase"
-                placeholder="EJ. BOX PRIMER PISO"
-                value={newTicket.name}
-                onChange={(e) =>
-                  setNewTicket({ ...newTicket, name: e.target.value })
-                }
-              />
-            </div>
-            <div className="w-full md:w-48">
-              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
-                Descripción / Aforo
-              </label>
-              <input
-                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none"
-                placeholder="Ej. 08 personas..."
-                value={newTicket.description}
-                onChange={(e) =>
-                  setNewTicket({ ...newTicket, description: e.target.value })
-                }
-              />
-            </div>
-            <div className="w-1/2 md:w-32">
-              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
-                Cap. Total
-              </label>
-              <input
-                type="number"
-                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none"
-                placeholder="100"
-                value={newTicket.totalCapacity}
-                onChange={(e) =>
-                  setNewTicket({ ...newTicket, totalCapacity: e.target.value })
-                }
-              />
-            </div>
-            <div className="w-1/2 md:w-32">
-              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
-                Precio (S/)
-              </label>
-              <input
-                type="number"
-                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none font-bold"
-                placeholder="0.00"
-                value={newTicket.price}
-                onChange={(e) =>
-                  setNewTicket({ ...newTicket, price: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="flex gap-2">
-              {editingId && (
-                <Button
-                  type="button"
-                  onClick={cancelEditing}
-                  className="bg-white border border-gray-300 text-gray-700 p-2.5 rounded hover:bg-gray-100 font-bold text-xs uppercase"
-                >
-                  Cancelar
-                </Button>
-              )}
-              <Button
-                disabled={
-                  isPending ||
-                  !newTicket.name ||
-                  !newTicket.price ||
-                  !newTicket.totalCapacity
-                }
-                size="lg"
-                className={`text-white p-2.5 rounded disabled:opacity-50 flex items-center gap-2 font-bold text-xs uppercase px-4 ${
-                  editingId
-                    ? 'bg-indigo-600 hover:bg-indigo-700'
-                    : 'bg-black hover:bg-gray-800'
-                }`}
-              >
-                {isPending ? (
-                  <Loader2 className="animate-spin" size={20} />
-                ) : editingId ? (
-                  'Actualizar'
-                ) : (
-                  <>
-                    <Plus size={20} /> Agregar
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
+          <div className="flex gap-2">
+            <Button
+              onClick={openCreateModal}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold uppercase tracking-wider flex items-center gap-2"
+            >
+              <Plus size={18} />
+              Crear Ticket
+            </Button>
+            <Button
+              onClick={() => setIsDesignerOpen(true)}
+              className="bg-black hover:bg-gray-800 text-white font-bold uppercase tracking-wider flex items-center gap-2"
+            >
+              <Edit3 size={18} />
+              DISEÑAR ESCENARIO
+            </Button>
+          </div>
         </div>
 
         {/* Tabla de Tickets (Estilo Imagen) */}
@@ -574,7 +473,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
               key={t.id}
               className="flex flex-col md:flex-row border border-black md:h-24 overflow-hidden rounded-lg group transition-all bg-white dark:bg-gray-800"
             >
-              {/* Columna Info */}
               <div className="flex-1 p-4 flex items-center gap-4">
                 <div
                   className="w-4 h-4 rounded-full shrink-0"
@@ -592,7 +490,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                 </div>
               </div>
 
-              {/* Columna Precio (Naranja) */}
               <div
                 className="w-full md:w-48 text-white flex flex-col items-center justify-center relative py-2 md:py-0"
                 style={{
@@ -610,9 +507,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                 </span>
               </div>
 
-              {/* Columna Opciones (Gris) */}
               <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center text-gray-400 border-l border-gray-200 relative py-2 md:py-0 gap-2 dark:bg-gray-900 dark:border-gray-700">
-                {/* Botón Editar */}
                 <Button
                   onClick={() => startEditing(t)}
                   size="icon"
@@ -622,8 +517,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                 >
                   <Edit size={16} />
                 </Button>
-
-                {/* Botón Eliminar */}
                 <Button
                   onClick={() => setTicketToDelete(t.id!)}
                   className="rounded-full"
@@ -644,7 +537,130 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         </div>
       </div>
 
+      {/* --- MODAL FORMULARIO DE TICKET --- */}
+      <Dialog open={isTicketFormOpen} onOpenChange={setIsTicketFormOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 uppercase">
+              <Ticket className="w-5 h-5" />
+              {editingId ? 'Editar Ticket' : 'Nuevo Ticket'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingId
+                ? 'Modifica los detalles del ticket existente. Los cambios se reflejarán en el mapa.'
+                : 'Completa la información para crear un nuevo tipo de entrada.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSaveTicketType} className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label
+                htmlFor="name"
+                className="text-xs font-bold text-gray-500 uppercase"
+              >
+                Nombre de la Zona / Ticket
+              </Label>
+              <Input
+                id="name"
+                className="font-bold uppercase"
+                placeholder="EJ. BOX PRIMER PISO"
+                value={newTicket.name}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, name: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label
+                htmlFor="desc"
+                className="text-xs font-bold text-gray-500 uppercase"
+              >
+                Descripción / Aforo (Texto)
+              </Label>
+              <Input
+                id="desc"
+                placeholder="Ej. 08 personas..."
+                value={newTicket.description}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, description: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label
+                  htmlFor="capacity"
+                  className="text-xs font-bold text-gray-500 uppercase"
+                >
+                  Capacidad Total
+                </Label>
+                <Input
+                  id="capacity"
+                  type="number"
+                  placeholder="100"
+                  min={1}
+                  value={newTicket.totalCapacity}
+                  onChange={(e) =>
+                    setNewTicket({
+                      ...newTicket,
+                      totalCapacity: e.target.value
+                    })
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label
+                  htmlFor="price"
+                  className="text-xs font-bold text-gray-500 uppercase"
+                >
+                  Precio (S/)
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  className="font-bold"
+                  placeholder="0.00"
+                  min={0}
+                  value={newTicket.price}
+                  onChange={(e) =>
+                    setNewTicket({ ...newTicket, price: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsTicketFormOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  isPending ||
+                  !newTicket.name ||
+                  !newTicket.price ||
+                  !newTicket.totalCapacity
+                }
+                className="bg-black text-white hover:bg-gray-800"
+              >
+                {isPending ? (
+                  <Loader2 className="animate-spin w-4 h-4 mr-2" />
+                ) : null}
+                {editingId ? 'Guardar Cambios' : 'Crear Ticket'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* --- MODAL: DISEÑADOR DE ESCENARIO (FULL SCREEN) --- */}
+      {/* ... (Este bloque se mantiene igual que tu código original) ... */}
       {isDesignerOpen && (
         <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200">
           {/* Header del Modal */}
