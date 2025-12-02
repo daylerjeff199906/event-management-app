@@ -69,7 +69,7 @@ export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
 
         {/*Add location details if needed*/}
         {(eventMode === 'PRESENCIAL' || eventMode === 'HIBRIDO') && (
-          <AddressForm />
+          <AddressForm form={form} />
         )}
       </CardContent>
     </Card>

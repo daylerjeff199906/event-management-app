@@ -47,21 +47,16 @@ export async function updateAddress(
   }
 }
 
-export async function getAddressList(
- {
+export async function getAddressList({
   search,
   limit = 20
- }:{
+}: {
   search?: string
   limit?: number
- }
-): Promise<{ data: Address[] | null; error: Error | null }> { 
+}): Promise<{ data: Address[] | null; error: Error | null }> {
   try {
     const supabase = await getSupabase()
-    let query = supabase
-      .from('addresses')
-      .select('*')
-      .limit(limit)
+    let query = supabase.from('addresses').select('*').limit(limit)
 
     if (search && search.trim()) {
       const term = `%${search.trim()}%`
@@ -79,12 +74,10 @@ export async function getAddressList(
     const { data, error } = await query
     if (error) throw error
     return { data, error: null }
-  }
-  catch (error) {
+  } catch (error) {
     return { data: null, error: error as Error }
   }
 }
-
 
 export async function getAddressById(
   id: string
@@ -130,6 +123,19 @@ export async function upsertAddress({
       }
       return result
     }
+  } catch (error) {
+    return { data: null, error: error as Error }
+  }
+}
+
+export async function deleteAddress(
+  id: string
+): Promise<{ data: null; error: Error | null }> {
+  try {
+    const supabase = await getSupabase()
+    const { error } = await supabase.from('addresses').delete().eq('id', id)
+    if (error) throw error
+    return { data: null, error: null }
   } catch (error) {
     return { data: null, error: error as Error }
   }
