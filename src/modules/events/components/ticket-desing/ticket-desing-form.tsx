@@ -12,7 +12,7 @@ import {
   Edit3,
   Ticket,
   X,
-  Pencil
+  Edit
 } from 'lucide-react'
 import { EventTicketform, EventMapZone } from '@/modules/events/schemas'
 import {
@@ -22,26 +22,18 @@ import {
   snapToGrid,
   PRESET_COLORS,
   GRID_SIZE
-} from '../../data/types' // Usando tu ruta de tipos
+} from '../../data/types'
 import {
   upsertEventMapZone,
   deleteEventMapZone
-} from '@/services/events.maps.service' // Usando tus servicios
+} from '@/services/events.maps.service'
 import {
   createEventTicket,
   deleteEventTicket,
   updateEventTicket
-} from '@/services/events.ticket.service' // Usando tus servicios
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from '@/components/ui/alert-dialog'
+} from '@/services/events.ticket.service'
+import { Button } from '@/components/ui/button'
+import { ConfirmAlertDialog } from '@/components/app/miscellaneous/confirm-alert-dialog'
 
 interface EventMapDesignerProps {
   eventId: string
@@ -439,66 +431,40 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   // ================= RENDERIZADO =================
 
   return (
-    <div className="w-full bg-white font-sans text-gray-800">
-      {/* Alert Dialog para eliminar tickets */}
-      <AlertDialog
-        open={!!ticketToDelete}
-        onOpenChange={(open) => !open && setTicketToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente
-              el ticket y todas las zonas del mapa que estén asociadas a este
-              tipo de entrada.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin w-4 h-4" />
-              ) : (
-                'Sí, eliminar'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
+    <div className="w-full">
       {/* --- VISTA PRINCIPAL: GESTIÓN DE TICKETS (TABLA) --- */}
-      <div className="max-w-5xl mx-auto p-6 space-y-8">
+      <div className="w-full flex flex-col gap-6">
         <div className="flex justify-between items-end border-b pb-4">
           <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">
+            <h2 className="text-xl tracking-tight uppercase font-semibold">
               Gestión de Entradas
-            </h1>
-            <p className="text-gray-500 mt-1">
+            </h2>
+            <p className="text-gray-500 mt-1 text-sm">
               Define los tipos de entrada y luego distribúyelos en el escenario.
             </p>
           </div>
-          <button
+          <Button
             onClick={() => setIsDesignerOpen(true)}
-            className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg hover:translate-y-0.5"
+            className="bg-black hover:bg-gray-800 text-white font-bold uppercase tracking-wider flex items-center gap-2"
           >
             <Edit3 size={18} />
             DISEÑAR ESCENARIO / MAPA
-          </button>
+          </Button>
         </div>
 
         {/* Formulario Creación / Edición */}
         <div
           className={`p-6 rounded-xl border border-gray-200 transition-colors ${
-            editingId ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50'
+            editingId
+              ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900 dark:border-indigo-700'
+              : 'bg-gray-50 dark:bg-gray-800'
           }`}
         >
           <h3
             className={`font-bold text-sm uppercase mb-4 flex items-center gap-2 ${
-              editingId ? 'text-indigo-600' : 'text-gray-500'
+              editingId
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-gray-500 dark:text-gray-400'
             }`}
           >
             <Ticket size={16} />
@@ -565,16 +531,22 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
             <div className="flex gap-2">
               {editingId && (
-                <button
+                <Button
                   type="button"
                   onClick={cancelEditing}
                   className="bg-white border border-gray-300 text-gray-700 p-2.5 rounded hover:bg-gray-100 font-bold text-xs uppercase"
                 >
                   Cancelar
-                </button>
+                </Button>
               )}
-              <button
-                disabled={isPending}
+              <Button
+                disabled={
+                  isPending ||
+                  !newTicket.name ||
+                  !newTicket.price ||
+                  !newTicket.totalCapacity
+                }
+                size="lg"
                 className={`text-white p-2.5 rounded disabled:opacity-50 flex items-center gap-2 font-bold text-xs uppercase px-4 ${
                   editingId
                     ? 'bg-indigo-600 hover:bg-indigo-700'
@@ -590,7 +562,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                     <Plus size={20} /> Agregar
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </form>
         </div>
@@ -600,7 +572,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           {tickets.map((t, idx) => (
             <div
               key={t.id}
-              className="flex flex-col md:flex-row border border-black md:h-24 overflow-hidden shadow-sm group hover:shadow-md transition-all bg-white"
+              className="flex flex-col md:flex-row border border-black md:h-24 overflow-hidden rounded-lg group transition-all bg-white dark:bg-gray-800"
             >
               {/* Columna Info */}
               <div className="flex-1 p-4 flex items-center gap-4">
@@ -611,17 +583,22 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                   }}
                 />
                 <div className="flex flex-col justify-center">
-                  <h3 className="font-black text-gray-800 text-lg uppercase leading-tight">
+                  <h3 className="font-black  text-lg uppercase leading-tight">
                     {t.name}
                   </h3>
-                  <p className="text-xs text-gray-500 font-medium mt-1">
+                  <p className="text-xs text-gray-500 font-medium mt-1 dark:text-gray-400">
                     {t.description || `${t.quantity_total} personas`}
                   </p>
                 </div>
               </div>
 
               {/* Columna Precio (Naranja) */}
-              <div className="w-full md:w-48 bg-[#e75d0f] text-white flex flex-col items-center justify-center relative py-2 md:py-0">
+              <div
+                className="w-full md:w-48 text-white flex flex-col items-center justify-center relative py-2 md:py-0"
+                style={{
+                  backgroundColor: PRESET_COLORS[idx % PRESET_COLORS.length]
+                }}
+              >
                 <span className="font-bold text-2xl tracking-tight">
                   S/{' '}
                   {t.price.toLocaleString('es-PE', {
@@ -634,24 +611,28 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
               </div>
 
               {/* Columna Opciones (Gris) */}
-              <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center text-gray-400 border-l border-gray-200 relative py-2 md:py-0 gap-2">
+              <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center text-gray-400 border-l border-gray-200 relative py-2 md:py-0 gap-2 dark:bg-gray-900 dark:border-gray-700">
                 {/* Botón Editar */}
-                <button
+                <Button
                   onClick={() => startEditing(t)}
-                  className="p-2 bg-white rounded-full border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"
+                  size="icon"
+                  className="rounded-full"
+                  variant="outline"
                   title="Editar Ticket"
                 >
-                  <Pencil size={16} />
-                </button>
+                  <Edit size={16} />
+                </Button>
 
                 {/* Botón Eliminar */}
-                <button
+                <Button
                   onClick={() => setTicketToDelete(t.id!)}
-                  className="p-2 bg-white rounded-full border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all shadow-sm"
+                  className="rounded-full"
                   title="Eliminar Ticket"
+                  size="icon"
+                  variant="destructive"
                 >
                   <Trash2 size={16} />
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -862,6 +843,17 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           </div>
         </div>
       )}
+
+      <ConfirmAlertDialog
+        open={!!ticketToDelete}
+        onOpenChange={(open) => !open && setTicketToDelete(null)}
+        title="¿Estás completamente seguro?"
+        description="Esta acción no se puede deshacer. Esto eliminará permanentemente el ticket y todas las zonas del mapa que estén asociadas a este tipo de entrada."
+        confirmText="Sí, eliminar"
+        confirmVariant="destructive"
+        isLoading={isPending}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   )
 }
