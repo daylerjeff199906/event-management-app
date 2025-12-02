@@ -42,7 +42,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { DesingnerForm } from './desingner-form'
-import {  useRouter } from 'next/navigation'
+import {  useRouter, useSearchParams } from 'next/navigation'
+
 
 interface EventMapDesignerProps {
   eventId: string
@@ -58,6 +59,8 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   initialMaps
 }) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialMapId = searchParams.get('map')
   // --- Estados de Datos ---
   const [tickets, setTickets] = useState<EventTicketform[]>(initialTickets)
   const [maps, setMaps] = useState<EventMap[]>(initialMaps)
@@ -476,7 +479,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       </Dialog>
 
       {/* --- MODAL: DISEÑADOR DE ESCENARIO (FULL SCREEN) --- */}
-      {isDesignerOpen && selectedMap && (
+      {selectedMap && (
         <DesingnerForm
           mapData={selectedMap}
           ticketsData={tickets}

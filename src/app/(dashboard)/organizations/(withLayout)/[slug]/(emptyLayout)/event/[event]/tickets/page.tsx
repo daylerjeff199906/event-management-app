@@ -17,6 +17,7 @@ export default async function TicketsPage(props: TicketsPageProps) {
   const mapId = searchParams.map as string | undefined
 
   const { data: mapZones } = await fetchEventMapZonesByMapId(mapId!)
+  console.log('MAP ZONES:', mapZones)
   const { data: eventTickets } = await fetchEventTicketsByEventId(eventId)
   const { data: eventMaps } = await fetchEventMapsByEventId(eventId)
 
