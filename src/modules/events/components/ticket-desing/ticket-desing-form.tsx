@@ -42,6 +42,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { DesingnerForm } from './desingner-form'
+import {  useRouter } from 'next/navigation'
 
 interface EventMapDesignerProps {
   eventId: string
@@ -56,6 +57,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   initialZones,
   initialMaps
 }) => {
+  const router = useRouter()
   // --- Estados de Datos ---
   const [tickets, setTickets] = useState<EventTicketform[]>(initialTickets)
   const [maps, setMaps] = useState<EventMap[]>(initialMaps)
@@ -173,13 +175,16 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       // Opcional: Abrir automáticamente el diseñador
       setSelectedMap(data)
       setIsDesignerOpen(true)
+      router.push(`?map=${data.id}`)
+      
     })
   }
 
   const handleSelectMap = (map: EventMap) => {
     setSelectedMap(map)
     setIsDesignerOpen(true)
-  }
+    router.push(`?map=${map.id}`)
+    }
 
   const handleConfirmDeleteMap = async () => {
     if (!mapToDelete) return

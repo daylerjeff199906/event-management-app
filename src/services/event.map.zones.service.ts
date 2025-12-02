@@ -3,15 +3,17 @@ import { getSupabase } from './core.supabase'
 import { EventMapZone } from '@/modules/events/schemas'
 import { revalidatePath } from 'next/cache'
 
-export async function fetchEventMapZonesByEventId(
-  eventId: string
+const TABLE_NAME = 'event_map_zones'
+
+export async function fetchEventMapZonesByMapId(
+  mapId: string
 ): Promise<{ data: EventMapZone[] | null; error: string }> {
   try {
     const client = await getSupabase()
     const result = await client
-      .from('events_map_zones')
+      .from(TABLE_NAME)
       .select('*')
-      .eq('event_id', eventId)
+      .eq('map_id', mapId)
 
     return {
       data: result.data as EventMapZone[] | null,
@@ -32,7 +34,7 @@ export async function fetchEventMapZoneById(
   try {
     const client = await getSupabase()
     const result = await client
-      .from('events_map_zones')
+      .from(TABLE_NAME)
       .select('*')
       .eq('id', zoneId)
       .single()
@@ -56,7 +58,7 @@ export async function createEventMapZone(
   try {
     const client = await getSupabase()
     const result = await client
-      .from('events_map_zones')
+      .from(TABLE_NAME)
       .insert([zone])
       .select('*')
       .single()
@@ -83,7 +85,7 @@ export async function updateEventMapZone(
   try {
     const client = await getSupabase()
     const result = await client
-      .from('events_map_zones')
+      .from(TABLE_NAME)
       .update(patch)
       .eq('id', zoneId)
       .select('*')
@@ -132,7 +134,7 @@ export async function deleteEventMapZone(
   try {
     const client = await getSupabase()
     const result = await client
-      .from('events_map_zones')
+      .from(TABLE_NAME)
       .delete()
       .eq('id', zoneId)
       .select('*')
@@ -164,7 +166,7 @@ export async function bulkUpsertEventMapZones(
       event_id: eventId
     }))
     const result = await client
-      .from('events_map_zones')
+      .from('event_map_zones')
       .upsert(zonesWithEventId)
       .select('*')
     revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/maps')
