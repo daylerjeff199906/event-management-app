@@ -3,13 +3,15 @@ import { getSupabase } from './core.supabase'
 import { revalidatePath } from 'next/cache'
 import { EventTicketform } from "@/modules/events/schemas/event_tickets";
 
+const PATH_MODEL = 'event_tickets'
+
 export async function fetchEventTicketsByEventId(
     eventId: string
 ): Promise<{ data: EventTicketform[] | null; error: string }> {
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_tickets')
+            .from(PATH_MODEL)
             .select('*')
             .eq('event_id', eventId)
 
@@ -29,7 +31,7 @@ export async function fetchEventTicketById(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_tickets')
+            .from(PATH_MODEL)
             .select('*')
             .eq('id', ticketId)
             .single()
@@ -50,13 +52,13 @@ export async function createEventTicket(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_tickets')
+            .from(PATH_MODEL)
             .insert([ticket])
             .select('*')
             .single()
 
         revalidatePath('/(dashboard)/organizations/[slug]/events/[event]/tickets')
-
+console.log('Ticket created:', result.data)
         return {
             data: result.data as EventTicketform | null,
             error: result.error ? result.error.message : ''
@@ -74,7 +76,7 @@ export async function updateEventTicket(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_tickets')
+            .from(PATH_MODEL)
             .update(patch)
             .eq('id', ticketId)
             .select('*')
@@ -118,7 +120,7 @@ export async function deleteEventTicket(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_tickets')
+            .from(PATH_MODEL)
             .delete()
             .eq('id', ticketId)
             .select('*')
