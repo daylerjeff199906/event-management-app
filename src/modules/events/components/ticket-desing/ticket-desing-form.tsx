@@ -8,10 +8,12 @@ import {
   LayoutGrid,
   Save,
   MonitorPlay,
-  MapPin,
-  Loader2
+  Loader2,
+  Edit3,
+  Ticket,
+  X
 } from 'lucide-react'
-import { EventTicketform, EventMapZone } from '@/modules/events/schemas' // Ajusta tus imports
+import { EventTicketform, EventMapZone } from '@/modules/events/schemas'
 import {
   CanvasItem,
   mapZoneToCanvasItem,
@@ -19,42 +21,47 @@ import {
   snapToGrid,
   PRESET_COLORS,
   GRID_SIZE
-} from '../../data/types'
+} from '../../data/types' // Usando tu ruta de tipos
 import {
   upsertEventMapZone,
   deleteEventMapZone
-} from '@/services/events.maps.service'
+} from '@/services/events.maps.service' // Usando tus servicios
 import {
   createEventTicket,
   deleteEventTicket
-} from '@/services/events.ticket.service'
+} from '@/services/events.ticket.service' // Usando tus servicios
 
-// Importa tus server actions
 interface EventMapDesignerProps {
   eventId: string
-  mapId: string
   initialTickets: EventTicketform[]
   initialZones: EventMapZone[]
+  mapId: string // Necesario para guardar las zonas
 }
 
 export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   eventId,
-  mapId,
   initialTickets,
-  initialZones
+  initialZones,
+  mapId
 }) => {
   // --- Estados ---
   const [tickets, setTickets] = useState<EventTicketform[]>(initialTickets)
-  // Inicializar items del canvas mapeando desde la BD
+
+  // Inicializar items del canvas
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>(() =>
     initialZones.map((z) => mapZoneToCanvasItem(z, initialTickets))
   )
 
+  const [isDesignerOpen, setIsDesignerOpen] = useState(false) // Estado del Modal
+
   const [newTicket, setNewTicket] = useState({
     name: '',
     price: '',
-    totalCapacity: ''
+    totalCapacity: '',
+    description: '' // Agregado para la tabla
   })
+
+  // Estados del Canvas (Drag & Drop / Resize)
   const [dragItem, setDragItem] = useState<{
     id: string
     startX: number
@@ -62,6 +69,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     originalX: number
     originalY: number
   } | null>(null)
+
   const [resizeItem, setResizeItem] = useState<{
     id: string
     handleType: string
@@ -76,8 +84,10 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   const [isPending, startTransition] = useTransition()
   const canvasRef = useRef<HTMLDivElement>(null)
 
-  // --- Lógica de Recalculo de Capacidades Visuales ---
-  // Esto es solo visual, divide el aforo total del ticket entre las zonas creadas
+  // Estado para trackear eliminaciones en el canvas (para el botón Guardar)
+  const [deletedIds, setDeletedIds] = useState<string[]>([])
+
+  // --- Helpers Visuales ---
   const getVisualItems = () => {
     const counts: Record<string, number> = {}
     canvasItems.forEach((item) => {
@@ -95,7 +105,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
             capacity: Math.floor(ticket.quantity_total / counts[item.ticketId]),
             price: ticket.price,
             name: ticket.name,
-            color: item.color || '#3b82f6' // Fallback color
+            color: item.color || '#3b82f6'
           }
         }
       }
@@ -105,22 +115,21 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   const visualItems = getVisualItems()
 
-  // --- Handlers: Gestión de Tickets (Server Actions) ---
+  // --- Handlers: Gestión de Tickets ---
 
   const handleCreateTicketType = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTicket.name || !newTicket.price || !newTicket.totalCapacity) return
 
     startTransition(async () => {
-      // 1. Crear el ticket en BD
       const payload: EventTicketform = {
         event_id: eventId,
         name: newTicket.name.toUpperCase(),
         price: parseFloat(newTicket.price),
         quantity_total: parseInt(newTicket.totalCapacity),
-        currency: 'PEN', // Ojo: Ajustar según necesidad
-        // Campos opcionales por defecto
-        description: null,
+        currency: 'PEN',
+        description:
+          newTicket.description || `${newTicket.totalCapacity} personas`,
         is_active: true
       } as EventTicketform
 
@@ -131,19 +140,13 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         return
       }
 
-      // 2. Actualizar estado local
       setTickets((prev) => [...prev, data])
-      setNewTicket({ name: '', price: '', totalCapacity: '' })
+      setNewTicket({ name: '', price: '', totalCapacity: '', description: '' })
     })
   }
 
   const handleDeleteTicketType = async (ticketId: string) => {
-    if (
-      !confirm(
-        '¿Estás seguro? Se eliminarán todas las zonas asociadas en el mapa.'
-      )
-    )
-      return
+    if (!confirm('¿Eliminar este ticket y todas sus zonas del mapa?')) return
 
     startTransition(async () => {
       const { error } = await deleteEventTicket(ticketId)
@@ -152,34 +155,26 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         return
       }
       setTickets((prev) => prev.filter((t) => t.id !== ticketId))
-      // Eliminar visualmente las zonas asociadas
       setCanvasItems((prev) =>
         prev.filter((item) => item.ticketId !== ticketId)
       )
-      // NOTA: Las zonas en BD también deberían borrarse.
-      // Idealmente tu backend tiene "Cascade Delete". Si no, deberías borrar las zonas aquí también.
     })
   }
 
-  // --- Handlers: Drag & Drop (Creación) ---
+  // --- Handlers: Canvas (Drag & Drop) ---
 
-  type SidebarDraggablePayload = EventTicketform | { label: string }
+  // Ajuste de tipos para el drag handler
   type SidebarDragType = 'STAGE' | 'TICKET_ZONE'
-  type SidebarDragData = {
-    source: 'sidebar'
-    type: SidebarDragType
-    data: SidebarDraggablePayload
-  }
+  type SidebarDragData = { label?: string } | EventTicketform
 
   const handleDragStartFromSidebar = (
     e: React.DragEvent,
-    data: SidebarDraggablePayload,
+    data: SidebarDragData,
     type: SidebarDragType
-  ): void => {
+  ) => {
     if (!e.dataTransfer) return
-    const dragData: SidebarDragData = { source: 'sidebar', type, data }
+    const dragData = { source: 'sidebar', type, data }
     e.dataTransfer.setData('application/json', JSON.stringify(dragData))
-    e.dataTransfer.effectAllowed = 'copyMove'
   }
 
   const handleDrop = (e: React.DragEvent) => {
@@ -198,7 +193,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       const parsedData = JSON.parse(rawData)
 
       if (parsedData.source === 'sidebar') {
-        // Validación Escenario Único
         if (parsedData.type === 'STAGE') {
           const stageExists = canvasItems.some((i) => i.type === 'STAGE')
           if (stageExists) {
@@ -209,20 +203,23 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
         const color =
           parsedData.type === 'TICKET_ZONE'
-            ? PRESET_COLORS[tickets.length % PRESET_COLORS.length] // O un color aleatorio
+            ? PRESET_COLORS[
+                tickets.findIndex((t) => t.id === parsedData.data.id) %
+                  PRESET_COLORS.length
+              ]
             : '#000000'
 
         const newItem: CanvasItem = {
-          id: crypto.randomUUID(), // ID temporal para React
+          id: crypto.randomUUID(),
           type: parsedData.type,
           x,
           y,
           width: parsedData.type === 'STAGE' ? 300 : 200,
           height: parsedData.type === 'STAGE' ? 120 : 100,
-          ticketId: parsedData.data?.id, // ID real del ticket
+          ticketId: parsedData.data?.id,
           name: parsedData.data?.name || parsedData.data?.label,
           color: color,
-          isNew: true, // Marcado para guardar
+          isNew: true,
           isDirty: true
         }
 
@@ -233,14 +230,12 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     }
   }
 
-  // --- Handlers: Manipulación Canvas ---
-
+  // --- Handlers: Manipulación Items ---
   const startMovingItem = (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     if (resizeItem) return
     const item = canvasItems.find((i) => i.id === id)
     if (!item) return
-
     setDragItem({
       id,
       startX: e.clientX,
@@ -259,7 +254,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     e.preventDefault()
     const item = canvasItems.find((i) => i.id === id)
     if (!item) return
-
     setResizeItem({
       id,
       handleType,
@@ -274,42 +268,32 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   const deleteItem = (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
-    // Marcar como eliminado para procesar en Save, o eliminar directamente si es nuevo
     const item = canvasItems.find((i) => i.id === id)
     if (!item) return
-
-    if (item.dbId) {
-      // Si ya existía en BD, lo marcamos como deleted (podríamos usar un estado separado o filtrar)
-      // Para simplificar este ejemplo, llamaremos a delete server action directamente para items existentes
-      // O lo sacamos del array y en "Save" calculamos el diff.
-      // Estrategia: Sacar del array 'canvasItems'. Guardar en un ref 'deletedIds'.
-      setDeletedIds((prev) => [...prev, item.dbId!])
-    }
+    if (item.dbId) setDeletedIds((prev) => [...prev, item.dbId!])
     setCanvasItems((prev) => prev.filter((i) => i.id !== id))
   }
-
-  // Estado para trackear eliminaciones
-  const [deletedIds, setDeletedIds] = useState<string[]>([])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (dragItem) {
         const deltaX = e.clientX - dragItem.startX
         const deltaY = e.clientY - dragItem.startY
-        const newX = snapToGrid(dragItem.originalX + deltaX)
-        const newY = snapToGrid(dragItem.originalY + deltaY)
-
         setCanvasItems((items) =>
           items.map((item) =>
             item.id === dragItem.id
-              ? { ...item, x: newX, y: newY, isDirty: true }
+              ? {
+                  ...item,
+                  x: snapToGrid(dragItem.originalX + deltaX),
+                  y: snapToGrid(dragItem.originalY + deltaY),
+                  isDirty: true
+                }
               : item
           )
         )
       } else if (resizeItem) {
         const deltaX = e.clientX - resizeItem.startX
         const deltaY = e.clientY - resizeItem.startY
-
         setCanvasItems((items) =>
           items.map((item) => {
             if (item.id === resizeItem.id) {
@@ -331,12 +315,10 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         )
       }
     }
-
     const handleMouseUp = () => {
       setDragItem(null)
       setResizeItem(null)
     }
-
     if (dragItem || resizeItem) {
       window.addEventListener('mousemove', handleMouseMove)
       window.addEventListener('mouseup', handleMouseUp)
@@ -347,7 +329,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     }
   }, [dragItem, resizeItem])
 
-  // --- GUARDADO FINAL ---
+  // --- Guardar ---
   const handleSaveMap = async () => {
     startTransition(async () => {
       try {
@@ -355,25 +337,18 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         for (const id of deletedIds) {
           await deleteEventMapZone(id)
         }
-        setDeletedIds([]) // Reset
+        setDeletedIds([])
 
-        // 2. Upsert (Crear o Actualizar)
-        // Filtramos solo los que han cambiado o son nuevos
+        // 2. Upsert
         const itemsToSave = canvasItems.filter((i) => i.isNew || i.isDirty)
-
         for (const item of itemsToSave) {
           const payload = mapCanvasItemToZonePayload(item, mapId)
-          // Ojo: upsertEventMapZone espera { zoneId?, payload }
-          // Si item.dbId existe, lo pasamos como zoneId
           const response = await upsertEventMapZone({
             zoneId: item.dbId,
-            payload: payload
+            payload
           })
 
-          if (response.error) {
-            console.error('Error guardando item', item, response.error)
-          } else if (response.data) {
-            // Actualizar el item local con el ID real y limpiar flags
+          if (response.data) {
             setCanvasItems((prev) =>
               prev.map((p) =>
                 p.id === item.id
@@ -389,260 +364,379 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           }
         }
         alert('Mapa guardado correctamente')
+        setIsDesignerOpen(false) // Cerrar modal al guardar
       } catch (e) {
         console.error(e)
-        alert('Hubo un error al guardar')
+        alert('Error al guardar')
       }
     })
   }
 
-  const totalRevenue = canvasItems.reduce(
-    (acc, item) => acc + (item.price || 0) * (item.capacity || 0),
-    0
-  )
+  // ================= RENDERIZADO =================
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-slate-100 font-sans text-gray-800 overflow-hidden select-none border rounded-xl">
-      {/* Sidebar de Controles */}
-      <div className="w-80 bg-white border-r border-gray-300 flex flex-col shadow-xl z-20">
-        <div className="p-5 bg-black text-white shadow-md">
-          <h1 className="text-xl font-black flex items-center gap-2 tracking-wider">
-            <LayoutGrid className="text-pink-500" /> EVENT MAP
-          </h1>
-          <p className="text-gray-400 text-xs mt-1 font-mono">
-            Diseñador de Planos
-          </p>
+    <div className="w-full bg-white font-sans text-gray-800">
+      {/* --- VISTA PRINCIPAL: GESTIÓN DE TICKETS (TABLA) --- */}
+      <div className="max-w-5xl mx-auto p-6 space-y-8">
+        <div className="flex justify-between items-end border-b pb-4">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">
+              Gestión de Entradas
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Define los tipos de entrada y luego distribúyelos en el escenario.
+            </p>
+          </div>
+          <button
+            onClick={() => setIsDesignerOpen(true)}
+            className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg hover:translate-y-[-2px]"
+          >
+            <Edit3 size={18} />
+            DISEÑAR ESCENARIO / MAPA
+          </button>
         </div>
 
-        {/* Formulario Nueva Zona */}
-        <div className="p-4 bg-gray-50 border-b border-gray-200">
-          <h2 className="text-xs font-bold text-gray-900 uppercase mb-3 tracking-widest">
-            Nueva Zona
-          </h2>
-          <form onSubmit={handleCreateTicketType} className="space-y-2">
-            <input
-              className="w-full p-2 text-sm border-2 border-gray-200 focus:border-black transition-colors uppercase font-bold outline-none"
-              placeholder="NOMBRE (EJ. VIP)"
-              value={newTicket.name}
-              onChange={(e) =>
-                setNewTicket({ ...newTicket, name: e.target.value })
-              }
-            />
-            <div className="flex gap-2">
+        {/* Formulario Creación Rápida */}
+        <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+          <h3 className="font-bold text-sm uppercase text-gray-500 mb-4 flex items-center gap-2">
+            <Ticket size={16} /> Crear Nueva Zona / Ticket
+          </h3>
+          <form
+            onSubmit={handleCreateTicketType}
+            className="flex gap-4 items-end flex-wrap"
+          >
+            <div className="flex-1 min-w-[200px]">
+              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
+                Nombre Zona
+              </label>
               <input
-                className="w-1/2 p-2 text-sm border-2 border-gray-200 focus:border-black outline-none"
-                type="number"
-                placeholder="S/ Precio"
-                value={newTicket.price}
+                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none font-bold uppercase"
+                placeholder="EJ. BOX PRIMER PISO"
+                value={newTicket.name}
                 onChange={(e) =>
-                  setNewTicket({ ...newTicket, price: e.target.value })
+                  setNewTicket({ ...newTicket, name: e.target.value })
                 }
               />
+            </div>
+            <div className="w-full md:w-48">
+              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
+                Descripción / Aforo
+              </label>
               <input
-                className="w-1/2 p-2 text-sm border-2 border-gray-200 focus:border-black outline-none"
+                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none"
+                placeholder="Ej. 08 personas..."
+                value={newTicket.description}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, description: e.target.value })
+                }
+              />
+            </div>
+            <div className="w-1/2 md:w-32">
+              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
+                Cap. Total
+              </label>
+              <input
                 type="number"
-                placeholder="Cap. Total"
+                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none"
+                placeholder="100"
                 value={newTicket.totalCapacity}
                 onChange={(e) =>
                   setNewTicket({ ...newTicket, totalCapacity: e.target.value })
                 }
               />
             </div>
+            <div className="w-1/2 md:w-32">
+              <label className="text-xs font-bold text-gray-400 uppercase mb-1 block">
+                Precio (S/)
+              </label>
+              <input
+                type="number"
+                className="w-full p-2 border border-gray-300 rounded focus:border-black outline-none font-bold"
+                placeholder="0.00"
+                value={newTicket.price}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, price: e.target.value })
+                }
+              />
+            </div>
             <button
               disabled={isPending}
-              className="w-full bg-black text-white py-2 text-sm hover:bg-gray-800 font-bold tracking-widest flex justify-center gap-2 items-center disabled:opacity-50"
+              className="bg-black text-white p-2.5 rounded hover:bg-gray-800 disabled:opacity-50"
             >
               {isPending ? (
-                <Loader2 className="animate-spin" size={16} />
+                <Loader2 className="animate-spin" size={20} />
               ) : (
-                <>
-                  <Plus size={16} /> AGREGAR
-                </>
+                <Plus size={20} />
               )}
             </button>
           </form>
         </div>
 
-        {/* Lista de Elementos Draggable */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-          <div
-            draggable
-            onDragStart={(e) =>
-              handleDragStartFromSidebar(e, { label: 'ESCENARIO' }, 'STAGE')
-            }
-            className="p-4 bg-black text-white cursor-grab flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-lg border-b-4 border-gray-800"
-          >
-            <MonitorPlay size={20} />{' '}
-            <span className="font-black tracking-widest">ESCENARIO</span>
-          </div>
-
-          <div className="h-px bg-gray-300 my-4"></div>
-
+        {/* Tabla de Tickets (Estilo Imagen) */}
+        <div className="space-y-4">
           {tickets.map((t, idx) => (
             <div
               key={t.id}
-              draggable
-              onDragStart={(e) =>
-                handleDragStartFromSidebar(e, t, 'TICKET_ZONE')
-              }
-              className="p-3 bg-white border-2 border-transparent hover:border-black shadow-sm cursor-grab active:cursor-grabbing relative group transition-all"
-              style={{
-                borderLeft: `4px solid ${
-                  PRESET_COLORS[idx % PRESET_COLORS.length]
-                }`
-              }}
+              className="flex flex-col md:flex-row border border-black md:h-24 overflow-hidden shadow-sm group hover:shadow-md transition-all bg-white"
             >
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-black text-sm tracking-wide uppercase">
-                  {t.name}
+              {/* Columna Info */}
+              <div className="flex-1 p-4 flex items-center gap-4">
+                <div
+                  className="w-4 h-4 rounded-full flex-shrink-0"
+                  style={{
+                    backgroundColor: PRESET_COLORS[idx % PRESET_COLORS.length]
+                  }}
+                />
+                <div className="flex flex-col justify-center">
+                  <h3 className="font-black text-gray-800 text-lg uppercase leading-tight">
+                    {t.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 font-medium mt-1">
+                    {t.description || `${t.quantity_total} personas`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Columna Precio (Naranja) */}
+              <div className="w-full md:w-48 bg-[#e75d0f] text-white flex flex-col items-center justify-center relative py-2 md:py-0">
+                <span className="font-bold text-2xl tracking-tight">
+                  S/{' '}
+                  {t.price.toLocaleString('es-PE', {
+                    minimumFractionDigits: 2
+                  })}
                 </span>
+                <span className="text-[10px] uppercase font-bold opacity-80 tracking-widest">
+                  Precio
+                </span>
+              </div>
+
+              {/* Columna Opciones (Gris) */}
+              <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center text-gray-400 border-l border-gray-200 relative group-hover:bg-red-50 transition-colors py-2 md:py-0">
+                {/* Mostramos precio regular falso como placeholder visual similar a la imagen */}
+                <span className="line-through font-semibold text-sm">
+                  S/{' '}
+                  {(t.price * 1.2).toLocaleString('es-PE', {
+                    minimumFractionDigits: 2
+                  })}
+                </span>
+
+                {/* Botón Borrar Flotante */}
                 <button
                   onClick={() => handleDeleteTicketType(t.id!)}
-                  className="text-gray-400 hover:text-red-500"
+                  className="absolute inset-0 w-full h-full flex items-center justify-center bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity font-bold uppercase tracking-widest text-xs"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={16} className="mr-2" /> Eliminar
                 </button>
-              </div>
-              <div className="text-xs text-gray-500 font-bold flex justify-between items-center">
-                <span>CAP: {t.quantity_total}</span>
-                <span>S/ {t.price}</span>
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Footer Total */}
-        <div className="p-4 bg-white text-sm border-t-2 border-gray-200">
-          <div className="flex justify-between font-black text-lg text-gray-900">
-            <span>TOTAL:</span>
-            <span>S/ {totalRevenue.toLocaleString()}</span>
-          </div>
+          {tickets.length === 0 && (
+            <div className="text-center py-10 text-gray-400 border-2 border-dashed border-gray-300 rounded-lg">
+              No hay tickets creados. Agrega uno arriba para comenzar.
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Canvas */}
-      <div className="flex-1 flex flex-col relative">
-        <div className="h-12 bg-white border-b border-gray-200 px-6 flex items-center justify-between z-10 shadow-sm">
-          <div className="flex items-center gap-2 text-gray-400 text-xs font-mono uppercase">
-            <Move size={14} /> Arrastra bloques al lienzo
-          </div>
-          <button
-            onClick={handleSaveMap}
-            disabled={
-              isPending ||
-              (!deletedIds.length &&
-                !canvasItems.some((i) => i.isDirty || i.isNew))
-            }
-            className="bg-green-600 text-white text-xs font-bold hover:bg-green-700 px-4 py-2 rounded uppercase tracking-wider flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isPending ? (
-              <Loader2 className="animate-spin" size={14} />
-            ) : (
-              <Save size={14} />
-            )}
-            Guardar Cambios
-          </button>
-        </div>
-
-        <div className="flex-1 bg-[#e5e5e5] overflow-auto flex items-center justify-center p-10 relative">
-          <div
-            className="absolute inset-0 pointer-events-none opacity-20"
-            style={{
-              backgroundImage:
-                'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-              backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`
-            }}
-          />
-
-          <div
-            ref={canvasRef}
-            className="relative w-full h-full min-h-[800px] min-w-[800px]"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-          >
-            {visualItems.length === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 pointer-events-none">
-                <MapPin size={64} className="mb-4 opacity-20" />
-                <span className="text-3xl font-black uppercase tracking-widest opacity-20">
-                  Lienzo Vacío
-                </span>
+      {/* --- MODAL: DISEÑADOR DE ESCENARIO (FULL SCREEN) --- */}
+      {isDesignerOpen && (
+        <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200">
+          {/* Header del Modal */}
+          <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20">
+            <div className="flex items-center gap-4">
+              <LayoutGrid className="text-pink-500" />
+              <div>
+                <h2 className="font-black tracking-wider text-lg leading-none">
+                  DISEÑADOR DE ESCENARIO
+                </h2>
+                <p className="text-xs text-gray-400 font-mono">
+                  Arrastra los tickets creados al lienzo
+                </p>
               </div>
-            )}
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsDesignerOpen(false)}
+                className="px-4 py-2 rounded text-sm font-bold text-gray-400 hover:text-white transition-colors"
+              >
+                CANCELAR
+              </button>
+              <button
+                onClick={handleSaveMap}
+                disabled={isPending}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold uppercase tracking-wider flex items-center gap-2"
+              >
+                {isPending ? (
+                  <Loader2 className="animate-spin" size={16} />
+                ) : (
+                  <Save size={16} />
+                )}
+                GUARDAR MAPA
+              </button>
+            </div>
+          </div>
 
-            {visualItems.map((item) => {
-              const isVertical = item.height > item.width
-              return (
-                <div
-                  key={item.id}
-                  onMouseDown={(e) => startMovingItem(e, item.id)}
-                  className={`absolute group hover:z-50 transition-shadow ${
-                    dragItem?.id === item.id
-                      ? 'cursor-grabbing z-50 ring-4 ring-yellow-400'
-                      : 'cursor-grab z-10 hover:ring-2 hover:ring-white/50'
-                  }`}
-                  style={{
-                    left: item.x,
-                    top: item.y,
-                    width: item.width,
-                    height: item.height,
-                    backgroundColor:
-                      item.type === 'STAGE' ? '#000000' : item.color,
-                    boxShadow:
-                      '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                  }}
-                >
-                  <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden">
-                    {item.type === 'STAGE' ? (
-                      <>
-                        <div className="absolute top-0 w-1/3 h-2 bg-gray-800"></div>
-                        <h3 className="text-white font-black text-2xl tracking-[0.2em] z-10 text-center leading-none">
-                          ESCENARIO
-                        </h3>
-                        <div className="w-full h-1 bg-gray-800 mt-2"></div>
-                      </>
-                    ) : (
-                      <>
-                        <div
-                          className="flex flex-col items-center justify-center"
-                          style={{
-                            transform: isVertical ? 'rotate(-90deg)' : 'none',
-                            width: isVertical ? item.height - 10 : '100%',
-                            maxWidth: isVertical ? item.height : item.width
-                          }}
-                        >
-                          <h3
-                            className={`text-white font-black tracking-wide text-center uppercase drop-shadow-md leading-none select-none wrap-break-words ${
-                              isVertical ? 'text-lg' : 'text-2xl md:text-3xl'
-                            }`}
-                          >
-                            {item.name}
-                          </h3>
-                        </div>
-                        <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none">
-                          <div className="bg-black/20 px-2 py-0.5 rounded text-white text-[10px] font-mono font-bold tracking-widest backdrop-blur-sm">
-                            CAP: {item.capacity}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    <button
-                      onClick={(e) => deleteItem(e, item.id)}
-                      className="absolute top-1 right-1 bg-black text-white hover:bg-red-600 rounded p-1 opacity-0 group-hover:opacity-100 transition-all z-30"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                    <div
-                      onMouseDown={(e) => startResizingItem(e, item.id, 'se')}
-                      className="absolute w-4 h-4 bg-white border-2 border-black rounded-full z-20 hover:scale-125 cursor-se-resize shadow-md"
-                      style={{ bottom: -6, right: -6 }}
-                    />
+          {/* Cuerpo del Diseñador (Sidebar + Canvas) */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* Sidebar Draggable (Dentro del Modal) */}
+            <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto">
+              <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">
+                Elementos Disponibles
+              </h3>
+
+              <div
+                draggable
+                onDragStart={(e) =>
+                  handleDragStartFromSidebar(e, { label: 'ESCENARIO' }, 'STAGE')
+                }
+                className="p-4 bg-gray-900 text-white rounded cursor-grab flex items-center justify-center gap-2 mb-6 hover:scale-105 transition-transform shadow-lg"
+              >
+                <MonitorPlay size={20} />{' '}
+                <span className="font-bold">ESCENARIO</span>
+              </div>
+
+              <div className="space-y-3">
+                {tickets.map((t, idx) => (
+                  <div
+                    key={t.id}
+                    draggable
+                    onDragStart={(e) =>
+                      handleDragStartFromSidebar(e, t, 'TICKET_ZONE')
+                    }
+                    className="p-3 bg-white border-2 border-transparent hover:border-black rounded shadow-sm cursor-grab active:cursor-grabbing group relative select-none"
+                    style={{
+                      borderLeftColor:
+                        PRESET_COLORS[idx % PRESET_COLORS.length],
+                      borderLeftWidth: '4px'
+                    }}
+                  >
+                    <div className="font-black text-sm text-gray-800 uppercase mb-1">
+                      {t.name}
+                    </div>
+                    <div className="text-xs text-gray-500 flex justify-between">
+                      <span>S/ {t.price}</span>
+                      <span>Cap: {t.quantity_total}</span>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Canvas Area */}
+            <div className="flex-1 bg-[#e5e5e5] relative overflow-hidden flex flex-col">
+              {/* Toolbar Flotante Canvas */}
+              <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2">
+                <Move size={14} /> ARRASTRA Y SUELTA PARA DISTRIBUIR
+              </div>
+
+              {/* Viewport Scrollable */}
+              <div className="flex-1 overflow-auto flex items-center justify-center p-20">
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-20"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
+                    backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`
+                  }}
+                />
+
+                {/* The Canvas */}
+                <div
+                  ref={canvasRef}
+                  className="relative min-w-[1200px] min-h-[1000px] bg-white shadow-2xl"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                >
+                  {/* Renderizado de Items */}
+                  {visualItems.map((item) => {
+                    const isVertical = item.height > item.width
+                    return (
+                      <div
+                        key={item.id}
+                        onMouseDown={(e) => startMovingItem(e, item.id)}
+                        className={`absolute group hover:z-50 transition-shadow ${
+                          dragItem?.id === item.id
+                            ? 'cursor-grabbing z-50 ring-4 ring-yellow-400'
+                            : 'cursor-grab z-10 hover:ring-2 hover:ring-black/20'
+                        }`}
+                        style={{
+                          left: item.x,
+                          top: item.y,
+                          width: item.width,
+                          height: item.height,
+                          backgroundColor:
+                            item.type === 'STAGE' ? '#000000' : item.color,
+                          boxShadow:
+                            '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                        }}
+                      >
+                        <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden">
+                          {item.type === 'STAGE' ? (
+                            <>
+                              <div className="absolute top-0 w-1/3 h-2 bg-gray-800"></div>
+                              <h3 className="text-white font-black text-2xl tracking-[0.2em] z-10 text-center leading-none">
+                                ESCENARIO
+                              </h3>
+                              <div className="w-full h-1 bg-gray-800 mt-2"></div>
+                            </>
+                          ) : (
+                            <>
+                              <div
+                                className="flex flex-col items-center justify-center"
+                                style={{
+                                  transform: isVertical
+                                    ? 'rotate(-90deg)'
+                                    : 'none',
+                                  width: isVertical ? item.height - 10 : '100%',
+                                  maxWidth: isVertical
+                                    ? item.height
+                                    : item.width
+                                }}
+                              >
+                                <h3
+                                  className={`text-white font-black tracking-wide text-center uppercase drop-shadow-md leading-none select-none break-words ${
+                                    isVertical
+                                      ? 'text-lg'
+                                      : 'text-2xl md:text-3xl'
+                                  }`}
+                                >
+                                  {item.name}
+                                </h3>
+                              </div>
+                              <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none">
+                                <div className="bg-black/20 px-2 py-0.5 rounded text-white text-[10px] font-mono font-bold tracking-widest backdrop-blur-sm">
+                                  CAP: {item.capacity}
+                                </div>
+                              </div>
+                            </>
+                          )}
+
+                          {/* Botón Borrar */}
+                          <button
+                            onClick={(e) => deleteItem(e, item.id)}
+                            className="absolute top-1 right-1 bg-black text-white hover:bg-red-600 rounded p-1 opacity-0 group-hover:opacity-100 transition-all z-30"
+                          >
+                            <X size={12} />
+                          </button>
+
+                          {/* Manija de Resize */}
+                          <div
+                            onMouseDown={(e) =>
+                              startResizingItem(e, item.id, 'se')
+                            }
+                            className="absolute w-4 h-4 bg-white border-2 border-black rounded-full z-20 hover:scale-125 cursor-se-resize shadow-md"
+                            style={{ bottom: -6, right: -6 }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-              )
-            })}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

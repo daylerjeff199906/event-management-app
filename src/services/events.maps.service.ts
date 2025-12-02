@@ -9,7 +9,7 @@ export async function fetchEventMapZonesByEventId(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_map_zones')
+            .from('event_maps')
             .select('*')
             .eq('event_id', eventId)
 
@@ -29,7 +29,7 @@ export async function fetchEventMapZoneById(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_map_zones')
+            .from('event_maps')
             .select('*')
             .eq('id', zoneId)
             .single()
@@ -50,7 +50,7 @@ export async function createEventMapZone(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_map_zones')
+            .from('event_maps')
             .insert([zone])
             .select('*')
             .single()
@@ -74,7 +74,7 @@ export async function updateEventMapZone(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_map_zones')
+            .from('event_maps')
             .update(patch)
             .eq('id', zoneId)
             .select('*')
@@ -117,7 +117,7 @@ export async function deleteEventMapZone(
     try {
         const client = await getSupabase()
         const result = await client
-            .from('events_map_zones')
+            .from('event_maps')
             .delete()
             .eq('id', zoneId)
             .select('*')
