@@ -1,7 +1,6 @@
 'use server'
 import { getSupabase } from './core.supabase'
-import { Address } from '@/types'
-import { addressSchemaForm } from '@/modules/events/schemas'
+import { addressSchemaForm, Address } from '@/modules/events/schemas'
 
 export async function createAddress(
   address: Address
@@ -116,7 +115,7 @@ export async function upsertAddress({
           .from('events')
           .update({
             address_uuid: result.data.id,
-            location: address.address_line1
+            location: address.street
           })
           .eq('id', eventId)
         if (eventError) throw eventError

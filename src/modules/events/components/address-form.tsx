@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Address, EventFormData, addressSchemaForm } from '../schemas' // Asegúrate de importar tus schemas
+import { Address, EventFormData, addressSchemaForm } from '../schemas'
 import { Input } from '@/components/ui/input'
 import {
   Card,
@@ -44,35 +44,31 @@ export function AddressForm({
   isLoading: parentLoading = false,
   form
 }: AddressFormProps) {
-  // Estado local para controlar si se muestra el formulario
   const [showLocationDetails, setShowLocationDetails] = useState<boolean>(false)
-
-  // Estado de carga local para operaciones de guardado/borrado de dirección
   const [isSaving, setIsSaving] = useState(false)
 
-  // Estado del formulario de dirección
+  // 1. ESTADO ACTUALIZADO CON NUEVOS NOMBRES
   const [addressData, setAddressData] = useState<Partial<Address>>({
     country: 'Perú',
-    state: '', // Departamento
-    city: '', // Provincia
-    address_line1: '', // Dirección exacta
-    address_line2: '', // Distrito (o referencia)
+    department: '', // Antes: state
+    province: '', // Antes: city
+    street: '', // Antes: address_line1
+    district: '', // Antes: address_line2
     postal_code: '',
+    reference: '', // Antes: instructions
     ...defaultValues
   })
 
-  // Estados para selectores en cascada
   const [selectedDept, setSelectedDept] = useState<string>('')
   const [selectedProv, setSelectedProv] = useState<string>('')
   const [selectedDist, setSelectedDist] = useState<string>('')
 
-  // CORRECCIÓN PRINCIPAL AQUÍ
+  // 2. EFECTO ACTUALIZADO PARA MAPEAR LOS NUEVOS CAMPOS
   useEffect(() => {
-    // Intentar obtener ID del form o de los valores por defecto
     const addressId = form.getValues('address_id') || defaultValues?.id
 
-    // Si no hay ID, pero hay valores por defecto (ej: modo edición sin guardar aún), intentamos poblar
-    const hasDefaultData = defaultValues?.state && defaultValues?.city
+    // Verificar si hay datos por defecto usando los nuevos nombres
+    const hasDefaultData = defaultValues?.department && defaultValues?.province
 
     if (!addressId && !hasDefaultData) return
 
@@ -83,7 +79,6 @@ export function AddressForm({
       try {
         let data = defaultValues || {}
 
-        // Solo hacemos fetch si hay un ID real
         if (addressId) {
           setIsSaving(true)
           const res = await getAddressById(addressId)
@@ -92,10 +87,9 @@ export function AddressForm({
 
         if (!mounted) return
 
-        // 1. Setear data textual en los inputs
         setAddressData(data)
 
-        // 2. Helper de búsqueda insensible a mayúsculas/espacios
+        // Helper de búsqueda
         const findIdByName = (
           list: { id: string; name: string }[],
           nameToFind: string | null | undefined
@@ -108,31 +102,30 @@ export function AddressForm({
           return item ? item.id : ''
         }
 
-        // 3. Reconstruir la cascada (Departamento -> Provincia -> Distrito)
+        // --- RECONSTRUIR CASCADA CON NUEVOS CAMPOS ---
 
-        // A. Buscar ID Departamento
-        const deptId = findIdByName(PERU_LOCATIONS.departments, data.state)
+        // A. Departamento (data.department)
+        const deptId = findIdByName(PERU_LOCATIONS.departments, data.department)
         setSelectedDept(deptId)
 
-        // B. Buscar ID Provincia (Solo si encontramos departamento)
+        // B. Provincia (data.province)
         let provId = ''
         if (deptId) {
           const provList =
             PERU_LOCATIONS.provinces[
               deptId as keyof typeof PERU_LOCATIONS.provinces
             ] || []
-          provId = findIdByName(provList, data.city)
+          provId = findIdByName(provList, data.province)
           setSelectedProv(provId)
         }
 
-        // C. Buscar ID Distrito (Solo si encontramos provincia)
-        // Nota: Usamos address_line2 como distrito según tu lógica
+        // C. Distrito (data.district)
         if (provId) {
           const distList =
             PERU_LOCATIONS.districts[
               provId as keyof typeof PERU_LOCATIONS.districts
             ] || []
-          const distId = findIdByName(distList, data.address_line2)
+          const distId = findIdByName(distList, data.district)
           setSelectedDist(distId)
         }
       } catch (err) {
@@ -148,26 +141,25 @@ export function AddressForm({
     return () => {
       mounted = false
     }
-  }, [form, defaultValues]) // Dependencias
+  }, [form, defaultValues, ])
 
-  // Helper para cambios en inputs de texto
   const handleInputChange = (field: keyof Address, value: string) => {
     setAddressData((prev) => ({ ...prev, [field]: value }))
   }
 
-  // --- LÓGICA DE CASCADA ---
+  // --- HANDLERS ACTUALIZADOS ---
 
   const handleDeptChange = (deptId: string) => {
     const deptName =
       PERU_LOCATIONS.departments.find((d) => d.id === deptId)?.name || ''
     setSelectedDept(deptId)
-    setSelectedProv('') // Reset provincia
-    setSelectedDist('') // Reset distrito
+    setSelectedProv('')
+    setSelectedDist('')
     setAddressData((prev) => ({
       ...prev,
-      state: deptName,
-      city: '',
-      address_line2: '' // Usamos address_line2 para guardar el distrito por ahora o referencia
+      department: deptName, // Guardamos como department
+      province: '',
+      district: ''
     }))
   }
 
@@ -177,13 +169,12 @@ export function AddressForm({
         selectedDept as keyof typeof PERU_LOCATIONS.provinces
       ] || []
     const provName = provList.find((p) => p.id === provId)?.name || ''
-
     setSelectedProv(provId)
     setSelectedDist('')
     setAddressData((prev) => ({
       ...prev,
-      city: provName,
-      address_line2: ''
+      province: provName, // Guardamos como province
+      district: ''
     }))
   }
 
@@ -193,64 +184,56 @@ export function AddressForm({
         selectedProv as keyof typeof PERU_LOCATIONS.districts
       ] || []
     const distName = distList.find((d) => d.id === distId)?.name || ''
-
     setSelectedDist(distId)
-    // Guardamos el distrito en address_line2 o concatenado si prefieres.
-    // Para este ejemplo, lo pondré en address_line2 para no perder el dato.
-    setAddressData((prev) => ({ ...prev, address_line2: distName }))
+    setAddressData((prev) => ({ ...prev, district: distName })) // Guardamos como district
   }
 
-  // --- LÓGICA DE GUARDADO Y VINCULACIÓN ---
+  // --- GUARDADO ---
   const handleSaveAddress = async () => {
     try {
       setIsSaving(true)
 
-      // 1. Validación simple
+      // Validación con nuevos campos
       if (
-        !addressData.address_line1 ||
-        !addressData.city ||
-        !addressData.state
+        !addressData.street ||
+        !addressData.province ||
+        !addressData.department
       ) {
         toast.error('Por favor completa: Dirección, Departamento y Provincia')
         return
       }
 
-      // 2. Preparar payload y Guardar Dirección (Upsert)
       const payload = addressSchemaForm.parse({
         ...addressData,
         country: 'Perú'
       })
+
       const savedAddress = await upsertAddress({
         address: payload,
         id: form.getValues('address_id') || null
       })
 
-      if (!savedAddress.data?.id)
-        throw new Error('Error al obtener ID de la dirección')
+      // Verificación segura del retorno
+      const finalData = savedAddress.data
+      if (!finalData?.id) throw new Error('Error al obtener ID de la dirección')
 
-      const newAddressId = savedAddress.data.id
+      const newAddressId = finalData.id
 
-      // 3. Actualizar estado del formulario local
       form.setValue('address_id', newAddressId, {
         shouldValidate: true,
         shouldDirty: true
       })
-      setAddressData(savedAddress.data)
+      setAddressData(finalData)
 
-      // 4. 🔥 LÓGICA AGREGADA: Actualizar Evento si ya existe 🔥
-      const eventId = form.getValues('id') // Obtenemos el ID del evento del formulario
-
+      const eventId = form.getValues('id')
       if (eventId) {
-        // Si hay un ID de evento, actualizamos la tabla 'events' directamente
         const updateResponse = await updateEvent(eventId, {
           address_id: newAddressId,
-          custom_location: null // Limpiamos custom location si existía
+          custom_location: null
         })
-
         if (updateResponse.error) throw updateResponse.error
         toast.success('Dirección guardada y evento actualizado correctamente')
       } else {
-        // Si es un evento nuevo (sin ID), solo avisamos que la dirección se guardó en memoria/form
         toast.success('Dirección guardada. Finaliza creando el evento.')
       }
     } catch (error) {
@@ -261,43 +244,36 @@ export function AddressForm({
     }
   }
 
-  // --- LÓGICA DE ELIMINACIÓN Y DESVINCULACIÓN ---
   const handleRemoveAddress = async () => {
     try {
       setIsSaving(true)
       const currentAddressId = form.getValues('address_id')
       const eventId = form.getValues('id')
 
-      // 1. Desvincular en el formulario (UI)
       form.setValue('address_id', null, {
         shouldValidate: true,
         shouldDirty: true
       })
 
-      // 2. 🔥 LÓGICA AGREGADA: Actualizar Evento en BD si existe 🔥
       if (eventId) {
-        // Desvinculamos en la base de datos inmediatamente
-        await updateEvent(eventId, {
-          address_id: null
-        })
+        await updateEvent(eventId, { address_id: null })
         toast.info('Dirección desvinculada del evento')
       }
 
-      // 3. Opcional: Eliminar la dirección física de la tabla addresses
-      // (Depende de tu lógica de negocio si quieres "Hard Delete" o solo desvincular)
       if (currentAddressId) {
         await deleteAddress(currentAddressId)
       }
 
-      // 4. Resetear UI
       setShowLocationDetails(false)
+      // Reset con nuevos campos
       setAddressData({
         country: 'Perú',
-        state: '',
-        city: '',
-        address_line1: '',
-        address_line2: '',
-        postal_code: ''
+        department: '',
+        province: '',
+        street: '',
+        district: '',
+        postal_code: '',
+        reference: ''
       })
       setSelectedDept('')
       setSelectedProv('')
@@ -312,7 +288,6 @@ export function AddressForm({
 
   return (
     <div className={cn('w-full transition-all', className)}>
-      {/* Botón para activar el formulario si está oculto */}
       {!showLocationDetails && (
         <Button
           type="button"
@@ -325,7 +300,6 @@ export function AddressForm({
         </Button>
       )}
 
-      {/* Formulario de Dirección */}
       {showLocationDetails && (
         <Card className="border shadow-none animate-in fade-in slide-in-from-top-2">
           <CardHeader className="pb-3">
@@ -441,7 +415,7 @@ export function AddressForm({
               </div>
             </div>
 
-            {/* Fila 3: Dirección Exacta */}
+            {/* Fila 3: Dirección Exacta (STREET) */}
             <div className="space-y-2">
               <Label>
                 Dirección (Calle, Av., Nro){' '}
@@ -449,9 +423,9 @@ export function AddressForm({
               </Label>
               <Input
                 placeholder="Ej. Av. Abelardo Quiñones Km 2.5"
-                value={addressData.address_line1 || ''}
-                onChange={(e) =>
-                  handleInputChange('address_line1', e.target.value)
+                value={addressData.street || ''} // Actualizado
+                onChange={
+                  (e) => handleInputChange('street', e.target.value) // Actualizado
                 }
                 disabled={isSaving}
               />
@@ -463,9 +437,9 @@ export function AddressForm({
                 <Label>Referencia (Opcional)</Label>
                 <Input
                   placeholder="Ej. Frente al gobierno regional..."
-                  value={addressData.instructions || ''}
-                  onChange={(e) =>
-                    handleInputChange('instructions', e.target.value)
+                  value={addressData.reference || ''} // Actualizado (reference)
+                  onChange={
+                    (e) => handleInputChange('reference', e.target.value) // Actualizado
                   }
                   disabled={isSaving}
                 />
@@ -483,7 +457,6 @@ export function AddressForm({
               </div>
             </div>
 
-            {/* Botón de Guardar independiente */}
             <div className="pt-2 flex justify-end">
               <Button
                 type="button"
@@ -492,7 +465,7 @@ export function AddressForm({
                   isSaving ||
                   !selectedDept ||
                   !selectedProv ||
-                  !addressData.address_line1
+                  !addressData.street // Actualizado
                 }
                 className="bg-primary hover:bg-primary/90 text-white min-w-[140px]"
               >
