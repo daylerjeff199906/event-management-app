@@ -11,7 +11,8 @@ import {
   Loader2,
   Edit3,
   Ticket,
-  X
+  X,
+  Pencil
 } from 'lucide-react'
 import { EventTicketform, EventMapZone } from '@/modules/events/schemas'
 import {
@@ -28,8 +29,19 @@ import {
 } from '@/services/events.maps.service' // Usando tus servicios
 import {
   createEventTicket,
-  deleteEventTicket
+  deleteEventTicket,
+  updateEventTicket
 } from '@/services/events.ticket.service' // Usando tus servicios
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 
 interface EventMapDesignerProps {
   eventId: string
@@ -54,12 +66,17 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   const [isDesignerOpen, setIsDesignerOpen] = useState(false) // Estado del Modal
 
+  // Estado del Formulario
   const [newTicket, setNewTicket] = useState({
     name: '',
     price: '',
     totalCapacity: '',
-    description: '' // Agregado para la tabla
+    description: ''
   })
+  const [editingId, setEditingId] = useState<string | null>(null) // ID del ticket en edición
+
+  // Estado para AlertDialog de eliminación
+  const [ticketToDelete, setTicketToDelete] = useState<string | null>(null)
 
   // Estados del Canvas (Drag & Drop / Resize)
   const [dragItem, setDragItem] = useState<{
@@ -115,14 +132,14 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   const visualItems = getVisualItems()
 
-  // --- Handlers: Gestión de Tickets ---
+  // --- Handlers: Gestión de Tickets (Crear / Editar / Eliminar) ---
 
-  const handleCreateTicketType = async (e: React.FormEvent) => {
+  const handleSaveTicketType = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTicket.name || !newTicket.price || !newTicket.totalCapacity) return
 
     startTransition(async () => {
-      const payload: EventTicketform = {
+      const payload: Partial<EventTicketform> = {
         event_id: eventId,
         name: newTicket.name.toUpperCase(),
         price: parseFloat(newTicket.price),
@@ -131,33 +148,80 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         description:
           newTicket.description || `${newTicket.totalCapacity} personas`,
         is_active: true
-      } as EventTicketform
-
-      const { data, error } = await createEventTicket(payload)
-
-      if (error || !data) {
-        alert('Error creando ticket: ' + error)
-        return
       }
 
-      setTickets((prev) => [...prev, data])
-      setNewTicket({ name: '', price: '', totalCapacity: '', description: '' })
+      if (editingId) {
+        // --- MODO EDICIÓN ---
+        const { data, error } = await updateEventTicket(editingId, payload)
+        if (error || !data) {
+          alert('Error actualizando ticket: ' + error)
+          return
+        }
+
+        // Actualizar lista de tickets
+        setTickets((prev) => prev.map((t) => (t.id === editingId ? data : t)))
+
+        // Actualizar visualmente las zonas en el canvas si cambió el nombre
+        setCanvasItems((prev) =>
+          prev.map((item) => {
+            if (item.ticketId === editingId) {
+              return { ...item, name: data.name }
+            }
+            return item
+          })
+        )
+
+        cancelEditing()
+      } else {
+        // --- MODO CREACIÓN ---
+        const { data, error } = await createEventTicket(
+          payload as EventTicketform
+        )
+        if (error || !data) {
+          alert('Error creando ticket: ' + error)
+          return
+        }
+        setTickets((prev) => [...prev, data])
+        setNewTicket({
+          name: '',
+          price: '',
+          totalCapacity: '',
+          description: ''
+        })
+      }
     })
   }
 
-  const handleDeleteTicketType = async (ticketId: string) => {
-    if (!confirm('¿Eliminar este ticket y todas sus zonas del mapa?')) return
+  const startEditing = (ticket: EventTicketform) => {
+    setEditingId(ticket.id!)
+    setNewTicket({
+      name: ticket.name,
+      price: ticket.price.toString(),
+      totalCapacity: ticket.quantity_total.toString(),
+      description: ticket.description || ''
+    })
+  }
+
+  const cancelEditing = () => {
+    setEditingId(null)
+    setNewTicket({ name: '', price: '', totalCapacity: '', description: '' })
+  }
+
+  // Confirmación de eliminación (Triggered by Dialog)
+  const handleConfirmDelete = async () => {
+    if (!ticketToDelete) return
 
     startTransition(async () => {
-      const { error } = await deleteEventTicket(ticketId)
+      const { error } = await deleteEventTicket(ticketToDelete)
       if (error) {
         alert('Error al eliminar: ' + error)
         return
       }
-      setTickets((prev) => prev.filter((t) => t.id !== ticketId))
+      setTickets((prev) => prev.filter((t) => t.id !== ticketToDelete))
       setCanvasItems((prev) =>
-        prev.filter((item) => item.ticketId !== ticketId)
+        prev.filter((item) => item.ticketId !== ticketToDelete)
       )
+      setTicketToDelete(null)
     })
   }
 
@@ -376,6 +440,36 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   return (
     <div className="w-full bg-white font-sans text-gray-800">
+      {/* Alert Dialog para eliminar tickets */}
+      <AlertDialog
+        open={!!ticketToDelete}
+        onOpenChange={(open) => !open && setTicketToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Esto eliminará permanentemente
+              el ticket y todas las zonas del mapa que estén asociadas a este
+              tipo de entrada.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isPending ? (
+                <Loader2 className="animate-spin w-4 h-4" />
+              ) : (
+                'Sí, eliminar'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* --- VISTA PRINCIPAL: GESTIÓN DE TICKETS (TABLA) --- */}
       <div className="max-w-5xl mx-auto p-6 space-y-8">
         <div className="flex justify-between items-end border-b pb-4">
@@ -389,20 +483,29 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           </div>
           <button
             onClick={() => setIsDesignerOpen(true)}
-            className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg hover:translate-y-[-2px]"
+            className="bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg hover:translate-y-0.5"
           >
             <Edit3 size={18} />
             DISEÑAR ESCENARIO / MAPA
           </button>
         </div>
 
-        {/* Formulario Creación Rápida */}
-        <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-          <h3 className="font-bold text-sm uppercase text-gray-500 mb-4 flex items-center gap-2">
-            <Ticket size={16} /> Crear Nueva Zona / Ticket
+        {/* Formulario Creación / Edición */}
+        <div
+          className={`p-6 rounded-xl border border-gray-200 transition-colors ${
+            editingId ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50'
+          }`}
+        >
+          <h3
+            className={`font-bold text-sm uppercase mb-4 flex items-center gap-2 ${
+              editingId ? 'text-indigo-600' : 'text-gray-500'
+            }`}
+          >
+            <Ticket size={16} />
+            {editingId ? 'Editar Zona / Ticket' : 'Crear Nueva Zona / Ticket'}
           </h3>
           <form
-            onSubmit={handleCreateTicketType}
+            onSubmit={handleSaveTicketType}
             className="flex gap-4 items-end flex-wrap"
           >
             <div className="flex-1 min-w-[200px]">
@@ -459,16 +562,36 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                 }
               />
             </div>
-            <button
-              disabled={isPending}
-              className="bg-black text-white p-2.5 rounded hover:bg-gray-800 disabled:opacity-50"
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin" size={20} />
-              ) : (
-                <Plus size={20} />
+
+            <div className="flex gap-2">
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={cancelEditing}
+                  className="bg-white border border-gray-300 text-gray-700 p-2.5 rounded hover:bg-gray-100 font-bold text-xs uppercase"
+                >
+                  Cancelar
+                </button>
               )}
-            </button>
+              <button
+                disabled={isPending}
+                className={`text-white p-2.5 rounded disabled:opacity-50 flex items-center gap-2 font-bold text-xs uppercase px-4 ${
+                  editingId
+                    ? 'bg-indigo-600 hover:bg-indigo-700'
+                    : 'bg-black hover:bg-gray-800'
+                }`}
+              >
+                {isPending ? (
+                  <Loader2 className="animate-spin" size={20} />
+                ) : editingId ? (
+                  'Actualizar'
+                ) : (
+                  <>
+                    <Plus size={20} /> Agregar
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
 
@@ -482,7 +605,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
               {/* Columna Info */}
               <div className="flex-1 p-4 flex items-center gap-4">
                 <div
-                  className="w-4 h-4 rounded-full flex-shrink-0"
+                  className="w-4 h-4 rounded-full shrink-0"
                   style={{
                     backgroundColor: PRESET_COLORS[idx % PRESET_COLORS.length]
                   }}
@@ -511,21 +634,23 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
               </div>
 
               {/* Columna Opciones (Gris) */}
-              <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center text-gray-400 border-l border-gray-200 relative group-hover:bg-red-50 transition-colors py-2 md:py-0">
-                {/* Mostramos precio regular falso como placeholder visual similar a la imagen */}
-                <span className="line-through font-semibold text-sm">
-                  S/{' '}
-                  {(t.price * 1.2).toLocaleString('es-PE', {
-                    minimumFractionDigits: 2
-                  })}
-                </span>
-
-                {/* Botón Borrar Flotante */}
+              <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center text-gray-400 border-l border-gray-200 relative py-2 md:py-0 gap-2">
+                {/* Botón Editar */}
                 <button
-                  onClick={() => handleDeleteTicketType(t.id!)}
-                  className="absolute inset-0 w-full h-full flex items-center justify-center bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity font-bold uppercase tracking-widest text-xs"
+                  onClick={() => startEditing(t)}
+                  className="p-2 bg-white rounded-full border border-gray-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"
+                  title="Editar Ticket"
                 >
-                  <Trash2 size={16} className="mr-2" /> Eliminar
+                  <Pencil size={16} />
+                </button>
+
+                {/* Botón Eliminar */}
+                <button
+                  onClick={() => setTicketToDelete(t.id!)}
+                  className="p-2 bg-white rounded-full border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all shadow-sm"
+                  title="Eliminar Ticket"
+                >
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
@@ -694,7 +819,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                                 }}
                               >
                                 <h3
-                                  className={`text-white font-black tracking-wide text-center uppercase drop-shadow-md leading-none select-none break-words ${
+                                  className={`text-white font-black tracking-wide text-center uppercase drop-shadow-md leading-none select-none wrap-break-words ${
                                     isVertical
                                       ? 'text-lg'
                                       : 'text-2xl md:text-3xl'
