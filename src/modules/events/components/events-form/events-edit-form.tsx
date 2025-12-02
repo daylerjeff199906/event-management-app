@@ -845,7 +845,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Botones de acción */}
-          <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t ">
+          <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t bg-primary-foreground/50 backdrop-blur-md">
             {/* Contenedor principal con limitador de ancho para pantallas grandes */}
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between">
