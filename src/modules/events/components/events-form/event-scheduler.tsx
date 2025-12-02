@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/hover-card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ActivityForm } from '../activity-form'
+import { ActivityForm } from './activity-form'
 
 import {
   createEventActivity,

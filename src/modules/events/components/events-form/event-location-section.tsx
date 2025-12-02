@@ -13,6 +13,7 @@ import { LocationSelector } from '../location-selector'
 import { MeetingUrlInput } from '../meeting-url-input'
 import { FormField } from '@/components/ui/form'
 import { useEffect } from 'react'
+import { AddressForm } from '../address-form'
 
 interface EventLocationSectionProps {
   form: UseFormReturn<EventFormData>
@@ -64,6 +65,11 @@ export const EventLocationSection = ({ form }: EventLocationSectionProps) => {
         {/* Meeting URL (solo para VIRTUAL e HÍBRIDO) */}
         {(eventMode === 'VIRTUAL' || eventMode === 'HIBRIDO') && (
           <MeetingUrlInput form={form} />
+        )}
+
+        {/*Add location details if needed*/}
+        {(eventMode === 'PRESENCIAL' || eventMode === 'HIBRIDO') && (
+          <AddressForm />
         )}
       </CardContent>
     </Card>
