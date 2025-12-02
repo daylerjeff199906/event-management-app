@@ -21,7 +21,11 @@ import {
 import { Label } from '@/components/ui/label'
 import { Loader2, MapPin, Trash2, Save } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
-import { upsertAddress, deleteAddress } from '@/services/address.services'
+import {
+  upsertAddress,
+  deleteAddress,
+  getAddressById
+} from '@/services/address.services'
 import { updateEvent } from '@/services/events.services'
 import { toast } from 'react-toastify'
 import { cn } from '@/lib/utils'
@@ -62,22 +66,89 @@ export function AddressForm({
   const [selectedProv, setSelectedProv] = useState<string>('')
   const [selectedDist, setSelectedDist] = useState<string>('')
 
-  // Efecto: Si ya existe un ID de dirección en el formulario padre o defaultValues, mostrar el form
+  // CORRECCIÓN PRINCIPAL AQUÍ
   useEffect(() => {
-    const currentAddressId = form.getValues('address_id')
-    if (
-      currentAddressId ||
-      (defaultValues && Object.keys(defaultValues).length > 0)
-    ) {
-      setShowLocationDetails(true)
-      // Aquí podrías lógica para pre-llenar los selectores si defaultValues trae la data
-      if (defaultValues?.state)
-        setSelectedDept(
-          findIdByName(PERU_LOCATIONS.departments, defaultValues.state)
-        )
-      // Nota: Para pre-seleccionar provincia/distrito necesitarías lógica inversa (buscar ID por nombre)
+    // Intentar obtener ID del form o de los valores por defecto
+    const addressId = form.getValues('address_id') || defaultValues?.id
+
+    // Si no hay ID, pero hay valores por defecto (ej: modo edición sin guardar aún), intentamos poblar
+    const hasDefaultData = defaultValues?.state && defaultValues?.city
+
+    if (!addressId && !hasDefaultData) return
+
+    setShowLocationDetails(true)
+
+    let mounted = true
+    const fetchAndSetData = async () => {
+      try {
+        let data = defaultValues || {}
+
+        // Solo hacemos fetch si hay un ID real
+        if (addressId) {
+          setIsSaving(true)
+          const res = await getAddressById(addressId)
+          if (res?.data) data = res.data
+        }
+
+        if (!mounted) return
+
+        // 1. Setear data textual en los inputs
+        setAddressData(data)
+
+        // 2. Helper de búsqueda insensible a mayúsculas/espacios
+        const findIdByName = (
+          list: { id: string; name: string }[],
+          nameToFind: string | null | undefined
+        ) => {
+          if (!nameToFind) return ''
+          const normalizedName = nameToFind.trim().toLowerCase()
+          const item = list.find(
+            (i) => i.name.trim().toLowerCase() === normalizedName
+          )
+          return item ? item.id : ''
+        }
+
+        // 3. Reconstruir la cascada (Departamento -> Provincia -> Distrito)
+
+        // A. Buscar ID Departamento
+        const deptId = findIdByName(PERU_LOCATIONS.departments, data.state)
+        setSelectedDept(deptId)
+
+        // B. Buscar ID Provincia (Solo si encontramos departamento)
+        let provId = ''
+        if (deptId) {
+          const provList =
+            PERU_LOCATIONS.provinces[
+              deptId as keyof typeof PERU_LOCATIONS.provinces
+            ] || []
+          provId = findIdByName(provList, data.city)
+          setSelectedProv(provId)
+        }
+
+        // C. Buscar ID Distrito (Solo si encontramos provincia)
+        // Nota: Usamos address_line2 como distrito según tu lógica
+        if (provId) {
+          const distList =
+            PERU_LOCATIONS.districts[
+              provId as keyof typeof PERU_LOCATIONS.districts
+            ] || []
+          const distId = findIdByName(distList, data.address_line2)
+          setSelectedDist(distId)
+        }
+      } catch (err) {
+        console.error(err)
+        toast.error('Error al cargar los detalles de la dirección')
+      } finally {
+        if (mounted) setIsSaving(false)
+      }
     }
-  }, [defaultValues, form])
+
+    fetchAndSetData()
+
+    return () => {
+      mounted = false
+    }
+  }, [form, defaultValues]) // Dependencias
 
   // Helper para cambios en inputs de texto
   const handleInputChange = (field: keyof Address, value: string) => {
@@ -129,7 +200,6 @@ export function AddressForm({
     setAddressData((prev) => ({ ...prev, address_line2: distName }))
   }
 
-  // --- ACCIONES ---
   // --- LÓGICA DE GUARDADO Y VINCULACIÓN ---
   const handleSaveAddress = async () => {
     try {
@@ -238,11 +308,6 @@ export function AddressForm({
     } finally {
       setIsSaving(false)
     }
-  }
-
-  // Helper para buscar ID por nombre (utilitario simple)
-  const findIdByName = (list: { id: string; name: string }[], name: string) => {
-    return list.find((item) => item.name === name)?.id || ''
   }
 
   return (
