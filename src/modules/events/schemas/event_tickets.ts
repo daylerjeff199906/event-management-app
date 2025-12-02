@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 export const eventTicketSchema = z.object({
-    id: z.string().uuid(),
-    event_id: z.string().uuid(),
+    id: z.string().optional(),
+    event_id: z.string(),
     name: z.string().min(1),
     description: z.string().nullable().optional(),
     price: z.preprocess(
@@ -20,4 +20,4 @@ export const eventTicketSchema = z.object({
     updated_at: z.date().optional(),
 })
 
-export type EventTicket = z.infer<typeof eventTicketSchema>
+export type EventTicketform = z.infer<typeof eventTicketSchema>
