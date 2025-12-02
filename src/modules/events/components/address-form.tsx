@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react' // Agregar useEffect
+import { useState, useMemo } from 'react' // Agregar useEffect
 import { Address, EventFormData, addressSchemaForm } from '../schemas'
 import { Input } from '@/components/ui/input'
 import {
@@ -71,66 +71,42 @@ export function AddressForm({
 
   const [addressData, setAddressData] = useState<Partial<Address>>({
     country: 'Perú',
-    department: '',
-    province: '',
-    street: '',
-    district: '',
-    postal_code: '',
-    reference: '',
+    department: defaultValues?.department || '',
+    province: defaultValues?.province || '',
+    street: defaultValues?.street || '',
+    district: defaultValues?.district || '',
+    postal_code: defaultValues?.postal_code || '',
+    reference: defaultValues?.reference || '',
     ...defaultValues
   })
 
   // IDs para controlar la UI de los Selects
-  const [selectedDept, setSelectedDept] = useState<string>('')
-  const [selectedProv, setSelectedProv] = useState<string>('')
-  const [selectedDist, setSelectedDist] = useState<string>('')
-
-  // Efecto para sincronizar defaultValues
-  useEffect(() => {
-    if (defaultValues) {
-      setAddressData((prev) => ({
-        ...prev,
-        ...defaultValues
-      }))
-
-      setShowLocationDetails(true)
-
-      // Buscar IDs basados en los nombres normalizados
-      if (defaultValues.department) {
-        const deptId = findUbigeoIdByName(
+  const [selectedDept, setSelectedDept] = useState<string>(
+    defaultValues?.department
+      ? findUbigeoIdByName(
           normalizeName(defaultValues.department),
           PERU_LOCATIONS.departments
         )
-        if (deptId) {
-          setSelectedDept(deptId)
-
-          // Buscar provincia si existe
-          if (defaultValues.province) {
-            const provinces = ubigeoUtils.getProvincesByDepartment(deptId)
-            const provId = findUbigeoIdByName(
-              normalizeName(defaultValues.province),
-              provinces
-            )
-            if (provId) {
-              setSelectedProv(provId)
-
-              // Buscar distrito si existe
-              if (defaultValues.district) {
-                const districts = ubigeoUtils.getDistrictsByProvince(provId)
-                const distId = findUbigeoIdByName(
-                  normalizeName(defaultValues.district),
-                  districts
-                )
-                if (distId) {
-                  setSelectedDist(distId)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }, [defaultValues])
+      : ''
+  )
+  const [selectedProv, setSelectedProv] = useState<string>(
+    defaultValues?.province
+      ? findUbigeoIdByName(
+          normalizeName(defaultValues.province),
+          PERU_LOCATIONS.provinces
+        )
+      : ''
+  )
+  console.log('selectedProv:', selectedProv)
+  const [selectedDist, setSelectedDist] = useState<string>(
+    defaultValues?.district
+      ? findUbigeoIdByName(
+          normalizeName(defaultValues.district),
+          PERU_LOCATIONS.districts
+        )
+      : ''
+  )
+  console.log('selectedDist:', selectedDist)
 
   // Listas calculadas
   const availableProvinces = useMemo(() => {
@@ -361,7 +337,7 @@ export function AddressForm({
                   Provincia <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={selectedProv}
+                  value={selectedProv.toString()}
                   onValueChange={handleProvChange}
                   disabled={!selectedDept || isSaving}
                 >
@@ -389,7 +365,7 @@ export function AddressForm({
               <div className="space-y-2">
                 <Label>Distrito</Label>
                 <Select
-                  value={selectedDist}
+                  value={selectedDist.toString()}
                   onValueChange={handleDistChange}
                   disabled={!selectedProv || isSaving}
                 >
@@ -406,7 +382,7 @@ export function AddressForm({
                   </SelectTrigger>
                   <SelectContent>
                     {availableDistricts.map((dist) => (
-                      <SelectItem key={dist.id} value={dist.id}>
+                      <SelectItem key={dist.id} value={dist.id.toString()}>
                         {dist.name}
                       </SelectItem>
                     ))}
