@@ -277,7 +277,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
                   Precio
                 </span>
               </div>
-              <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center gap-2 py-2 md:py-0 border-l border-gray-200">
+              <div className="w-full md:w-40 bg-gray-50 flex items-center justify-center gap-2 py-2 md:py-0 border-l border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                 <Button
                   onClick={() => startEditing(t)}
                   size="icon"
