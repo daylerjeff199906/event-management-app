@@ -81,16 +81,16 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
     <>
       <div className="inline-flex -space-x-px rounded-md shadow-sm">
         <Button
-          onClick={handleCreateBlank}
+          onClick={setIsCustomOpen.bind(null, true)}
           disabled={isPending}
           className="rounded-r-none focus:z-10"
         >
           {isPending ? (
             <Loader2 className="animate-spin mr-2 h-4 w-4" />
           ) : (
-            <Plus size={16} className="mr-2" />
+            <Settings2 className="mr-2 h-4 w-4" />
           )}
-          NUEVO MAPA (BLANCO)
+            Configuración Rápida
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -101,15 +101,12 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
           <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel>Método de Creación</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleCreateBlank}
-              className="flex items-start"
-            >
-              <FilePlus className="mr-2 h-4 w-4 text-gray-500 mt-2 dark:text-gray-400" />{' '}
+            <DropdownMenuItem onClick={() => setIsCustomOpen(true)}>
+              <Settings2 className="mr-2 h-4 w-4 text-blue-500" />{' '}
               <div>
-                <p>Mapa en Blanco</p>
+                <p>Configuración Personalizada</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Crea un mapa desde cero sin plantilla.
+                  Define dimensiones y opciones avanzadas.
                 </p>
               </div>
             </DropdownMenuItem>
@@ -122,12 +119,15 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
                 </p>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setIsCustomOpen(true)}>
-              <Settings2 className="mr-2 h-4 w-4 text-blue-500" />{' '}
+            <DropdownMenuItem
+              onClick={handleCreateBlank}
+              className="flex items-start"
+            >
+              <FilePlus className="mr-2 h-4 w-4 text-gray-500 mt-2 dark:text-gray-400" />{' '}
               <div>
-                <p>Configuración Personalizada</p>
+                <p>Mapa en Blanco</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Define dimensiones y opciones avanzadas.
+                  Crea un mapa desde cero sin plantilla.
                 </p>
               </div>
             </DropdownMenuItem>
