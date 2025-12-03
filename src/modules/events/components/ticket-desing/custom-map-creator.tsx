@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Settings2,
   Loader2,
@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider' // Asegúrate de tener este componente de shadcn, si no, usa el input range nativo abajo
 import {
   Dialog,
   DialogContent,
@@ -258,9 +257,9 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
             >
               {/* Cotas / Medidas Visuales */}
               <div className="absolute -top-6 text-xs font-bold text-gray-500 flex items-center gap-1">
-                <span className="w-16 h-[1px] bg-gray-300"></span>
+                <span className="w-16 h-px bg-gray-300"></span>
                 {config.width}px
-                <span className="w-16 h-[1px] bg-gray-300"></span>
+                <span className="w-16 h-px bg-gray-300"></span>
               </div>
               <div className="absolute -left-8 -rotate-90 text-xs font-bold text-gray-500 flex items-center gap-1">
                 {config.height}px
