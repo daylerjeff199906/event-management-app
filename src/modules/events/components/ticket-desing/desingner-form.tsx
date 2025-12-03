@@ -10,7 +10,8 @@ import {
   Loader2,
   ZoomIn,
   ZoomOut,
-  Undo
+  Undo,
+  MousePointer2
 } from 'lucide-react'
 import {
   EventMapZone,
@@ -26,8 +27,7 @@ import {
   mapZoneToCanvasItem,
   mapCanvasItemToZonePayload,
   snapToGrid,
-  PRESET_COLORS,
-  GRID_SIZE
+  PRESET_COLORS
 } from '../../data/types'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
@@ -35,9 +35,9 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface DesingnerFormProps {
-  mapData: EventMap // El mapa seleccionado actualmente
-  ticketsData: EventTicketform[] // Los tickets disponibles
-  initialMapZones: EventMapZone[] // Las zonas YA filtradas para este mapa
+  mapData: EventMap
+  ticketsData: EventTicketform[]
+  initialMapZones: EventMapZone[]
   onClose: () => void
 }
 
@@ -49,8 +49,15 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 }) => {
   const [isPending, startTransition] = useTransition()
 
+  // --- Configuración Visual desde el Mapa ---
+  const { shape, borderRadius } = mapData.config || {
+    shape: 'rectangle',
+    borderRadius: '0px'
+  }
+  const mapWidth = mapData.width || 800
+  const mapHeight = mapData.height || 600
+
   // --- Estado del Canvas ---
-  // Inicializamos el canvas SOLO con las zonas de este mapa
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>(() =>
     initialMapZones.map((z) => mapZoneToCanvasItem(z, ticketsData))
   )
@@ -104,7 +111,6 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     }
   }, [history, historyIndex])
 
-  // Escuchar Ctrl+Z
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -116,7 +122,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleUndo])
 
-  // --- Helpers Visuales (Conteo de capacidad) ---
+  // --- Helpers Visuales ---
   const visualItems = canvasItems.map((item) => {
     if (item.type === 'TICKET_ZONE' && item.ticketId) {
       const ticket = ticketsData.find((t) => t.id === item.ticketId)
@@ -155,7 +161,6 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     if (!canvasRef.current) return
     const canvasRect = canvasRef.current.getBoundingClientRect()
 
-    // Ajustamos las coordenadas considerando el Zoom
     const rawX = (e.clientX - canvasRect.left) / zoom
     const rawY = (e.clientY - canvasRect.top) / zoom
 
@@ -189,8 +194,8 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           type: parsedData.type,
           x,
           y,
-          width: parsedData.type === 'STAGE' ? 300 : 200,
-          height: parsedData.type === 'STAGE' ? 120 : 100,
+          width: parsedData.type === 'STAGE' ? 250 : 150,
+          height: parsedData.type === 'STAGE' ? 60 : 70,
           ticketId: parsedData.data?.id,
           name: parsedData.data?.name || parsedData.data?.label,
           color: color,
@@ -200,14 +205,14 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 
         const nextItems = [...canvasItems, newItem]
         setCanvasItems(nextItems)
-        addToHistory(nextItems) // Guardar en historial
+        addToHistory(nextItems)
       }
     } catch (err) {
       console.error(err)
     }
   }
 
-  // --- Manejo del movimiento y resize dentro del canvas ---
+  // --- Canvas Interaction Handlers ---
   const startMovingItem = (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     if (resizeItem) return
@@ -251,13 +256,11 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 
     const nextItems = canvasItems.filter((i) => i.id !== id)
     setCanvasItems(nextItems)
-    addToHistory(nextItems) // Guardar en historial al borrar
+    addToHistory(nextItems)
   }
 
-  // Effect para Drag & Resize Global
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Ajustamos delta con el Zoom
       if (dragItem) {
         const deltaX = (e.clientX - dragItem.startX) / zoom
         const deltaY = (e.clientY - dragItem.startY) / zoom
@@ -298,7 +301,6 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       }
     }
     const handleMouseUp = () => {
-      // Si estábamos arrastrando o redimensionando, guardamos snapshot al terminar
       if (dragItem || resizeItem) {
         addToHistory(canvasItems)
       }
@@ -313,7 +315,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [dragItem, resizeItem, canvasItems, zoom]) // Agregamos dependencias necesarias
+  }, [dragItem, resizeItem, canvasItems, zoom])
 
   // --- Guardado ---
   const handleSaveMap = async () => {
@@ -321,13 +323,11 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 
     startTransition(async () => {
       try {
-        // 1. Eliminar
         for (const id of deletedIds) {
           await deleteEventMapZone(id)
         }
         setDeletedIds([])
 
-        // 2. Upsert (Crear o Actualizar)
         const itemsToSave = canvasItems.filter((i) => i.isNew || i.isDirty)
 
         for (const item of itemsToSave) {
@@ -350,7 +350,6 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                   : p
               )
             )
-            // No agregamos toast por cada item para no spamear
           }
         }
         toast.success(
@@ -367,27 +366,19 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     })
   }
 
-  // --- Configuración Visual basada en Schema ---
-  const { shape, borderRadius } = mapData.config || {}
-
-  // Estilos dinámicos del Canvas contenedor
+  // --- ESTILOS DINÁMICOS DEL PLANO ---
+  // Estilo principal del "papel" o "terreno"
   const canvasStyle: React.CSSProperties = {
-    minWidth: mapData.width || 520,
-    minHeight: mapData.height || 1000,
-    // Aplicamos borderRadius de la config
-    borderRadius: borderRadius || '0px',
-    // Color de fondo: Si es estadio usamos el verde, sino el custom o blanco
-    // Escala del zoom
+    width: mapWidth,
+    height: mapHeight,
+    borderRadius: borderRadius, // APLICA EL REDONDEADO CONFIGURADO
     transform: `scale(${zoom})`,
-    transformOrigin: 'center top' // Hacemos zoom desde el centro superior
-    // backgroundImage:
-    //   'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-    // backgroundSize: '40px 40px'
+    transformOrigin: 'center top'
   }
 
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200">
-      {/* Header */}
+      {/* --- HEADER --- */}
       <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20">
         <div className="flex items-center gap-4">
           <div>
@@ -396,26 +387,28 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
             </h2>
             <div className="flex items-center gap-2 text-xs text-gray-400 font-mono mt-1">
               <span>ID: {mapData.id?.slice(0, 8)}...</span>
-              <span>|</span>
-              {/* Mostrar la forma actual */}
+              <span className="text-gray-600">|</span>
               <span className="uppercase text-yellow-500 font-bold">
-                {shape || 'RECTANGULO'}
+                {shape}
+              </span>
+              <span className="text-gray-600">|</span>
+              <span className="text-gray-500">
+                {mapWidth}x{mapHeight}
               </span>
             </div>
           </div>
         </div>
         <div className="flex gap-4 items-center">
-          {/* Botón Undo en Header */}
           <Button
             onClick={handleUndo}
             variant="outline"
             size="sm"
             disabled={historyIndex <= 0}
-            className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 disabled:opacity-50"
+            className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 disabled:opacity-50 h-9"
           >
             <Undo size={14} className="mr-2" /> Deshacer
           </Button>
-
+          <div className="h-6 w-px bg-gray-700 mx-2" />
           <Button
             onClick={onClose}
             variant="ghost"
@@ -438,25 +431,29 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
         </div>
       </div>
 
-      {/* Contenido */}
+      {/* --- CONTENIDO PRINCIPAL --- */}
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Sidebar */}
-        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto z-10 shadow-lg">
-          <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">
-            Elementos Disponibles
+        {/* SIDEBAR DE HERRAMIENTAS */}
+        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto z-10 shadow-lg select-none">
+          <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest flex items-center gap-2">
+            <MousePointer2 size={12} /> Elementos Disponibles
           </h3>
-          {/* Draggable Stage */}
+
+          <div className="text-xs text-gray-400 mb-2 italic">
+            Arrastra elementos al plano
+          </div>
+
           <div
             draggable
             onDragStart={(e) =>
               handleDragStartFromSidebar(e, { label: 'ESCENARIO' }, 'STAGE')
             }
-            className="p-4 bg-gray-900 text-white rounded cursor-grab flex items-center justify-center gap-2 mb-6 hover:scale-105 transition-transform shadow-lg"
+            className="p-4 bg-gray-900 text-white rounded cursor-grab flex items-center justify-center gap-2 mb-6 hover:scale-[1.02] transition-transform shadow-lg border border-black active:cursor-grabbing"
           >
             <MonitorPlay size={20} />{' '}
             <span className="font-bold">ESCENARIO</span>
           </div>
-          {/* Draggable Tickets */}
+
           <div className="space-y-3">
             {ticketsData.map((t, idx) => (
               <div
@@ -465,117 +462,155 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                 onDragStart={(e) =>
                   handleDragStartFromSidebar(e, t, 'TICKET_ZONE')
                 }
-                className="p-3 bg-white border-2 border-transparent hover:border-black rounded shadow-sm cursor-grab active:cursor-grabbing group relative select-none"
-                style={{
-                  borderLeftColor: PRESET_COLORS[idx % PRESET_COLORS.length],
-                  borderLeftWidth: '4px'
-                }}
+                className="p-3 bg-white border border-gray-200 hover:border-black rounded shadow-sm cursor-grab active:cursor-grabbing group relative transition-all hover:shadow-md"
               >
-                <div className="font-black text-sm text-gray-800 uppercase mb-1">
-                  {t.name}
-                </div>
-                <div className="text-xs text-gray-500 flex justify-between">
-                  <span>S/ {t.price}</span>
-                  <span>Cap: {t.quantity_total}</span>
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-1 rounded-l"
+                  style={{
+                    backgroundColor: PRESET_COLORS[idx % PRESET_COLORS.length]
+                  }}
+                />
+                <div className="pl-3">
+                  <div className="font-black text-sm text-gray-800 uppercase mb-1 truncate">
+                    {t.name}
+                  </div>
+                  <div className="text-xs text-gray-500 flex justify-between font-mono">
+                    <span>S/ {t.price}</span>
+                    <span>Total: {t.quantity_total}</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Zona del Canvas */}
-        <div className="flex-1 bg-[#e5e5e5] relative overflow-hidden flex flex-col">
-          <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2">
-            <Move size={14} /> ARRASTRA Y SUELTA
+        {/* --- ÁREA DE TRABAJO (WRAPPER DEL CANVAS) --- */}
+        <div className="flex-1 bg-[#f0f2f5] relative overflow-hidden flex flex-col">
+          {/* Indicador Flotante */}
+          <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2 select-none dark:bg-gray-800/80 dark:text-gray-300 dark:border-gray-600">
+            <Move size={14} /> MODO EDICIÓN
           </div>
 
-          {/* Área con Scroll donde vive el Canvas escalado */}
-          <div className="flex-1 overflow-auto flex items-start justify-center p-20">
-            {/* Grid de fondo (Estático, ocupa todo el viewport disponible) */}
+          <div className="flex-1 overflow-auto flex items-start justify-center p-20 relative">
+            {/* FONDO DE CUADRÍCULA TÉCNICA (Estilo Blueprint) */}
             <div
-              className="absolute inset-0 pointer-events-none bg-gray-100 dark:bg-gray-800"
+              className="absolute inset-0 pointer-events-none opacity-[0.08]"
               style={{
                 backgroundImage:
                   'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-                backgroundSize: `${GRID_SIZE * zoom}px ${GRID_SIZE * zoom}px` // El grid escala visualmente también
+                backgroundSize: `${40 * zoom}px ${40 * zoom}px`
               }}
             />
 
-            {/* EL CANVAS REAL */}
+            {/* --- EL PLANO / MAPA REAL --- */}
             <div
               ref={canvasRef}
               className={cn(
-                'relative shadow-2xl transition-shadow',
-                'bg-white dark:bg-gray-900',
-                // Clases condicionales para "Dark Mode" del estadio
-                shape === 'stadium' &&
-                  'border-4 border-green-800/10 dark:border-green-400/20'
+                'relative bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all ease-out',
+                // Borde suave para definir el límite del mapa
+                'border border-gray-300'
               )}
               style={canvasStyle}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
             >
-              {/* Decoración interna del Estadio (si aplica) */}
+              {/* --- COTAS / DIMENSIONES EXTERNAS (Estilo Técnico) --- */}
+              {/* Cota Superior (Ancho) */}
+              <div className="absolute -top-8 w-full flex justify-center text-xs font-bold text-gray-400 font-mono select-none">
+                <div className="flex items-center gap-2">
+                  <div className="h-px w-4 bg-gray-300"></div>
+                  <span className="bg-gray-100 px-2 rounded border border-gray-200">
+                    {mapWidth} px
+                  </span>
+                  <div className="h-px w-4 bg-gray-300"></div>
+                </div>
+              </div>
+
+              {/* Cota Izquierda (Alto) */}
+              <div className="absolute -left-10 h-full flex items-center text-xs font-bold text-gray-400 font-mono select-none">
+                <div className="flex flex-col items-center gap-2">
+                  <span className="bg-gray-100 px-2 rounded border border-gray-200 -rotate-90 whitespace-nowrap">
+                    {mapHeight} px
+                  </span>
+                </div>
+              </div>
+
+              {/* TEXTURA INTERNA DEL PLANO */}
+              <div
+                className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"
+                style={{ borderRadius: borderRadius }}
+              />
+
+              {/* Decoración específica para Estadio (Césped sutil) */}
               {shape === 'stadium' && (
-                <div className="absolute inset-4 border-2 border-dashed border-green-300 rounded-[inherit] pointer-events-none opacity-50" />
+                <div className="absolute inset-4 border-2 border-dashed border-green-900/10 rounded-[inherit] pointer-events-none" />
               )}
 
+              {/* --- ELEMENTOS RENDERIZADOS (Zonas y Escenario) --- */}
               {visualItems.map((item) => {
                 const isVertical = item.height > item.width
                 return (
                   <div
                     key={item.id}
                     onMouseDown={(e) => startMovingItem(e, item.id)}
-                    className={`absolute group hover:z-50 transition-shadow ${
+                    className={cn(
+                      'absolute group transition-shadow',
                       dragItem?.id === item.id
-                        ? 'cursor-grabbing z-50 ring-4 ring-yellow-400'
-                        : 'cursor-grab z-10 hover:ring-2 hover:ring-black/20'
-                    }`}
+                        ? 'cursor-grabbing z-50 ring-2 ring-black shadow-xl'
+                        : 'cursor-grab z-10 hover:ring-1 hover:ring-black/30 hover:shadow-lg hover:z-40'
+                    )}
                     style={{
                       left: item.x,
                       top: item.y,
                       width: item.width,
                       height: item.height,
                       backgroundColor:
-                        item.type === 'STAGE' ? '#000000' : item.color,
+                        item.type === 'STAGE' ? '#1a1a1a' : item.color,
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                     }}
                   >
-                    {/* Contenido Visual del Item */}
-                    <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden">
+                    <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden select-none">
+                      {/* Contenido Visual */}
                       {item.type === 'STAGE' ? (
-                        <h3 className="text-white font-black text-xl tracking-[0.2em] z-10 text-center">
-                          ESCENARIO
-                        </h3>
+                        <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 w-full h-full p-2">
+                          <MonitorPlay
+                            className="text-gray-500 mb-1"
+                            size={24}
+                          />
+                          <h3 className="text-white font-black text-lg tracking-[0.2em] z-10 text-center opacity-90">
+                            ESCENARIO
+                          </h3>
+                        </div>
                       ) : (
                         <>
+                          {/* Patrón sutil sobre la zona */}
+                          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagonal-stripes.png')] pointer-events-none" />
+
                           <div
                             style={{
                               transform: isVertical ? 'rotate(-90deg)' : 'none'
                             }}
                           >
-                            <h3 className="text-white font-black uppercase leading-none text-center drop-shadow-md select-none">
+                            <h3 className="text-white font-bold uppercase leading-none text-center drop-shadow-md text-sm">
                               {item.name}
                             </h3>
                           </div>
-                          <div className="absolute bottom-1 left-0 right-0 flex justify-center pointer-events-none">
-                            <span className="bg-black/20 text-white text-[9px] font-mono px-1 rounded backdrop-blur-sm">
-                              CAP: {item.capacity}
-                            </span>
-                          </div>
                         </>
                       )}
+
+                      {/* Botón Eliminar (Hover) */}
                       <button
                         onClick={(e) => deleteItem(e, item.id)}
-                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all z-30 hover:scale-110"
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all z-30 shadow-sm hover:scale-110 hover:bg-red-600 dark:hover:bg-red-400"
+                        title="Eliminar zona"
                       >
-                        <X size={10} />
+                        <X size={12} strokeWidth={3} />
                       </button>
+
                       {/* Manija Resize */}
                       <div
                         onMouseDown={(e) => startResizingItem(e, item.id, 'se')}
-                        className="absolute w-4 h-4 bg-white border border-black rounded-full z-20 cursor-se-resize shadow-md hover:bg-yellow-200 transition-colors"
-                        style={{ bottom: -6, right: -6 }}
+                        className="absolute w-3 h-3 bg-white border border-gray-400 z-20 cursor-se-resize hover:bg-black transition-colors shadow-sm bottom-0 right-0 rounded-tl-sm"
                       />
                     </div>
                   </div>
@@ -585,14 +620,14 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           </div>
 
           {/* --- CONTROLES DE ZOOM (Bottom Right) --- */}
-          <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3 bg-white p-2 rounded-lg shadow-xl border border-gray-200 animate-in slide-in-from-bottom-5">
+          <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3 bg-white p-2 rounded-lg shadow-xl border border-gray-200 animate-in slide-in-from-bottom-5 dark:bg-gray-800">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))}
             >
-              <ZoomOut size={16} />
+              <ZoomOut size={16} className="text-gray-600 dark:text-gray-300" />
             </Button>
 
             <div className="w-24 px-2">
@@ -603,19 +638,19 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                 step={0.1}
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black dark:bg-gray-700 dark:accent-white dark:hover:accent-gray-300"
               />
             </div>
 
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hover:bg-gray-100"
               onClick={() => setZoom((z) => Math.min(2, z + 0.1))}
             >
-              <ZoomIn size={16} />
+              <ZoomIn size={16} className="text-gray-600 dark:text-gray-300" />
             </Button>
-            <span className="text-xs font-mono w-8 text-center">
+            <span className="text-xs font-mono w-10 text-center font-bold text-gray-500 dark:text-gray-300">
               {(zoom * 100).toFixed(0)}%
             </span>
           </div>

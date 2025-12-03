@@ -6,7 +6,8 @@ import { Edit3, Map as MapIcon, MoreVertical, Trash2 } from 'lucide-react'
 import {
   EventTicketform,
   EventMapZone,
-  EventMap
+  EventMap,
+  MapConfig
 } from '@/modules/events/schemas'
 import {
   createEventTicket,
@@ -136,13 +137,15 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     width: number
     height: number
     bg?: string | null
+    config?: MapConfig
   }) => {
     startTransition(async () => {
       const newMapPayload: EventMap = {
         event_id: eventId,
         width: config.width,
         height: config.height,
-        background_image_url: config.bg || null
+        background_image_url: config.bg || null,
+        config: config?.config
       }
       const { data, error } = await createEventMap(newMapPayload)
       if (!error && data) {

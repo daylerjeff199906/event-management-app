@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils'
 import { MapConfig } from '../../schemas'
 
 // --- Tipos ---
+// Asegúrate de que estos strings coincidan exactamente con lo que espera tu Base de Datos/Prisma Enum
 type ShapeType = 'rectangle' | 'square' | 'vertical' | 'stadium' | 'circle'
 
 // Configuración visual de las formas
@@ -44,32 +45,32 @@ const PRESET_SHAPES: {
     id: 'rectangle',
     label: 'Rectángulo',
     icon: <RectangleHorizontal />,
-    w: 500,
-    h: 300,
+    w: 800,
+    h: 500,
     radius: '0px'
   },
   {
     id: 'square',
     label: 'Cuadrado',
     icon: <Square />,
-    w: 500,
-    h: 500,
+    w: 800,
+    h: 800,
     radius: '0px'
   },
   {
     id: 'vertical',
     label: 'Vertical',
     icon: <RectangleVertical />,
-    w: 300,
-    h: 700,
+    w: 600,
+    h: 900,
     radius: '0px'
   },
   {
     id: 'stadium',
     label: 'Estadio',
     icon: <Circle className="scale-x-150" />,
-    w: 400,
-    h: 700,
+    w: 1200,
+    h: 900,
     radius: '9999px'
   }
 ]
@@ -77,12 +78,11 @@ const PRESET_SHAPES: {
 interface CustomMapCreatorProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  // Actualizamos la firma para devolver también el nombre y la config visual
   onCreate: (data: {
     width: number
     height: number
     name: string
-    config: MapConfig
+    config: MapConfig // Asegúrate de que MapConfig acepte { shape: string, borderRadius: string }
   }) => void
   isPending: boolean
 }
@@ -94,7 +94,8 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
   isPending
 }) => {
   // --- Estados ---
-  const [config, setConfig] = useState({ width: 500, height: 300 })
+  // Renombramos 'config' a 'dimensions' para evitar confusión con el objeto config de salida
+  const [dimensions, setDimensions] = useState({ width: 800, height: 500 })
   const [name, setName] = useState('')
   const [selectedShape, setSelectedShape] = useState<ShapeType>('rectangle')
   const [isDragging, setIsDragging] = useState(false)
@@ -109,44 +110,47 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
 
   // Efecto para setear nombre por defecto al abrir
   useEffect(() => {
-    if (isOpen && !name) setName('Nuevo Escenario')
-  }, [isOpen, name])
+    if (isOpen) {
+      if (!name) setName('Nuevo Escenario')
+      // Resetear dimensiones a un default seguro al abrir
+      setDimensions({ width: 800, height: 500 })
+      setSelectedShape('rectangle')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   // --- Lógica de Escalado (Matemática Visual) ---
-  // El contenedor de preview tiene un tamaño fijo, calculamos la escala para que el mapa quepa dentro
-  const PREVIEW_CONTAINER_SIZE = 250 // Aumentado ligeramente
-  const maxDim = Math.max(config.width, config.height)
-  // Scale = cuánto tengo que reducir el mapa real para que quepa en 350px.
-  // Mínimo denominador 1000px para evitar que mapas pequeños se vean gigantes.
+  const PREVIEW_CONTAINER_SIZE = 250
+  const maxDim = Math.max(dimensions.width, dimensions.height)
   const scale = PREVIEW_CONTAINER_SIZE / Math.max(maxDim, 800)
 
   // --- Handlers ---
 
   const handleShapeSelect = (shape: (typeof PRESET_SHAPES)[0]) => {
     setSelectedShape(shape.id)
-    setConfig({ width: shape.w, height: shape.h })
+    setDimensions({ width: shape.w, height: shape.h })
   }
 
   const handleRotate = () => {
-    setConfig((prev) => ({ width: prev.height, height: prev.width }))
-    // Ajustar visualmente la selección si coincide con formas estándar
+    setDimensions((prev) => ({ width: prev.height, height: prev.width }))
+
+    // Lógica para cambiar el ID de la forma si es necesario para mantener coherencia visual
     if (selectedShape === 'rectangle') setSelectedShape('vertical')
     else if (selectedShape === 'vertical') setSelectedShape('rectangle')
+    // Nota: 'stadium' rotado sigue siendo 'stadium' pero con dimensiones invertidas, lo cual es correcto.
   }
 
   // --- Lógica de Arrastre (Drag to Resize) ---
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     setIsDragging(true)
-    // Guardamos la posición inicial del mouse y las dimensiones iniciales del mapa
     dragStartRef.current = {
       x: e.clientX,
       y: e.clientY,
-      w: config.width,
-      h: config.height
+      w: dimensions.width,
+      h: dimensions.height
     }
 
-    // Añadimos listeners globales para que el drag no se rompa si sales del div
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
   }
@@ -154,17 +158,13 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
   const handleMouseMove = (e: MouseEvent) => {
     if (!dragStartRef.current) return
 
-    // 1. Calcular cuánto se movió el mouse en píxeles de pantalla
     const deltaX = e.clientX - dragStartRef.current.x
     const deltaY = e.clientY - dragStartRef.current.y
 
-    // 2. Convertir píxeles de pantalla a píxeles del mapa (Unidades Reales)
-    // Dividimos por 'scale' porque 1px de pantalla vale mucho más en el mapa "zoomeado out"
     const deltaW = deltaX / scale
     const deltaH = deltaY / scale
 
-    // 3. Actualizar estado (con límites mínimos)
-    setConfig({
+    setDimensions({
       width: Math.max(300, Math.round(dragStartRef.current.w + deltaW)),
       height: Math.max(300, Math.round(dragStartRef.current.h + deltaH))
     })
@@ -177,21 +177,27 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
     window.removeEventListener('mouseup', handleMouseUp)
   }
 
-  // --- Final Submit ---
+  // --- Final Submit (CORREGIDO) ---
   const handleSubmit = () => {
+    // 1. Buscamos la configuración base del shape seleccionado
     const shapeData = PRESET_SHAPES.find((s) => s.id === selectedShape)
-    onCreate({
-      width: config.width,
-      height: config.height,
+
+    // 2. Preparamos el payload asegurando que config exista y tenga datos
+    const payload = {
+      width: dimensions.width,
+      height: dimensions.height,
       name: name || 'Escenario Personalizado',
       config: {
+        // Forzamos el tipado para evitar errores de TS, pero asegúrate que el backend acepte estos strings
         shape: selectedShape as MapConfig['shape'],
         borderRadius: shapeData?.radius || '0px'
       }
-    })
+    }
+
+    onCreate(payload)
   }
 
-  // Estilo dinámico
+  // Estilo dinámico para el preview
   const currentShapeData = PRESET_SHAPES.find((s) => s.id === selectedShape)
   const currentRadius = currentShapeData?.radius || '0px'
 
@@ -273,7 +279,9 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
                   <span className="flex items-center gap-1 text-gray-600">
                     <MoveHorizontal size={12} /> Ancho
                   </span>
-                  <span className="font-mono font-bold">{config.width}px</span>
+                  <span className="font-mono font-bold">
+                    {dimensions.width}px
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -281,9 +289,12 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
                   max={3000}
                   step={10}
                   className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-                  value={config.width}
+                  value={dimensions.width}
                   onChange={(e) =>
-                    setConfig({ ...config, width: Number(e.target.value) })
+                    setDimensions({
+                      ...dimensions,
+                      width: Number(e.target.value)
+                    })
                   }
                 />
               </div>
@@ -294,7 +305,9 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
                   <span className="flex items-center gap-1 text-gray-600">
                     <MoveVertical size={12} /> Alto
                   </span>
-                  <span className="font-mono font-bold">{config.height}px</span>
+                  <span className="font-mono font-bold">
+                    {dimensions.height}px
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -302,9 +315,12 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
                   max={3000}
                   step={10}
                   className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-                  value={config.height}
+                  value={dimensions.height}
                   onChange={(e) =>
-                    setConfig({ ...config, height: Number(e.target.value) })
+                    setDimensions({
+                      ...dimensions,
+                      height: Number(e.target.value)
+                    })
                   }
                 />
               </div>
@@ -332,24 +348,23 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
             <div
               className={cn(
                 'relative bg-white dark:bg-gray-800 shadow-2xl border border-gray-300 dark:border-gray-600 transition-all ease-out flex items-center justify-center group',
-                // Si estamos arrastrando, quitamos la transición suave para que sea instantáneo
                 isDragging ? 'duration-0' : 'duration-300'
               )}
               style={{
-                width: config.width * scale,
-                height: config.height * scale,
+                width: dimensions.width * scale,
+                height: dimensions.height * scale,
                 borderRadius: currentRadius
               }}
             >
               {/* Cotas Exteriores (Dimensiones) */}
               <div className="absolute -top-8 w-full flex justify-center text-xs font-bold text-gray-400">
                 <span className="bg-gray-100 px-2 rounded">
-                  {config.width} px
+                  {dimensions.width} px
                 </span>
               </div>
               <div className="absolute -left-10 h-full flex items-center text-xs font-bold text-gray-400">
                 <span className="bg-gray-100 px-2 rounded -rotate-90 whitespace-nowrap">
-                  {config.height} px
+                  {dimensions.height} px
                 </span>
               </div>
 
@@ -365,7 +380,6 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
                 onMouseDown={handleMouseDown}
                 className="absolute bottom-0 right-0 w-8 h-8 flex items-center justify-center cursor-nwse-resize hover:bg-black/5 rounded-tl-lg transition-colors z-10 group-hover:opacity-100"
               >
-                {/* Icono de agarre */}
                 <Expand
                   size={20}
                   className="text-gray-400 group-hover:text-black dark:group-hover:text-white"

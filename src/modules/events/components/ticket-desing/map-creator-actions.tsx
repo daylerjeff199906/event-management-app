@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
 import { CustomMapCreator } from './custom-map-creator'
+import { MapConfig } from '../../schemas'
 
 // Mock Data
 const MOCK_TEMPLATES = [
@@ -57,6 +58,7 @@ interface MapCreatorActionsProps {
     width: number
     height: number
     bg?: string | null
+    config?: MapConfig
   }) => void
   isPending: boolean
 }
