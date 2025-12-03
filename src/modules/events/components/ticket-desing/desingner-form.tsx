@@ -19,6 +19,8 @@ import {
   PRESET_COLORS,
   GRID_SIZE
 } from '../../data/types'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 interface DesingnerFormProps {
   mapData: EventMap // El mapa seleccionado actualmente
@@ -291,9 +293,15 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                   : p
               )
             )
+            toast.success(
+              <ToastCustom
+                title="Guardado"
+                description={`Zona "${item.name}" guardada correctamente.`}
+              />
+            )
           }
         }
-        alert('Mapa guardado correctamente')
+
         onClose() // Cerramos el diseñador al guardar
       } catch (e) {
         console.error(e)

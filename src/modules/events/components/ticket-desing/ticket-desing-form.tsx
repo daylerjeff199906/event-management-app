@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useTransition, useEffect } from 'react'
 import {
   Plus,
   Trash2,
@@ -43,8 +43,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { DesingnerForm } from './desingner-form'
-import {  useRouter, useSearchParams } from 'next/navigation'
-
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 
 interface EventMapDesignerProps {
   eventId: string
@@ -61,7 +60,8 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const initialMapId = searchParams.get('map')
+  const pathname = usePathname() // Necesario para limpiar la URL al cerrar
+
   // --- Estados de Datos ---
   const [tickets, setTickets] = useState<EventTicketform[]>(initialTickets)
   const [maps, setMaps] = useState<EventMap[]>(initialMaps)
@@ -85,6 +85,25 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   const [mapToDelete, setMapToDelete] = useState<string | null>(null)
 
   const [isPending, startTransition] = useTransition()
+
+  // ================= EFECTO: SINCRONIZACIÓN URL -> ESTADO =================
+  // Este efecto escucha los cambios en la URL (searchParams).
+  // Si hay un ?map=ID, selecciona ese mapa y abre el diseñador.
+  // Si no hay, limpia la selección.
+  useEffect(() => {
+    const mapIdFromUrl = searchParams.get('map')
+
+    if (mapIdFromUrl) {
+      const mapFound = maps.find((m) => m.id === mapIdFromUrl)
+      if (mapFound) {
+        setSelectedMap(mapFound)
+        setIsDesignerOpen(true)
+      }
+    } else {
+      setSelectedMap(null)
+      setIsDesignerOpen(false)
+    }
+  }, [searchParams, maps])
 
   // ================= LÓGICA DE TICKETS =================
   const openCreateModal = () => {
@@ -176,19 +195,22 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       }
 
       setMaps((prev) => [...prev, data])
-      // Opcional: Abrir automáticamente el diseñador
-      setSelectedMap(data)
-      setIsDesignerOpen(true)
+
+      // CAMBIO: Al crear, solo empujamos la URL.
+      // El useEffect detectará el cambio y abrirá el diseñador.
       router.push(`?map=${data.id}`)
-      
     })
   }
 
   const handleSelectMap = (map: EventMap) => {
-    setSelectedMap(map)
-    setIsDesignerOpen(true)
+    // CAMBIO: Solo empujamos la URL, no seteamos estado manual.
     router.push(`?map=${map.id}`)
-    }
+  }
+
+  const handleCloseDesigner = () => {
+    // CAMBIO: Para cerrar, limpiamos los searchParams volviendo al pathname base.
+    router.push(pathname)
+  }
 
   const handleConfirmDeleteMap = async () => {
     if (!mapToDelete) return
@@ -488,10 +510,7 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           initialMapZones={initialZones.filter(
             (z) => z.map_id === selectedMap.id
           )}
-          onClose={() => {
-            setIsDesignerOpen(false)
-            setSelectedMap(null)
-          }}
+          onClose={handleCloseDesigner}
         />
       )}
 
