@@ -201,16 +201,16 @@ export default function BulkEventUploader({ eventId }: Props) {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200">
-      <h3 className="text-sm font-semibold text-gray-800 mb-4">
+    <div className="p-6 rounded-lg border borderrk:border-gray-700 ">
+      <h3 className="text-sm font-semibold mb-4">
         Carga Masiva de Actividades
       </h3>
 
       <div className="flex flex-col gap-4">
         {/* Paso 1 */}
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded border border-dashed border-gray-300">
+        <div className="flex items-center justify-between p-4 rounded border border-dashed border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
           <div>
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium ">
               1. Descarga la plantilla
             </p>
             <p className="text-xs text-gray-500">
@@ -226,9 +226,9 @@ export default function BulkEventUploader({ eventId }: Props) {
         </div>
 
         {/* Paso 2 */}
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded border border-dashed border-gray-300">
+        <div className="flex items-center justify-between p-4 rounded border border-dashed border-gray-300 dark:border-gray-700">
           <div>
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium ">
               2. Sube tu archivo
             </p>
             <p className="text-xs text-gray-500">
