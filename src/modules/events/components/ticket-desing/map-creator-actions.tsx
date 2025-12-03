@@ -81,7 +81,7 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
         <Button
           onClick={handleCreateBlank}
           disabled={isPending}
-          className="rounded-r-none focus:z-10 bg-black text-white hover:bg-gray-800"
+          className="rounded-r-none focus:z-10"
         >
           {isPending ? (
             <Loader2 className="animate-spin mr-2 h-4 w-4" />
@@ -92,24 +92,42 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="rounded-l-none border-l border-gray-600 bg-black text-white hover:bg-gray-800 px-3 focus:z-10">
+            <Button className="rounded-l-none border-l px-3 focus:z-10">
               <ChevronDown size={16} />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel>Método de Creación</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleCreateBlank}>
-              <FilePlus className="mr-2 h-4 w-4 text-gray-500" />{' '}
-              <span>En Blanco (Rápido)</span>
+            <DropdownMenuItem
+              onClick={handleCreateBlank}
+              className="flex items-start"
+            >
+              <FilePlus className="mr-2 h-4 w-4 text-gray-500 mt-2 dark:text-gray-400" />{' '}
+              <div>
+                <p>Mapa en Blanco</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Crea un mapa desde cero sin plantilla.
+                </p>
+              </div>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsTemplateOpen(true)}>
               <LayoutTemplate className="mr-2 h-4 w-4 text-purple-500" />{' '}
-              <span>Usar Plantilla</span>
+              <div>
+                <p>Desde Plantilla</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Elige una plantilla predefinida.
+                </p>
+              </div>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsCustomOpen(true)}>
               <Settings2 className="mr-2 h-4 w-4 text-blue-500" />{' '}
-              <span>Personalizado</span>
+              <div>
+                <p>Configuración Personalizada</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Define dimensiones y opciones avanzadas.
+                </p>
+              </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
