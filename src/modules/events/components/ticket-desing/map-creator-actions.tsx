@@ -9,8 +9,6 @@ import {
   Map as MapIcon
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -27,6 +25,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu'
+import { CustomMapCreator } from './custom-map-creator'
 
 // Mock Data
 const MOCK_TEMPLATES = [
@@ -68,18 +67,8 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
 }) => {
   const [isCustomOpen, setIsCustomOpen] = useState(false)
   const [isTemplateOpen, setIsTemplateOpen] = useState(false)
-  const [customConfig, setCustomConfig] = useState({
-    width: 1200,
-    height: 1000
-  })
 
   const handleCreateBlank = () => onCreateMap({ width: 1200, height: 1000 })
-
-  const handleCreateCustom = (e: React.FormEvent) => {
-    e.preventDefault()
-    onCreateMap(customConfig)
-    setIsCustomOpen(false)
-  }
 
   const handleCreateTemplate = (tpl: (typeof MOCK_TEMPLATES)[0]) => {
     onCreateMap({ width: tpl.width, height: tpl.height })
@@ -127,65 +116,15 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
       </div>
 
       {/* Modal Custom */}
-      <Dialog open={isCustomOpen} onOpenChange={setIsCustomOpen}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings2 size={20} /> Configuración de Mapa
-            </DialogTitle>
-            <DialogDescription>
-              Define las dimensiones del escenario.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleCreateCustom} className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Ancho (px)</Label>
-                <Input
-                  type="number"
-                  value={customConfig.width}
-                  onChange={(e) =>
-                    setCustomConfig({
-                      ...customConfig,
-                      width: Number(e.target.value)
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Alto (px)</Label>
-                <Input
-                  type="number"
-                  value={customConfig.height}
-                  onChange={(e) =>
-                    setCustomConfig({
-                      ...customConfig,
-                      height: Number(e.target.value)
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setIsCustomOpen(false)}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  'Crear Mapa'
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
+      <CustomMapCreator
+        isOpen={isCustomOpen}
+        onOpenChange={setIsCustomOpen}
+        onCreate={(config) => {
+          onCreateMap(config)
+          setIsCustomOpen(false)
+        }}
+        isPending={isPending}
+      />
       {/* Modal Template */}
       <Dialog open={isTemplateOpen} onOpenChange={setIsTemplateOpen}>
         <DialogContent className="sm:max-w-[600px]">
