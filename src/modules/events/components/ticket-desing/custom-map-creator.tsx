@@ -114,7 +114,7 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
 
   // --- Lógica de Escalado (Matemática Visual) ---
   // El contenedor de preview tiene un tamaño fijo, calculamos la escala para que el mapa quepa dentro
-  const PREVIEW_CONTAINER_SIZE = 350 // Aumentado ligeramente
+  const PREVIEW_CONTAINER_SIZE = 250 // Aumentado ligeramente
   const maxDim = Math.max(config.width, config.height)
   // Scale = cuánto tengo que reducir el mapa real para que quepa en 350px.
   // Mínimo denominador 1000px para evitar que mapas pequeños se vean gigantes.
