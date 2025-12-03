@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import * as XLSX from 'xlsx'
+import * as XLSX from '@e965/xlsx'
 import { bulkCreateEventActivities } from '@/services/bulk-events'
 import { EventActivityForm, EventMode } from '@/modules/events/schemas'
 import { EventStatus } from '@/types'
