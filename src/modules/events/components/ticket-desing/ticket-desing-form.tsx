@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import React, { useState, useTransition, useEffect } from 'react'
@@ -67,7 +66,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
   const [maps, setMaps] = useState<EventMap[]>(initialMaps)
 
   // --- Estados de UI ---
-  const [isDesignerOpen, setIsDesignerOpen] = useState(false)
   const [selectedMap, setSelectedMap] = useState<EventMap | null>(null)
   const [isTicketFormOpen, setIsTicketFormOpen] = useState(false)
 
@@ -86,10 +84,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
 
   const [isPending, startTransition] = useTransition()
 
-  // ================= EFECTO: SINCRONIZACIÓN URL -> ESTADO =================
-  // Este efecto escucha los cambios en la URL (searchParams).
-  // Si hay un ?map=ID, selecciona ese mapa y abre el diseñador.
-  // Si no hay, limpia la selección.
   useEffect(() => {
     const mapIdFromUrl = searchParams.get('map')
 
@@ -97,11 +91,9 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       const mapFound = maps.find((m) => m.id === mapIdFromUrl)
       if (mapFound) {
         setSelectedMap(mapFound)
-        setIsDesignerOpen(true)
       }
     } else {
       setSelectedMap(null)
-      setIsDesignerOpen(false)
     }
   }, [searchParams, maps])
 
