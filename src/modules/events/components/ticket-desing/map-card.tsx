@@ -1,4 +1,4 @@
-import { Edit3, MoreVertical, Trash2, Map as MapIcon } from 'lucide-react'
+import { Edit3, MoreVertical, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -7,15 +7,62 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
+import { EventMap } from '../../schemas'
 
 interface MapCardProps {
-  map: map
+  map: EventMap
   index: number
   onDesign: (id: string) => void
   onDelete: (id: string) => void
 }
 
-const MapCard = ({ map, index, onDesign, onDelete }: MapCardProps) => {
+import {
+  Square,
+  RectangleHorizontal,
+  RectangleVertical,
+  Circle
+} from 'lucide-react'
+
+const getShapeInfo = (shape?: string) => {
+  switch (shape) {
+    case 'square':
+      return {
+        icon: <Square size={20} />,
+        label: 'Cuadrado',
+        color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400'
+      }
+    case 'vertical':
+      return {
+        icon: <RectangleVertical size={20} />,
+        label: 'Vertical',
+        color:
+          'text-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400'
+      }
+    case 'stadium':
+      return {
+        icon: <Circle className="scale-x-125" size={20} />,
+        label: 'Estadio',
+        color:
+          'text-green-500 bg-green-50 dark:bg-green-900/20 dark:text-green-400'
+      }
+    case 'circle':
+      return {
+        icon: <Circle size={20} />,
+        label: 'Circular',
+        color:
+          'text-orange-500 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400'
+      }
+    case 'rectangle':
+    default:
+      return {
+        icon: <RectangleHorizontal size={20} />,
+        label: 'Rectangular',
+        color: 'text-gray-500 bg-gray-100 dark:bg-zinc-800 dark:text-zinc-400'
+      }
+  }
+}
+
+export const MapCard = ({ map, index, onDesign, onDelete }: MapCardProps) => {
   const shapeInfo = getShapeInfo(map.config?.shape)
 
   return (
@@ -68,7 +115,7 @@ const MapCard = ({ map, index, onDesign, onDelete }: MapCardProps) => {
           >
             <DropdownMenuItem
               className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer"
-              onClick={() => onDelete(map.id)}
+              onClick={() => onDelete(map.id!)}
             >
               <Trash2 size={14} className="mr-2" /> Eliminar Mapa
             </DropdownMenuItem>
@@ -84,7 +131,7 @@ const MapCard = ({ map, index, onDesign, onDelete }: MapCardProps) => {
         <Button
           className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-lg transition-transform active:scale-95 shadow-sm"
           size="sm"
-          onClick={() => onDesign(map.id)}
+          onClick={() => onDesign(map.id!)}
         >
           <Edit3 size={14} className="mr-2" />
           DISEÑAR

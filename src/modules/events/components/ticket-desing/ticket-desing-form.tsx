@@ -2,16 +2,7 @@
 
 import React, { useState, useTransition, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import {
-  Circle,
-  Edit3,
-  LayoutTemplate,
-  MoreVertical,
-  RectangleHorizontal,
-  RectangleVertical,
-  Square,
-  Trash2
-} from 'lucide-react'
+import { LayoutTemplate, MapIcon } from 'lucide-react'
 import {
   EventTicketform,
   EventMapZone,
@@ -24,14 +15,7 @@ import {
   updateEventTicket
 } from '@/services/events.ticket.service'
 import { createEventMap, deleteEventMap } from '@/services/events.maps.service'
-import { Button } from '@/components/ui/button'
 import { ConfirmAlertDialog } from '@/components/app/miscellaneous/confirm-alert-dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import { DesingnerForm } from './desingner-form'
 import { toast } from 'react-toastify'
 
@@ -39,7 +23,7 @@ import { toast } from 'react-toastify'
 import { TicketsSection } from './tickets-section'
 import { MapCreatorActions } from './map-creator-actions'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
-import { cn } from '@/lib/utils'
+import { MapCard } from './map-card'
 
 interface EventMapDesignerProps {
   eventId: string
@@ -191,26 +175,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
     })
   }
 
-  // --- Helper para el Icono según la Forma ---
-  const getShapeInfo = (shape?: string) => {
-    switch (shape) {
-      case 'square':
-        return { icon: <Square size={20} />, label: 'Cuadrado' }
-      case 'vertical':
-        return { icon: <RectangleVertical size={20} />, label: 'Vertical' }
-      case 'stadium':
-        return {
-          icon: <Circle className="scale-x-125" size={20} />,
-          label: 'Estadio'
-        } // Truco visual para estadio
-      case 'circle':
-        return { icon: <Circle size={20} />, label: 'Circular' }
-      case 'rectangle':
-      default:
-        return { icon: <RectangleHorizontal size={20} />, label: 'Rectangular' }
-    }
-  }
-
   // --- RENDER ---
   return (
     <div className="w-full space-y-10">
@@ -223,111 +187,41 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       />
 
       {/* 2. SECCIÓN MAPAS */}
-      <div className="w-full flex flex-col gap-6">
-        <div className="flex justify-between items-end border-b pb-4">
-          <div>
-            <h2 className="text-xl tracking-tight uppercase font-semibold">
-              2. Distribución de Escenario
+      <div className="w-full flex flex-col gap-8">
+        {/* Header de la Sección */}
+        <div className="flex flex-col sm:flex-row justify-between items-end border-b border-gray-200 dark:border-zinc-800 pb-6">
+          <div className="space-y-1">
+            <h2 className="text-2xl tracking-tight font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <MapIcon className="w-6 h-6" /> Distribución de Escenario
             </h2>
-            <p className="text-gray-500 mt-1 text-sm">
-              Crea uno o más mapas y distribuye los tickets.
+            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-lg">
+              Gestiona los planos de tu evento. Crea diferentes zonas, asigna
+              tickets y organiza la distribución visualmente.
             </p>
           </div>
 
-          <MapCreatorActions
-            onCreateMap={handleCreateMap}
-            isPending={isPending}
-          />
+          {/* Tu componente de acciones existente */}
+          <div className="mt-4 sm:mt-0">
+            <MapCreatorActions
+              onCreateMap={handleCreateMap}
+              isPending={isPending}
+            />
+          </div>
         </div>
 
+        {/* Grid de Escenarios */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {maps.map((map, index) => {
-            // Obtenemos la info visual basada en la config guardada
-            const shapeInfo = getShapeInfo(map.config?.shape)
+          {maps.map((map, index) => (
+            <MapCard
+              key={map.id}
+              map={map}
+              index={index}
+              onDesign={(id) => router.push(`?map=${id}`)}
+              onDelete={(id) => setMapToDelete(id)}
+            />
+          ))}
 
-            return (
-              <div
-                key={map.id}
-                className="group relative flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:border-gray-300 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:border-zinc-700"
-              >
-                {/* Header de la Tarjeta */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    {/* Icono Identificador de Forma */}
-                    <div
-                      className={cn(
-                        'flex h-12 w-12 items-center justify-center rounded-xl transition-colors',
-                        'bg-gray-100 text-gray-600', // Light mode
-                        'dark:bg-zinc-800 dark:text-zinc-300' // Dark mode
-                      )}
-                      title={`Forma: ${shapeInfo.label}`}
-                    >
-                      {shapeInfo.icon}
-                    </div>
-
-                    {/* Info Textual */}
-                    <div>
-                      <h4 className="font-bold text-base text-gray-900 dark:text-gray-100 leading-tight">
-                        {map.name || `Escenario #${index + 1}`}
-                      </h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
-                          ID: {map.id?.slice(-4)}
-                        </span>
-                        {/* Badge de Dimensiones */}
-                        <span className="text-[10px] text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-zinc-700 px-1.5 py-0.5 rounded-full">
-                          {map.width}x{map.height}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Menú de Opciones */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-black dark:text-gray-500 dark:hover:text-white"
-                      >
-                        <MoreVertical size={16} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="dark:bg-zinc-900 dark:border-zinc-800"
-                    >
-                      <DropdownMenuItem
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20 cursor-pointer"
-                        onClick={() => setMapToDelete(map.id!)}
-                      >
-                        <Trash2 size={14} className="mr-2" /> Eliminar Mapa
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {/* Footer de la Tarjeta / Acciones */}
-                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-zinc-800">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-gray-400 font-medium">
-                      {shapeInfo.label}
-                    </div>
-                    <Button
-                      className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 shadow-none transition-transform active:scale-95"
-                      size="sm"
-                      onClick={() => router.push(`?map=${map.id}`)}
-                    >
-                      <Edit3 size={14} className="mr-2" />
-                      DISEÑAR
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-
-          {/* Estado Vacío (Empty State) Mejorado */}
+          {/* Estado Vacío (Empty State) */}
           {maps.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 text-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50 dark:bg-zinc-900/30 dark:border-zinc-800">
               <div className="h-16 w-16 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4 text-gray-400 dark:text-gray-500">
@@ -346,7 +240,6 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
           )}
         </div>
       </div>
-
       {/* MODAL DISEÑADOR (FULL SCREEN) */}
       {selectedMap && (
         <DesingnerForm
