@@ -68,8 +68,8 @@ const PRESET_SHAPES: {
     id: 'stadium',
     label: 'Estadio',
     icon: <Circle className="scale-x-150" />,
-    w: 900,
-    h: 600,
+    w: 600,
+    h: 900,
     radius: '9999px'
   }
 ]
