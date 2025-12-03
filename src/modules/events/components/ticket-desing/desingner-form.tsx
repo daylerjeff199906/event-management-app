@@ -70,8 +70,8 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
   ])
   const [historyIndex, setHistoryIndex] = useState(0)
 
-  // --- Estado del Zoom ---
-  const [zoom, setZoom] = useState(1)
+  // --- Estado del Zoom (Por defecto 70%) ---
+  const [zoom, setZoom] = useState(0.7)
 
   // Estados del Drag & Drop / Resize
   const [dragItem, setDragItem] = useState<{
@@ -194,8 +194,8 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           type: parsedData.type,
           x,
           y,
-          width: parsedData.type === 'STAGE' ? 250 : 150,
-          height: parsedData.type === 'STAGE' ? 60 : 70,
+          width: parsedData.type === 'STAGE' ? 350 : 320,
+          height: parsedData.type === 'STAGE' ? 200 : 120,
           ticketId: parsedData.data?.id,
           name: parsedData.data?.name || parsedData.data?.label,
           color: color,
@@ -371,15 +371,16 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
   const canvasStyle: React.CSSProperties = {
     width: mapWidth,
     height: mapHeight,
-    borderRadius: borderRadius, // APLICA EL REDONDEADO CONFIGURADO
+    borderRadius: borderRadius,
     transform: `scale(${zoom})`,
-    transformOrigin: 'center top'
+    // CLAVE: transformOrigin top-left para que encaje en el wrapper escalado
+    transformOrigin: 'top left'
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200 overflow-hidden">
       {/* --- HEADER --- */}
-      <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20">
+      <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20 shrink-0">
         <div className="flex items-center gap-4">
           <div>
             <h2 className="font-semibold tracking-wider text-lg leading-none">
@@ -434,7 +435,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       {/* --- CONTENIDO PRINCIPAL --- */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* SIDEBAR DE HERRAMIENTAS */}
-        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto z-10 shadow-lg select-none">
+        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto z-10 shadow-lg select-none h-full shrink-0">
           <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest flex items-center gap-2">
             <MousePointer2 size={12} /> Elementos Disponibles
           </h3>
@@ -454,7 +455,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
             <span className="font-bold">ESCENARIO</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 pb-10">
             {ticketsData.map((t, idx) => (
               <div
                 key={t.id}
@@ -485,141 +486,138 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
         </div>
 
         {/* --- ÁREA DE TRABAJO (WRAPPER DEL CANVAS) --- */}
-        <div className="flex-1 bg-[#f0f2f5] relative overflow-hidden flex flex-col">
+        <div className="flex-1 bg-[#f0f2f5] relative flex flex-col overflow-hidden h-full">
           {/* Indicador Flotante */}
-          <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2 select-none dark:bg-gray-800/80 dark:text-gray-300 dark:border-gray-600">
+          <div className="absolute top-4 left-4 z-20 bg-white/80 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2 select-none dark:bg-gray-800/80 dark:text-gray-300 dark:border-gray-600">
             <Move size={14} /> MODO EDICIÓN
           </div>
 
-          <div className="flex-1 overflow-auto flex items-start justify-center p-20 relative">
-            {/* FONDO DE CUADRÍCULA TÉCNICA (Estilo Blueprint) */}
-            <div
-              className="absolute inset-0 pointer-events-none opacity-[0.08]"
-              style={{
-                backgroundImage:
-                  'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-                backgroundSize: `${40 * zoom}px ${40 * zoom}px`
-              }}
-            />
-
-            {/* --- EL PLANO / MAPA REAL --- */}
-            <div
-              ref={canvasRef}
-              className={cn(
-                'relative bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all ease-out',
-                // Borde suave para definir el límite del mapa
-                'border border-gray-300'
-              )}
-              style={canvasStyle}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-            >
-              {/* --- COTAS / DIMENSIONES EXTERNAS (Estilo Técnico) --- */}
-              {/* Cota Superior (Ancho) */}
-              <div className="absolute -top-8 w-full flex justify-center text-xs font-bold text-gray-400 font-mono select-none">
-                <div className="flex items-center gap-2">
-                  <div className="h-px w-4 bg-gray-300"></div>
-                  <span className="bg-gray-100 px-2 rounded border border-gray-200">
-                    {mapWidth} px
-                  </span>
-                  <div className="h-px w-4 bg-gray-300"></div>
-                </div>
-              </div>
-
-              {/* Cota Izquierda (Alto) */}
-              <div className="absolute -left-10 h-full flex items-center text-xs font-bold text-gray-400 font-mono select-none">
-                <div className="flex flex-col items-center gap-2">
-                  <span className="bg-gray-100 px-2 rounded border border-gray-200 -rotate-90 whitespace-nowrap">
-                    {mapHeight} px
-                  </span>
-                </div>
-              </div>
-
-              {/* TEXTURA INTERNA DEL PLANO */}
+          {/* FONDO DE CUADRÍCULA TÉCNICA (Estilo Blueprint) */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.08]"
+            style={{
+              backgroundImage:
+                'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
+              backgroundSize: `${40 * zoom}px ${40 * zoom}px`
+            }}
+          />
+          {/* ÁREA DE SCROLL: Aquí es donde ocurre el scroll. Usamos Flex Center para el centrado. */}
+          <div className="flex-1 overflow-auto w-full h-full relative">
+            <div className="min-w-full min-h-full flex items-center justify-center p-32 bg-transparent">
               <div
-                className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"
-                style={{ borderRadius: borderRadius }}
-              />
-
-              {/* Decoración específica para Estadio (Césped sutil) */}
-              {shape === 'stadium' && (
-                <div className="absolute inset-4 border-2 border-dashed border-green-900/10 rounded-[inherit] pointer-events-none" />
-              )}
-
-              {/* --- ELEMENTOS RENDERIZADOS (Zonas y Escenario) --- */}
-              {visualItems.map((item) => {
-                const isVertical = item.height > item.width
-                return (
-                  <div
-                    key={item.id}
-                    onMouseDown={(e) => startMovingItem(e, item.id)}
-                    className={cn(
-                      'absolute group transition-shadow',
-                      dragItem?.id === item.id
-                        ? 'cursor-grabbing z-50 ring-2 ring-black shadow-xl'
-                        : 'cursor-grab z-10 hover:ring-1 hover:ring-black/30 hover:shadow-lg hover:z-40'
-                    )}
-                    style={{
-                      left: item.x,
-                      top: item.y,
-                      width: item.width,
-                      height: item.height,
-                      backgroundColor:
-                        item.type === 'STAGE' ? '#1a1a1a' : item.color,
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                  >
-                    <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden select-none">
-                      {/* Contenido Visual */}
-                      {item.type === 'STAGE' ? (
-                        <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 w-full h-full p-2">
-                          <MonitorPlay
-                            className="text-gray-500 mb-1"
-                            size={24}
-                          />
-                          <h3 className="text-white font-black text-lg tracking-[0.2em] z-10 text-center opacity-90">
-                            ESCENARIO
-                          </h3>
-                        </div>
-                      ) : (
-                        <>
-                          {/* Patrón sutil sobre la zona */}
-                          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagonal-stripes.png')] pointer-events-none" />
-
-                          <div
-                            style={{
-                              transform: isVertical ? 'rotate(-90deg)' : 'none'
-                            }}
-                          >
-                            <h3 className="text-white font-bold uppercase leading-none text-center drop-shadow-md text-sm">
-                              {item.name}
-                            </h3>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Botón Eliminar (Hover) */}
-                      <button
-                        onClick={(e) => deleteItem(e, item.id)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all z-30 shadow-sm hover:scale-110 hover:bg-red-600 dark:hover:bg-red-400"
-                        title="Eliminar zona"
-                      >
-                        <X size={12} strokeWidth={3} />
-                      </button>
-
-                      {/* Manija Resize */}
-                      <div
-                        onMouseDown={(e) => startResizingItem(e, item.id, 'se')}
-                        className="absolute w-3 h-3 bg-white border border-gray-400 z-20 cursor-se-resize hover:bg-black transition-colors shadow-sm bottom-0 right-0 rounded-tl-sm"
-                      />
-                    </div>
+                style={{
+                  width: mapWidth * zoom,
+                  height: mapHeight * zoom,
+                  position: 'relative',
+                  flexShrink: 0
+                }}
+              >
+                {/* --- EL PLANO / MAPA REAL (Transformado) --- */}
+                <div
+                  ref={canvasRef}
+                  className={cn(
+                    'relative bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-shadow ease-out',
+                    'border border-gray-300'
+                  )}
+                  style={canvasStyle}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                >
+                  {/* Cotas Exteriores (Dimensiones) */}
+                  <div className="absolute -top-8 w-full flex justify-center text-xs font-bold text-gray-400 font-mono select-none">
+                    <span className="bg-gray-100 px-2 rounded border border-gray-200">
+                      {mapWidth} px
+                    </span>
                   </div>
-                )
-              })}
+                  <div className="absolute -left-10 h-full flex items-center text-xs font-bold text-gray-400 font-mono select-none">
+                    <span className="bg-gray-100 px-2 rounded border border-gray-200 -rotate-90 whitespace-nowrap">
+                      {mapHeight} px
+                    </span>
+                  </div>
+
+                  {/* TEXTURA INTERNA DEL PLANO */}
+                  <div
+                    className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"
+                    style={{ borderRadius: borderRadius }}
+                  />
+
+                  {/* Decoración específica para Estadio */}
+                  {shape === 'stadium' && (
+                    <div className="absolute inset-4 border-2 border-dashed border-green-900/10 rounded-[inherit] pointer-events-none" />
+                  )}
+
+                  {/* --- ELEMENTOS --- */}
+                  {visualItems.map((item) => {
+                    const isVertical = item.height > item.width
+                    return (
+                      <div
+                        key={item.id}
+                        onMouseDown={(e) => startMovingItem(e, item.id)}
+                        className={cn(
+                          'absolute group transition-shadow',
+                          dragItem?.id === item.id
+                            ? 'cursor-grabbing z-50 ring-2 ring-black shadow-xl'
+                            : 'cursor-grab z-10 hover:ring-1 hover:ring-black/30 hover:shadow-lg hover:z-40'
+                        )}
+                        style={{
+                          left: item.x,
+                          top: item.y,
+                          width: item.width,
+                          height: item.height,
+                          backgroundColor:
+                            item.type === 'STAGE' ? '#1a1a1a' : item.color,
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden select-none">
+                          {item.type === 'STAGE' ? (
+                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 w-full h-full p-2">
+                              <MonitorPlay
+                                className="text-gray-500 mb-1"
+                                size={24}
+                              />
+                              <h3 className="text-white font-black text-lg tracking-[0.2em] z-10 text-center opacity-90">
+                                ESCENARIO
+                              </h3>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagonal-stripes.png')] pointer-events-none" />
+                              <div
+                                style={{
+                                  transform: isVertical
+                                    ? 'rotate(-90deg)'
+                                    : 'none'
+                                }}
+                              >
+                                <h3 className="text-white text-base lg:text-lg font-bold uppercase leading-none text-center drop-shadow-md">
+                                  {item.name}
+                                </h3>
+                              </div>
+                            </>
+                          )}
+                          <button
+                            onClick={(e) => deleteItem(e, item.id)}
+                            className="absolute cursor-pointer top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all z-30 shadow-sm hover:scale-110 hover:bg-red-600 dark:hover:bg-red-400"
+                          >
+                            <X size={12} strokeWidth={3} />
+                          </button>
+                          <div
+                            onMouseDown={(e) =>
+                              startResizingItem(e, item.id, 'se')
+                            }
+                            className="absolute w-3 h-3 bg-white border border-gray-400 z-20 cursor-se-resize hover:bg-black transition-colors shadow-sm bottom-0 right-0 rounded-tl-sm"
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* --- CONTROLES DE ZOOM (Bottom Right) --- */}
+          {/* --- CONTROLES DE ZOOM (Fixed Bottom Right) --- */}
           <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3 bg-white p-2 rounded-lg shadow-xl border border-gray-200 animate-in slide-in-from-bottom-5 dark:bg-gray-800">
             <Button
               variant="ghost"
@@ -629,7 +627,6 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
             >
               <ZoomOut size={16} className="text-gray-600 dark:text-gray-300" />
             </Button>
-
             <div className="w-24 px-2">
               <input
                 type="range"
@@ -638,10 +635,9 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                 step={0.1}
                 value={zoom}
                 onChange={(e) => setZoom(parseFloat(e.target.value))}
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black dark:bg-gray-700 dark:accent-white dark:hover:accent-gray-300"
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black dark:bg-gray-700 dark:accent-white"
               />
             </div>
-
             <Button
               variant="ghost"
               size="icon"
