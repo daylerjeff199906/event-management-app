@@ -44,32 +44,32 @@ const PRESET_SHAPES: {
     id: 'rectangle',
     label: 'Rectángulo',
     icon: <RectangleHorizontal />,
-    w: 700,
-    h: 500,
+    w: 500,
+    h: 300,
     radius: '0px'
   },
   {
     id: 'square',
     label: 'Cuadrado',
     icon: <Square />,
-    w: 700,
-    h: 700,
+    w: 500,
+    h: 500,
     radius: '0px'
   },
   {
     id: 'vertical',
     label: 'Vertical',
     icon: <RectangleVertical />,
-    w: 700,
-    h: 900,
+    w: 300,
+    h: 700,
     radius: '0px'
   },
   {
     id: 'stadium',
     label: 'Estadio',
     icon: <Circle className="scale-x-150" />,
-    w: 600,
-    h: 900,
+    w: 400,
+    h: 700,
     radius: '9999px'
   }
 ]
@@ -94,7 +94,7 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
   isPending
 }) => {
   // --- Estados ---
-  const [config, setConfig] = useState({ width: 700, height: 500 })
+  const [config, setConfig] = useState({ width: 500, height: 300 })
   const [name, setName] = useState('')
   const [selectedShape, setSelectedShape] = useState<ShapeType>('rectangle')
   const [isDragging, setIsDragging] = useState(false)
