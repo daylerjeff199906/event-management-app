@@ -35,6 +35,7 @@ export type MapConfig = z.infer<typeof mapConfigSchema>
 export const eventMapSchema = z.object({
     id: z.string().optional(),
     event_id: z.string(),
+    name: z.string().min(1),
     background_image_url: z.string().nullable().optional(),
     width: z.number().int().nonnegative().optional(),
     height: z.number().int().nonnegative().optional(),

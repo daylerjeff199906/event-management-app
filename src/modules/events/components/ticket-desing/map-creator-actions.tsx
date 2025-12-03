@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import {
-  Plus,
   Loader2,
   ChevronDown,
   FilePlus,
@@ -55,6 +54,7 @@ const MOCK_TEMPLATES = [
 
 interface MapCreatorActionsProps {
   onCreateMap: (config: {
+    name?: string
     width: number
     height: number
     bg?: string | null
@@ -70,10 +70,11 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
   const [isCustomOpen, setIsCustomOpen] = useState(false)
   const [isTemplateOpen, setIsTemplateOpen] = useState(false)
 
-  const handleCreateBlank = () => onCreateMap({ width: 1200, height: 1000 })
+  const handleCreateBlank = () =>
+    onCreateMap({ width: 1200, height: 1000, name: 'Mapa en Blanco' })
 
   const handleCreateTemplate = (tpl: (typeof MOCK_TEMPLATES)[0]) => {
-    onCreateMap({ width: tpl.width, height: tpl.height })
+    onCreateMap({ width: tpl.width, height: tpl.height, name: tpl.name })
     setIsTemplateOpen(false)
   }
 
@@ -90,7 +91,7 @@ export const MapCreatorActions: React.FC<MapCreatorActionsProps> = ({
           ) : (
             <Settings2 className="mr-2 h-4 w-4" />
           )}
-            Configuración Rápida
+          Configuración Rápida
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
