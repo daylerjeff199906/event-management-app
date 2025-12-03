@@ -368,7 +368,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
   }
 
   // --- Configuración Visual basada en Schema ---
-  const { shape, borderRadius, fillColor } = mapData.config || {}
+  const { shape, borderRadius } = mapData.config || {}
 
   // Estilos dinámicos del Canvas contenedor
   const canvasStyle: React.CSSProperties = {
@@ -377,13 +377,12 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     // Aplicamos borderRadius de la config
     borderRadius: borderRadius || '0px',
     // Color de fondo: Si es estadio usamos el verde, sino el custom o blanco
-    backgroundColor:
-      shape === 'stadium'
-        ? '#f0fdf4' // Verde muy claro para modo light
-        : fillColor || '#ffffff',
     // Escala del zoom
     transform: `scale(${zoom})`,
     transformOrigin: 'center top' // Hacemos zoom desde el centro superior
+    // backgroundImage:
+    //   'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
+    // backgroundSize: '40px 40px'
   }
 
   return (
@@ -494,7 +493,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           <div className="flex-1 overflow-auto flex items-start justify-center p-20">
             {/* Grid de fondo (Estático, ocupa todo el viewport disponible) */}
             <div
-              className="absolute inset-0 pointer-events-none opacity-20"
+              className="absolute inset-0 pointer-events-none bg-gray-100 dark:bg-gray-800"
               style={{
                 backgroundImage:
                   'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
@@ -507,6 +506,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
               ref={canvasRef}
               className={cn(
                 'relative shadow-2xl transition-shadow',
+                'bg-white dark:bg-gray-900',
                 // Clases condicionales para "Dark Mode" del estadio
                 shape === 'stadium' &&
                   'border-4 border-green-800/10 dark:border-green-400/20'
