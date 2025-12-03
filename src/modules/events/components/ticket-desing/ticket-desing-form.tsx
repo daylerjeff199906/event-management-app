@@ -23,10 +23,12 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { DesingnerForm } from './desingner-form'
+import { toast } from 'react-toastify'
 
 // Importamos los sub-componentes refactorizados
 import { TicketsSection } from './tickets-section'
 import { MapCreatorActions } from './map-creator-actions'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 
 interface EventMapDesignerProps {
   eventId: string
@@ -85,7 +87,13 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         if (!error && data) {
           setTickets((prev) => prev.map((t) => (t.id === editingId ? data : t)))
         } else {
-          alert('Error al actualizar ticket')
+          toast.error(
+            <ToastCustom
+              title="Error"
+              description="No se pudo actualizar el ticket."
+            />,
+            { autoClose: 5000 }
+          )
         }
       } else {
         const { data, error } = await createEventTicket(
@@ -94,7 +102,13 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         if (!error && data) {
           setTickets((prev) => [...prev, data])
         } else {
-          alert('Error al crear ticket')
+          toast.error(
+            <ToastCustom
+              title="Error"
+              description="No se pudo crear el ticket."
+            />,
+            { autoClose: 5000 }
+          )
         }
       }
     })
@@ -106,7 +120,13 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       if (!error) {
         setTickets((prev) => prev.filter((t) => t.id !== id))
       } else {
-        alert('Error al eliminar ticket')
+        toast.error(
+          <ToastCustom
+            title="Error"
+            description="No se pudo eliminar el ticket."
+          />,
+          { autoClose: 5000 }
+        )
       }
     })
   }
@@ -129,7 +149,10 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         setMaps((prev) => [...prev, data])
         router.push(`?map=${data.id}`)
       } else {
-        alert('Error al crear mapa')
+        toast.error(
+          <ToastCustom title="Error" description="No se pudo crear el mapa." />,
+          { autoClose: 5000 }
+        )
       }
     })
   }
@@ -142,7 +165,13 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
         setMaps((prev) => prev.filter((m) => m.id !== mapToDelete))
         setMapToDelete(null)
       } else {
-        alert('Error al eliminar mapa')
+        toast.error(
+          <ToastCustom
+            title="Error"
+            description="No se pudo eliminar el mapa."
+          />,
+          { autoClose: 5000 }
+        )
       }
     })
   }
