@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   Settings2,
   Loader2,
@@ -9,7 +9,10 @@ import {
   RectangleVertical,
   Circle,
   MoveHorizontal,
-  MoveVertical
+  MoveVertical,
+  RotateCw,
+  Type,
+  Expand
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,10 +26,12 @@ import {
   DialogFooter
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
+import { MapConfig } from '../../schemas'
 
-// --- Tipos de Formas Predefinidas ---
+// --- Tipos ---
 type ShapeType = 'rectangle' | 'square' | 'vertical' | 'stadium' | 'circle'
 
+// Configuración visual de las formas
 const PRESET_SHAPES: {
   id: ShapeType
   label: string
@@ -39,40 +44,46 @@ const PRESET_SHAPES: {
     id: 'rectangle',
     label: 'Rectángulo',
     icon: <RectangleHorizontal />,
-    w: 1200,
-    h: 800,
+    w: 700,
+    h: 500,
     radius: '0px'
   },
   {
     id: 'square',
     label: 'Cuadrado',
     icon: <Square />,
-    w: 1000,
-    h: 1000,
+    w: 700,
+    h: 700,
     radius: '0px'
   },
   {
     id: 'vertical',
     label: 'Vertical',
     icon: <RectangleVertical />,
-    w: 800,
-    h: 1200,
+    w: 700,
+    h: 900,
     radius: '0px'
   },
   {
     id: 'stadium',
     label: 'Estadio',
     icon: <Circle className="scale-x-150" />,
-    w: 1500,
-    h: 900,
+    w: 900,
+    h: 600,
     radius: '9999px'
-  } // Mucho radio para bordes redondos
+  }
 ]
 
 interface CustomMapCreatorProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  onCreate: (config: { width: number; height: number }) => void
+  // Actualizamos la firma para devolver también el nombre y la config visual
+  onCreate: (data: {
+    width: number
+    height: number
+    name: string
+    config: MapConfig
+  }) => void
   isPending: boolean
 }
 
@@ -82,42 +93,137 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
   onCreate,
   isPending
 }) => {
-  // Estado local
-  const [config, setConfig] = useState({ width: 1200, height: 800 })
+  // --- Estados ---
+  const [config, setConfig] = useState({ width: 700, height: 500 })
+  const [name, setName] = useState('')
   const [selectedShape, setSelectedShape] = useState<ShapeType>('rectangle')
+  const [isDragging, setIsDragging] = useState(false)
 
-  // Calcular el estilo del borde basado en la forma seleccionada
-  const currentShapeData = PRESET_SHAPES.find((s) => s.id === selectedShape)
-  const borderRadius = currentShapeData?.radius || '0px'
+  // Referencias para el cálculo del drag
+  const dragStartRef = useRef<{
+    x: number
+    y: number
+    w: number
+    h: number
+  } | null>(null)
 
-  // Función para manejar selección de presets
+  // Efecto para setear nombre por defecto al abrir
+  useEffect(() => {
+    if (isOpen && !name) setName('Nuevo Escenario')
+  }, [isOpen, name])
+
+  // --- Lógica de Escalado (Matemática Visual) ---
+  // El contenedor de preview tiene un tamaño fijo, calculamos la escala para que el mapa quepa dentro
+  const PREVIEW_CONTAINER_SIZE = 350 // Aumentado ligeramente
+  const maxDim = Math.max(config.width, config.height)
+  // Scale = cuánto tengo que reducir el mapa real para que quepa en 350px.
+  // Mínimo denominador 1000px para evitar que mapas pequeños se vean gigantes.
+  const scale = PREVIEW_CONTAINER_SIZE / Math.max(maxDim, 800)
+
+  // --- Handlers ---
+
   const handleShapeSelect = (shape: (typeof PRESET_SHAPES)[0]) => {
     setSelectedShape(shape.id)
     setConfig({ width: shape.w, height: shape.h })
   }
 
-  // --- Lógica de Escalado para el Preview ---
-  // Queremos que el mapa (ej. 1200px) quepa en un contenedor de ej. 300px
-  const PREVIEW_CONTAINER_SIZE = 280
-  const maxDim = Math.max(config.width, config.height)
-  const scale = PREVIEW_CONTAINER_SIZE / Math.max(maxDim, 1000) // 1000px base mínimo para que no se vea gigante si es pequeño
+  const handleRotate = () => {
+    setConfig((prev) => ({ width: prev.height, height: prev.width }))
+    // Ajustar visualmente la selección si coincide con formas estándar
+    if (selectedShape === 'rectangle') setSelectedShape('vertical')
+    else if (selectedShape === 'vertical') setSelectedShape('rectangle')
+  }
+
+  // --- Lógica de Arrastre (Drag to Resize) ---
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+    // Guardamos la posición inicial del mouse y las dimensiones iniciales del mapa
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      w: config.width,
+      h: config.height
+    }
+
+    // Añadimos listeners globales para que el drag no se rompa si sales del div
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!dragStartRef.current) return
+
+    // 1. Calcular cuánto se movió el mouse en píxeles de pantalla
+    const deltaX = e.clientX - dragStartRef.current.x
+    const deltaY = e.clientY - dragStartRef.current.y
+
+    // 2. Convertir píxeles de pantalla a píxeles del mapa (Unidades Reales)
+    // Dividimos por 'scale' porque 1px de pantalla vale mucho más en el mapa "zoomeado out"
+    const deltaW = deltaX / scale
+    const deltaH = deltaY / scale
+
+    // 3. Actualizar estado (con límites mínimos)
+    setConfig({
+      width: Math.max(300, Math.round(dragStartRef.current.w + deltaW)),
+      height: Math.max(300, Math.round(dragStartRef.current.h + deltaH))
+    })
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+    dragStartRef.current = null
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
+  }
+
+  // --- Final Submit ---
+  const handleSubmit = () => {
+    const shapeData = PRESET_SHAPES.find((s) => s.id === selectedShape)
+    onCreate({
+      width: config.width,
+      height: config.height,
+      name: name || 'Escenario Personalizado',
+      config: {
+        shape: selectedShape as MapConfig['shape'],
+        borderRadius: shapeData?.radius || '0px'
+      }
+    })
+  }
+
+  // Estilo dinámico
+  const currentShapeData = PRESET_SHAPES.find((s) => s.id === selectedShape)
+  const currentRadius = currentShapeData?.radius || '0px'
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[750px] overflow-hidden">
+      <DialogContent className="sm:max-w-[900px] overflow-hidden flex flex-col h-[90vh] sm:h-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Settings2 size={20} /> Configuración de Escenario
+            <Settings2 size={20} /> Diseño de Escenario
           </DialogTitle>
           <DialogDescription>
-            Diseña las dimensiones y la forma base de tu mapa.
+            Configura las dimensiones, forma y nombre del área.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 py-4">
-          {/* COLUMNA IZQUIERDA: CONTROLES */}
-          <div className="md:col-span-5 space-y-6">
-            {/* 1. Selector de Formas */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-2 flex-1 overflow-y-auto sm:overflow-visible">
+          {/* --- COLUMNA IZQUIERDA: CONTROLES --- */}
+          <div className="lg:col-span-4 space-y-6 flex flex-col justify-center">
+            {/* 1. Nombre */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-2">
+                <Type size={14} /> Nombre del Escenario
+              </Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ej. Zona General, VIP..."
+                className="font-medium"
+              />
+            </div>
+
+            {/* 2. Formas */}
             <div className="space-y-3">
               <Label className="text-xs font-bold text-gray-500 uppercase">
                 Forma Base
@@ -129,10 +235,10 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
                     type="button"
                     variant={selectedShape === shape.id ? 'default' : 'outline'}
                     className={cn(
-                      'h-16 flex flex-col items-center justify-center gap-1',
+                      'h-14 flex flex-col items-center justify-center gap-1 transition-all',
                       selectedShape === shape.id
-                        ? 'bg-black text-white'
-                        : 'hover:border-black'
+                        ? 'bg-black text-white ring-2 ring-offset-1 ring-black'
+                        : 'text-gray-500 hover:text-black hover:border-black'
                     )}
                     onClick={() => handleShapeSelect(shape)}
                   >
@@ -145,25 +251,36 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
               </div>
             </div>
 
-            {/* 2. Sliders de Dimensiones */}
-            <div className="space-y-4 border-t pt-4">
-              {/* ANCHO */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-2 text-xs font-bold uppercase">
-                    <MoveHorizontal size={14} /> Ancho
-                  </Label>
-                  <span className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-600">
-                    {config.width} px
+            {/* 3. Dimensiones Manuales + Rotar */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex justify-between items-center mb-2">
+                <Label className="text-xs font-bold text-gray-500 uppercase">
+                  Dimensiones
+                </Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRotate}
+                  className="h-6 text-xs gap-1 hover:bg-gray-100"
+                >
+                  <RotateCw size={12} /> Rotar
+                </Button>
+              </div>
+
+              {/* Ancho */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="flex items-center gap-1 text-gray-600">
+                    <MoveHorizontal size={12} /> Ancho
                   </span>
+                  <span className="font-mono font-bold">{config.width}px</span>
                 </div>
-                {/* Slider Component (o input range nativo) */}
                 <input
                   type="range"
-                  min={500}
+                  min={300}
                   max={3000}
-                  step={50}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+                  step={10}
+                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
                   value={config.width}
                   onChange={(e) =>
                     setConfig({ ...config, width: Number(e.target.value) })
@@ -171,116 +288,94 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
                 />
               </div>
 
-              {/* ALTO */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="flex items-center gap-2 text-xs font-bold uppercase">
-                    <MoveVertical size={14} /> Alto
-                  </Label>
-                  <span className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-600">
-                    {config.height} px
+              {/* Alto */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="flex items-center gap-1 text-gray-600">
+                    <MoveVertical size={12} /> Alto
                   </span>
+                  <span className="font-mono font-bold">{config.height}px</span>
                 </div>
                 <input
                   type="range"
-                  min={500}
+                  min={300}
                   max={3000}
-                  step={50}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+                  step={10}
+                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
                   value={config.height}
                   onChange={(e) =>
                     setConfig({ ...config, height: Number(e.target.value) })
                   }
                 />
-              </div>
-            </div>
-
-            {/* Inputs Numéricos Precisos (Opcional, para ajuste fino) */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="relative">
-                <Input
-                  type="number"
-                  className="h-8 text-xs pr-6"
-                  value={config.width}
-                  onChange={(e) =>
-                    setConfig({ ...config, width: Number(e.target.value) })
-                  }
-                />
-                <span className="absolute right-2 top-2 text-[10px] text-gray-400">
-                  W
-                </span>
-              </div>
-              <div className="relative">
-                <Input
-                  type="number"
-                  className="h-8 text-xs pr-6"
-                  value={config.height}
-                  onChange={(e) =>
-                    setConfig({ ...config, height: Number(e.target.value) })
-                  }
-                />
-                <span className="absolute right-2 top-2 text-[10px] text-gray-400">
-                  H
-                </span>
               </div>
             </div>
           </div>
 
-          {/* COLUMNA DERECHA: VISUALIZADOR */}
-          <div className="md:col-span-7 bg-gray-50 dark:bg-gray-900 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center p-6 relative overflow-hidden group">
-            {/* Grid de fondo decorativo */}
+          {/* --- COLUMNA DERECHA: VISUALIZADOR --- */}
+          <div className="lg:col-span-8 bg-gray-50/50 dark:bg-gray-900 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 relative flex items-center justify-center min-h-[400px] overflow-hidden select-none">
+            {/* Fondo de Cuadrícula */}
             <div
-              className="absolute inset-0 opacity-[0.03] dark:opacity-[0.1]"
+              className="absolute inset-0 pointer-events-none opacity-[0.05]"
               style={{
                 backgroundImage:
                   'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-                backgroundSize: '20px 20px'
+                backgroundSize: '40px 40px'
               }}
             />
 
-            {/* Etiqueta flotante */}
-            <div className="absolute top-3 right-3 text-[10px] font-bold uppercase text-gray-400 bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-sm">
-              Vista Previa
+            {/* Indicador de Escala */}
+            <div className="absolute bottom-4 left-4 text-[10px] text-gray-400 font-mono bg-white border px-2 py-1 rounded">
+              Escala: {(scale * 100).toFixed(0)}%
             </div>
 
-            {/* EL MAPA REPRESENTADO */}
+            {/* === OBJETO MAPA INTERACTIVO === */}
             <div
-              className="relative bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-600 transition-all duration-300 ease-out flex items-center justify-center"
+              className={cn(
+                'relative bg-white dark:bg-gray-800 shadow-2xl border border-gray-300 dark:border-gray-600 transition-all ease-out flex items-center justify-center group',
+                // Si estamos arrastrando, quitamos la transición suave para que sea instantáneo
+                isDragging ? 'duration-0' : 'duration-300'
+              )}
               style={{
                 width: config.width * scale,
                 height: config.height * scale,
-                borderRadius: borderRadius,
-                // Si es estadio, añadimos un color sutil verde, si no blanco
-                backgroundColor:
-                  selectedShape === 'stadium' ? '#f0fdf4' : undefined // green-50
+                borderRadius: currentRadius
               }}
             >
-              {/* Cotas / Medidas Visuales */}
-              <div className="absolute -top-6 text-xs font-bold text-gray-500 flex items-center gap-1">
-                <span className="w-16 h-px bg-gray-300"></span>
-                {config.width}px
-                <span className="w-16 h-px bg-gray-300"></span>
+              {/* Cotas Exteriores (Dimensiones) */}
+              <div className="absolute -top-8 w-full flex justify-center text-xs font-bold text-gray-400">
+                <span className="bg-gray-100 px-2 rounded">
+                  {config.width} px
+                </span>
               </div>
-              <div className="absolute -left-8 -rotate-90 text-xs font-bold text-gray-500 flex items-center gap-1">
-                {config.height}px
+              <div className="absolute -left-10 h-full flex items-center text-xs font-bold text-gray-400">
+                <span className="bg-gray-100 px-2 rounded -rotate-90 whitespace-nowrap">
+                  {config.height} px
+                </span>
               </div>
 
-              {/* Decoración interior del mapa */}
-              {selectedShape === 'stadium' && (
-                <div className="w-[80%] h-[70%] border-2 border-green-100 rounded-[100px] pointer-events-none" />
-              )}
-              {selectedShape !== 'stadium' && (
-                <div className="w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"></div>
-              )}
+              {/* Decoración Interna */}
+              <div className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]" />
 
-              <span className="text-gray-300 font-black text-xl select-none opacity-50">
-                MAPA
+              <span className="text-gray-300 font-semibold z-0 pointer-events-none uppercase tracking-widest opacity-40">
+                {'PREVIEW'}
               </span>
+
+              {/* === MANEJADOR DE REDIMENSIÓN (GRIP) === */}
+              <div
+                onMouseDown={handleMouseDown}
+                className="absolute bottom-0 right-0 w-8 h-8 flex items-center justify-center cursor-nwse-resize hover:bg-black/5 rounded-tl-lg transition-colors z-10 group-hover:opacity-100"
+              >
+                {/* Icono de agarre */}
+                <Expand
+                  size={20}
+                  className="text-gray-400 group-hover:text-black dark:group-hover:text-white"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="border-t pt-4">
+        <DialogFooter className="border-t pt-4 mt-auto sm:mt-0">
           <Button
             type="button"
             variant="ghost"
@@ -289,9 +384,9 @@ export const CustomMapCreator: React.FC<CustomMapCreatorProps> = ({
             Cancelar
           </Button>
           <Button
-            onClick={() => onCreate(config)}
-            disabled={isPending}
-            className="bg-black text-white hover:bg-gray-800"
+            onClick={handleSubmit}
+            disabled={isPending || !name}
+            className="bg-black text-white min-w-[150px]"
           >
             {isPending ? (
               <Loader2 className="animate-spin mr-2 h-4 w-4" />

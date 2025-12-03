@@ -22,12 +22,14 @@ export const eventTicketSchema = z.object({
 
 export type EventTicketform = z.infer<typeof eventTicketSchema>
 
-const mapConfigSchema = z.object({
+export const mapConfigSchema = z.object({
   shape: z.enum(['rectangle', 'square', 'vertical', 'stadium']).optional(),
   borderRadius: z.string().optional(),
   fillColor: z.string().optional(),
   gridEnabled: z.boolean().optional()
 })
+
+export type MapConfig = z.infer<typeof mapConfigSchema>
 
 // Events Maps ticket schema
 export const eventMapSchema = z.object({
