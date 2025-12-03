@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect, useTransition } from 'react'
-import { X, LayoutGrid, Save, MonitorPlay, Move, Loader2 } from 'lucide-react'
+import { X, Save, MonitorPlay, Move, Loader2 } from 'lucide-react'
 import {
   EventMapZone,
   EventTicketform,
@@ -19,6 +19,9 @@ import {
   PRESET_COLORS,
   GRID_SIZE
 } from '../../data/types'
+import { toast } from 'react-toastify'
+import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
+import { Button } from '@/components/ui/button'
 
 interface DesingnerFormProps {
   mapData: EventMap // El mapa seleccionado actualmente
@@ -291,9 +294,15 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                   : p
               )
             )
+            toast.success(
+              <ToastCustom
+                title="Guardado"
+                description={`Zona "${item.name}" guardada correctamente.`}
+              />
+            )
           }
         }
-        alert('Mapa guardado correctamente')
+
         onClose() // Cerramos el diseñador al guardar
       } catch (e) {
         console.error(e)
@@ -307,9 +316,8 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       {/* Header */}
       <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20">
         <div className="flex items-center gap-4">
-          <LayoutGrid className="text-pink-500" />
           <div>
-            <h2 className="font-black tracking-wider text-lg leading-none">
+            <h2 className="font-semibold tracking-wider text-lg leading-none">
               DISEÑADOR DE ESCENARIO
             </h2>
             <p className="text-xs text-gray-400 font-mono">
@@ -318,13 +326,10 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           </div>
         </div>
         <div className="flex gap-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded text-sm font-bold text-gray-400 hover:text-white transition-colors"
-          >
+          <Button onClick={onClose} variant="ghost">
             CERRAR
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleSaveMap}
             disabled={isPending}
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold uppercase tracking-wider flex items-center gap-2"
@@ -335,7 +340,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
               <Save size={16} />
             )}
             GUARDAR MAPA
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -402,7 +407,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
               ref={canvasRef}
               className="relative bg-white shadow-2xl transition-all"
               style={{
-                minWidth: mapData.width || 1200,
+                minWidth: mapData.width || 520,
                 minHeight: mapData.height || 1000
               }}
               onDragOver={(e) => e.preventDefault()}
