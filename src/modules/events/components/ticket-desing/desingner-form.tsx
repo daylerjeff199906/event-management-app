@@ -1,7 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
-import { useRef, useState, useEffect, useTransition } from 'react'
-import { X, Save, MonitorPlay, Move, Loader2 } from 'lucide-react'
+import { useRef, useState, useEffect, useTransition, useCallback } from 'react'
+import {
+  X,
+  Save,
+  MonitorPlay,
+  Move,
+  Loader2,
+  ZoomIn,
+  ZoomOut,
+  Undo
+} from 'lucide-react'
 import {
   EventMapZone,
   EventTicketform,
@@ -22,6 +32,7 @@ import {
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface DesingnerFormProps {
   mapData: EventMap // El mapa seleccionado actualmente
@@ -38,12 +49,22 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 }) => {
   const [isPending, startTransition] = useTransition()
 
+  // --- Estado del Canvas ---
   // Inicializamos el canvas SOLO con las zonas de este mapa
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>(() =>
     initialMapZones.map((z) => mapZoneToCanvasItem(z, ticketsData))
   )
 
   const [deletedIds, setDeletedIds] = useState<string[]>([])
+
+  // --- Estado para Historial (Ctrl + Z) ---
+  const [history, setHistory] = useState<CanvasItem[][]>([
+    initialMapZones.map((z) => mapZoneToCanvasItem(z, ticketsData))
+  ])
+  const [historyIndex, setHistoryIndex] = useState(0)
+
+  // --- Estado del Zoom ---
+  const [zoom, setZoom] = useState(1)
 
   // Estados del Drag & Drop / Resize
   const [dragItem, setDragItem] = useState<{
@@ -67,13 +88,38 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 
   const canvasRef = useRef<HTMLDivElement>(null)
 
+  // --- Lógica de Historial ---
+  const addToHistory = (newItems: CanvasItem[]) => {
+    const newHistory = history.slice(0, historyIndex + 1)
+    newHistory.push(newItems)
+    setHistory(newHistory)
+    setHistoryIndex(newHistory.length - 1)
+  }
+
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      const prevIndex = historyIndex - 1
+      setHistoryIndex(prevIndex)
+      setCanvasItems(history[prevIndex])
+    }
+  }, [history, historyIndex])
+
+  // Escuchar Ctrl+Z
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault()
+        handleUndo()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleUndo])
+
   // --- Helpers Visuales (Conteo de capacidad) ---
   const visualItems = canvasItems.map((item) => {
-    // Lógica de cálculo de capacidad visual basada en tickets totales / zonas
-    // Simplificada para este ejemplo:
     if (item.type === 'TICKET_ZONE' && item.ticketId) {
       const ticket = ticketsData.find((t) => t.id === item.ticketId)
-      // Contamos cuántas zonas hay de este mismo ticket en el canvas actual
       const count = canvasItems.filter(
         (i) => i.ticketId === item.ticketId
       ).length
@@ -108,8 +154,11 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     e.preventDefault()
     if (!canvasRef.current) return
     const canvasRect = canvasRef.current.getBoundingClientRect()
-    const rawX = e.clientX - canvasRect.left
-    const rawY = e.clientY - canvasRect.top
+
+    // Ajustamos las coordenadas considerando el Zoom
+    const rawX = (e.clientX - canvasRect.left) / zoom
+    const rawY = (e.clientY - canvasRect.top) / zoom
+
     const x = snapToGrid(rawX - 50)
     const y = snapToGrid(rawY - 25)
 
@@ -119,7 +168,6 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       const parsedData = JSON.parse(rawData)
 
       if (parsedData.source === 'sidebar') {
-        // Validación Escenario único
         if (parsedData.type === 'STAGE') {
           const stageExists = canvasItems.some((i) => i.type === 'STAGE')
           if (stageExists) {
@@ -143,13 +191,16 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           y,
           width: parsedData.type === 'STAGE' ? 300 : 200,
           height: parsedData.type === 'STAGE' ? 120 : 100,
-          ticketId: parsedData.data?.id, // ID del ticket si aplica
+          ticketId: parsedData.data?.id,
           name: parsedData.data?.name || parsedData.data?.label,
           color: color,
           isNew: true,
           isDirty: true
         }
-        setCanvasItems((prev) => [...prev, newItem])
+
+        const nextItems = [...canvasItems, newItem]
+        setCanvasItems(nextItems)
+        addToHistory(nextItems) // Guardar en historial
       }
     } catch (err) {
       console.error(err)
@@ -197,15 +248,19 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     const item = canvasItems.find((i) => i.id === id)
     if (!item) return
     if (item.dbId) setDeletedIds((prev) => [...prev, item.dbId!])
-    setCanvasItems((prev) => prev.filter((i) => i.id !== id))
+
+    const nextItems = canvasItems.filter((i) => i.id !== id)
+    setCanvasItems(nextItems)
+    addToHistory(nextItems) // Guardar en historial al borrar
   }
 
   // Effect para Drag & Resize Global
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      // Ajustamos delta con el Zoom
       if (dragItem) {
-        const deltaX = e.clientX - dragItem.startX
-        const deltaY = e.clientY - dragItem.startY
+        const deltaX = (e.clientX - dragItem.startX) / zoom
+        const deltaY = (e.clientY - dragItem.startY) / zoom
         setCanvasItems((items) =>
           items.map((item) =>
             item.id === dragItem.id
@@ -219,8 +274,8 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           )
         )
       } else if (resizeItem) {
-        const deltaX = e.clientX - resizeItem.startX
-        const deltaY = e.clientY - resizeItem.startY
+        const deltaX = (e.clientX - resizeItem.startX) / zoom
+        const deltaY = (e.clientY - resizeItem.startY) / zoom
         setCanvasItems((items) =>
           items.map((item) => {
             if (item.id === resizeItem.id) {
@@ -243,6 +298,10 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       }
     }
     const handleMouseUp = () => {
+      // Si estábamos arrastrando o redimensionando, guardamos snapshot al terminar
+      if (dragItem || resizeItem) {
+        addToHistory(canvasItems)
+      }
       setDragItem(null)
       setResizeItem(null)
     }
@@ -254,7 +313,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [dragItem, resizeItem])
+  }, [dragItem, resizeItem, canvasItems, zoom]) // Agregamos dependencias necesarias
 
   // --- Guardado ---
   const handleSaveMap = async () => {
@@ -272,16 +331,13 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
         const itemsToSave = canvasItems.filter((i) => i.isNew || i.isDirty)
 
         for (const item of itemsToSave) {
-          // IMPORTANTE: Pasamos mapData.id para asociar la zona al mapa actual
           const payload = mapCanvasItemToZonePayload(item, mapData.id!)
-
           const response = await upsertEventMapZone({
             zoneId: item.dbId,
             payload
           })
 
           if (response.data) {
-            // Actualizamos estado local para que ya no sean "nuevos" ni "sucios"
             setCanvasItems((prev) =>
               prev.map((p) =>
                 p.id === item.id
@@ -294,21 +350,40 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                   : p
               )
             )
-            toast.success(
-              <ToastCustom
-                title="Guardado"
-                description={`Zona "${item.name}" guardada correctamente.`}
-              />
-            )
+            // No agregamos toast por cada item para no spamear
           }
         }
-
-        onClose() // Cerramos el diseñador al guardar
+        toast.success(
+          <ToastCustom
+            title="Guardado Exitoso"
+            description="El diseño del mapa se ha actualizado."
+          />
+        )
+        onClose()
       } catch (e) {
         console.error(e)
         alert('Error al guardar')
       }
     })
+  }
+
+  // --- Configuración Visual basada en Schema ---
+  const { shape, borderRadius, fillColor } = mapData.config || {}
+
+  // Estilos dinámicos del Canvas contenedor
+  const canvasStyle: React.CSSProperties = {
+    minWidth: mapData.width || 520,
+    minHeight: mapData.height || 1000,
+    // Aplicamos borderRadius de la config
+    borderRadius: borderRadius || '0px',
+    // Color de fondo: Si es estadio usamos el verde, sino el custom o blanco
+    backgroundColor:
+      shape === 'stadium'
+        ? '#f0fdf4' // Verde muy claro para modo light
+        : fillColor || '#ffffff',
+    // Escala del zoom
+    transform: `scale(${zoom})`,
+    transformOrigin: 'center top' // Hacemos zoom desde el centro superior
   }
 
   return (
@@ -320,13 +395,33 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
             <h2 className="font-semibold tracking-wider text-lg leading-none">
               DISEÑADOR DE ESCENARIO
             </h2>
-            <p className="text-xs text-gray-400 font-mono">
-              Editando Mapa ID: {mapData.id?.slice(0, 8)}...
-            </p>
+            <div className="flex items-center gap-2 text-xs text-gray-400 font-mono mt-1">
+              <span>ID: {mapData.id?.slice(0, 8)}...</span>
+              <span>|</span>
+              {/* Mostrar la forma actual */}
+              <span className="uppercase text-yellow-500 font-bold">
+                {shape || 'RECTANGULO'}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex gap-4">
-          <Button onClick={onClose} variant="ghost">
+        <div className="flex gap-4 items-center">
+          {/* Botón Undo en Header */}
+          <Button
+            onClick={handleUndo}
+            variant="outline"
+            size="sm"
+            disabled={historyIndex <= 0}
+            className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 disabled:opacity-50"
+          >
+            <Undo size={14} className="mr-2" /> Deshacer
+          </Button>
+
+          <Button
+            onClick={onClose}
+            variant="ghost"
+            className="text-white hover:bg-white/20"
+          >
             CERRAR
           </Button>
           <Button
@@ -345,9 +440,9 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       </div>
 
       {/* Contenido */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Sidebar */}
-        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto">
+        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto z-10 shadow-lg">
           <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">
             Elementos Disponibles
           </h3>
@@ -389,30 +484,42 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           </div>
         </div>
 
-        {/* Canvas */}
+        {/* Zona del Canvas */}
         <div className="flex-1 bg-[#e5e5e5] relative overflow-hidden flex flex-col">
           <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2">
             <Move size={14} /> ARRASTRA Y SUELTA
           </div>
-          <div className="flex-1 overflow-auto flex items-center justify-center p-20">
+
+          {/* Área con Scroll donde vive el Canvas escalado */}
+          <div className="flex-1 overflow-auto flex items-start justify-center p-20">
+            {/* Grid de fondo (Estático, ocupa todo el viewport disponible) */}
             <div
               className="absolute inset-0 pointer-events-none opacity-20"
               style={{
                 backgroundImage:
                   'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-                backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`
+                backgroundSize: `${GRID_SIZE * zoom}px ${GRID_SIZE * zoom}px` // El grid escala visualmente también
               }}
             />
+
+            {/* EL CANVAS REAL */}
             <div
               ref={canvasRef}
-              className="relative bg-white shadow-2xl transition-all"
-              style={{
-                minWidth: mapData.width || 520,
-                minHeight: mapData.height || 1000
-              }}
+              className={cn(
+                'relative shadow-2xl transition-shadow',
+                // Clases condicionales para "Dark Mode" del estadio
+                shape === 'stadium' &&
+                  'border-4 border-green-800/10 dark:border-green-400/20'
+              )}
+              style={canvasStyle}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
             >
+              {/* Decoración interna del Estadio (si aplica) */}
+              {shape === 'stadium' && (
+                <div className="absolute inset-4 border-2 border-dashed border-green-300 rounded-[inherit] pointer-events-none opacity-50" />
+              )}
+
               {visualItems.map((item) => {
                 const isVertical = item.height > item.width
                 return (
@@ -434,7 +541,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                       boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                     }}
                   >
-                    {/* Contenido Visual del Item (Texto, Capacidad, Botón Borrar) */}
+                    {/* Contenido Visual del Item */}
                     <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden">
                       {item.type === 'STAGE' ? (
                         <h3 className="text-white font-black text-xl tracking-[0.2em] z-10 text-center">
@@ -447,12 +554,12 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                               transform: isVertical ? 'rotate(-90deg)' : 'none'
                             }}
                           >
-                            <h3 className="text-white font-black uppercase leading-none text-center drop-shadow-md">
+                            <h3 className="text-white font-black uppercase leading-none text-center drop-shadow-md select-none">
                               {item.name}
                             </h3>
                           </div>
                           <div className="absolute bottom-1 left-0 right-0 flex justify-center pointer-events-none">
-                            <span className="bg-black/20 text-white text-[9px] font-mono px-1 rounded">
+                            <span className="bg-black/20 text-white text-[9px] font-mono px-1 rounded backdrop-blur-sm">
                               CAP: {item.capacity}
                             </span>
                           </div>
@@ -460,21 +567,57 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                       )}
                       <button
                         onClick={(e) => deleteItem(e, item.id)}
-                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all z-30"
+                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all z-30 hover:scale-110"
                       >
                         <X size={10} />
                       </button>
                       {/* Manija Resize */}
                       <div
                         onMouseDown={(e) => startResizingItem(e, item.id, 'se')}
-                        className="absolute w-3 h-3 bg-white border border-black rounded-full z-20 cursor-se-resize shadow-md"
-                        style={{ bottom: -4, right: -4 }}
+                        className="absolute w-4 h-4 bg-white border border-black rounded-full z-20 cursor-se-resize shadow-md hover:bg-yellow-200 transition-colors"
+                        style={{ bottom: -6, right: -6 }}
                       />
                     </div>
                   </div>
                 )
               })}
             </div>
+          </div>
+
+          {/* --- CONTROLES DE ZOOM (Bottom Right) --- */}
+          <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3 bg-white p-2 rounded-lg shadow-xl border border-gray-200 animate-in slide-in-from-bottom-5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))}
+            >
+              <ZoomOut size={16} />
+            </Button>
+
+            <div className="w-24 px-2">
+              <input
+                type="range"
+                min={0.2}
+                max={2}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+              />
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setZoom((z) => Math.min(2, z + 0.1))}
+            >
+              <ZoomIn size={16} />
+            </Button>
+            <span className="text-xs font-mono w-8 text-center">
+              {(zoom * 100).toFixed(0)}%
+            </span>
           </div>
         </div>
       </div>
