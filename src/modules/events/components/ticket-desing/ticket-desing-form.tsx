@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { LayoutTemplate, MapIcon } from 'lucide-react'
+import { LayoutTemplate } from 'lucide-react'
 import {
   EventTicketform,
   EventMapZone,
@@ -190,16 +190,14 @@ export const EventMapDesigner: React.FC<EventMapDesignerProps> = ({
       <div className="w-full flex flex-col gap-8">
         {/* Header de la Sección */}
         <div className="flex flex-col sm:flex-row justify-between items-end border-b border-gray-200 dark:border-zinc-800 pb-6">
-          <div className="space-y-1">
-            <h2 className="text-2xl tracking-tight font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <MapIcon className="w-6 h-6" /> Distribución de Escenario
+          <div>
+            <h2 className="text-xl tracking-tight uppercase font-semibold">
+              2. Gestión de Mapas y Escenarios
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-lg">
-              Gestiona los planos de tu evento. Crea diferentes zonas, asigna
-              tickets y organiza la distribución visualmente.
+            <p className="text-gray-500 mt-1 text-sm">
+              Crea y administra los planos de distribución para tus eventos.
             </p>
           </div>
-
           {/* Tu componente de acciones existente */}
           <div className="mt-4 sm:mt-0">
             <MapCreatorActions
