@@ -26,7 +26,6 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { EventActivity, EventItemDetails } from '@/types'
 import { EventMode } from '../schemas'
@@ -55,6 +54,9 @@ export function EventDetailsPage({
   initialIsFollowing
 }: EventDetailsPageProps) {
   const [showShareOptions, setShowShareOptions] = useState(false)
+  const [activeTab, setActiveTab] = useState<'description' | 'agenda'>(
+    'description'
+  )
 
   // --- Helpers de Formato ---
   const formatDate = (dateString: string) => {
@@ -362,29 +364,46 @@ export function EventDetailsPage({
           </div>
 
           {/* Columna Derecha: Narrativa e Imágenes */}
-          <Tabs defaultValue="description" className="lg:col-span-8">
+          <div className="lg:col-span-8">
+            {/* --- ENCABEZADO DE PESTAÑAS (TABS LIST) --- */}
             {schedule && schedule.length > 0 && (
-              <TabsList className="w-full justify-start rounded-none border-b border-zinc-200 bg-transparent p-0 mb-6 dark:border-zinc-800">
-                <TabsTrigger
-                  value="description"
-                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 data-[state=active]:shadow-none hover:text-zinc-900 dark:hover:text-zinc-100"
+              <div className="flex w-full justify-start border-b border-zinc-200 dark:border-zinc-800 mb-6">
+                {/* Botón Descripción */}
+                <button
+                  onClick={() => setActiveTab('description')}
+                  className={`
+              relative px-4 pb-3 pt-2 font-medium text-sm transition-colors duration-200 border-b-2
+              ${
+                activeTab === 'description'
+                  ? 'border-orange-500 text-orange-500' // Estilo Activo
+                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' // Estilo Inactivo
+              }
+            `}
                 >
                   Descripción
-                </TabsTrigger>
+                </button>
 
-                {schedule && schedule.length > 0 && (
-                  <TabsTrigger
-                    value="agenda"
-                    className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 data-[state=active]:shadow-none hover:text-zinc-900 dark:hover:text-zinc-100"
-                  >
-                    Agenda
-                  </TabsTrigger>
-                )}
-              </TabsList>
+                {/* Botón Agenda */}
+                <button
+                  onClick={() => setActiveTab('agenda')}
+                  className={`
+              relative px-4 pb-3 pt-2 font-medium text-sm transition-colors duration-200 border-b-2
+              ${
+                activeTab === 'agenda'
+                  ? 'border-orange-500 text-orange-500' // Estilo Activo
+                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' // Estilo Inactivo
+              }
+            `}
+                >
+                  Agenda
+                </button>
+              </div>
             )}
-            <TabsContent value="description">
-              <div className="lg:col-span-8 space-y-12">
-                {/* Descripción del evento */}
+
+            {/* --- CONTENIDO DE LA PESTAÑA: DESCRIPCIÓN --- */}
+            {activeTab === 'description' && (
+              <div className="space-y-12 animate-in fade-in zoom-in-95 duration-300">
+                {/* Texto de descripción */}
                 <div className="prose prose-lg max-w-none text-zinc-700 dark:prose-invert dark:text-zinc-300">
                   <h3 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-6 border-l-4 border-orange-500 pl-4">
                     Sobre este evento
@@ -428,23 +447,19 @@ export function EventDetailsPage({
                             >
                               <div className="w-full h-full flex items-center justify-center p-2">
                                 <img
-                                  src={image!}
-                                  alt={`${event.event_name} - Imagen ${
-                                    index + 1
-                                  }`}
+                                  src={image}
+                                  alt={`Imagen ${index + 1}`}
                                   className="max-w-full max-h-full object-cover transition-transform hover:scale-105 rounded-md"
                                 />
                               </div>
-
-                              {eventImages.length > 1 &&
-                                index === 0 &&
-                                eventImages.length > 2 && (
-                                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                                    <span className="text-white font-semibold text-lg">
-                                      +{eventImages.length - 1} imágenes
-                                    </span>
-                                  </div>
-                                )}
+                              {/* Overlay para más imágenes si es necesario */}
+                              {eventImages.length > 2 && index === 0 && (
+                                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                                  <span className="text-white font-semibold text-lg">
+                                    +{eventImages.length - 1} imágenes
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </PhotoView>
                         ))}
@@ -457,15 +472,18 @@ export function EventDetailsPage({
                   <ReactMarkdownContent content={event.full_description} />
                 )}
               </div>
-            </TabsContent>
-            {schedule && schedule.length > 0 && (
-              <TabsContent value="agenda">
+            )}
+
+            {/* --- CONTENIDO DE LA PESTAÑA: AGENDA --- */}
+            {activeTab === 'agenda' && schedule && schedule.length > 0 && (
+              <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
                 <div className="prose prose-lg max-w-none text-zinc-700 dark:prose-invert dark:text-zinc-300">
                   <h3 className="text-2xl font-bold uppercase tracking-tight text-zinc-900 dark:text-white mb-6 border-l-4 border-orange-500 pl-4">
                     Programa del Evento
                   </h3>
 
                   <AgendaView activities={schedule} />
+
                   <AgendaDownloadButton
                     eventName={event.event_name}
                     institutionName={event.institution?.institution_name}
@@ -473,15 +491,18 @@ export function EventDetailsPage({
                     className="mb-6"
                   />
                 </div>
-              </TabsContent>
+              </div>
             )}
-            {/* Sección Organizado Por */}
-            <OrganizerCard
-              event={event}
-              initialIsFollowing={initialIsFollowing}
-              isAuthenticated={isAuthenticated}
-            />
-          </Tabs>
+
+            {/* Sección Organizado Por (Siempre visible o depende de tu diseño original) */}
+            <div className="mt-12">
+              <OrganizerCard
+                event={event}
+                initialIsFollowing={initialIsFollowing}
+                isAuthenticated={isAuthenticated}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
