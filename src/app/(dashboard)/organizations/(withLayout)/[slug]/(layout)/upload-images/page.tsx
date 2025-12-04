@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 import { ImageUpload } from '@/components/app/miscellaneous/image-upload'
 
 export default function CreateProfilePage() {
@@ -24,10 +23,9 @@ export default function CreateProfilePage() {
 
           {imageUrl ? (
             <div className="relative w-40 h-40 rounded-lg overflow-hidden border">
-              <Image
+              <img
                 src={imageUrl}
                 alt="Upload preview"
-                fill
                 className="object-cover"
               />
               <button
@@ -40,7 +38,7 @@ export default function CreateProfilePage() {
             </div>
           ) : (
             // Aquí usamos nuestro componente
-            <ImageUpload onUpload={(url) => setImageUrl(url)} />
+            <ImageUpload onUpload={(url) => setImageUrl(url)} preset="events" />
           )}
         </div>
 
