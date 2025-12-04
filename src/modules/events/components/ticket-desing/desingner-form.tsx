@@ -1,7 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
-import { useRef, useState, useEffect, useTransition } from 'react'
-import { X, Save, MonitorPlay, Move, Loader2 } from 'lucide-react'
+import { useRef, useState, useEffect, useTransition, useCallback } from 'react'
+import {
+  X,
+  Save,
+  MonitorPlay,
+  Move,
+  Loader2,
+  ZoomIn,
+  ZoomOut,
+  Undo,
+  MousePointer2
+} from 'lucide-react'
 import {
   EventMapZone,
   EventTicketform,
@@ -16,17 +27,17 @@ import {
   mapZoneToCanvasItem,
   mapCanvasItemToZonePayload,
   snapToGrid,
-  PRESET_COLORS,
-  GRID_SIZE
+  PRESET_COLORS
 } from '../../data/types'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface DesingnerFormProps {
-  mapData: EventMap // El mapa seleccionado actualmente
-  ticketsData: EventTicketform[] // Los tickets disponibles
-  initialMapZones: EventMapZone[] // Las zonas YA filtradas para este mapa
+  mapData: EventMap
+  ticketsData: EventTicketform[]
+  initialMapZones: EventMapZone[]
   onClose: () => void
 }
 
@@ -38,12 +49,29 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 }) => {
   const [isPending, startTransition] = useTransition()
 
-  // Inicializamos el canvas SOLO con las zonas de este mapa
+  // --- Configuración Visual desde el Mapa ---
+  const { shape, borderRadius } = mapData.config || {
+    shape: 'rectangle',
+    borderRadius: '0px'
+  }
+  const mapWidth = mapData.width || 800
+  const mapHeight = mapData.height || 600
+
+  // --- Estado del Canvas ---
   const [canvasItems, setCanvasItems] = useState<CanvasItem[]>(() =>
     initialMapZones.map((z) => mapZoneToCanvasItem(z, ticketsData))
   )
 
   const [deletedIds, setDeletedIds] = useState<string[]>([])
+
+  // --- Estado para Historial (Ctrl + Z) ---
+  const [history, setHistory] = useState<CanvasItem[][]>([
+    initialMapZones.map((z) => mapZoneToCanvasItem(z, ticketsData))
+  ])
+  const [historyIndex, setHistoryIndex] = useState(0)
+
+  // --- Estado del Zoom (Por defecto 70%) ---
+  const [zoom, setZoom] = useState(0.7)
 
   // Estados del Drag & Drop / Resize
   const [dragItem, setDragItem] = useState<{
@@ -67,13 +95,37 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 
   const canvasRef = useRef<HTMLDivElement>(null)
 
-  // --- Helpers Visuales (Conteo de capacidad) ---
+  // --- Lógica de Historial ---
+  const addToHistory = (newItems: CanvasItem[]) => {
+    const newHistory = history.slice(0, historyIndex + 1)
+    newHistory.push(newItems)
+    setHistory(newHistory)
+    setHistoryIndex(newHistory.length - 1)
+  }
+
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      const prevIndex = historyIndex - 1
+      setHistoryIndex(prevIndex)
+      setCanvasItems(history[prevIndex])
+    }
+  }, [history, historyIndex])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault()
+        handleUndo()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleUndo])
+
+  // --- Helpers Visuales ---
   const visualItems = canvasItems.map((item) => {
-    // Lógica de cálculo de capacidad visual basada en tickets totales / zonas
-    // Simplificada para este ejemplo:
     if (item.type === 'TICKET_ZONE' && item.ticketId) {
       const ticket = ticketsData.find((t) => t.id === item.ticketId)
-      // Contamos cuántas zonas hay de este mismo ticket en el canvas actual
       const count = canvasItems.filter(
         (i) => i.ticketId === item.ticketId
       ).length
@@ -108,8 +160,10 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     e.preventDefault()
     if (!canvasRef.current) return
     const canvasRect = canvasRef.current.getBoundingClientRect()
-    const rawX = e.clientX - canvasRect.left
-    const rawY = e.clientY - canvasRect.top
+
+    const rawX = (e.clientX - canvasRect.left) / zoom
+    const rawY = (e.clientY - canvasRect.top) / zoom
+
     const x = snapToGrid(rawX - 50)
     const y = snapToGrid(rawY - 25)
 
@@ -119,7 +173,6 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       const parsedData = JSON.parse(rawData)
 
       if (parsedData.source === 'sidebar') {
-        // Validación Escenario único
         if (parsedData.type === 'STAGE') {
           const stageExists = canvasItems.some((i) => i.type === 'STAGE')
           if (stageExists) {
@@ -141,22 +194,25 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           type: parsedData.type,
           x,
           y,
-          width: parsedData.type === 'STAGE' ? 300 : 200,
-          height: parsedData.type === 'STAGE' ? 120 : 100,
-          ticketId: parsedData.data?.id, // ID del ticket si aplica
+          width: parsedData.type === 'STAGE' ? 350 : 320,
+          height: parsedData.type === 'STAGE' ? 200 : 120,
+          ticketId: parsedData.data?.id,
           name: parsedData.data?.name || parsedData.data?.label,
           color: color,
           isNew: true,
           isDirty: true
         }
-        setCanvasItems((prev) => [...prev, newItem])
+
+        const nextItems = [...canvasItems, newItem]
+        setCanvasItems(nextItems)
+        addToHistory(nextItems)
       }
     } catch (err) {
       console.error(err)
     }
   }
 
-  // --- Manejo del movimiento y resize dentro del canvas ---
+  // --- Canvas Interaction Handlers ---
   const startMovingItem = (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     if (resizeItem) return
@@ -197,15 +253,17 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     const item = canvasItems.find((i) => i.id === id)
     if (!item) return
     if (item.dbId) setDeletedIds((prev) => [...prev, item.dbId!])
-    setCanvasItems((prev) => prev.filter((i) => i.id !== id))
+
+    const nextItems = canvasItems.filter((i) => i.id !== id)
+    setCanvasItems(nextItems)
+    addToHistory(nextItems)
   }
 
-  // Effect para Drag & Resize Global
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (dragItem) {
-        const deltaX = e.clientX - dragItem.startX
-        const deltaY = e.clientY - dragItem.startY
+        const deltaX = (e.clientX - dragItem.startX) / zoom
+        const deltaY = (e.clientY - dragItem.startY) / zoom
         setCanvasItems((items) =>
           items.map((item) =>
             item.id === dragItem.id
@@ -219,8 +277,8 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
           )
         )
       } else if (resizeItem) {
-        const deltaX = e.clientX - resizeItem.startX
-        const deltaY = e.clientY - resizeItem.startY
+        const deltaX = (e.clientX - resizeItem.startX) / zoom
+        const deltaY = (e.clientY - resizeItem.startY) / zoom
         setCanvasItems((items) =>
           items.map((item) => {
             if (item.id === resizeItem.id) {
@@ -243,6 +301,9 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       }
     }
     const handleMouseUp = () => {
+      if (dragItem || resizeItem) {
+        addToHistory(canvasItems)
+      }
       setDragItem(null)
       setResizeItem(null)
     }
@@ -254,7 +315,7 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [dragItem, resizeItem])
+  }, [dragItem, resizeItem, canvasItems, zoom])
 
   // --- Guardado ---
   const handleSaveMap = async () => {
@@ -262,26 +323,21 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
 
     startTransition(async () => {
       try {
-        // 1. Eliminar
         for (const id of deletedIds) {
           await deleteEventMapZone(id)
         }
         setDeletedIds([])
 
-        // 2. Upsert (Crear o Actualizar)
         const itemsToSave = canvasItems.filter((i) => i.isNew || i.isDirty)
 
         for (const item of itemsToSave) {
-          // IMPORTANTE: Pasamos mapData.id para asociar la zona al mapa actual
           const payload = mapCanvasItemToZonePayload(item, mapData.id!)
-
           const response = await upsertEventMapZone({
             zoneId: item.dbId,
             payload
           })
 
           if (response.data) {
-            // Actualizamos estado local para que ya no sean "nuevos" ni "sucios"
             setCanvasItems((prev) =>
               prev.map((p) =>
                 p.id === item.id
@@ -294,16 +350,15 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                   : p
               )
             )
-            toast.success(
-              <ToastCustom
-                title="Guardado"
-                description={`Zona "${item.name}" guardada correctamente.`}
-              />
-            )
           }
         }
-
-        onClose() // Cerramos el diseñador al guardar
+        toast.success(
+          <ToastCustom
+            title="Guardado Exitoso"
+            description="El diseño del mapa se ha actualizado."
+          />
+        )
+        onClose()
       } catch (e) {
         console.error(e)
         alert('Error al guardar')
@@ -311,22 +366,55 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
     })
   }
 
+  // --- ESTILOS DINÁMICOS DEL PLANO ---
+  // Estilo principal del "papel" o "terreno"
+  const canvasStyle: React.CSSProperties = {
+    width: mapWidth,
+    height: mapHeight,
+    borderRadius: borderRadius,
+    transform: `scale(${zoom})`,
+    // CLAVE: transformOrigin top-left para que encaje en el wrapper escalado
+    transformOrigin: 'top left'
+  }
+
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200">
-      {/* Header */}
-      <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20">
+    <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in duration-200 overflow-hidden">
+      {/* --- HEADER --- */}
+      <div className="h-16 bg-black text-white flex items-center justify-between px-6 shadow-md z-20 shrink-0">
         <div className="flex items-center gap-4">
           <div>
             <h2 className="font-semibold tracking-wider text-lg leading-none">
               DISEÑADOR DE ESCENARIO
             </h2>
-            <p className="text-xs text-gray-400 font-mono">
-              Editando Mapa ID: {mapData.id?.slice(0, 8)}...
-            </p>
+            <div className="flex items-center gap-2 text-xs text-gray-400 font-mono mt-1">
+              <span>ID: {mapData.id?.slice(0, 8)}...</span>
+              <span className="text-gray-600">|</span>
+              <span className="uppercase text-yellow-500 font-bold">
+                {shape}
+              </span>
+              <span className="text-gray-600">|</span>
+              <span className="text-gray-500">
+                {mapWidth}x{mapHeight}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex gap-4">
-          <Button onClick={onClose} variant="ghost">
+        <div className="flex gap-4 items-center">
+          <Button
+            onClick={handleUndo}
+            variant="outline"
+            size="sm"
+            disabled={historyIndex <= 0}
+            className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 disabled:opacity-50 h-9"
+          >
+            <Undo size={14} className="mr-2" /> Deshacer
+          </Button>
+          <div className="h-6 w-px bg-gray-700 mx-2" />
+          <Button
+            onClick={onClose}
+            variant="ghost"
+            className="text-white hover:bg-white/20"
+          >
             CERRAR
           </Button>
           <Button
@@ -344,26 +432,30 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
         </div>
       </div>
 
-      {/* Contenido */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto">
-          <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest">
-            Elementos Disponibles
+      {/* --- CONTENIDO PRINCIPAL --- */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* SIDEBAR DE HERRAMIENTAS */}
+        <div className="w-72 bg-gray-50 border-r border-gray-200 flex flex-col p-4 overflow-y-auto z-10 shadow-lg select-none h-full shrink-0">
+          <h3 className="font-bold text-xs text-gray-400 uppercase mb-4 tracking-widest flex items-center gap-2">
+            <MousePointer2 size={12} /> Elementos Disponibles
           </h3>
-          {/* Draggable Stage */}
+
+          <div className="text-xs text-gray-400 mb-2 italic">
+            Arrastra elementos al plano
+          </div>
+
           <div
             draggable
             onDragStart={(e) =>
               handleDragStartFromSidebar(e, { label: 'ESCENARIO' }, 'STAGE')
             }
-            className="p-4 bg-gray-900 text-white rounded cursor-grab flex items-center justify-center gap-2 mb-6 hover:scale-105 transition-transform shadow-lg"
+            className="p-4 bg-gray-900 text-white rounded cursor-grab flex items-center justify-center gap-2 mb-6 hover:scale-[1.02] transition-transform shadow-lg border border-black active:cursor-grabbing"
           >
             <MonitorPlay size={20} />{' '}
             <span className="font-bold">ESCENARIO</span>
           </div>
-          {/* Draggable Tickets */}
-          <div className="space-y-3">
+
+          <div className="space-y-3 pb-10">
             {ticketsData.map((t, idx) => (
               <div
                 key={t.id}
@@ -371,110 +463,192 @@ export const DesingnerForm: React.FC<DesingnerFormProps> = ({
                 onDragStart={(e) =>
                   handleDragStartFromSidebar(e, t, 'TICKET_ZONE')
                 }
-                className="p-3 bg-white border-2 border-transparent hover:border-black rounded shadow-sm cursor-grab active:cursor-grabbing group relative select-none"
-                style={{
-                  borderLeftColor: PRESET_COLORS[idx % PRESET_COLORS.length],
-                  borderLeftWidth: '4px'
-                }}
+                className="p-3 bg-white border border-gray-200 hover:border-black rounded shadow-sm cursor-grab active:cursor-grabbing group relative transition-all hover:shadow-md"
               >
-                <div className="font-black text-sm text-gray-800 uppercase mb-1">
-                  {t.name}
-                </div>
-                <div className="text-xs text-gray-500 flex justify-between">
-                  <span>S/ {t.price}</span>
-                  <span>Cap: {t.quantity_total}</span>
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-1 rounded-l"
+                  style={{
+                    backgroundColor: PRESET_COLORS[idx % PRESET_COLORS.length]
+                  }}
+                />
+                <div className="pl-3">
+                  <div className="font-black text-sm text-gray-800 uppercase mb-1 truncate">
+                    {t.name}
+                  </div>
+                  <div className="text-xs text-gray-500 flex justify-between font-mono">
+                    <span>S/ {t.price}</span>
+                    <span>Total: {t.quantity_total}</span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Canvas */}
-        <div className="flex-1 bg-[#e5e5e5] relative overflow-hidden flex flex-col">
-          <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2">
-            <Move size={14} /> ARRASTRA Y SUELTA
+        {/* --- ÁREA DE TRABAJO (WRAPPER DEL CANVAS) --- */}
+        <div className="flex-1 bg-[#f0f2f5] relative flex flex-col overflow-hidden h-full">
+          {/* Indicador Flotante */}
+          <div className="absolute top-4 left-4 z-20 bg-white/80 backdrop-blur px-4 py-2 rounded-full shadow-sm text-xs font-bold text-gray-500 border border-gray-200 pointer-events-none flex items-center gap-2 select-none dark:bg-gray-800/80 dark:text-gray-300 dark:border-gray-600">
+            <Move size={14} /> MODO EDICIÓN
           </div>
-          <div className="flex-1 overflow-auto flex items-center justify-center p-20">
-            <div
-              className="absolute inset-0 pointer-events-none opacity-20"
-              style={{
-                backgroundImage:
-                  'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
-                backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`
-              }}
-            />
-            <div
-              ref={canvasRef}
-              className="relative bg-white shadow-2xl transition-all"
-              style={{
-                minWidth: mapData.width || 520,
-                minHeight: mapData.height || 1000
-              }}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-            >
-              {visualItems.map((item) => {
-                const isVertical = item.height > item.width
-                return (
-                  <div
-                    key={item.id}
-                    onMouseDown={(e) => startMovingItem(e, item.id)}
-                    className={`absolute group hover:z-50 transition-shadow ${
-                      dragItem?.id === item.id
-                        ? 'cursor-grabbing z-50 ring-4 ring-yellow-400'
-                        : 'cursor-grab z-10 hover:ring-2 hover:ring-black/20'
-                    }`}
-                    style={{
-                      left: item.x,
-                      top: item.y,
-                      width: item.width,
-                      height: item.height,
-                      backgroundColor:
-                        item.type === 'STAGE' ? '#000000' : item.color,
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                  >
-                    {/* Contenido Visual del Item (Texto, Capacidad, Botón Borrar) */}
-                    <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden">
-                      {item.type === 'STAGE' ? (
-                        <h3 className="text-white font-black text-xl tracking-[0.2em] z-10 text-center">
-                          ESCENARIO
-                        </h3>
-                      ) : (
-                        <>
-                          <div
-                            style={{
-                              transform: isVertical ? 'rotate(-90deg)' : 'none'
-                            }}
-                          >
-                            <h3 className="text-white font-black uppercase leading-none text-center drop-shadow-md">
-                              {item.name}
-                            </h3>
-                          </div>
-                          <div className="absolute bottom-1 left-0 right-0 flex justify-center pointer-events-none">
-                            <span className="bg-black/20 text-white text-[9px] font-mono px-1 rounded">
-                              CAP: {item.capacity}
-                            </span>
-                          </div>
-                        </>
-                      )}
-                      <button
-                        onClick={(e) => deleteItem(e, item.id)}
-                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-all z-30"
-                      >
-                        <X size={10} />
-                      </button>
-                      {/* Manija Resize */}
-                      <div
-                        onMouseDown={(e) => startResizingItem(e, item.id, 'se')}
-                        className="absolute w-3 h-3 bg-white border border-black rounded-full z-20 cursor-se-resize shadow-md"
-                        style={{ bottom: -4, right: -4 }}
-                      />
-                    </div>
+
+          {/* FONDO DE CUADRÍCULA TÉCNICA (Estilo Blueprint) */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.08]"
+            style={{
+              backgroundImage:
+                'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
+              backgroundSize: `${40 * zoom}px ${40 * zoom}px`
+            }}
+          />
+          {/* ÁREA DE SCROLL: Aquí es donde ocurre el scroll. Usamos Flex Center para el centrado. */}
+          <div className="flex-1 overflow-auto w-full h-full relative">
+            <div className="min-w-full min-h-full flex items-center justify-center p-32 bg-transparent">
+              <div
+                style={{
+                  width: mapWidth * zoom,
+                  height: mapHeight * zoom,
+                  position: 'relative',
+                  flexShrink: 0
+                }}
+              >
+                {/* --- EL PLANO / MAPA REAL (Transformado) --- */}
+                <div
+                  ref={canvasRef}
+                  className={cn(
+                    'relative bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-shadow ease-out',
+                    'border border-gray-300'
+                  )}
+                  style={canvasStyle}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                >
+                  {/* Cotas Exteriores (Dimensiones) */}
+                  <div className="absolute -top-8 w-full flex justify-center text-xs font-bold text-gray-400 font-mono select-none">
+                    <span className="bg-gray-100 px-2 rounded border border-gray-200">
+                      {mapWidth} px
+                    </span>
                   </div>
-                )
-              })}
+                  <div className="absolute -left-10 h-full flex items-center text-xs font-bold text-gray-400 font-mono select-none">
+                    <span className="bg-gray-100 px-2 rounded border border-gray-200 -rotate-90 whitespace-nowrap">
+                      {mapHeight} px
+                    </span>
+                  </div>
+
+                  {/* TEXTURA INTERNA DEL PLANO */}
+                  <div
+                    className="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"
+                    style={{ borderRadius: borderRadius }}
+                  />
+
+                  {/* Decoración específica para Estadio */}
+                  {shape === 'stadium' && (
+                    <div className="absolute inset-4 border-2 border-dashed border-green-900/10 rounded-[inherit] pointer-events-none" />
+                  )}
+
+                  {/* --- ELEMENTOS --- */}
+                  {visualItems.map((item) => {
+                    const isVertical = item.height > item.width
+                    return (
+                      <div
+                        key={item.id}
+                        onMouseDown={(e) => startMovingItem(e, item.id)}
+                        className={cn(
+                          'absolute group transition-shadow',
+                          dragItem?.id === item.id
+                            ? 'cursor-grabbing z-50 ring-2 ring-black shadow-xl'
+                            : 'cursor-grab z-10 hover:ring-1 hover:ring-black/30 hover:shadow-lg hover:z-40'
+                        )}
+                        style={{
+                          left: item.x,
+                          top: item.y,
+                          width: item.width,
+                          height: item.height,
+                          backgroundColor:
+                            item.type === 'STAGE' ? '#1a1a1a' : item.color,
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        }}
+                      >
+                        <div className="w-full h-full flex flex-col items-center justify-center p-2 relative overflow-hidden select-none">
+                          {item.type === 'STAGE' ? (
+                            <div className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 w-full h-full p-2">
+                              <MonitorPlay
+                                className="text-gray-500 mb-1"
+                                size={24}
+                              />
+                              <h3 className="text-white font-black text-lg tracking-[0.2em] z-10 text-center opacity-90">
+                                ESCENARIO
+                              </h3>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagonal-stripes.png')] pointer-events-none" />
+                              <div
+                                style={{
+                                  transform: isVertical
+                                    ? 'rotate(-90deg)'
+                                    : 'none'
+                                }}
+                              >
+                                <h3 className="text-white text-base lg:text-lg font-bold uppercase leading-none text-center drop-shadow-md">
+                                  {item.name}
+                                </h3>
+                              </div>
+                            </>
+                          )}
+                          <button
+                            onClick={(e) => deleteItem(e, item.id)}
+                            className="absolute cursor-pointer top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all z-30 shadow-sm hover:scale-110 hover:bg-red-600 dark:hover:bg-red-400"
+                          >
+                            <X size={12} strokeWidth={3} />
+                          </button>
+                          <div
+                            onMouseDown={(e) =>
+                              startResizingItem(e, item.id, 'se')
+                            }
+                            className="absolute w-3 h-3 bg-white border border-gray-400 z-20 cursor-se-resize hover:bg-black transition-colors shadow-sm bottom-0 right-0 rounded-tl-sm"
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
+          </div>
+
+          {/* --- CONTROLES DE ZOOM (Fixed Bottom Right) --- */}
+          <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3 bg-white p-2 rounded-lg shadow-xl border border-gray-200 animate-in slide-in-from-bottom-5 dark:bg-gray-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))}
+            >
+              <ZoomOut size={16} className="text-gray-600 dark:text-gray-300" />
+            </Button>
+            <div className="w-24 px-2">
+              <input
+                type="range"
+                min={0.2}
+                max={2}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black dark:bg-gray-700 dark:accent-white"
+              />
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-gray-100"
+              onClick={() => setZoom((z) => Math.min(2, z + 0.1))}
+            >
+              <ZoomIn size={16} className="text-gray-600 dark:text-gray-300" />
+            </Button>
+            <span className="text-xs font-mono w-10 text-center font-bold text-gray-500 dark:text-gray-300">
+              {(zoom * 100).toFixed(0)}%
+            </span>
           </div>
         </div>
       </div>
