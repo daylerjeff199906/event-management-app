@@ -364,17 +364,18 @@ export function EventDetailsPage({
           {/* Columna Derecha: Narrativa e Imágenes */}
           <Tabs defaultValue="description" className="lg:col-span-8">
             {schedule && schedule.length > 0 && (
-              <TabsList className="mb-6 border-b border-zinc-200 dark:border-zinc-800">
+              <TabsList className="w-full justify-start rounded-none border-b border-zinc-200 bg-transparent p-0 mb-6 dark:border-zinc-800">
                 <TabsTrigger
                   value="description"
-                  className="text-zinc-900 dark:text-white font-medium"
+                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 data-[state=active]:shadow-none hover:text-zinc-900 dark:hover:text-zinc-100"
                 >
                   Descripción
                 </TabsTrigger>
+
                 {schedule && schedule.length > 0 && (
                   <TabsTrigger
                     value="agenda"
-                    className="text-zinc-900 dark:text-white font-medium"
+                    className="relative rounded-none border-b-2 border-transparent bg-transparent px-4 pb-3 pt-2 font-medium text-muted-foreground shadow-none transition-none data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 data-[state=active]:shadow-none hover:text-zinc-900 dark:hover:text-zinc-100"
                   >
                     Agenda
                   </TabsTrigger>
