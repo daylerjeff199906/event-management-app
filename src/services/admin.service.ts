@@ -109,7 +109,7 @@ class DashboardService {
   }
 
   private async getTotalUsers(): Promise<CountQueryResult> {
-    return await this.executeCountQuery('users')
+    return await this.executeCountQuery('profiles')
   }
 
   private async getActiveInstitutions(): Promise<CountQueryResult> {
@@ -122,7 +122,7 @@ class DashboardService {
 
   private async getRecentUsers(): Promise<DataQueryResult<RecentUser[]>> {
     return await this.supabase
-      .from('users')
+      .from('profiles')
       .select('id, first_name, last_name, email, created_at, profile_image')
       .order('created_at', { ascending: false })
       .limit(RECENT_USERS_LIMIT)

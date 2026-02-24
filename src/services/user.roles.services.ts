@@ -1,7 +1,7 @@
 'use server'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
 import { getSupabase } from './core.supabase'
-import { IUser, IUserRoleFull } from '@/types'
+import { IProfile, IUserRoleFull, InstitutionRole } from '@/types'
 import { revalidatePath } from 'next/cache'
 
 export async function getInstitutionsByUserRole(
@@ -18,7 +18,6 @@ export async function getInstitutionsByUserRole(
     return []
   }
 
-  // Flatten the result to return only institutions
   return data?.flatMap((row) => row.institutions) ?? []
 }
 
@@ -55,7 +54,7 @@ export async function getUserRoleByIdInstitution(
   return data as IUserRoleFull
 }
 
-export async function getUsersPagintion({
+export async function getUsersPagination({
   page,
   pageSize,
   query
@@ -63,11 +62,11 @@ export async function getUsersPagintion({
   page: number
   pageSize?: number
   query?: string
-}): Promise<{ users: IUser[]; total: number }> {
+}): Promise<{ users: IProfile[]; total: number }> {
   const supabase = await getSupabase()
   const limit = pageSize ?? 20
   let queryBuilder = supabase
-    .from('users')
+    .from('profiles')
     .select('*', { count: 'exact' })
     .range((page - 1) * limit, page * limit - 1)
   if (query) {
@@ -81,10 +80,10 @@ export async function getUsersPagintion({
   return { users: data ?? [], total: count ?? 0 }
 }
 
-export async function getUserById(userId: string): Promise<IUser | null> {
+export async function getUserById(userId: string): Promise<IProfile | null> {
   const supabase = await getSupabase()
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')
     .select('*, user_roles(*)')
     .eq('id', userId)
     .single()
@@ -92,7 +91,7 @@ export async function getUserById(userId: string): Promise<IUser | null> {
     console.error('Error fetching user role by ID:', error)
     return null
   }
-  return data as IUser
+  return data as IProfile
 }
 
 export async function upsertUserRole({
@@ -100,12 +99,14 @@ export async function upsertUserRole({
   institutionId,
   userId,
   role,
+  isSuperAdmin = false,
   urlRevalidate
 }: {
-  idRole: string
+  idRole?: string
   userId: string
   institutionId: string
-  role: 'institution_owner' | 'member' | 'editor'
+  role: InstitutionRole
+  isSuperAdmin?: boolean
   urlRevalidate?: string
 }): Promise<{ data: IUserRoleFull | null; error: Error | null }> {
   const supabase = await getSupabase()
@@ -116,7 +117,8 @@ export async function upsertUserRole({
         id: idRole,
         user_id: userId,
         institution_id: institutionId,
-        role
+        role_type: role,
+        is_super_admin: isSuperAdmin
       })
       .select('*, user:user_id(*)')
       .single()
@@ -145,7 +147,7 @@ export async function upsertAccessEnabled({
   userId: string
   institutionId: string
   access_enabled: boolean
-  role: 'institution_owner' | 'member' | 'editor'
+  role: InstitutionRole
   urlRevalidate?: string
 }): Promise<{ data: IUserRoleFull | null; error: Error | null }> {
   const supabase = await getSupabase()
@@ -155,7 +157,7 @@ export async function upsertAccessEnabled({
       .upsert({
         id: userRoleId,
         user_id: userId,
-        role,
+        role_type: role,
         institution_id: institutionId,
         access_enabled
       })
@@ -181,7 +183,7 @@ export async function createUserRole({
 }: {
   userId: string
   institutionId: string
-  role: 'institution_owner' | 'member' | 'editor'
+  role: InstitutionRole
   urlRevalidate?: string
 }): Promise<{ data: IUserRoleFull | null; error: Error | null }> {
   const supabase = await getSupabase()
@@ -191,7 +193,7 @@ export async function createUserRole({
       .insert({
         user_id: userId,
         institution_id: institutionId,
-        role
+        role_type: role
       })
       .select('*, user:user_id(*)')
       .single()

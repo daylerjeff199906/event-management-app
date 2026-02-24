@@ -8,6 +8,7 @@ import {
   EventStatus,
   EventItemDetails
 } from '@/types'
+import { checkEventLimit } from './user.services'
 
 import { EventFormData } from '@/modules/events/schemas'
 
@@ -200,6 +201,19 @@ export async function createEvent(eventData: EventFormData): Promise<{
   error: Error | null
 }> {
   const supabase = await getSupabase()
+  
+  const userId = eventData.user_id || eventData.author_id
+  if (userId) {
+    const limitCheck = await checkEventLimit(userId)
+    
+    if (!limitCheck.allowed) {
+      return {
+        data: null,
+        error: new Error(limitCheck.reason)
+      }
+    }
+  }
+  
   try {
     const { data, error } = await supabase
       .from('events')

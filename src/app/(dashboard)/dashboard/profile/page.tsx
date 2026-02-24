@@ -1,18 +1,18 @@
 import { ProfileEditor } from '@/modules/dashboard'
 import { getSupabase } from '@/services/core.supabase'
-import { IUser } from '@/types'
+import { IProfile } from '@/types'
 
 export default async function Page() {
   const supabase = await getSupabase()
   const { data: user } = await supabase.auth.getUser()
 
   const { data: profile } = await supabase
-    .from('users')
+    .from('profiles')
     .select('*')
     .eq('id', user.user?.id)
     .maybeSingle()
 
-  const dataProfile: IUser = profile
+  const dataProfile: IProfile = profile
 
   const { data: interests } = await supabase
     .from('interests')

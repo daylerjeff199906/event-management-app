@@ -18,7 +18,8 @@ import type {
 import { LogoRender } from '@/components/app/miscellaneous/logo-render'
 import {
   insertUserData,
-  insertInterestsAndNotifications
+  insertInterestsAndNotifications,
+  completeOnboarding
 } from '@/services/user.services'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
@@ -146,6 +147,7 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
         country: completeData.country || '',
         phone: completeData.phone || ''
       })
+      
       // Guardar intereses y notificaciones
       await insertInterestsAndNotifications(
         {
@@ -161,6 +163,14 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
           show_location: completeData.show_location ?? false
         }
       )
+
+      // Marcar onboarding como completado desde el backend
+      const supabase = await import('@/services/core.supabase').then(m => m.getSupabase())
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        await completeOnboarding(user.id)
+      }
 
       // Limpiar el progreso guardado
       localStorage.removeItem(STORAGE_KEY)

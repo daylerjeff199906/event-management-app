@@ -5,74 +5,70 @@ import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
 import { Params } from '@/types'
+import { checkOnboardingCompleted, getUserInstitutions, getUserInstitutionRole } from '@/services/user.services'
 
 interface IProps {
   children: React.ReactNode
   params: Params
 }
 
-
-
 export default async function Layout(props: IProps) {
   const { children } = props
   const params = await props.params
   const supabase = await getSupabase()
-  const { data: user } = await supabase.auth.getUser()
+  const { data: authUser } = await supabase.auth.getUser()
 
-  if (!user) {
-    // Si no hay usuario, redirigir a la página de login
+  if (!authUser.user) {
     redirect(APP_URL.AUTH.LOGIN)
   }
 
-  // Si hay sesión, continuar con el flujo normal
-  const { data: profile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.user?.id)
-    .maybeSingle()
+  const userId = authUser.user.id
 
-  if (!profile?.email) {
-    // Si el perfil no tiene email, redirigir a la página de onboarding
+  const onboardingCompleted = await checkOnboardingCompleted(userId)
+  
+  if (!onboardingCompleted) {
     redirect(APP_URL.PORTAL.ONBOARDING)
   }
 
-  const { data: institutions } = await supabase
-    .from('user_roles')
-    .select('institution_id')
-    .eq('user_id', user.user?.id)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
 
-  const profileData = (await profile) as {
+  const institutions = await getUserInstitutions(userId)
+
+  const profileData = profile as {
     first_name: string | null
     email: string
     profile_image: string | null
   }
 
-  const hasInstitution = institutions && institutions.length > 0 ? true : false
+  const idInstitution = params.slug as string
+  
+  const institutionRole = await getUserInstitutionRole(userId, idInstitution)
 
-  const idInstitution = params.slug
-
-  const isAdmin =
-    profile?.role && profile.role?.length > 0 && profile.role.includes('ADMIN')
-      ? true
-      : false
+  if (!institutionRole.has_access) {
+    redirect(APP_URL.NOT_FOUND)
+  }
 
   const userData = {
     name: profileData?.first_name || 'Usuario',
-    email: profile.email,
+    email: profileData.email,
     avatar: profileData?.profile_image || ''
   }
 
   const teamSwitcherData = institutions?.map((inst: any) => ({
-    name: inst.institution_id, // Map this to institution name if possible later
+    name: inst.institution?.name || inst.institution_id,
     logo: 'Command',
     plan: 'Organization'
-  }))
+  })) || []
 
   return (
     <SidebarProvider>
       <AppSidebar
         userData={userData}
-        menuTeamSwitcher={teamSwitcherData || []}
+        menuTeamSwitcher={teamSwitcherData}
         menuNavBar={{
           navMain: adminNavMain(idInstitution?.toString() || '')
         }}

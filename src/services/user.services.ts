@@ -5,31 +5,123 @@ import {
   Notifications
 } from '@/modules/portal/lib/validations'
 import { getSupabase } from './core.supabase'
-import { IUser, IUserFilter, ResponsePagination } from '@/types'
+import {
+  IProfile,
+  IProfileFilter,
+  IProfileFull,
+  ResponsePagination,
+  EventLimitCheck,
+  GlobalRole,
+  AccountType
+} from '@/types'
 import { revalidatePath } from 'next/cache'
+
+export async function checkOnboardingCompleted(userId: string): Promise<boolean> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase.rpc('check_onboarding_completed', {
+    user_id: userId
+  })
+
+  if (error) {
+    console.error('Error checking onboarding:', error)
+    return false
+  }
+
+  return data ?? false
+}
+
+export async function completeOnboarding(userId: string): Promise<boolean> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase.rpc('complete_onboarding', {
+    user_id: userId
+  })
+
+  if (error) {
+    console.error('Error completing onboarding:', error)
+    return false
+  }
+
+  return data ?? false
+}
+
+export async function checkEventLimit(userId: string): Promise<EventLimitCheck> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase.rpc('check_event_limit', {
+    user_id: userId
+  })
+
+  if (error) {
+    console.error('Error checking event limit:', error)
+    return {
+      allowed: false,
+      limit: 0,
+      current: 0,
+      reason: 'Error al verificar límite'
+    }
+  }
+
+  return data as EventLimitCheck
+}
+
+export async function getUserInstitutions(userId: string): Promise<IProfileFull['institutions']> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase.rpc('get_user_institutions', {
+    p_user_id: userId
+  })
+
+  if (error) {
+    console.error('Error getting user institutions:', error)
+    return []
+  }
+
+  return data ?? []
+}
+
+export async function getUserInstitutionRole(
+  userId: string,
+  institutionId: string
+): Promise<{ has_access: boolean; role: string | null; is_super_admin: boolean }> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase.rpc('get_user_institution_role', {
+    p_user_id: userId,
+    p_institution_id: institutionId
+  })
+
+  if (error) {
+    console.error('Error getting user institution role:', error)
+    return { has_access: false, role: null, is_super_admin: false }
+  }
+
+  return data
+}
 
 export async function insertUserData(formData: PersonalInfo) {
   const supabase = await getSupabase()
   const { data: user } = await supabase.auth.getUser()
 
   if (user) {
-    const { data, error } = await supabase.from('users').upsert([
+    const { data, error } = await supabase.from('profiles').upsert([
       {
-        id: user.user?.id, // Asociamos el UUID del usuario autenticado
+        id: user.user?.id,
         first_name: formData.first_name,
         last_name: formData.last_name,
         profile_image: null,
         country: null,
         birth_date: null,
         phone: formData.phone,
-        email: user.user?.email, // Guardamos el email del usuario autenticado
+        email: user.user?.email,
         gender: null
       }
     ])
     if (error) {
-      console.error('Error insertando los datos:', error)
+      console.error('Error inserting profile data:', error)
     } else {
-      console.log('Datos del usuario insertados:', data)
+      console.log('Profile data inserted:', data)
     }
   }
 }
@@ -43,29 +135,27 @@ export async function insertInterestsAndNotifications(
   const user = userData?.user
 
   if (user) {
-    // Insertar intereses
     const { data: interests, error: interestsError } = await supabase
       .from('interests')
       .upsert([
         {
-          user_id: user.id, // Asociamos el UUID del usuario
+          user_id: user.id,
           interests: interestsData.interests,
           event_types: interestsData.eventTypes
         }
       ])
 
     if (interestsError) {
-      console.error('Error insertando los intereses:', interestsError)
+      console.error('Error inserting interests:', interestsError)
     } else {
-      console.log('Intereses insertados:', interests)
+      console.log('Interests inserted:', interests)
     }
 
-    // Insertar notificaciones
     const { data: notifications, error: notificationsError } = await supabase
       .from('notifications')
       .upsert([
         {
-          user_id: user.id, // Asociamos el UUID del usuario
+          user_id: user.id,
           email_notifications: notificationsData.email_notifications,
           push_notifications: notificationsData.push_notifications,
           event_reminders: notificationsData.event_reminders,
@@ -76,9 +166,9 @@ export async function insertInterestsAndNotifications(
       ])
 
     if (notificationsError) {
-      console.error('Error insertando las notificaciones:', notificationsError)
+      console.error('Error inserting notifications:', notificationsError)
     } else {
-      console.log('Notificaciones insertadas:', notifications)
+      console.log('Notifications inserted:', notifications)
     }
   }
 }
@@ -92,7 +182,7 @@ export async function updateUserData({
 }) {
   const supabase = await getSupabase()
   const { error, data, status, statusText } = await supabase
-    .from('users')
+    .from('profiles')
     .update(dataForm)
     .eq('id', id)
     .select()
@@ -101,16 +191,16 @@ export async function updateUserData({
   return { error, data, status, statusText }
 }
 
-export async function updateUserField<K extends keyof PersonalInfo>(
+export async function updateProfileField<K extends keyof IProfile>(
   id: string,
   field: K,
-  value: PersonalInfo[K]
+  value: IProfile[K]
 ) {
   const supabase = await getSupabase()
-  const payload = { [field]: value } as Record<string, unknown>
+  const payload = { [field]: value, updated_at: new Date().toISOString() } as Record<string, unknown>
 
   const { error, data, status, statusText } = await supabase
-    .from('users')
+    .from('profiles')
     .update(payload)
     .eq('id', id)
     .select()
@@ -119,84 +209,64 @@ export async function updateUserField<K extends keyof PersonalInfo>(
   return { error, data, status, statusText }
 }
 
-export async function updateUserRoles({
-  userId,
-  roles,
-  revalidateUrl
-}: {
-  userId: string
-  roles: string[] | null
-  revalidateUrl?: string
-}) {
+export async function updateProfileRole(
+  id: string,
+  role: GlobalRole
+) {
   const supabase = await getSupabase()
   const { error, data, status, statusText } = await supabase
-    .from('users')
-    .update({ role: roles && roles.length > 0 ? roles : null })
-    .eq('id', userId)
+    .from('profiles')
+    .update({ global_role: role, updated_at: new Date().toISOString() })
+    .eq('id', id)
     .select()
     .single()
 
-  if (revalidateUrl) {
-    revalidatePath(revalidateUrl)
+  return { error, data, status, statusText }
+}
+
+export async function updateProfileAccountType(
+  id: string,
+  accountType: AccountType
+) {
+  const supabase = await getSupabase()
+  const { error, data, status, statusText } = await supabase
+    .from('profiles')
+    .update({ account_type: accountType, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+
+  return { error, data, status, statusText }
+}
+
+export async function getProfileById(profileId: string): Promise<IProfile | null> {
+  const supabase = await getSupabase()
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', profileId)
+    .single()
+
+  if (error) {
+    console.error('Error fetching profile:', error)
+    return null
   }
 
-  return { error, data, status, statusText }
+  return data as IProfile
 }
 
-export async function updateInterest(id: string, dataForm: Partial<Interests>) {
-  const supabase = await getSupabase()
-  console.log('ID del interés a actualizar:', id)
-  const { error, data, status, statusText } = await supabase
-    .from('interests')
-    .update({
-      interests: dataForm.interests,
-      event_types: dataForm.eventTypes
-    })
-    .eq('user_id', id)
-    .select()
-
-  return { error, data, status, statusText }
-}
-
-export async function updateNotifications({
-  id,
-  dataForm
-}: {
-  id: string
-  dataForm: Partial<Notifications>
-}) {
-  const supabase = await getSupabase()
-  console.log('ID de las notificaciones a actualizar:', id)
-  const { error, data, status, statusText } = await supabase
-    .from('notifications')
-    .update({
-      email_notifications: dataForm.email_notifications,
-      push_notifications: dataForm.push_notifications,
-      event_reminders: dataForm.event_reminders,
-      weekly_digest: dataForm.weekly_digest,
-      profile_visibility: dataForm.profile_visibility,
-      show_location: dataForm.show_location
-    })
-    .eq('user_id', id)
-    .select()
-
-  return { error, data, status, statusText }
-}
-
-export async function getUserList(
-  filters: IUserFilter
-): Promise<ResponsePagination<IUser>> {
+export async function getProfileList(
+  filters: IProfileFilter
+): Promise<ResponsePagination<IProfile>> {
   const supabase = await getSupabase()
 
-  // Default pagination values
   const page = filters.page ?? 1
   const pageSize = filters.pageSize ?? 10
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
 
-  let query = supabase.from('users').select('*', { count: 'exact' })
+  let query = supabase.from('profiles').select('*', { count: 'exact' })
 
-  // Apply filters if present
   if (filters.first_name) {
     query = query.ilike('first_name', `%${filters.first_name}%`)
   }
@@ -204,20 +274,26 @@ export async function getUserList(
     query = query.ilike('last_name', `%${filters.last_name}%`)
   }
   if (filters.searchQuery) {
-    // Busca por email o username usando OR
     query = query.or(
       `email.ilike.%${filters.searchQuery}%,username.ilike.%${filters.searchQuery}%`
     )
   }
-  // Add more filters as needed
+  if (filters.account_type) {
+    query = query.eq('account_type', filters.account_type)
+  }
+  if (filters.global_role) {
+    query = query.eq('global_role', filters.global_role)
+  }
+  if (filters.onboarding_completed !== undefined) {
+    query = query.eq('onboarding_completed', filters.onboarding_completed)
+  }
 
-  // Pagination
   query = query.range(from, to)
 
   const { data, error, count } = await query
 
   if (error) {
-    console.error('Error fetching users:', error)
+    console.error('Error fetching profiles:', error)
     return {
       data: [],
       total: 0,
@@ -232,4 +308,68 @@ export async function getUserList(
     page,
     pageSize
   }
+}
+
+export async function getProfileFull(profileId: string): Promise<IProfileFull | null> {
+  const supabase = await getSupabase()
+
+  const { data, error } = await supabase
+    .from('user_profile_with_institutions')
+    .select('*')
+    .eq('id', profileId)
+    .single()
+
+  if (error) {
+    console.error('Error fetching full profile:', error)
+    return null
+  }
+
+  return data as IProfileFull
+}
+export async function updateInterest(userId: string, data: Interests) {
+  const supabase = await getSupabase()
+
+  const { data: interests, error, status, statusText } = await supabase
+    .from('interests')
+    .upsert([
+      {
+        user_id: userId,
+        interests: data.interests,
+        event_types: data.eventTypes,
+        updated_at: new Date().toISOString()
+      }
+    ])
+    .select()
+    .single()
+
+  return { data: interests, error, status, statusText }
+}
+
+export async function updateNotifications({
+  id,
+  dataForm
+}: {
+  id: string
+  dataForm: Notifications
+}) {
+  const supabase = await getSupabase()
+
+  const { data, error, status, statusText } = await supabase
+    .from('notifications')
+    .upsert([
+      {
+        user_id: id,
+        email_notifications: dataForm.email_notifications,
+        push_notifications: dataForm.push_notifications,
+        event_reminders: dataForm.event_reminders,
+        weekly_digest: dataForm.weekly_digest,
+        profile_visibility: dataForm.profile_visibility,
+        show_location: dataForm.show_location,
+        updated_at: new Date().toISOString()
+      }
+    ])
+    .select()
+    .single()
+
+  return { data, error, status, statusText }
 }
