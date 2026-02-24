@@ -1,47 +1,74 @@
 'use client'
 
-import { CldUploadButton, CloudinaryUploadWidgetResults } from 'next-cloudinary'
-import { ImageIcon } from 'lucide-react' // O tu ícono preferido
+import { useState, useRef } from 'react'
+import { ImageIcon, Loader2 } from 'lucide-react'
 
 interface ImageUploadProps {
   onUpload: (url: string) => void
-  preset?: string
+  folder?: string
 }
 
 export const ImageUpload = ({
   onUpload,
-  preset = 'events' // Reemplaza con el nombre de tu preset
+  folder = 'uploads'
 }: ImageUploadProps) => {
-  const handleUpload = (result: CloudinaryUploadWidgetResults) => {
-    // Verificamos que la subida fue exitosa y tenemos la info
-    if (
-      result.event === 'success' &&
-      result.info &&
-      typeof result.info !== 'string'
-    ) {
-      console.log('Imagen subida:', result.info.secure_url)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-      // Enviamos la URL al componente padre
-      onUpload(result.info.secure_url)
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', folder)
+
+      const response = await fetch('/api/r2/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Error al subir la imagen')
+      }
+
+      const { url } = await response.json()
+      onUpload(url)
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('Error al subir la imagen')
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
   return (
     <div className="flex items-center gap-4">
-      <CldUploadButton
-        uploadPreset={preset}
-        onSuccess={handleUpload}
-        options={{
-          maxFiles: 4, // Limitar a 1 archivo
-          resourceType: 'image'
-          //   resourceType: 'pdf', // O 'image' si solo subes imágenes
-          // Puedes personalizar estilos del widget aquí si deseas
-        }}
-        className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors"
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleUpload}
+        accept="image/*"
+        className="hidden"
+      />
+      <button
+        type="button"
+        disabled={isUploading}
+        onClick={() => fileInputRef.current?.click()}
+        className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50"
       >
-        <ImageIcon className="w-4 h-4" />
-        Subir Imagen
-      </CldUploadButton>
+        {isUploading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <ImageIcon className="w-4 h-4" />
+        )}
+        {isUploading ? 'Subiendo...' : 'Subir Imagen'}
+      </button>
     </div>
   )
 }

@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog'
 import { Cropper, CropperCropArea, CropperImage } from '@/components/ui/cropper'
 import { Upload, X, ImageIcon } from 'lucide-react'
-import type { PutBlobResult } from '@vercel/blob'
 import { useState, useRef, useCallback } from 'react'
 
 interface ImageUploadProps {
@@ -28,7 +27,7 @@ export default function ImageUpload({
   showExamples = true
 }: ImageUploadProps) {
   const inputFileRef = useRef<HTMLInputElement>(null)
-  const [blob, setBlob] = useState<PutBlobResult | null>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -98,17 +97,22 @@ export default function ImageUpload({
         type: 'image/jpeg'
       })
 
-      const uploadResponse = await fetch(
-        `/api/images/upload?filename=${file.name}&override=true`,
-        {
-          method: 'POST',
-          body: file
-        }
-      )
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'events')
 
-      const newBlob = (await uploadResponse.json()) as PutBlobResult
-      setBlob(newBlob)
-      onImageChange?.(newBlob.url)
+      const uploadResponse = await fetch('/api/r2/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Error al subir la imagen')
+      }
+
+      const { url } = await uploadResponse.json()
+      setImageUrl(url)
+      onImageChange?.(url)
 
       setIsModalOpen(false)
       setSelectedImage(null)
@@ -157,11 +161,11 @@ export default function ImageUpload({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
-        {blob?.url || urlImage ? (
+        {imageUrl || urlImage ? (
           <div className="space-y-4">
             <div className="relative mx-auto w-80 rounded-lg overflow-hidden border">
               <img
-                src={blob?.url || urlImage}
+                src={imageUrl || urlImage}
                 alt="Imagen subida"
                 className="w-full h-full object-cover"
               />
