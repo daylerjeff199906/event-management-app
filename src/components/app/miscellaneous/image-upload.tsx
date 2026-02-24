@@ -6,12 +6,15 @@ import { ImageIcon, Loader2 } from 'lucide-react'
 interface ImageUploadProps {
   onUpload: (url: string) => void
   folder?: string
+  preset?: string
 }
 
 export const ImageUpload = ({
   onUpload,
-  folder = 'uploads'
+  folder,
+  preset
 }: ImageUploadProps) => {
+  const uploadFolder = folder || preset || 'uploads'
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -23,7 +26,7 @@ export const ImageUpload = ({
     try {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('folder', folder)
+      formData.append('folder', uploadFolder)
 
       const response = await fetch('/api/r2/upload', {
         method: 'POST',
