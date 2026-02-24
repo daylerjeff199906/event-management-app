@@ -23,7 +23,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
-import { IUser } from '@/types'
+import { IProfile } from '@/types'
 import { updateUserRoles } from '@/services/user.services'
 import { toast } from 'react-toastify'
 import { Loader2 } from 'lucide-react'
@@ -34,26 +34,34 @@ const ROLE_OPTIONS = [
 ] as const
 
 interface UsersTableProps {
-  users: IUser[]
+  users: IProfile[]
   currentUserId?: string
   canManageRoles?: boolean
 }
 
 interface RoleModalProps {
-  user: IUser
+  user: IProfile
   onRolesUpdated: (roles: string[] | null) => void
 }
 
 const RoleUpdateModal = ({ user, onRolesUpdated }: RoleModalProps) => {
   const [open, setOpen] = useState(false)
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(user.role ?? [])
+
+  // Convertir global_role a array para el estado del componente
+  const getInitialRoles = () => {
+    if (user.global_role === 'super_admin') return ['SUPER_ADMIN']
+    if (user.global_role === 'admin') return ['ADMIN']
+    return []
+  }
+
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(getInitialRoles())
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     if (open) {
-      setSelectedRoles(user.role ?? [])
+      setSelectedRoles(getInitialRoles())
     }
-  }, [open, user.role])
+  }, [open, user.global_role])
 
   const toggleRole = (role: string) => {
     setSelectedRoles((prev) =>
@@ -155,7 +163,7 @@ export function UsersTableList({
   currentUserId,
   canManageRoles = false
 }: UsersTableProps) {
-  const [userList, setUserList] = useState<IUser[]>(users)
+  const [userList, setUserList] = useState<IProfile[]>(users)
 
   useEffect(() => {
     setUserList(users)
@@ -167,7 +175,7 @@ export function UsersTableList({
     return `${firstInitial}${lastInitial}`.toUpperCase()
   }
 
-  const formatDate = (date: Date | null) => {
+  const formatDate = (date: string | Date | null | undefined) => {
     if (!date) return 'N/A'
     return new Date(date).toLocaleDateString('es-ES')
   }
@@ -205,13 +213,17 @@ export function UsersTableList({
   }
 
   const handleRolesUpdated = (userId: string, roles: string[] | null) => {
+    let newGlobalRole: IProfile['global_role'] = 'user'
+    if (roles?.includes('SUPER_ADMIN')) newGlobalRole = 'super_admin'
+    else if (roles?.includes('ADMIN')) newGlobalRole = 'admin'
+
     setUserList((prev) =>
       prev.map((user) =>
         user.id === userId
           ? {
-              ...user,
-              role: roles
-            }
+            ...user,
+            global_role: newGlobalRole
+          }
           : user
       )
     )
@@ -233,7 +245,7 @@ export function UsersTableList({
         <TableBody>
           {userList?.map((user) => {
             const isSelf = user?.id === currentUserId
-            const isSuperAdmin = user?.role?.includes('SUPER_ADMIN')
+            const isSuperAdmin = user?.global_role === 'super_admin'
             const canEditThisUser =
               canManageRoles && !isSelf && !isSuperAdmin && !!user?.id
 
@@ -290,7 +302,15 @@ export function UsersTableList({
                     </p>
                   </div>
                 </TableCell>
-                <TableCell>{renderRoles(user?.role)}</TableCell>
+                <TableCell>
+                  {user?.global_role !== 'user' ? (
+                    <Badge variant="outline">
+                      {user.global_role.toUpperCase()}
+                    </Badge>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Sin roles</span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <p className="text-sm">{formatDate(user?.created_at)}</p>
@@ -316,8 +336,8 @@ export function UsersTableList({
                         {isSelf
                           ? 'No puedes editarte.'
                           : isSuperAdmin
-                          ? 'Protegido.'
-                          : 'Sin acciones.'}
+                            ? 'Protegido.'
+                            : 'Sin acciones.'}
                       </span>
                     )}
                   </TableCell>

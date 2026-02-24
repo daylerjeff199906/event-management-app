@@ -373,3 +373,38 @@ export async function updateNotifications({
 
   return { data, error, status, statusText }
 }
+
+export async function updateUserRoles({
+  userId,
+  roles,
+  revalidateUrl
+}: {
+  userId: string
+  roles: string[] | null
+  revalidateUrl?: string
+}) {
+  const supabase = await getSupabase()
+
+  // Mapear el array de roles al nuevo Enum global_role
+  let globalRole: GlobalRole = 'user'
+  if (roles && roles.length > 0) {
+    if (roles.includes('SUPER_ADMIN')) {
+      globalRole = 'super_admin'
+    } else if (roles.includes('ADMIN')) {
+      globalRole = 'admin'
+    }
+  }
+
+  const { data, error, status, statusText } = await supabase
+    .from('profiles')
+    .update({ global_role: globalRole, updated_at: new Date().toISOString() })
+    .eq('id', userId)
+    .select()
+    .single()
+
+  if (revalidateUrl) {
+    revalidatePath(revalidateUrl)
+  }
+
+  return { data, error, status, statusText }
+}
