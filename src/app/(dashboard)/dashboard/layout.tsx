@@ -1,8 +1,10 @@
-import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/app-sidebar'
+import { dashboardNavMain } from './const'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
-import { menuDashboard, subMenuElementInstitucional } from './const'
+import { Command } from 'lucide-react'
 
 interface IProps {
   children: React.ReactNode
@@ -35,29 +37,34 @@ export default async function Layout(props: IProps) {
     .select('institution_id')
     .eq('user_id', user.user?.id)
 
-  const hasInstitution = institutions && institutions.length > 0 ? true : false
-
   const profileData = (await profile) as {
     first_name: string | null
     email: string
     profile_image: string | null
   }
-  const isAdmin =
-    profile?.role && profile.role?.length > 0 && profile.role.includes('ADMIN')
-      ? true
-      : false
+
+  const userData = {
+    name: profileData?.first_name || 'Usuario',
+    email: profile.email,
+    avatar: profileData?.profile_image || ''
+  }
+
+  const teamSwitcherData = institutions?.map((inst: any) => ({
+    name: inst.institution_id,
+    logo: Command,
+    plan: 'Organization'
+  }))
 
   return (
-    <AdminPanelLayout
-      userName={profileData?.first_name || 'Usuario'}
-      email={profile.email}
-      urlPhoto={profileData?.profile_image || undefined}
-      isAdmin={isAdmin}
-      isInstitutional={hasInstitution}
-      menuItems={menuDashboard}
-      menuOptional={[subMenuElementInstitucional]}
-    >
+    <SidebarProvider>
+      <AppSidebar
+        userData={userData}
+        menuTeamSwitcher={teamSwitcherData || []}
+        menuNavBar={{
+          navMain: dashboardNavMain
+        }}
+      />
       {children}
-    </AdminPanelLayout>
+    </SidebarProvider>
   )
 }

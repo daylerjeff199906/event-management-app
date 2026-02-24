@@ -221,21 +221,76 @@ export const adminMenu: SectionElement[] = [
       }
     ]
   }
-  // {
-  //   section: {
-  //     id: 4,
-  //     name: 'Configuración'
-  //   },
-  //   menus: [
-  //     {
-  //       menu: {
-  //         id: 5,
-  //         name: 'Configuración',
-  //         url: APP_URL.ADMIN.SETTINGS,
-  //         icon: 'Settings'
-  //       },
-  //       submenus: []
-  //     }
-  //   ]
+  //   submenus: []
   // }
+]
+
+import { Home, Settings, Users, Calendar, User } from 'lucide-react'
+
+export const adminNavMain = (idInstitution: string) => [
+  {
+    title: 'Opciones generales',
+    url: '#',
+    icon: Home,
+    isActive: true,
+    items: [
+      {
+        title: 'Inicio',
+        url: APP_URL.ORGANIZATION.BASE
+      },
+      {
+        title: 'Eventos',
+        url: APP_URL.ORGANIZATION.EVENTS.EVENTS_INSTITUTION(idInstitution)
+      },
+      {
+        title: 'Usuarios',
+        url: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(idInstitution)
+      }
+    ]
+  },
+  {
+    title: 'Configuración',
+    url: '#',
+    icon: Settings,
+    items: [
+      {
+        title: 'Configuración',
+        url: APP_URL.ORGANIZATION.CONFIGURATIONS.CONFIG_INSTITUTION(idInstitution)
+      }
+    ]
+  }
+]
+
+export const dashboardNavMain = [
+  {
+    title: 'Opciones generales',
+    url: '#',
+    icon: Home,
+    isActive: true,
+    items: [
+      {
+        title: 'Inicio',
+        url: APP_URL.DASHBOARD.BASE
+      },
+      {
+        title: 'Eventos',
+        url: APP_URL.DASHBOARD.EVENTS.BASE
+      }
+    ]
+  },
+  {
+    title: 'Mi perfil',
+    url: '#',
+    icon: User,
+    items: [
+      {
+        title: 'Perfil',
+        url: APP_URL.DASHBOARD.PROFILE
+      },
+      {
+        title: 'Configuración',
+        url: APP_URL.DASHBOARD.SETTINGS
+      }
+    ]
+  }
 ]
