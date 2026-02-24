@@ -11,7 +11,7 @@ interface IProps {
   params: Params
 }
 
-import { Command } from 'lucide-react'
+
 
 export default async function Layout(props: IProps) {
   const { children } = props
@@ -64,7 +64,7 @@ export default async function Layout(props: IProps) {
 
   const teamSwitcherData = institutions?.map((inst: any) => ({
     name: inst.institution_id, // Map this to institution name if possible later
-    logo: Command,
+    logo: 'Command',
     plan: 'Organization'
   }))
 

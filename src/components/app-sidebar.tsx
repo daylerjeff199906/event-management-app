@@ -1,18 +1,5 @@
 "use client"
-
 import * as React from "react"
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
@@ -25,7 +12,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LucideIcon } from "lucide-react"
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   userData?: {
@@ -35,14 +21,14 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   }
   menuTeamSwitcher?: {
     name: string
-    logo: React.ElementType
+    logo: string
     plan: string
   }[]
   menuNavBar?: {
     navMain: {
       title: string
       url: string
-      icon?: LucideIcon
+      icon?: string
       isActive?: boolean
       items?: {
         title: string
@@ -52,7 +38,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     projects?: {
       name: string
       url: string
-      icon: LucideIcon
+      icon: string
     }[]
   }
 }

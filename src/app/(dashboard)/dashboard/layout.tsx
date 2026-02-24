@@ -4,7 +4,6 @@ import { dashboardNavMain } from './const'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
-import { Command } from 'lucide-react'
 
 interface IProps {
   children: React.ReactNode
@@ -51,7 +50,7 @@ export default async function Layout(props: IProps) {
 
   const teamSwitcherData = institutions?.map((inst: any) => ({
     name: inst.institution_id,
-    logo: Command,
+    logo: 'Command',
     plan: 'Organization'
   }))
 

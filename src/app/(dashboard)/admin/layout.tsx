@@ -1,8 +1,9 @@
-import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/app-sidebar'
+import { adminPanelNavMain } from '../dashboard/const'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
-import { adminMenu } from '../dashboard/const'
 
 interface IProps {
   children: React.ReactNode
@@ -45,23 +46,33 @@ export default async function Layout(props: IProps) {
     profile_image: string | null
   }
 
+  const userData = {
+    name: profileData?.first_name || 'Usuario',
+    email: profile.email,
+    avatar: profileData?.profile_image || ''
+  }
+
   const { data: institutions } = await supabase
     .from('user_roles')
     .select('institution_id')
     .eq('user_id', user.user?.id)
 
-  const hasInstitution = institutions && institutions.length > 0 ? true : false
+  const teamSwitcherData = institutions?.map((inst: any) => ({
+    name: inst.institution_id,
+    logo: 'Command',
+    plan: 'Organization'
+  }))
 
   return (
-    <AdminPanelLayout
-      userName={profileData?.first_name || 'Usuario'}
-      email={profile.email}
-      urlPhoto={profileData?.profile_image || undefined}
-      menuItems={adminMenu}
-      isAdmin={isAdmin}
-      isInstitutional={hasInstitution}
-    >
+    <SidebarProvider>
+      <AppSidebar
+        userData={userData}
+        menuTeamSwitcher={teamSwitcherData || []}
+        menuNavBar={{
+          navMain: adminPanelNavMain
+        }}
+      />
       {children}
-    </AdminPanelLayout>
+    </SidebarProvider>
   )
 }

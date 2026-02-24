@@ -225,72 +225,80 @@ export const adminMenu: SectionElement[] = [
   // }
 ]
 
-import { Home, Settings, Users, Calendar, User } from 'lucide-react'
+
+export const adminPanelNavMain = [
+  {
+    title: 'Inicio',
+    url: APP_URL.ADMIN.BASE,
+    icon: 'Home',
+    isActive: true
+  },
+  {
+    title: 'Solicitudes',
+    url: APP_URL.ADMIN.REQUESTS_APPROVAL.BASE,
+    icon: 'ClipboardCheck'
+  },
+  {
+    title: 'Instituciones',
+    url: APP_URL.ADMIN.INSTITUTIONS.BASE,
+    icon: 'Layers'
+  },
+  {
+    title: 'Categorías',
+    url: APP_URL.ADMIN.CATEGORIES.BASE,
+    icon: 'Grid'
+  },
+  {
+    title: 'Usuarios',
+    url: APP_URL.ADMIN.USERS.BASE,
+    icon: 'Users'
+  }
+]
 
 export const adminNavMain = (idInstitution: string) => [
   {
-    title: 'Opciones generales',
-    url: '#',
-    icon: Home,
-    isActive: true,
-    items: [
-      {
-        title: 'Inicio',
-        url: APP_URL.ORGANIZATION.BASE
-      },
-      {
-        title: 'Eventos',
-        url: APP_URL.ORGANIZATION.EVENTS.EVENTS_INSTITUTION(idInstitution)
-      },
-      {
-        title: 'Usuarios',
-        url: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(idInstitution)
-      }
-    ]
+    title: 'Inicio',
+    url: APP_URL.ORGANIZATION.BASE,
+    icon: 'Home',
+    isActive: true
+  },
+  {
+    title: 'Eventos',
+    url: APP_URL.ORGANIZATION.EVENTS.EVENTS_INSTITUTION(idInstitution),
+    icon: 'Calendar'
+  },
+  {
+    title: 'Usuarios',
+    url: APP_URL.ORGANIZATION.USERS.USER_INSTITUTION(idInstitution),
+    icon: 'Users'
   },
   {
     title: 'Configuración',
-    url: '#',
-    icon: Settings,
-    items: [
-      {
-        title: 'Configuración',
-        url: APP_URL.ORGANIZATION.CONFIGURATIONS.CONFIG_INSTITUTION(idInstitution)
-      }
-    ]
+    url: APP_URL.ORGANIZATION.CONFIGURATIONS.CONFIG_INSTITUTION(idInstitution),
+    icon: 'Settings'
   }
 ]
 
 export const dashboardNavMain = [
   {
-    title: 'Opciones generales',
-    url: '#',
-    icon: Home,
-    isActive: true,
-    items: [
-      {
-        title: 'Inicio',
-        url: APP_URL.DASHBOARD.BASE
-      },
-      {
-        title: 'Eventos',
-        url: APP_URL.DASHBOARD.EVENTS.BASE
-      }
-    ]
+    title: 'Inicio',
+    url: APP_URL.DASHBOARD.BASE,
+    icon: 'Home',
+    isActive: true
   },
   {
-    title: 'Mi perfil',
-    url: '#',
-    icon: User,
-    items: [
-      {
-        title: 'Perfil',
-        url: APP_URL.DASHBOARD.PROFILE
-      },
-      {
-        title: 'Configuración',
-        url: APP_URL.DASHBOARD.SETTINGS
-      }
-    ]
+    title: 'Eventos',
+    url: APP_URL.DASHBOARD.EVENTS.BASE,
+    icon: 'Calendar'
+  },
+  {
+    title: 'Perfil',
+    url: APP_URL.DASHBOARD.PROFILE,
+    icon: 'User'
+  },
+  {
+    title: 'Configuración',
+    url: APP_URL.DASHBOARD.SETTINGS,
+    icon: 'Settings'
   }
 ]
