@@ -11,7 +11,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog'
 import { Cropper, CropperCropArea, CropperImage } from '@/components/ui/cropper'
-import { Upload, X, ImageIcon, Check, Star, Trash2, CloudUpload } from 'lucide-react'
+import { Upload, X, ImageIcon, Check, Star, Trash2, CloudUpload, GripVertical } from 'lucide-react'
 import { useState, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -243,6 +243,11 @@ export default function ImageUpload({
               alt={`Event image ${index + 1}`}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none"
             />
+
+            {/* Drag Handle Icon */}
+            <div className="absolute top-2 left-2 z-10 p-1 rounded-md bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <GripVertical className="h-4 w-4" />
+            </div>
 
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
