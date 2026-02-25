@@ -201,11 +201,11 @@ export async function createEvent(eventData: EventFormData): Promise<{
   error: Error | null
 }> {
   const supabase = await getSupabase()
-  
+
   const userId = eventData.user_id || eventData.author_id
   if (userId) {
     const limitCheck = await checkEventLimit(userId)
-    
+
     if (!limitCheck.allowed) {
       return {
         data: null,
@@ -213,7 +213,7 @@ export async function createEvent(eventData: EventFormData): Promise<{
       }
     }
   }
-  
+
   try {
     const { data, error } = await supabase
       .from('events')
@@ -295,17 +295,45 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
 }> {
   const supabase = await getSupabase()
   try {
-    const { data, error } = await supabase
+    // Fetch main event data
+    const { data: eventData, error: eventError } = await supabase
       .from('events')
-      .select(
-        '*, institution:institution_id(*), user:user_id(*), author:author_id(*), categorydata:category(*)'
-      )
+      .select('*')
       .eq('id', eventId)
       .single()
-    if (error) {
-      console.error('Error fetching event full details:', error)
-      return { data: null, error }
+
+    if (eventError) {
+      console.error('Error fetching event full details:', eventError)
+      return { data: null, error: eventError }
     }
+
+    const data = eventData as any
+
+    // Fetch related data in parallel (manually since joins are failing)
+    const [
+      { data: institution },
+      { data: userData },
+      { data: authorData },
+      { data: categoryData }
+    ] = await Promise.all([
+      data.institution_id
+        ? supabase.from('institutions').select('*').eq('id', data.institution_id).single()
+        : Promise.resolve({ data: null }),
+      data.user_id
+        ? supabase.from('profiles').select('*').eq('id', data.user_id).single()
+        : Promise.resolve({ data: null }),
+      data.author_id
+        ? supabase.from('profiles').select('*').eq('id', data.author_id).single()
+        : Promise.resolve({ data: null }),
+      data.category
+        ? supabase.from('categories').select('*').eq('id', data.category).single()
+        : Promise.resolve({ data: null })
+    ])
+
+    data.institution = institution
+    data.user = userData
+    data.author = authorData
+    data.categorydata = categoryData
 
     // Fetch additional details if main event fetch succeeded
     if (data) {

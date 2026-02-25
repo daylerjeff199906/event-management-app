@@ -149,7 +149,7 @@ export function EventDetailsPage({
             )}
             <Badge
               variant="outline"
-              className="text-orange-400 border-orange-500/50 uppercase tracking-wider text-xs px-3 py-1 rounded-full"
+              className="text-primary border-primary/50 uppercase tracking-wider text-xs px-3 py-1 rounded-full"
             >
               {event.categorydata?.name || 'Evento'}
             </Badge>
@@ -373,11 +373,10 @@ export function EventDetailsPage({
                   onClick={() => setActiveTab('description')}
                   className={`
               relative px-4 pb-3 pt-2 font-medium text-sm transition-colors duration-200 border-b-2
-              ${
-                activeTab === 'description'
-                  ? 'border-orange-500 text-orange-500' // Estilo Activo
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' // Estilo Inactivo
-              }
+              ${activeTab === 'description'
+                      ? 'border-orange-500 text-orange-500' // Estilo Activo
+                      : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' // Estilo Inactivo
+                    }
             `}
                 >
                   Descripción
@@ -388,11 +387,10 @@ export function EventDetailsPage({
                   onClick={() => setActiveTab('agenda')}
                   className={`
               relative px-4 pb-3 pt-2 font-medium text-sm transition-colors duration-200 border-b-2
-              ${
-                activeTab === 'agenda'
-                  ? 'border-orange-500 text-orange-500' // Estilo Activo
-                  : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' // Estilo Inactivo
-              }
+              ${activeTab === 'agenda'
+                      ? 'border-orange-500 text-orange-500' // Estilo Activo
+                      : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' // Estilo Inactivo
+                    }
             `}
                 >
                   Agenda
@@ -426,24 +424,22 @@ export function EventDetailsPage({
 
                     <PhotoProvider>
                       <div
-                        className={`grid gap-4 ${
-                          eventImages.length === 1
-                            ? 'grid-cols-1'
-                            : 'grid-cols-1 md:grid-cols-2'
-                        }`}
+                        className={`grid gap-4 ${eventImages.length === 1
+                          ? 'grid-cols-1'
+                          : 'grid-cols-1 md:grid-cols-2'
+                          }`}
                       >
                         {eventImages.map((image, index) => (
                           <PhotoView key={index} src={image}>
                             <div
-                              className={`relative cursor-pointer overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-800 ${
-                                eventImages.length === 1
-                                  ? 'h-[500px]'
-                                  : eventImages.length === 2
+                              className={`relative cursor-pointer overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-800 ${eventImages.length === 1
+                                ? 'h-[500px]'
+                                : eventImages.length === 2
                                   ? 'h-[500px]'
                                   : index === 0
-                                  ? 'h-[500px]'
-                                  : 'h-[200px]'
-                              }`}
+                                    ? 'h-[500px]'
+                                    : 'h-[200px]'
+                                }`}
                             >
                               <div className="w-full h-full flex items-center justify-center p-2">
                                 <img
@@ -507,7 +503,7 @@ export function EventDetailsPage({
       </div>
 
       {/* Footer Call to Action - Join the A-List */}
-      <div className="bg-orange-500 text-black py-12 px-4">
+      <div className="bg-primary text-black py-12 px-4">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6 max-w-7xl">
           <div>
             <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-2">
