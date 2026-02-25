@@ -203,7 +203,9 @@ export async function createEvent(eventData: EventFormData): Promise<{
   const supabase = await getSupabase()
 
   const userId = eventData.user_id || eventData.author_id
-  if (userId) {
+  const isInstitutionEvent = !!eventData.institution_id
+
+  if (userId && !isInstitutionEvent) {
     const limitCheck = await checkEventLimit(userId)
 
     if (!limitCheck.allowed) {

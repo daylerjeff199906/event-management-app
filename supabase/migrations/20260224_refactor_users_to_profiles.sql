@@ -168,7 +168,7 @@ CREATE INDEX IF NOT EXISTS idx_events_status ON public.events(status);
 -- =============================================================================
 
 -- Función para verificar si el onboarding está completo
-CREATE OR REPLACE FUNCTION public.check_onboarding_completed(user_id uuid)
+CREATE OR REPLACE FUNCTION public.check_onboarding_completed(p_user_id uuid)
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -178,14 +178,14 @@ DECLARE
 BEGIN
     SELECT onboarding_completed INTO completed
     FROM public.profiles
-    WHERE id = user_id;
+    WHERE id = p_user_id;
     
     RETURN COALESCE(completed, false);
 END;
 $$;
 
 -- Función para marcar onboarding como completado
-CREATE OR REPLACE FUNCTION public.complete_onboarding(user_id uuid)
+CREATE OR REPLACE FUNCTION public.complete_onboarding(p_user_id uuid)
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -196,14 +196,14 @@ BEGIN
         onboarding_completed = true,
         onboarding_completed_at = now(),
         updated_at = now()
-    WHERE id = user_id;
+    WHERE id = p_user_id;
     
     RETURN true;
 END;
 $$;
 
 -- Función para verificar límite de eventos por usuario
-CREATE OR REPLACE FUNCTION public.check_event_limit(user_id uuid)
+CREATE OR REPLACE FUNCTION public.check_event_limit(p_user_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -217,7 +217,7 @@ BEGIN
     -- Obtener tipo de cuenta del usuario
     SELECT account_type INTO user_account_type
     FROM public.profiles
-    WHERE id = user_id;
+    WHERE id = p_user_id;
     
     -- Si es institution, no tiene límite
     IF user_account_type = 'institution'::account_type THEN
@@ -232,12 +232,12 @@ BEGIN
     -- Obtener suscripción
     SELECT * INTO subscription_record
     FROM public.user_subscriptions
-    WHERE user_id = user_id AND is_active = true;
+    WHERE user_id = p_user_id AND is_active = true;
     
     -- Contar eventos publicados del usuario
     SELECT COUNT(*) INTO events_count
     FROM public.events
-    WHERE user_id = user_id AND status != 'DELETED'::event_status;
+    WHERE user_id = p_user_id AND status != 'DELETED'::event_status;
     
     -- Verificar límite
     IF subscription_record.max_events IS NULL OR subscription_record.max_events < 0 THEN
@@ -443,13 +443,13 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
-    IF TG_OP = 'INSERT' AND new.status != 'DELETED'::event_status THEN
+    IF TG_OP = 'INSERT' AND new.status != 'DELETED'::event_status AND new.institution_id IS NULL THEN
         UPDATE public.user_subscriptions 
         SET events_created_count = events_created_count + 1
         WHERE user_id = new.user_id;
     END IF;
     
-    IF TG_OP = 'DELETE' AND old.status != 'DELETED'::event_status THEN
+    IF TG_OP = 'DELETE' AND old.status != 'DELETED'::event_status AND old.institution_id IS NULL THEN
         UPDATE public.user_subscriptions 
         SET events_created_count = events_created_count - 1
         WHERE user_id = old.user_id;

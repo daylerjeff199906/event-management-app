@@ -88,8 +88,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const [showEndDate, setShowEndDate] = useState(!!eventData?.end_date)
   const [showRecurring, setShowRecurring] = useState(
     !!eventData?.is_recurring ||
-      !!eventData?.recurrence_pattern ||
-      !!eventData?.recurrence_end_date
+    !!eventData?.recurrence_pattern ||
+    !!eventData?.recurrence_end_date
   )
   const router = useRouter()
 
@@ -431,8 +431,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               eventData?.id
                                 ? undefined
                                 : formatDate(new Date(), 'yyyy-MM-dd', {
-                                    locale: es
-                                  })
+                                  locale: es
+                                })
                             }
                           />
                         </FormControl>
@@ -845,7 +845,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Botones de acción */}
-          <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t bg-primary-foreground/50 backdrop-blur-md">
+          <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t  backdrop-blur-md">
             {/* Contenedor principal con limitador de ancho para pantallas grandes */}
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between">
@@ -877,7 +877,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   <Button
                     type="submit"
                     disabled={isSubmitting || !isDirty}
-                    className="bg-[#D64518] hover:bg-[#b53a14] text-white font-semibold shadow-sm px-6"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all"
                   >
                     {isSubmitting ? (
                       <>
