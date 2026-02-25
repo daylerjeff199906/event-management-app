@@ -1,10 +1,12 @@
 import { SearchInput } from '@/components/app/miscellaneous/search-input'
-
-import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/app-sidebar'
+import { dashboardNavMain } from '@/app/(dashboard)/dashboard/const'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
 import { checkOnboardingCompleted, getUserInstitutions } from '@/services/user.services'
+import { LayoutWrapper } from '@/components/layout-wrapper'
 
 interface IProps {
   children: React.ReactNode
@@ -29,43 +31,59 @@ export default async function Layout(props: IProps) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('first_name, email, profile_image, global_role')
     .eq('id', userId)
     .single()
 
   const institutions = await getUserInstitutions(userId)
 
-  const hasInstitution = institutions && institutions.length > 0
-
   const profileData = profile as {
     first_name: string | null
     email: string
     profile_image: string | null
+    global_role: string | null
   }
 
+  const userData = {
+    name: profileData?.first_name || 'Usuario',
+    email: profileData.email,
+    avatar: profileData?.profile_image || '',
+    globalRole: profileData?.global_role || 'user'
+  }
+
+  const teamSwitcherData = [
+    {
+      name: 'Plataforma de Eventos',
+      logo: 'https://cdn-icons-png.flaticon.com/512/1000/1000946.png',
+      plan: 'Mi Cuenta',
+      url: APP_URL.DASHBOARD.BASE
+    },
+    ...(institutions?.map((inst: any) => ({
+      name: inst.institution?.name || inst.institution_id,
+      logo: inst.institution?.logo_url || 'Command',
+      plan: 'Organización',
+      url: APP_URL.ORGANIZATION.INSTITUTION.DETAIL(inst.institution_id)
+    })) || [])
+  ]
+
   return (
-    <AdminPanelLayout
-      userName={profileData?.first_name || 'Usuario'}
-      email={profileData.email}
-      urlPhoto={profileData?.profile_image || undefined}
-      menuItems={[]}
-      isInstitutional={hasInstitution}
-      hiddenSidebar
-    >
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl font-semibold text-foreground mb-6">
-            Instituciones
-          </h1>
-          <div className="flex gap-2 mb-8">
-            <SearchInput
-              placeholder="Buscar una institución"
-              className="max-w-sm"
-            />
-          </div>
-          {children}
+    <SidebarProvider>
+      <AppSidebar
+        userData={userData}
+        menuTeamSwitcher={teamSwitcherData}
+        menuNavBar={{
+          navMain: dashboardNavMain
+        }}
+      />
+      <LayoutWrapper sectionTitle="Instituciones">
+        <div className="flex gap-2 mb-8">
+          <SearchInput
+            placeholder="Buscar una institución"
+            className="max-w-sm"
+          />
         </div>
-      </div>
-    </AdminPanelLayout>
+        {children}
+      </LayoutWrapper>
+    </SidebarProvider>
   )
 }

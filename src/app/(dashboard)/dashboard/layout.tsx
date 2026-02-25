@@ -51,14 +51,16 @@ export default async function Layout(props: IProps) {
 
   const teamSwitcherData = [
     {
-      name: 'Intranet',
-      logo: 'https://cdn-icons-png.flaticon.com/512/1000/1000946.png', // Logo de app genérico o intranet
-      plan: 'Mi Cuenta'
+      name: 'Plataforma de Eventos',
+      logo: 'https://cdn-icons-png.flaticon.com/512/1000/1000946.png',
+      plan: 'Mi Cuenta',
+      url: APP_URL.DASHBOARD.BASE
     },
     ...(institutions?.map((inst: any) => ({
       name: inst.institution?.name || inst.institution_id,
       logo: inst.institution?.logo_url || 'Command',
-      plan: 'Organización'
+      plan: 'Organización',
+      url: APP_URL.ORGANIZATION.INSTITUTION.DETAIL(inst.institution_id)
     })) || [])
   ]
 

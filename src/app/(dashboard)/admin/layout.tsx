@@ -22,7 +22,7 @@ export default async function Layout(props: IProps) {
   const userId = authUser.user.id
 
   const onboardingCompleted = await checkOnboardingCompleted(userId)
-  
+
   if (!onboardingCompleted) {
     redirect(APP_URL.PORTAL.ONBOARDING)
   }
@@ -53,11 +53,20 @@ export default async function Layout(props: IProps) {
 
   const institutions = await getUserInstitutions(userId)
 
-  const teamSwitcherData = institutions?.map((inst: any) => ({
-    name: inst.institution?.name || inst.institution_id,
-    logo: 'Command',
-    plan: 'Organization'
-  })) || []
+  const teamSwitcherData = [
+    {
+      name: 'Plataforma de Eventos',
+      logo: 'https://cdn-icons-png.flaticon.com/512/1000/1000946.png',
+      plan: 'Mi Cuenta',
+      url: APP_URL.DASHBOARD.BASE
+    },
+    ...(institutions?.map((inst: any) => ({
+      name: inst.institution?.name || inst.institution_id,
+      logo: inst.institution?.logo_url || 'Command',
+      plan: 'Organización',
+      url: APP_URL.ORGANIZATION.INSTITUTION.DETAIL(inst.institution_id)
+    })) || [])
+  ]
 
   return (
     <SidebarProvider>

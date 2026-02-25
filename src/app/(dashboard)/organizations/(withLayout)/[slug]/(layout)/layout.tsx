@@ -32,7 +32,7 @@ export default async function Layout(props: IProps) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('first_name, email, profile_image, global_role')
     .eq('id', userId)
     .single()
 
@@ -42,6 +42,7 @@ export default async function Layout(props: IProps) {
     first_name: string | null
     email: string
     profile_image: string | null
+    global_role: string | null
   }
 
   const idInstitution = params.slug as string
@@ -55,19 +56,22 @@ export default async function Layout(props: IProps) {
   const userData = {
     name: profileData?.first_name || 'Usuario',
     email: profileData.email,
-    avatar: profileData?.profile_image || ''
+    avatar: profileData?.profile_image || '',
+    globalRole: profileData?.global_role || 'user'
   }
 
   const teamSwitcherData = [
     ...(institutions?.map((inst: any) => ({
       name: inst.institution?.name || inst.institution_id,
       logo: inst.institution?.logo_url || 'Command',
-      plan: 'Organización'
+      plan: 'Organización',
+      url: APP_URL.ORGANIZATION.INSTITUTION.DETAIL(inst.institution_id)
     })) || []),
     {
-      name: 'Intranet',
+      name: 'Plataforma de Eventos',
       logo: 'https://cdn-icons-png.flaticon.com/512/1000/1000946.png',
-      plan: 'Mi Cuenta'
+      plan: 'Mi Cuenta',
+      url: APP_URL.DASHBOARD.BASE
     }
   ]
 

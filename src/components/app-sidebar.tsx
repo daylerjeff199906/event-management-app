@@ -24,6 +24,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     name: string
     logo: string
     plan: string
+    url: string
   }[]
   menuNavBar?: {
     navMain: {
