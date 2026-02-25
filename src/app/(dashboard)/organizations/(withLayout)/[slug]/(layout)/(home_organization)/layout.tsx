@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { getInstitutionById } from '@/services/institution.services'
 import { Params } from '@/types'
+import { LayoutWrapper } from '@/components/layout-wrapper'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -15,7 +16,7 @@ export default async function Layout(props: LayoutProps) {
   const InstitutionData = await getInstitutionById(uuid as string)
 
   return (
-    <div className="px-4 py-8">
+    <LayoutWrapper sectionTitle={InstitutionData.data?.institution_name || 'Organización'}>
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col mb-6 gap-2">
           <h1 className="text-2xl font-semibold text-foreground flex items-center gap-2">
@@ -35,6 +36,6 @@ export default async function Layout(props: LayoutProps) {
         <hr className="mb-4 border border-gray-200" />
       </div>
       {children}
-    </div>
+    </LayoutWrapper>
   )
 }

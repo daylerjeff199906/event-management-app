@@ -1,6 +1,7 @@
 import { ProfileEditor } from '@/modules/dashboard'
 import { getSupabase } from '@/services/core.supabase'
 import { IProfile } from '@/types'
+import { LayoutWrapper } from '@/components/layout-wrapper'
 
 export default async function Page() {
   const supabase = await getSupabase()
@@ -21,7 +22,7 @@ export default async function Page() {
     .single()
 
   return (
-    <>
+    <LayoutWrapper sectionTitle="Perfil">
       <ProfileEditor
         userId={dataProfile.id}
         email={dataProfile.email || ''}
@@ -40,6 +41,6 @@ export default async function Page() {
           eventTypes: interests?.event_types || []
         }}
       />
-    </>
+    </LayoutWrapper>
   )
 }
