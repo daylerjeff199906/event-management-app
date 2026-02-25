@@ -31,11 +31,19 @@ export async function checkOnboardingCompleted(userId: string): Promise<boolean>
   return data ?? false
 }
 
-export async function completeOnboarding(userId: string): Promise<boolean> {
+export async function completeOnboarding(userId?: string): Promise<boolean> {
   const supabase = await getSupabase()
+  let targetUserId = userId
+
+  if (!targetUserId) {
+    const { data: { user } } = await supabase.auth.getUser()
+    targetUserId = user?.id
+  }
+
+  if (!targetUserId) return false
 
   const { data, error } = await supabase.rpc('complete_onboarding', {
-    user_id: userId
+    user_id: targetUserId
   })
 
   if (error) {
@@ -110,14 +118,14 @@ export async function insertUserData(formData: PersonalInfo) {
         id: user.user?.id,
         first_name: formData.first_name,
         last_name: formData.last_name,
-        profile_image: null,
-        country: null,
-        birth_date: null,
+        profile_image: formData.profile_image || null,
+        country: formData.country || null,
+        birth_date: formData.birth_date || null,
         phone: formData.phone,
         email: user.user?.email,
-        gender: null
+        gender: formData.gender || null
       }
-    ])
+    ]).select()
     if (error) {
       console.error('Error inserting profile data:', error)
     } else {
@@ -143,7 +151,7 @@ export async function insertInterestsAndNotifications(
           interests: interestsData.interests,
           event_types: interestsData.eventTypes
         }
-      ])
+      ]).select()
 
     if (interestsError) {
       console.error('Error inserting interests:', interestsError)
@@ -163,7 +171,7 @@ export async function insertInterestsAndNotifications(
           profile_visibility: notificationsData.profile_visibility,
           show_location: notificationsData.show_location
         }
-      ])
+      ]).select()
 
     if (notificationsError) {
       console.error('Error inserting notifications:', notificationsError)

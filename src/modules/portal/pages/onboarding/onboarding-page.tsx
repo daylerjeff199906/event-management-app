@@ -139,12 +139,7 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
         }
       )
 
-      const supabase = await import('@/services/core.supabase').then(m => m.getSupabase())
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (user) {
-        await completeOnboarding(user.id)
-      }
+      await completeOnboarding()
 
       localStorage.removeItem(STORAGE_KEY)
 
