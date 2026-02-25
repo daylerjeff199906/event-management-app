@@ -1,6 +1,6 @@
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
 import { UsersTableList } from '@/modules/core/components'
-import { getUsersPagintion } from '@/services/user.roles.services'
+import { getUsersPagination } from '@/services/user.roles.services'
 import { SearchParams } from '@/types'
 import { getSupabase } from '@/services/core.supabase'
 import { getUserById } from '@/services/user.roles.services'
@@ -17,7 +17,7 @@ export default async function Page(props: PageProps) {
   const query = (await params.query?.toString()) || ''
   const page = parseInt((await params.page?.toString()) || '1', 10)
 
-  const userList = await getUsersPagintion({
+  const userList = await getUsersPagination({
     page: page,
     query: query
   })
@@ -32,8 +32,7 @@ export default async function Page(props: PageProps) {
   }
 
   const currentUser = await getUserById(user?.user?.id || '')
-  const isAdmin = currentUser?.role?.includes('ADMIN')
-
+  const isAdmin = currentUser?.global_role === 'admin'
   return (
     <>
       <UsersTableList
