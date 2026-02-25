@@ -72,11 +72,13 @@ export function EventCardUser({
         </div>
       </div>
 
-      {/* Contenedor de Imagen */}
       <div className="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 aspect-video mb-4">
-        {event.cover_image_url ? (
+        {event.images && event.images.length > 0 ? (
           <img
-            src={event.cover_image_url || '/placeholder.svg'}
+            src={
+              event.images.find((img) => img.is_main)?.image_url ||
+              event.images[0].image_url
+            }
             alt={event.event_name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 object-top"
           />

@@ -69,7 +69,12 @@ export function EventCard({
     <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border bg-card overflow-hidden pt-0 shadow-none">
       <div className="relative h-48 overflow-hidden">
         <img
-          src={event.cover_image_url || BG_EVENT.src}
+          src={
+            (event.images && event.images.length > 0
+              ? event.images.find((img) => img.is_main)?.image_url ||
+              event.images[0].image_url
+              : BG_EVENT.src)
+          }
           alt={event.event_name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 object-top"
         />
@@ -124,10 +129,10 @@ export function EventCard({
                 {event.status === 'PUBLIC'
                   ? 'Publicado'
                   : event.status === 'DRAFT'
-                  ? 'Borrador'
-                  : event.status === 'DELETE'
-                  ? 'Eliminado'
-                  : event.status}
+                    ? 'Borrador'
+                    : event.status === 'DELETE'
+                      ? 'Eliminado'
+                      : event.status}
               </Badge>
             )}
             <h3 className="font-semibold text-lg text-card-foreground group-hover:text-primary transition-colors text-balance line-clamp-2">

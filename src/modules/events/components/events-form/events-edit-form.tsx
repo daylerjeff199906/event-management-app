@@ -104,7 +104,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         ? new Date(eventData.start_date)
         : undefined,
       end_date: eventData?.end_date ? new Date(eventData.end_date) : undefined,
-      cover_image_url: eventData?.cover_image_url || '',
+      images: eventData?.images || [],
       category: eventData?.category || undefined,
       status: eventData?.status || EventStatus.DRAFT,
       is_recurring: eventData?.is_recurring || false,
@@ -227,40 +227,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     }
   }
 
-  const onImageChange = async (imageUrl: string) => {
-    form.setValue('cover_image_url', imageUrl, { shouldDirty: true })
-    try {
-      const response = await updateEventField({
-        eventId: eventData.id,
-        fieldName: 'cover_image_url',
-        fieldValue: imageUrl
-      })
-
-      if (response.error) {
-        toast.error(
-          <ToastCustom
-            title="Error"
-            description={`No se pudo actualizar la imagen del evento: ${response.error.message}`}
-            variant="destructive"
-          />
-        )
-      } else {
-        toast.success(
-          <ToastCustom
-            title="Éxito"
-            description="La imagen del evento ha sido actualizada correctamente."
-          />
-        )
-      }
-    } catch {
-      toast.error(
-        <ToastCustom
-          title="Error"
-          description="Ocurrió un error inesperado al actualizar la imagen del evento."
-          variant="destructive"
-        />
-      )
-    }
+  const onImagesChange = (newImages: any) => {
+    form.setValue('images', newImages, { shouldDirty: true })
   }
 
   return (
@@ -287,9 +255,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             </CardHeader>
             <CardContent>
               <ImageUpload
-                showExamples={false}
-                urlImage={form.getValues('cover_image_url')}
-                onImageChange={onImageChange}
+                images={form.watch('images')}
+                onImagesChange={onImagesChange}
               />
             </CardContent>
           </Card>

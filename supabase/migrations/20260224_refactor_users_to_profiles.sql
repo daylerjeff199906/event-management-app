@@ -237,7 +237,7 @@ BEGIN
     -- Contar eventos publicados del usuario
     SELECT COUNT(*) INTO events_count
     FROM public.events
-    WHERE user_id = p_user_id AND status != 'DELETED'::event_status;
+    WHERE user_id = p_user_id AND status != 'DELETE'::event_status;
     
     -- Verificar límite
     IF subscription_record.max_events IS NULL OR subscription_record.max_events < 0 THEN
@@ -443,13 +443,13 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
-    IF TG_OP = 'INSERT' AND new.status != 'DELETED'::event_status AND new.institution_id IS NULL THEN
+    IF TG_OP = 'INSERT' AND new.status != 'DELETE'::event_status AND new.institution_id IS NULL THEN
         UPDATE public.user_subscriptions 
         SET events_created_count = events_created_count + 1
         WHERE user_id = new.user_id;
     END IF;
     
-    IF TG_OP = 'DELETE' AND old.status != 'DELETED'::event_status AND old.institution_id IS NULL THEN
+    IF TG_OP = 'DELETE' AND old.status != 'DELETE'::event_status AND old.institution_id IS NULL THEN
         UPDATE public.user_subscriptions 
         SET events_created_count = events_created_count - 1
         WHERE user_id = old.user_id;

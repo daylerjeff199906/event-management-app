@@ -20,7 +20,7 @@ export async function checkOnboardingCompleted(userId: string): Promise<boolean>
   const supabase = await getSupabase()
 
   const { data, error } = await supabase.rpc('check_onboarding_completed', {
-    user_id: userId
+    p_user_id: userId
   })
 
   if (error) {
@@ -43,7 +43,7 @@ export async function completeOnboarding(userId?: string): Promise<boolean> {
   if (!targetUserId) return false
 
   const { data, error } = await supabase.rpc('complete_onboarding', {
-    user_id: targetUserId
+    p_user_id: targetUserId
   })
 
   if (error) {
@@ -58,7 +58,7 @@ export async function checkEventLimit(userId: string): Promise<EventLimitCheck> 
   const supabase = await getSupabase()
 
   const { data, error } = await supabase.rpc('check_event_limit', {
-    user_id: userId
+    p_user_id: userId
   })
 
   if (error) {

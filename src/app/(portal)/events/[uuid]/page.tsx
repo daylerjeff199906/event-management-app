@@ -65,6 +65,9 @@ export async function generateMetadata({
     const event = response.data
     const eventUrl = `${siteConfig.url}/events/${uuid}`
 
+    const mainImage = event.images?.find((img) => img.is_main) || event.images?.[0]
+    const imageUrl = mainImage?.image_url || siteConfig.ogImage
+
     // Metadata dinámica basada en el evento
     const dynamicMetadata: Metadata = {
       title: event.event_name || 'Evento',
@@ -78,32 +81,21 @@ export async function generateMetadata({
         description:
           event.description || `Descubre más sobre ${event.event_name}`,
         siteName: siteConfig.name,
-        images: event.cover_image_url
-          ? [
-              {
-                url: event.cover_image_url,
-                width: 1200,
-                height: 630,
-                alt: event.event_name || 'Imagen del evento'
-              }
-            ]
-          : [
-              {
-                url: siteConfig.ogImage,
-                width: 1200,
-                height: 630,
-                alt: siteConfig.ogImage
-              }
-            ]
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: event.event_name || 'Imagen del evento'
+          }
+        ]
       },
       twitter: {
         card: 'summary_large_image',
         title: event.event_name || 'Evento',
         description:
           event.description || `Descubre más sobre ${event.event_name}`,
-        images: event.cover_image_url
-          ? [event.cover_image_url]
-          : [siteConfig.ogImage]
+        images: [imageUrl]
       }
     }
 

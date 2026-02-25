@@ -217,17 +217,37 @@ export async function createEvent(eventData: EventFormData): Promise<{
   }
 
   try {
+    const { images, ...mainEventData } = eventData
     const { data, error } = await supabase
       .from('events')
-      .insert(eventData)
+      .insert(mainEventData)
       .select()
       .single()
+
     if (error) {
       console.error('Error creating event:', error)
       return { data: null, error }
     }
 
-    return { data: data as Event, error: null }
+    const event = data as Event
+
+    // Handle images if any
+    if (images && images.length > 0) {
+      const imagesToInsert = images.map((img) => ({
+        event_id: event.id,
+        image_url: img.image_url,
+        is_main: img.is_main
+      }))
+      const { error: imgError } = await supabase
+        .from('event_images')
+        .insert(imagesToInsert)
+
+      if (imgError) {
+        console.error('Error inserting event images:', imgError)
+      }
+    }
+
+    return { data: event, error: null }
   } catch (err) {
     console.error('Unexpected error creating event:', err)
     return { data: null, error: err as Error }
@@ -243,17 +263,44 @@ export async function updateEvent(
 }> {
   const supabase = await getSupabase()
   try {
+    const { images, ...mainEventData } = eventData
     const { data, error } = await supabase
       .from('events')
-      .update(eventData)
+      .update(mainEventData)
       .eq('id', eventId)
       .select()
       .single()
+
     if (error) {
       console.error('Error updating event:', error)
       return { data: null, error }
     }
-    return { data: data as Event, error: null }
+
+    const event = data as Event
+
+    // Update images if provided
+    if (images !== undefined) {
+      // Simplest way: delete old images and insert new ones
+      // Or we can do something more sophisticated, but let's stick to this for now
+      await supabase.from('event_images').delete().eq('event_id', eventId)
+
+      if (images.length > 0) {
+        const imagesToInsert = images.map((img) => ({
+          event_id: eventId,
+          image_url: img.image_url,
+          is_main: img.is_main
+        }))
+        const { error: imgError } = await supabase
+          .from('event_images')
+          .insert(imagesToInsert)
+
+        if (imgError) {
+          console.error('Error updating event images:', imgError)
+        }
+      }
+    }
+
+    return { data: event, error: null }
   } catch (err) {
     console.error('Unexpected error updating event:', err)
     return { data: null, error: err as Error }
@@ -316,7 +363,8 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
       { data: institution },
       { data: userData },
       { data: authorData },
-      { data: categoryData }
+      { data: categoryData },
+      { data: imagesData }
     ] = await Promise.all([
       data.institution_id
         ? supabase.from('institutions').select('*').eq('id', data.institution_id).single()
@@ -329,13 +377,15 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
         : Promise.resolve({ data: null }),
       data.category
         ? supabase.from('categories').select('*').eq('id', data.category).single()
-        : Promise.resolve({ data: null })
+        : Promise.resolve({ data: null }),
+      supabase.from('event_images').select('*').eq('event_id', eventId).order('is_main', { ascending: false })
     ])
 
     data.institution = institution
     data.user = userData
     data.author = authorData
     data.categorydata = categoryData
+    data.images = imagesData ?? []
 
     // Fetch additional details if main event fetch succeeded
     if (data) {
@@ -370,5 +420,52 @@ export async function fetchEventFullDetails(eventId: string): Promise<{
   } catch (err) {
     console.error('Unexpected error fetching event full details:', err)
     return { data: null, error: err as Error }
+  }
+}
+export async function addEventImage(imageData: {
+  event_id: string
+  image_url: string
+  is_main: boolean
+}): Promise<{
+  data: any | null
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { data, error } = await supabase
+      .from('event_images')
+      .insert(imageData)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error adding event image:', error)
+      return { data: null, error }
+    }
+    return { data, error: null }
+  } catch (err) {
+    console.error('Unexpected error adding event image:', err)
+    return { data: null, error: err as Error }
+  }
+}
+
+export async function deleteEventImage(imageId: string): Promise<{
+  error: Error | null
+}> {
+  const supabase = await getSupabase()
+  try {
+    const { error } = await supabase
+      .from('event_images')
+      .delete()
+      .eq('id', imageId)
+
+    if (error) {
+      console.error('Error deleting event image:', error)
+      return { error }
+    }
+    return { error: null }
+  } catch (err) {
+    console.error('Unexpected error deleting event image:', err)
+    return { error: err as Error }
   }
 }

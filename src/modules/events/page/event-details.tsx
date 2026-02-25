@@ -99,7 +99,9 @@ export function EventDetailsPage({
   }
 
   // --- Lógica de Imágenes ---
-  const eventImages = [event.cover_image_url].filter(Boolean) as string[]
+  const eventImages = event.images?.map((img) => img.image_url) || []
+  const mainImage = event.images?.find((img) => img.is_main) || event.images?.[0]
+  const bannerImage = mainImage?.image_url || null
 
   // --- Lógica de Modo de Evento ---
   const getEventModeInfo = () => {
@@ -122,11 +124,11 @@ export function EventDetailsPage({
       <div className="relative w-full overflow-hidden bg-zinc-950 border-b border-zinc-800">
         {/* Fondo con imagen y overlay oscuro */}
         <div className="absolute inset-0 z-0">
-          {event.cover_image_url && (
+          {bannerImage && (
             <>
               <div className="absolute inset-0 bg-zinc-950/80 z-10" />
               <img
-                src={event.cover_image_url}
+                src={bannerImage}
                 alt="Background"
                 className="w-full h-full object-cover blur-sm opacity-60 grayscale"
               />

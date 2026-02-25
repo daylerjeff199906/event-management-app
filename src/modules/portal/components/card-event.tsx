@@ -59,19 +59,20 @@ export function EventCardComponent({
   return (
     <Card className="group border rounded-2xl overflow-hidden shadow-none transition-all duration-300 cursor-pointer pt-0">
       <div className="relative h-44 overflow-hidden">
-        {event.cover_image_url && (
+        {(event.images && event.images.length > 0) && (
           <>
             <div
-              className={`absolute inset-0 bg-gray-200 ${
-                imageLoaded ? 'hidden' : ''
-              }`}
+              className={`absolute inset-0 bg-gray-200 ${imageLoaded ? 'hidden' : ''
+                }`}
             ></div>
             <img
-              src={event.cover_image_url}
+              src={
+                event.images.find((img) => img.is_main)?.image_url ||
+                event.images[0].image_url
+              }
               alt={event.event_name}
-              className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
-                imageLoaded ? '' : 'invisible'
-              }`}
+              className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${imageLoaded ? '' : 'invisible'
+                }`}
               onLoad={() => setImageLoaded(true)}
             />
           </>
