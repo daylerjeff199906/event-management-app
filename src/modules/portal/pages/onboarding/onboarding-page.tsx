@@ -28,8 +28,6 @@ import { LoadingAbsolute } from '@/components/app/miscellaneous/loading-absolute
 
 const STORAGE_KEY = 'eventify-onboarding-progress'
 
-const stepTitles = ['Perfil', 'Intereses', 'Configuración']
-
 interface OnboardingPageProps {
   email?: string
   photoURL?: string
@@ -60,7 +58,6 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
 
   const router = useRouter()
 
-  // Cargar progreso guardado al montar el componente
   useEffect(() => {
     const savedData = localStorage.getItem(STORAGE_KEY)
     if (savedData) {
@@ -80,7 +77,6 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
     }
   }, [])
 
-  // Guardar progreso automáticamente
   const saveProgress = (data: Partial<CompleteOnboarding>, step: number) => {
     const progressData = {
       data,
@@ -104,25 +100,6 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
     saveProgress(updatedData, 3)
   }
 
-  const handleSkip = () => {
-    if (currentStep < 3) {
-      const nextStep = currentStep + 1
-      setCurrentStep(nextStep)
-      saveProgress(onboardingData, nextStep)
-      toast.info(`Paso ${currentStep} omitido`)
-    } else {
-      // Omitir el último paso
-      handleStepThreeNext({
-        email_notifications: true,
-        push_notifications: true,
-        event_reminders: true,
-        weekly_digest: false,
-        profile_visibility: 'public',
-        show_location: false
-      })
-    }
-  }
-
   const handleBack = () => {
     if (currentStep > 1) {
       const prevStep = currentStep - 1
@@ -137,7 +114,6 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
     setOnboardingData(completeData)
 
     try {
-      // Guardar datos personales
       await insertUserData({
         username: email || '',
         birth_date: completeData.birth_date || '',
@@ -147,8 +123,7 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
         country: completeData.country || '',
         phone: completeData.phone || ''
       })
-      
-      // Guardar intereses y notificaciones
+
       await insertInterestsAndNotifications(
         {
           interests: completeData.interests || [],
@@ -164,15 +139,13 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
         }
       )
 
-      // Marcar onboarding como completado desde el backend
       const supabase = await import('@/services/core.supabase').then(m => m.getSupabase())
       const { data: { user } } = await supabase.auth.getUser()
-      
+
       if (user) {
         await completeOnboarding(user.id)
       }
 
-      // Limpiar el progreso guardado
       localStorage.removeItem(STORAGE_KEY)
 
       toast.success(
@@ -182,7 +155,6 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
         />
       )
       setCurrentStep(4)
-      // Simular redirección a la app principal
       setTimeout(() => {
         toast.info(
           <ToastCustom
@@ -205,87 +177,71 @@ export const OnboardingPage = (props: OnboardingPageProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col items-center justify-center text-center mb-8 w-full">
-            <div className="mb-2">
-              <LogoRender href="#" size={220} />
-            </div>
-            <p className="text-muted-foreground">
-              Configura tu perfil en solo unos minutos
-            </p>
-          </div>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-xl mx-auto px-6 py-12 md:py-20 flex flex-col items-center">
+        {/* Header Logo */}
+        <div className="mb-14">
+          <LogoRender href="#" size={200} />
+        </div>
 
-          {/* Progress Indicator */}
-          <ProgressIndicator
-            currentStep={currentStep}
-            totalSteps={3}
-            stepTitles={stepTitles}
-          />
+        {/* Progress Indicator */}
+        <ProgressIndicator
+          currentStep={currentStep}
+          totalSteps={3}
+        />
 
-          {/* Main Content */}
-          <div className="grid grid-cols-1 gap-8">
-            {/* Steps */}
-            <div className="lg:col-span-2">
-              {currentStep === 1 && (
-                <StepOne
-                  data={{
-                    first_name: onboardingData.first_name || '',
-                    last_name: onboardingData.last_name || '',
-                    profile_image: onboardingData.profile_image || '',
-                    country: onboardingData.country || '',
-                    birth_date: onboardingData.birth_date || '',
-                    phone: onboardingData.phone || ''
-                  }}
-                  onNext={handleStepOneNext}
-                  onSkip={handleSkip}
-                />
-              )}
+        {/* Steps Content */}
+        <div className="w-full">
+          {currentStep === 1 && (
+            <StepOne
+              data={{
+                first_name: onboardingData.first_name || '',
+                last_name: onboardingData.last_name || '',
+                profile_image: onboardingData.profile_image || '',
+                country: onboardingData.country || '',
+                birth_date: onboardingData.birth_date || '',
+                phone: onboardingData.phone || ''
+              }}
+              onNext={handleStepOneNext}
+            />
+          )}
 
-              {currentStep === 2 && (
-                <StepTwo
-                  data={{
-                    interests: onboardingData.interests || [],
-                    eventTypes: onboardingData.eventTypes || []
-                  }}
-                  onNext={handleStepTwoNext}
-                  onBack={handleBack}
-                  onSkip={handleSkip}
-                />
-              )}
+          {currentStep === 2 && (
+            <StepTwo
+              data={{
+                interests: onboardingData.interests || [],
+                eventTypes: onboardingData.eventTypes || []
+              }}
+              onNext={handleStepTwoNext}
+              onBack={handleBack}
+            />
+          )}
 
-              {currentStep === 3 && (
-                <StepThree
-                  data={{
-                    email_notifications:
-                      onboardingData.email_notifications ?? true,
-                    push_notifications:
-                      onboardingData.push_notifications ?? true,
-                    event_reminders: onboardingData.event_reminders ?? true,
-                    weekly_digest: onboardingData.weekly_digest ?? false,
-                    profile_visibility:
-                      onboardingData.profile_visibility || 'public',
-                    show_location: onboardingData.show_location ?? false
-                  }}
-                  disableNext={loading}
-                  onNext={handleStepThreeNext}
-                  onBack={handleBack}
-                  onSkip={handleSkip}
-                />
-              )}
+          {currentStep === 3 && (
+            <StepThree
+              data={{
+                email_notifications:
+                  onboardingData.email_notifications ?? true,
+                push_notifications:
+                  onboardingData.push_notifications ?? true,
+                event_reminders: onboardingData.event_reminders ?? true,
+                weekly_digest: onboardingData.weekly_digest ?? false,
+                profile_visibility:
+                  onboardingData.profile_visibility || 'public',
+                show_location: onboardingData.show_location ?? false
+              }}
+              disableNext={loading}
+              onNext={handleStepThreeNext}
+              onBack={handleBack}
+            />
+          )}
 
-              {currentStep === 4 && (
-                <CompletionScreen
-                  title="¡Configuración Completa!"
-                  centerImageUrl="/svg/congratulation.svg"
-                  centerImageAlt="Onboarding Complete"
-                  description="¡Felicidades! Has completado el proceso de configuración. Ahora estás listo para explorar todas las funcionalidades de Eventify. ¡Vamos a comenzar!"
-                />
-              )}
-            </div>
-          </div>
+          {currentStep === 4 && (
+            <CompletionScreen
+              title="¡Configuración Completa!"
+              description="¡Felicidades! Has completado el proceso de configuración. Ahora estás listo para explorar todas las funcionalidades de Eventify. ¡Vamos a comenzar!"
+            />
+          )}
         </div>
       </div>
       <LoadingAbsolute show={loading} label="Configurando espacio ..." />

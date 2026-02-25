@@ -27,7 +27,6 @@ interface StepThreeProps {
   data: Notifications
   onNext: (data: Notifications) => void
   onBack: () => void
-  onSkip: () => void
   disableNext: boolean
 }
 
@@ -35,7 +34,6 @@ export function StepThree({
   data,
   onNext,
   onBack,
-  onSkip,
   disableNext
 }: StepThreeProps) {
   const form = useForm<Notifications>({
@@ -48,162 +46,114 @@ export function StepThree({
   }
 
   return (
-    <div className="animate-slide-in-right">
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Settings className="w-8 h-8 text-primary" />
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">
+          ¡Casi terminamos!
+        </h1>
+        <p className="text-slate-500 font-medium tracking-tight">
+          Personaliza tus notificaciones y privacidad para empezar.
+        </p>
+      </div>
+
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+        <div className="space-y-8">
+          {/* Notificaciones Group */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Bell className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 tracking-tight">Notificaciones</h3>
+            </div>
+
+            <div className="grid gap-4">
+              {[
+                { id: 'email_notifications', title: 'Emails importantes', desc: 'Alertas y actualizaciones directas a tu bandeja.' },
+                { id: 'push_notifications', title: 'Notificaciones Push', desc: 'Avisos instantáneos en tu navegador o móvil.' },
+                { id: 'event_reminders', title: 'Recordatorios', desc: 'Te avisamos antes de que tus eventos comiencen.' }
+              ].map((item) => (
+                <div key={item.id} className="flex items-center justify-between p-5 rounded-2xl bg-slate-50/50 border border-slate-100 hover:border-slate-200 transition-all">
+                  <div className="space-y-1">
+                    <Label htmlFor={item.id} className="text-sm font-bold text-slate-700 cursor-pointer">
+                      {item.title}
+                    </Label>
+                    <p className="text-xs text-slate-500 font-medium tracking-tight">
+                      {item.desc}
+                    </p>
+                  </div>
+                  <Switch
+                    id={item.id}
+                    checked={form.watch(item.id as any)}
+                    onCheckedChange={(checked) =>
+                      form.setValue(item.id as any, checked)
+                    }
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-          <CardTitle className="text-2xl font-bold">
-            Configuración final
-          </CardTitle>
-          <CardDescription className="text-lg">
-            Personaliza tus notificaciones y privacidad
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Notificaciones</h3>
-                </div>
 
-                <div className="space-y-4 pl-7">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="email-notifications">
-                        Notificaciones por email
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Recibe actualizaciones importantes por correo
-                      </p>
-                    </div>
-                    <Switch
-                      id="email-notifications"
-                      checked={form.watch('email_notifications')}
-                      onCheckedChange={(checked) =>
-                        form.setValue('email_notifications', checked)
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="push-notifications">
-                        Notificaciones push
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Recibe notificaciones en tiempo real
-                      </p>
-                    </div>
-                    <Switch
-                      id="push-notifications"
-                      checked={form.watch('push_notifications')}
-                      onCheckedChange={(checked) =>
-                        form.setValue('push_notifications', checked)
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="event-reminders">
-                        Recordatorios de eventos
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        Te recordaremos tus eventos próximos
-                      </p>
-                    </div>
-                    <Switch
-                      id="event-reminders"
-                      checked={form.watch('event_reminders')}
-                      onCheckedChange={(checked) =>
-                        form.setValue('event_reminders', checked)
-                      }
-                    />
-                  </div>
-                </div>
+          {/* Privacidad Group */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Shield className="w-5 h-5 text-primary" />
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Privacidad</h3>
-                </div>
-
-                <div className="space-y-4 pl-7">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4" />
-                      <Label>Visibilidad del perfil</Label>
-                    </div>
-                    <RadioGroup
-                      value={form.watch('profile_visibility')}
-                      onValueChange={(value) =>
-                        form.setValue(
-                          'profile_visibility',
-                          value as 'public' | 'friends' | 'private'
-                        )
-                      }
-                      className="pl-6"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="public" id="public" />
-                        <Label htmlFor="public" className="font-normal">
-                          Público - Cualquiera puede ver tu perfil
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="friends" id="friends" />
-                        <Label htmlFor="friends" className="font-normal">
-                          Solo amigos - Solo tus conexiones pueden verte
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="private" id="private" />
-                        <Label htmlFor="private" className="font-normal">
-                          Privado - Tu perfil está oculto
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-              </div>
+              <h3 className="text-lg font-bold text-slate-800 tracking-tight">Privacidad y Visibilidad</h3>
             </div>
 
-            <div className="flex flex-col gap-3 pt-4">
-              <div className="flex flex-row gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onBack}
-                  className="flex-1 bg-transparent h-12 rounded-full"
-                >
-                  <ArrowLeft className="mr-2 h-5 w-5" />
-                  Anterior
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 h-12 rounded-full font-bold"
-                  disabled={disableNext}
-                >
-                  ¡Comenzar a usar!
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>
-              <Button
-                type="button"
-                onClick={onSkip}
-                variant="ghost"
-                className="flex-1 bg-transparent"
+            <div className="p-6 rounded-2xl bg-slate-50/50 border border-slate-100">
+              <RadioGroup
+                value={form.watch('profile_visibility')}
+                onValueChange={(value) =>
+                  form.setValue(
+                    'profile_visibility',
+                    value as 'public' | 'friends' | 'private'
+                  )
+                }
+                className="grid gap-4"
               >
-                Omitir
-              </Button>
+                {[
+                  { id: 'public', title: 'Público', desc: 'Cualquiera puede encontrar tu perfil.' },
+                  { id: 'friends', title: 'Solo Seguidores', desc: 'Solo personas que te siguen pueden verte.' },
+                  { id: 'private', title: 'Privado', desc: 'Tu perfil es totalmente invisible.' }
+                ].map((opt) => (
+                  <div key={opt.id} className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/50 transition-colors">
+                    <RadioGroupItem value={opt.id} id={opt.id} className="w-5 h-5" />
+                    <Label htmlFor={opt.id} className="flex flex-col cursor-pointer">
+                      <span className="text-sm font-bold text-slate-700">{opt.title}</span>
+                      <span className="text-xs text-slate-500 font-medium tracking-tight">{opt.desc}</span>
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+
+        {/* Botones de acción */}
+        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onBack}
+            className="flex-1 h-12 rounded-xl text-slate-500 font-bold hover:bg-slate-50"
+          >
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Regresar
+          </Button>
+
+          <Button
+            type="submit"
+            className="flex-[2] h-12 rounded-xl text-md font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+            disabled={disableNext}
+          >
+            ¡Empezar ahora!
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }

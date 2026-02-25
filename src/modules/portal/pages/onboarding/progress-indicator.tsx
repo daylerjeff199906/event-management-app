@@ -1,59 +1,45 @@
-import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ProgressIndicatorProps {
   currentStep: number
   totalSteps: number
-  stepTitles: string[]
 }
 
 export function ProgressIndicator({
   currentStep,
-  totalSteps,
-  stepTitles
+  totalSteps
 }: ProgressIndicatorProps) {
+  // We add +1 to totalSteps if we want to show the completion step (Eden shows 4 steps)
+  const displaySteps = totalSteps + 1
+
   return (
-    <div className="w-full max-w-lg mx-auto mb-8">
-      <div className="flex items-center justify-between">
-        {Array.from({ length: totalSteps }, (_, index) => {
+    <div className="w-full max-w-xs mx-auto mb-16 px-4">
+      <div className="relative flex items-center justify-between">
+        {/* Background Line */}
+        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-slate-100 -translate-y-1/2 z-0" />
+
+        {/* Active Line Progress */}
+        <div
+          className="absolute top-1/2 left-0 h-[2px] bg-primary transition-all duration-500 ease-in-out z-0"
+          style={{ width: `${((currentStep - 1) / (displaySteps - 1)) * 100}%` }}
+        />
+
+        {Array.from({ length: displaySteps }, (_, index) => {
           const stepNumber = index + 1
-          const isCompleted = stepNumber < currentStep
-          const isCurrent = stepNumber === currentStep
+          const isActive = stepNumber <= currentStep
 
           return (
-            <div key={stepNumber} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div
-                  className={cn(
-                    'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300',
-                    isCompleted && 'bg-primary text-primary-foreground',
-                    isCurrent &&
-                      'bg-accent text-accent-foreground ring-4 ring-accent/20',
-                    !isCompleted &&
-                      !isCurrent &&
-                      'bg-muted text-muted-foreground'
-                  )}
-                >
-                  {isCompleted ? <Check className="w-5 h-5" /> : stepNumber}
-                </div>
-                <span
-                  className={cn(
-                    'mt-2 text-xs font-medium text-center max-w-20',
-                    isCompleted && 'text-primary',
-                    !isCompleted && !isCurrent && 'text-muted-foreground'
-                  )}
-                >
-                  {stepTitles[index]}
-                </span>
+            <div key={stepNumber} className="relative z-10">
+              <div
+                className={cn(
+                  'w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-500 shadow-sm border',
+                  isActive
+                    ? 'bg-primary border-primary text-white scale-110'
+                    : 'bg-white border-slate-200 text-slate-400'
+                )}
+              >
+                {stepNumber}
               </div>
-              {index < totalSteps - 1 && (
-                <div
-                  className={cn(
-                    'flex-1 h-0.5 mx-4 transition-all duration-300',
-                    stepNumber < currentStep ? 'bg-primary' : 'bg-border'
-                  )}
-                />
-              )}
             </div>
           )
         })}
