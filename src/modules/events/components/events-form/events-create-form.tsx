@@ -41,6 +41,7 @@ import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useRouter } from 'next/navigation'
 import { Textarea } from '@/components/ui/textarea'
 import { APP_URL } from '@/data/config-app-url'
+import ImageUpload from '../image-upload'
 
 interface EventsCreateFormProps {
   institutionId?: string
@@ -62,7 +63,7 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
     defaultValues: {
       event_name: '',
       description: '',
-      cover_image_url: '',
+      images: [],
       status: EventStatus.DRAFT,
       category: undefined,
       start_date: undefined,
@@ -227,6 +228,25 @@ export const EventsCreateForm = (props: EventsCreateFormProps) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Imagen del evento */}
+          <Card className="shadow-none border border-gray-200 ">
+            <CardHeader>
+              <CardTitle>Agrega imágenes a tu evento</CardTitle>
+              <CardDescription>
+                Sube fotos que transmitan el ambiente de tu evento. La primera
+                imagen será la principal.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ImageUpload
+                images={form.watch('images')}
+                onImagesChange={(newImages) =>
+                  form.setValue('images', newImages, { shouldDirty: true })
+                }
+              />
+            </CardContent>
+          </Card>
+
           {/* Nombre del evento */}
           <Card className="shadow-none border border-gray-200 ">
             <CardHeader>

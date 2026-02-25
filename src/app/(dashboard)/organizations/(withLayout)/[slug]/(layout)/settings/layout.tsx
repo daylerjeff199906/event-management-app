@@ -1,18 +1,22 @@
-interface IProps {
+import { LayoutWrapper } from '@/components/layouts'
+import { PageHeader } from '@/components/app/header-section'
+import { Params } from '@/types'
+
+interface Props {
+  params: Params
   children: React.ReactNode
 }
 
-export default function Layout(props: IProps) {
-  const { children } = props
-
+export default async function SettingsLayout(props: Props) {
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl font-semibold text-foreground mb-6">
-          Configuración de la organización
-        </h1>
-        {children}
+    <LayoutWrapper sectionTitle="Configuración">
+      <PageHeader
+        title="Configuración del Negocio"
+        description="Gestiona la información principal de tu negocio, dirección y datos de contacto."
+      />
+      <div className="flex flex-col gap-6 container mx-auto">
+        {props.children}
       </div>
-    </div>
+    </LayoutWrapper>
   )
 }

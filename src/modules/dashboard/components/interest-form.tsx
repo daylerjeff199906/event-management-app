@@ -9,9 +9,6 @@ import { Label } from '@/components/ui/label'
 import {
   Form,
   FormControl,
-  FormField,
-  FormItem,
-  FormMessage
 } from '@/components/ui/form'
 import {
   interestsSchema,
@@ -25,6 +22,8 @@ import { updateInterest } from '@/services/user.services'
 import { toast } from 'react-toastify'
 import { ToastCustom } from '@/components/app/miscellaneous/toast-custom'
 import { useState } from 'react'
+import { Heart } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface StepTwoProps {
   data: Interests
@@ -47,7 +46,6 @@ export function InterestForm({ data, idUser }: StepTwoProps) {
   const onSubmit = async (formData: Interests) => {
     setIsLoading(true)
     try {
-      // Actualizar intereses en el servidor
       const updated = await updateInterest(idUser, formData)
       if (updated.error) {
         toast.error(
@@ -63,8 +61,7 @@ export function InterestForm({ data, idUser }: StepTwoProps) {
             description="Tus intereses se han guardado correctamente."
           />
         )
-
-        form.reset(formData) // Resetear el estado de "dirty" después de guardar
+        form.reset(formData)
       }
     } catch {
       toast.error(
@@ -78,174 +75,121 @@ export function InterestForm({ data, idUser }: StepTwoProps) {
     }
   }
 
-  return (
-    <div className="animate-slide-in-right">
-      <Card className="w-full mx-auto shadow-none bg-white dark:bg-slate-800 border">
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              {/* Campo de intereses */}
-              <FormField
-                control={form.control}
-                name="interests"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold">Tus intereses</h3>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {interestOptions.map((interest) => {
-                        const Icon = interest.icon
-                        return (
-                          <FormField
-                            key={interest.id}
-                            control={form.control}
-                            name="interests"
-                            render={({ field }) => {
-                              const isSelected =
-                                field.value?.includes(interest.id) || false
-                              return (
-                                <FormItem
-                                  key={interest.id}
-                                  className="flex flex-col items-center space-y-0"
-                                >
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={isSelected}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([
-                                              ...(field.value || []),
-                                              interest.id
-                                            ])
-                                          : field.onChange(
-                                              field.value?.filter(
-                                                (value) => value !== interest.id
-                                              )
-                                            )
-                                      }}
-                                      className="sr-only"
-                                    />
-                                  </FormControl>
-                                  <Label
-                                    htmlFor={`interest-${interest.id}`}
-                                    className={`flex flex-col items-center p-4 rounded-lg border-2 cursor-pointer transition-all hover:bg-muted/50 w-full ${
-                                      isSelected
-                                        ? 'border-primary bg-primary/5'
-                                        : 'border-border'
-                                    }`}
-                                  >
-                                    <Icon
-                                      className={`w-6 h-6 mb-2 ${
-                                        isSelected
-                                          ? 'text-primary'
-                                          : 'text-muted-foreground'
-                                      }`}
-                                    />
-                                    <span
-                                      className={`text-sm font-medium text-center ${
-                                        isSelected
-                                          ? 'text-primary'
-                                          : 'text-foreground'
-                                      }`}
-                                    >
-                                      {interest.label}
-                                    </span>
-                                  </Label>
-                                </FormItem>
-                              )
-                            }}
-                          />
-                        )
-                      })}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+  const watchedInterests = form.watch('interests') || []
+  const watchedEventTypes = form.watch('eventTypes') || []
 
-              {/* Campo de tipos de eventos */}
-              <FormField
-                control={form.control}
-                name="eventTypes"
-                render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold">
-                        Tipos de eventos favoritos
-                      </h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {eventTypeOptions.map((eventType) => (
-                        <FormField
-                          key={eventType.id}
-                          control={form.control}
-                          name="eventTypes"
-                          render={({ field }) => {
-                            const isSelected =
-                              field.value?.includes(eventType.id) || false
-                            return (
-                              <FormItem
-                                key={eventType.id}
-                                className="flex flex-row items-center space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={isSelected}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([
-                                            ...(field.value || []),
-                                            eventType.id
-                                          ])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== eventType.id
-                                            )
-                                          )
-                                    }}
-                                  />
-                                </FormControl>
-                                <Label
-                                  htmlFor={`event-type-${eventType.id}`}
-                                  className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 flex-1 ${
-                                    isSelected
-                                      ? 'border-primary bg-primary/5'
-                                      : 'border-border'
-                                  }`}
-                                  onClick={() => {
-                                    if (isSelected) {
-                                      field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== eventType.id
-                                        )
-                                      )
-                                    } else {
-                                      field.onChange([
-                                        ...(field.value || []),
-                                        eventType.id
-                                      ])
-                                    }
-                                  }}
-                                >
-                                  <span className="font-medium">
-                                    {eventType.label}
-                                  </span>
-                                </Label>
-                              </FormItem>
-                            )
+  return (
+    <div className="w-full">
+      <Card className="shadow-none bg-white dark:bg-slate-800 border-border border-0 p-0">
+        <CardContent className="p-0">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+              {/* Interests Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Heart className="w-5 h-5 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                    Tus intereses principales
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {interestOptions.map((interest) => {
+                    const Icon = interest.icon
+                    const isSelected = watchedInterests.includes(interest.id)
+
+                    return (
+                      <Label
+                        key={interest.id}
+                        className={cn(
+                          "relative flex flex-col items-center p-6 rounded-[1.5rem] border-2 cursor-pointer transition-all duration-300",
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-md shadow-primary/5"
+                            : "border-slate-100 dark:border-slate-700 hover:border-slate-200 bg-white dark:bg-slate-900"
+                        )}
+                      >
+                        <Checkbox
+                          className="sr-only"
+                          checked={isSelected}
+                          onCheckedChange={(checked) => {
+                            const current = form.getValues('interests') || []
+                            if (checked) {
+                              form.setValue('interests', [...current, interest.id], { shouldDirty: true })
+                            } else {
+                              form.setValue('interests', current.filter(id => id !== interest.id), { shouldDirty: true })
+                            }
                           }}
                         />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                        <div className={cn(
+                          "p-3 rounded-2xl mb-3 transition-colors",
+                          isSelected ? "bg-primary/10" : "bg-slate-50 dark:bg-slate-800"
+                        )}>
+                          <Icon className={cn("w-6 h-6", isSelected ? "text-primary" : "text-slate-400")} />
+                        </div>
+                        <span className={cn(
+                          "text-xs font-bold tracking-tight text-center",
+                          isSelected ? "text-primary" : "text-slate-600 dark:text-slate-400"
+                        )}>
+                          {interest.label}
+                        </span>
+                      </Label>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Event Types Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-4">
+                  Tipos de eventos favoritos
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {eventTypeOptions.map((eventType) => {
+                    const isSelected = watchedEventTypes.includes(eventType.id)
+
+                    return (
+                      <Label
+                        key={eventType.id}
+                        className={cn(
+                          "flex items-center p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300",
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-md shadow-primary/5"
+                            : "border-slate-100 dark:border-slate-700 hover:border-slate-200 bg-white dark:bg-slate-900"
+                        )}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => {
+                            const current = form.getValues('eventTypes') || []
+                            if (checked) {
+                              form.setValue('eventTypes', [...current, eventType.id], { shouldDirty: true })
+                            } else {
+                              form.setValue('eventTypes', current.filter(id => id !== eventType.id), { shouldDirty: true })
+                            }
+                          }}
+                          className="mr-4 h-5 w-5 rounded-md"
+                        />
+                        <span className={cn(
+                          "font-bold tracking-tight",
+                          isSelected ? "text-primary" : "text-slate-700 dark:text-slate-300"
+                        )}>
+                          {eventType.label}
+                        </span>
+                      </Label>
+                    )
+                  })}
+                </div>
+              </div>
 
               <div className="flex pt-4">
-                <Button type="submit" disabled={!isDirty || isLoading}>
-                  {isLoading ? 'Guardando...' : 'Actualizar datos'}
+                <Button
+                  type="submit"
+                  disabled={!isDirty || isLoading}
+                  className="w-full md:w-auto px-10 h-12 rounded-xl text-md font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                >
+                  {isLoading ? 'Guardando...' : 'Actualizar intereses'}
                 </Button>
               </div>
             </form>

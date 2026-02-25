@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dialog'
 import { Cropper, CropperCropArea, CropperImage } from '@/components/ui/cropper'
 import { Camera, Upload, X } from 'lucide-react'
-import type { PutBlobResult } from '@vercel/blob'
 import { useState, useRef, useCallback } from 'react'
 
 interface AvatarUploadProps {
@@ -28,10 +27,10 @@ export default function AvatarUpload({
   onAvatarChange
 }: AvatarUploadProps) {
   const inputFileRef = useRef<HTMLInputElement>(null)
-  const [blob, setBlob] = useState<PutBlobResult | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
   const getInitials = (name: string) => {
     return name
@@ -90,8 +89,6 @@ export default function AvatarUpload({
 
     setIsUploading(true)
     try {
-      // En un caso real, aquí procesarías la imagen recortada
-      // Por ahora, simplemente convertimos la imagen seleccionada a blob
       const response = await fetch(selectedImage)
       const blob = await response.blob()
 
@@ -99,17 +96,22 @@ export default function AvatarUpload({
         type: 'image/jpeg'
       })
 
-      const uploadResponse = await fetch(
-        `/api/avatar/upload?filename=${file.name}&override=true`,
-        {
-          method: 'POST',
-          body: file
-        }
-      )
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'avatars')
 
-      const newBlob = (await uploadResponse.json()) as PutBlobResult
-      setBlob(newBlob)
-      onAvatarChange?.(newBlob.url)
+      const uploadResponse = await fetch('/api/r2/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Error al subir la imagen')
+      }
+
+      const { url } = await uploadResponse.json()
+      setAvatarUrl(url)
+      onAvatarChange?.(url)
 
       setIsModalOpen(false)
       setSelectedImage(null)
@@ -131,7 +133,7 @@ export default function AvatarUpload({
       <div className="relative">
         <Avatar className="w-32 h-32 border">
           <AvatarImage
-            src={blob?.url || urlImage}
+            src={avatarUrl || urlImage}
             alt={username}
             className="object-cover"
           />

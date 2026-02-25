@@ -14,7 +14,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { PutBlobResult } from '@vercel/blob'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getInitials } from '@/utils/utils'
 
@@ -40,7 +39,7 @@ export function ImageUploadModal({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
-  const [blob, setBlob] = useState<PutBlobResult | null>(null)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
 
   // Reset state when modal opens
   const handleOpenChange = (open: boolean) => {
@@ -119,21 +118,22 @@ export function ImageUploadModal({
         type: 'image/jpeg'
       })
 
-      const uploadResponse = await fetch(
-        `/api/images/upload?filename=${file.name}&folder=${folder}&override=true`,
-        {
-          method: 'POST',
-          body: file
-        }
-      )
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', folder)
+
+      const uploadResponse = await fetch('/api/r2/upload', {
+        method: 'POST',
+        body: formData
+      })
 
       if (!uploadResponse.ok) {
         throw new Error('Error al subir la imagen')
       }
 
-      const newBlob = (await uploadResponse.json()) as PutBlobResult
-      setBlob(newBlob)
-      onUpload(newBlob.url)
+      const { url } = await uploadResponse.json()
+      setImageUrl(url)
+      onUpload(url)
       setIsModalOpen(false)
       setSelectedImage(null)
     } catch (error) {
@@ -157,7 +157,7 @@ export function ImageUploadModal({
       <div className="relative">
         <Avatar className="w-24 h-24 border">
           <AvatarImage
-            src={blob?.url || defaultImage}
+            src={imageUrl || defaultImage}
             alt={nameInstitution}
             className="object-cover"
           />
@@ -206,13 +206,12 @@ export function ImageUploadModal({
 
             {/* Upload Area */}
             <div
-              className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${
-                isDragOver
-                  ? 'border-blue-400 bg-blue-50'
-                  : selectedImage
+              className={`relative border-2 border-dashed rounded-lg p-6 transition-colors ${isDragOver
+                ? 'border-blue-400 bg-blue-50'
+                : selectedImage
                   ? 'border-gray-200 bg-gray-50'
                   : 'border-gray-300 hover:border-gray-400'
-              }`}
+                }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}

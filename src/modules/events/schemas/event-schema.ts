@@ -21,7 +21,15 @@ export const eventSchema = z
     updated_at: z.date().optional(),
     time: z.date().optional(),
     duration: z.number().optional(),
-    cover_image_url: z.string().optional(),
+    images: z
+      .array(
+        z.object({
+          id: z.string().optional(),
+          image_url: z.string(),
+          is_main: z.boolean()
+        })
+      )
+      .optional(),
     full_description: z.string().optional().nullable(),
     status: z
       .enum([EventStatus.DRAFT, EventStatus.PUBLIC, EventStatus.DELETE])

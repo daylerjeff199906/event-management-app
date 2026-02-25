@@ -1,5 +1,5 @@
 import { EventMode } from '@/modules/events/schemas'
-import { Address, IUser, Pagination } from '../core'
+import { Address, IProfile, Pagination } from '../core'
 import { Category } from './categories'
 import { EventDetails } from './events-details'
 import { InstitutionForm } from '@/modules/portal/lib/register.institution'
@@ -8,6 +8,14 @@ export enum EventStatus {
   DRAFT = 'DRAFT',
   PUBLIC = 'PUBLIC',
   DELETE = 'DELETE'
+}
+
+export interface EventImage {
+  id: string
+  event_id: string
+  image_url: string
+  is_main: boolean
+  created_at?: string
 }
 
 export interface Event {
@@ -20,7 +28,6 @@ export interface Event {
   end_date?: string | null // ISO 8601 format
   institution_id?: string | null
   user_id?: string | null
-  cover_image_url?: string | null
   status?: EventStatus
   category?: number | null
   author_id?: string | null
@@ -40,6 +47,7 @@ export interface Event {
   meeting_url?: string | null
   custom_location?: string | null
   event_mode?: EventMode | null
+  images?: EventImage[]
 }
 
 export interface Coordinates {
@@ -63,8 +71,8 @@ export interface EventsFilters extends Pagination {
 export interface EventItemDetails extends Event {
   categorydata: Category | null
   institution: InstitutionForm | null
-  user: IUser | null
-  author: IUser | null
+  user: IProfile | null
+  author: IProfile | null
   // Database external key
   adressdata: Address | null
   // Extended details

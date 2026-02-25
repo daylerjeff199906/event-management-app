@@ -4,7 +4,7 @@ import { EventCard } from '../components'
 import { useRouter } from 'next/navigation'
 import { APP_URL } from '@/data/config-app-url'
 import { EmptyState } from '@/components/app/miscellaneous/empty-state'
-import { updateEventField } from '@/services/events.services'
+import { updateEvent, updateEventField } from '@/services/events.services'
 import ImageUploadSimple from '../components/image-upload-with-crop'
 import { useState } from 'react'
 interface PageProps {
@@ -60,10 +60,8 @@ export const InstitutionEventsPage = ({
   const handleImageChange = async (imageUrl: string) => {
     if (!imageUploadModal.eventId) return
 
-    await updateEventField({
-      eventId: imageUploadModal.eventId,
-      fieldName: 'cover_image_url',
-      fieldValue: imageUrl
+    await updateEvent(imageUploadModal.eventId, {
+      images: [{ image_url: imageUrl, is_main: true }]
     })
 
     router.refresh()
@@ -83,7 +81,10 @@ export const InstitutionEventsPage = ({
             onChangeImage={() =>
               handleOpenImageUpload(
                 event.id,
-                event.cover_image_url || undefined
+                (event.images && event.images.length > 0
+                  ? event.images.find((img) => img.is_main)?.image_url ||
+                  event.images[0].image_url
+                  : undefined)
               )
             }
           />

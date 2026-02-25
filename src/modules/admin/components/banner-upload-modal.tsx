@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { PutBlobResult } from '@vercel/blob'
 
 interface BannerUploadModalProps {
   defaultImage?: string
@@ -120,16 +119,19 @@ export function BannerUploadModal({
         type: 'image/jpeg'
       })
 
-      // Tu endpoint de subida existente
-      const response = await fetch(
-        `/api/images/upload?filename=${file.name}&folder=${folder}`,
-        { method: 'POST', body: file }
-      )
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', folder)
+
+      const response = await fetch('/api/r2/upload', {
+        method: 'POST',
+        body: formData
+      })
 
       if (!response.ok) throw new Error('Fallo subida')
 
-      const newBlob = (await response.json()) as PutBlobResult
-      onUpload(newBlob.url)
+      const { url } = await response.json()
+      onUpload(url)
       setIsOpen(false)
       setSelectedImage(null)
     } catch (error) {

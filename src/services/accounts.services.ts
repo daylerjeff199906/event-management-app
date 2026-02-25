@@ -41,7 +41,7 @@ export async function createInstitutionAccount({
   try {
     // 1. Verificar si el usuario ya existe
     const { data: existingUser, error: userError } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id, email')
       .eq('email', email)
       .single()
@@ -81,8 +81,8 @@ export async function createInstitutionAccount({
 
       userId = authData.user.id
 
-      // 3. Crear registro en la tabla users
-      const { error: userCreateError } = await supabase.from('users').insert([
+      // 3. Crear registro en la tabla profiles
+      const { error: userCreateError } = await supabase.from('profiles').insert([
         {
           id: userId,
           email: email,
