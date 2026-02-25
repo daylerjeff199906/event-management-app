@@ -18,6 +18,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     name: string
     email: string
     avatar: string
+    globalRole?: string
   }
   menuTeamSwitcher?: {
     name: string

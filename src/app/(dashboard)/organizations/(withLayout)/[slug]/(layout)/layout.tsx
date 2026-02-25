@@ -25,7 +25,7 @@ export default async function Layout(props: IProps) {
   const userId = authUser.user.id
 
   const onboardingCompleted = await checkOnboardingCompleted(userId)
-  
+
   if (!onboardingCompleted) {
     redirect(APP_URL.PORTAL.ONBOARDING)
   }
@@ -45,7 +45,7 @@ export default async function Layout(props: IProps) {
   }
 
   const idInstitution = params.slug as string
-  
+
   const institutionRole = await getUserInstitutionRole(userId, idInstitution)
 
   if (!institutionRole.has_access) {
@@ -58,11 +58,18 @@ export default async function Layout(props: IProps) {
     avatar: profileData?.profile_image || ''
   }
 
-  const teamSwitcherData = institutions?.map((inst: any) => ({
-    name: inst.institution?.name || inst.institution_id,
-    logo: 'Command',
-    plan: 'Organization'
-  })) || []
+  const teamSwitcherData = [
+    ...(institutions?.map((inst: any) => ({
+      name: inst.institution?.name || inst.institution_id,
+      logo: inst.institution?.logo_url || 'Command',
+      plan: 'Organización'
+    })) || []),
+    {
+      name: 'Intranet',
+      logo: 'https://cdn-icons-png.flaticon.com/512/1000/1000946.png',
+      plan: 'Mi Cuenta'
+    }
+  ]
 
   return (
     <SidebarProvider>

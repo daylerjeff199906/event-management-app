@@ -7,7 +7,14 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  ShieldCheck,
+  User,
+  Settings,
 } from "lucide-react"
+import { createClient } from "@/utils/supabase/client"
+import { useRouter } from "next/navigation"
+import { APP_URL } from "@/data/config-app-url"
+import Link from "next/link"
 
 import {
   Avatar,
@@ -37,6 +44,7 @@ export function NavUser({
     name: string
     email: string
     avatar: string
+    globalRole?: string
   }
 }) {
   const { isMobile } = useSidebar()
@@ -86,25 +94,39 @@ export function NavUser({
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
+              <DropdownMenuItem asChild>
+                <Link href={APP_URL.DASHBOARD.PROFILE}>
+                  <User className="mr-2 h-4 w-4" />
+                  Perfil
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
+              <DropdownMenuItem asChild>
+                <Link href={APP_URL.DASHBOARD.SETTINGS}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Ajustes
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+              {(user.globalRole === 'admin' || user.globalRole === 'super_admin') && (
+                <DropdownMenuItem asChild>
+                  <Link href={APP_URL.ADMIN.BASE}>
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Administración
+                  </Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
-              Log out
+            <DropdownMenuItem
+              onClick={async () => {
+                const supabase = createClient()
+                await supabase.auth.signOut()
+                window.location.href = APP_URL.AUTH.LOGIN
+              }}
+              className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Cerrar sesión
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

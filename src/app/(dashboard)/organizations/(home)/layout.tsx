@@ -1,5 +1,4 @@
-import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
+import { SearchInput } from '@/components/app/miscellaneous/search-input'
 
 import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
 import { APP_URL } from '@/data/config-app-url'
@@ -23,7 +22,7 @@ export default async function Layout(props: IProps) {
   const userId = authUser.user.id
 
   const onboardingCompleted = await checkOnboardingCompleted(userId)
-  
+
   if (!onboardingCompleted) {
     redirect(APP_URL.PORTAL.ONBOARDING)
   }
@@ -59,10 +58,10 @@ export default async function Layout(props: IProps) {
             Instituciones
           </h1>
           <div className="flex gap-2 mb-8">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar una institución" className="pl-10" />
-            </div>
+            <SearchInput
+              placeholder="Buscar una institución"
+              className="max-w-sm"
+            />
           </div>
           {children}
         </div>

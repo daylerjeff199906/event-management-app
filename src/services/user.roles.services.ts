@@ -5,7 +5,8 @@ import { IProfile, IUserRoleFull, InstitutionRole } from '@/types'
 import { revalidatePath } from 'next/cache'
 
 export async function getInstitutionsByUserRole(
-  userId: string
+  userId: string,
+  query?: string
 ): Promise<InstitutionForm[]> {
   const supabase = await getSupabase()
   const { data, error } = await supabase
@@ -18,7 +19,15 @@ export async function getInstitutionsByUserRole(
     return []
   }
 
-  return data?.flatMap((row) => row.institutions) ?? []
+  let institutions = data?.flatMap((row) => row.institutions) ?? []
+
+  if (query) {
+    institutions = institutions.filter((inst) =>
+      inst.institution_name.toLowerCase().includes(query.toLowerCase())
+    )
+  }
+
+  return institutions
 }
 
 export async function getfullUserRoleByInstitution(
