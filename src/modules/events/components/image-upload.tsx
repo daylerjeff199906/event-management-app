@@ -42,6 +42,7 @@ export default function ImageUpload({
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -73,14 +74,24 @@ export default function ImageUpload({
   const handleDrop = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault()
     setIsDragging(false)
-    const file = event.dataTransfer.files[0]
-    if (file) handleFile(file)
+
+    // Check if it's a file drop
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0]
+      if (file) handleFile(file)
+      return
+    }
+
+    // Handled by handleDropReorder for index-based drops
   }, [handleFile])
 
   const handleDragOver = useCallback(
     (event: React.DragEvent<HTMLElement>) => {
       event.preventDefault()
-      setIsDragging(true)
+      // Only show upload drag state if files are being dragged
+      if (event.dataTransfer.types.includes('Files')) {
+        setIsDragging(true)
+      }
     },
     []
   )
@@ -92,6 +103,31 @@ export default function ImageUpload({
     },
     []
   )
+
+  // Reordering logic
+  const handleDragStartReorder = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  const handleDragOverReorder = (event: React.DragEvent, index: number) => {
+    event.preventDefault()
+    if (draggedIndex === null || draggedIndex === index) return
+  }
+
+  const handleDropReorder = (event: React.DragEvent, targetIndex: number) => {
+    event.preventDefault()
+    if (draggedIndex === null || draggedIndex === targetIndex) {
+      setDraggedIndex(null)
+      return
+    }
+
+    const updatedImages = [...images]
+    const [movedItem] = updatedImages.splice(draggedIndex, 1)
+    updatedImages.splice(targetIndex, 0, movedItem)
+
+    onImagesChange?.(updatedImages)
+    setDraggedIndex(null)
+  }
 
   const handleSave = async () => {
     if (!selectedImage) return
@@ -192,23 +228,28 @@ export default function ImageUpload({
         {images.map((image, index) => (
           <div
             key={image.id || index}
+            draggable
+            onDragStart={() => handleDragStartReorder(index)}
+            onDragOver={(e) => handleDragOverReorder(e, index)}
+            onDrop={(e) => handleDropReorder(e, index)}
             className={cn(
-              "group relative rounded-xl overflow-hidden border-2 transition-all duration-200 aspect-video shadow-sm",
-              image.is_main ? "border-blue-500 ring-2 ring-blue-500/20" : "border-muted"
+              "group relative rounded-xl overflow-hidden border-2 transition-all duration-200 aspect-video shadow-sm cursor-move",
+              image.is_main ? "border-primary ring-2 ring-primary/20" : "border-muted",
+              draggedIndex === index && "opacity-50 grayscale"
             )}
           >
             <img
               src={image.image_url}
               alt={`Event image ${index + 1}`}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none"
             />
 
             {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
             <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
               {image.is_main ? (
-                <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 shadow-lg">
+                <Badge variant="default" className="bg-primary hover:bg-primary/90 shadow-lg border-none">
                   <Star className="w-3 h-3 mr-1 fill-current" />
                   Principal
                 </Badge>
@@ -234,13 +275,13 @@ export default function ImageUpload({
             className={cn(
               "flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed transition-all duration-300 aspect-video",
               isDragging
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+                ? "border-primary bg-primary/5 dark:bg-primary/10"
                 : "border-muted-foreground/20 bg-muted/10 hover:bg-muted/30 hover:border-muted-foreground/40"
             )}
           >
             <div className={cn(
               "h-12 w-12 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300",
-              isDragging ? "bg-blue-600 text-white scale-110" : "bg-white dark:bg-zinc-900 border text-muted-foreground"
+              isDragging ? "bg-primary text-white scale-110" : "bg-white dark:bg-zinc-900 border text-muted-foreground"
             )}>
               {isDragging ? <CloudUpload className="h-6 w-6 animate-bounce" /> : <Upload className="h-6 w-6" />}
             </div>
@@ -294,7 +335,7 @@ export default function ImageUpload({
               Cancelar
             </Button>
             {selectedImage && (
-              <Button onClick={handleSave} disabled={isUploading} type="button" className="rounded-full px-8 bg-blue-600 hover:bg-blue-700 shadow-blue-500/20">
+              <Button onClick={handleSave} disabled={isUploading} type="button" className="rounded-full px-8 bg-primary hover:bg-primary/90 shadow-primary/20">
                 {isUploading ? (
                   <span className="flex items-center gap-2">
                     <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -32,45 +32,40 @@ export async function fetchEventsByInstitution(
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
 
-    let query = supabase
+    const query = supabase
       .from('events')
-      .select('*', { count: 'exact' })
+      .select('*, images:event_images(*)', { count: 'exact' })
       .order('event_name')
       .range(from, to)
 
-    // Apply search filter
+    // ... (rest of the query filters)
+
+    // Applying the same filters but on the query object
+    let filteredQuery = query
     if (searchQuery) {
-      query = query.or(
+      filteredQuery = filteredQuery.or(
         `event_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
       )
     }
-
-    // Apply institution_id filter if provided
     if (institution_id) {
-      query = query.eq('institution_id', institution_id)
+      filteredQuery = filteredQuery.eq('institution_id', institution_id)
     }
-
-    // Apply user_id filter if provided
     if (user_id) {
-      query = query.eq('user_id', user_id)
+      filteredQuery = filteredQuery.eq('user_id', user_id)
     }
-
-    // Only show deleted if status === 'deleted'
     if (status === EventStatus.DELETE) {
-      query = query.eq('status', EventStatus.DELETE)
+      filteredQuery = filteredQuery.eq('status', EventStatus.DELETE)
     } else {
-      // Otherwise, show only public and draft
-      query = query.in('status', [EventStatus.PUBLIC, EventStatus.DRAFT])
-      // If status filter is provided and not 'deleted', filter by it
+      filteredQuery = filteredQuery.in('status', [EventStatus.PUBLIC, EventStatus.DRAFT])
       if (status) {
-        query = query.eq('status', status)
+        filteredQuery = filteredQuery.eq('status', status)
       }
     }
 
-    const { data, error, count } = await query
+    const { data, error, count } = await filteredQuery
 
     if (error) {
-      console.error('Error fetching institution:', error)
+      console.error('Error fetching events by institution:', error)
       return { data: null, error }
     }
 
@@ -94,16 +89,35 @@ export async function fetchEventById(eventId: string): Promise<{
 }> {
   const supabase = await getSupabase()
   try {
-    const { data, error } = await supabase
+    const { data: event, error: eventError } = await supabase
       .from('events')
       .select('*')
       .eq('id', eventId)
       .single()
-    if (error) {
-      console.error('Error fetching event by ID:', error)
-      return { data: null, error }
+
+    if (eventError) {
+      console.error('Error fetching event by ID:', eventError)
+      return { data: null, error: eventError }
     }
-    return { data: data as Event, error: null }
+
+    // Fetch images for this event
+    const { data: images, error: imagesError } = await supabase
+      .from('event_images')
+      .select('*')
+      .eq('event_id', eventId)
+      .order('is_main', { ascending: false })
+
+    if (imagesError) {
+      console.error('Error fetching event images:', imagesError)
+      // We don't fail the whole request if images fail, just log it
+    }
+
+    const data = {
+      ...(event as Event),
+      images: images || []
+    }
+
+    return { data, error: null }
   } catch (err) {
     console.error('Unexpected error fetching event by ID:', err)
     return { data: null, error: err as Error }
@@ -127,30 +141,28 @@ export async function fetchEventList(filter: EventsFilters): Promise<{
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
 
-    let query = supabase
+    const query = supabase
       .from('events')
-      .select('*', { count: 'exact' })
+      .select('*, images:event_images(*)', { count: 'exact' })
       .order('event_name')
       .range(from, to)
 
-    // Apply search filter
+    let filteredQuery = query
     if (searchQuery) {
-      query = query.or(
+      filteredQuery = filteredQuery.or(
         `event_name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`
       )
     }
 
-    // Apply status filter if provided
     if (status) {
-      query = query.eq('status', status)
+      filteredQuery = filteredQuery.eq('status', status)
     }
 
-    // Apply exclude_status filter if provided
     if (exclude_status) {
-      query = query.neq('status', exclude_status)
+      filteredQuery = filteredQuery.neq('status', exclude_status)
     }
 
-    const { data, error, count } = await query
+    const { data, error, count } = await filteredQuery
 
     if (error) {
       console.error('Error fetching events:', error)

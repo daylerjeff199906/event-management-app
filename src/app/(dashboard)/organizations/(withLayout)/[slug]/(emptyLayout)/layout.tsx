@@ -1,8 +1,7 @@
-import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
-import { checkOnboardingCompleted, getUserInstitutions, getUserInstitutionRole } from '@/services/user.services'
+import { checkOnboardingCompleted, getUserInstitutionRole } from '@/services/user.services'
 import { Params } from '@/types'
 
 interface IProps {
@@ -23,7 +22,7 @@ export default async function Layout(props: IProps) {
   const userId = authUser.user.id
 
   const onboardingCompleted = await checkOnboardingCompleted(userId)
-  
+
   if (!onboardingCompleted) {
     redirect(APP_URL.PORTAL.ONBOARDING)
   }
@@ -41,28 +40,9 @@ export default async function Layout(props: IProps) {
     redirect(APP_URL.NOT_FOUND)
   }
 
-  const institutions = await getUserInstitutions(userId)
-
-  const hasInstitution = institutions && institutions.length > 0
-
-  const profileData = profile as {
-    first_name: string | null
-    email: string
-    profile_image: string | null
-  }
-
   return (
-    <AdminPanelLayout
-      userName={profileData?.first_name || 'Usuario'}
-      email={profileData.email}
-      urlPhoto={profileData?.profile_image || undefined}
-      menuItems={[]}
-      isInstitutional={hasInstitution}
-      hiddenSidebar
-    >
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto">{children}</div>
-      </div>
-    </AdminPanelLayout>
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto">{children}</div>
+    </div>
   )
 }
