@@ -39,7 +39,7 @@ export const InstitutionEventsHeader = ({
                 APP_URL.ORGANIZATION.INSTITUTION.CREATE_EVENT(institutionId!)
               )
             }
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 rounded-full"
           >
             Agregar Evento
             <Plus className="size-4" />
