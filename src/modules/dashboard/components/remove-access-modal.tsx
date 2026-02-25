@@ -24,6 +24,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
 import { APP_URL } from '@/data/config-app-url'
+import { InstitutionRole } from '@/types'
 
 // Esquema de validación con Zod
 const accessSchema = z.object({
@@ -40,7 +41,7 @@ interface IProps {
   institutionId: string
   userName: string
   userEmail: string
-  role: 'institution_owner' | 'member' | 'editor'
+  role: InstitutionRole
   accessEnabled: boolean // Nuevo prop para saber el estado actual del acceso
 }
 
@@ -84,8 +85,8 @@ export const ToggleAccessModal = (props: IProps) => {
       ? 'Desactivando...'
       : 'Restaurando...'
     : isActive
-    ? `Desactivar a ${userName}`
-    : `Restaurar a ${userName}`
+      ? `Desactivar a ${userName}`
+      : `Restaurar a ${userName}`
 
   const buttonVariant = isActive ? 'destructive' : 'outline'
   const icon = isActive ? Trash : RefreshCw
@@ -117,9 +118,8 @@ export const ToggleAccessModal = (props: IProps) => {
       toast.success(
         <ToastCustom
           title="Éxito"
-          description={`El acceso de ${userName} ha sido ${
-            newAccessState ? 'restaurado' : 'desactivado'
-          } correctamente`}
+          description={`El acceso de ${userName} ha sido ${newAccessState ? 'restaurado' : 'desactivado'
+            } correctamente`}
         />
       )
 
@@ -130,9 +130,8 @@ export const ToggleAccessModal = (props: IProps) => {
       toast.error(
         <ToastCustom
           title="Error"
-          description={`Ocurrió un error al ${
-            isActive ? 'desactivar' : 'restaurar'
-          } el acceso`}
+          description={`Ocurrió un error al ${isActive ? 'desactivar' : 'restaurar'
+            } el acceso`}
         />
       )
     }
@@ -189,11 +188,10 @@ export const ToggleAccessModal = (props: IProps) => {
                           onChange={(e) =>
                             field.onChange(e.target.checked ? 'true' : '')
                           }
-                          className={`h-4 w-4 rounded border-gray-300 ${
-                            isActive
-                              ? 'text-destructive focus:ring-destructive'
-                              : 'text-green-600 focus:ring-green-600'
-                          }`}
+                          className={`h-4 w-4 rounded border-gray-300 ${isActive
+                            ? 'text-destructive focus:ring-destructive'
+                            : 'text-green-600 focus:ring-green-600'
+                            }`}
                         />
                         <label
                           htmlFor="confirm-action"
