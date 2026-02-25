@@ -32,6 +32,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
+import { InstitutionRole } from '@/types'
 
 const roles = [
   {
@@ -94,7 +95,7 @@ export const EditRoleUserModal = (props: IProps) => {
         idRole,
         institutionId,
         userId,
-        role: data.role,
+        role: data.role as InstitutionRole,
         urlRevalidate: '/portal/institution/users'
       })
 
@@ -107,9 +108,8 @@ export const EditRoleUserModal = (props: IProps) => {
       toast.success(
         <ToastCustom
           title="Éxito"
-          description={`Rol actualizado a ${
-            roles.find((r) => r.key === data.role)?.label || data.role
-          }`}
+          description={`Rol actualizado a ${roles.find((r) => r.key === data.role)?.label || data.role
+            }`}
         />
       )
       setOpen(false)

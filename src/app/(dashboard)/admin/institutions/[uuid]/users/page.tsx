@@ -24,7 +24,7 @@ export default async function Page(props: PageProps) {
 
   const usersData = await getfullUserRoleByInstitution(institutionId)
   const currentUser = await getUserById(user?.user?.id || '')
-  const isAdmin = currentUser?.role?.includes('ADMIN')
+  const isAdmin = currentUser?.global_role === 'admin'
 
   if (!usersData || usersData.length === 0) {
     return (

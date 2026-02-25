@@ -53,10 +53,10 @@ export function EventCardUser({
 
   const dateString = endDate
     ? `${format(startDate, 'MMM d', { locale: es })} al ${format(
-        endDate,
-        'MMM d, yyyy',
-        { locale: es }
-      )}`
+      endDate,
+      'MMM d, yyyy',
+      { locale: es }
+    )}`
     : format(startDate, 'MMM d, yyyy', { locale: es })
 
   const formattedDate = dateString.charAt(0).toUpperCase() + dateString.slice(1)
@@ -72,11 +72,13 @@ export function EventCardUser({
         </div>
       </div>
 
-      {/* Contenedor de Imagen */}
       <div className="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800 aspect-video mb-4">
-        {event.cover_image_url ? (
+        {event.images && event.images.length > 0 ? (
           <img
-            src={event.cover_image_url || '/placeholder.svg'}
+            src={
+              event.images.find((img) => img.is_main)?.image_url ||
+              event.images[0].image_url
+            }
             alt={event.event_name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 object-top"
           />
@@ -127,8 +129,7 @@ export function EventCardUser({
         {href ? (
           <>
             <Button
-              // group-hover:bg-white y group-hover:text-black: El botón se invierte para resaltar en el fondo oscuro
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all 
+              className="bg-primary rounded-full text-primary-foreground hover:bg-primary/90 px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all 
                      group-hover:translate-x-1 group-hover:bg-white group-hover:text-black"
               asChild
             >
@@ -141,8 +142,7 @@ export function EventCardUser({
           <>
             <Button
               onClick={() => onViewDetails?.(event.id)}
-              // group-hover:bg-white y group-hover:text-black: El botón se invierte para resaltar en el fondo oscuro
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all 
+              className="bg-primary rounded-full text-primary-foreground hover:bg-primary/90 px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all 
                      group-hover:translate-x-1 group-hover:bg-white group-hover:text-black"
             >
               Ver Evento <ArrowRight className="ml-2 w-4 h-4" />

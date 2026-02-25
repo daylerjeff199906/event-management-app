@@ -1,7 +1,7 @@
 'use client'
 import { IUserRoleFull } from '@/types'
 import { AddUsersDialog } from '../../components'
-import { getUserList } from '@/services/user.services'
+import { getProfileList } from '@/services/user.services'
 import { createUserRole } from '@/services/user.roles.services'
 import { User } from '../../components/add-users-dialog'
 import { APP_URL } from '@/data/config-app-url'
@@ -49,12 +49,12 @@ export const AddUserSection = (props: IProps) => {
               username: user.user?.username || '',
               email: user.user?.email || '',
               avatar: user.user?.profile_image || undefined,
-              role: user.role || null
+              role: user.role_type || null
             })
           ) || []
         }
         searchUsers={async (query: string) => {
-          const userList = await getUserList({
+          const userList = await getProfileList({
             page: 1,
             searchQuery: query
           })

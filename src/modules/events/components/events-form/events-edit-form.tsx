@@ -88,8 +88,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
   const [showEndDate, setShowEndDate] = useState(!!eventData?.end_date)
   const [showRecurring, setShowRecurring] = useState(
     !!eventData?.is_recurring ||
-      !!eventData?.recurrence_pattern ||
-      !!eventData?.recurrence_end_date
+    !!eventData?.recurrence_pattern ||
+    !!eventData?.recurrence_end_date
   )
   const router = useRouter()
 
@@ -104,7 +104,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
         ? new Date(eventData.start_date)
         : undefined,
       end_date: eventData?.end_date ? new Date(eventData.end_date) : undefined,
-      cover_image_url: eventData?.cover_image_url || '',
+      images: eventData?.images || [],
       category: eventData?.category || undefined,
       status: eventData?.status || EventStatus.DRAFT,
       is_recurring: eventData?.is_recurring || false,
@@ -227,40 +227,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
     }
   }
 
-  const onImageChange = async (imageUrl: string) => {
-    form.setValue('cover_image_url', imageUrl, { shouldDirty: true })
-    try {
-      const response = await updateEventField({
-        eventId: eventData.id,
-        fieldName: 'cover_image_url',
-        fieldValue: imageUrl
-      })
-
-      if (response.error) {
-        toast.error(
-          <ToastCustom
-            title="Error"
-            description={`No se pudo actualizar la imagen del evento: ${response.error.message}`}
-            variant="destructive"
-          />
-        )
-      } else {
-        toast.success(
-          <ToastCustom
-            title="Éxito"
-            description="La imagen del evento ha sido actualizada correctamente."
-          />
-        )
-      }
-    } catch {
-      toast.error(
-        <ToastCustom
-          title="Error"
-          description="Ocurrió un error inesperado al actualizar la imagen del evento."
-          variant="destructive"
-        />
-      )
-    }
+  const onImagesChange = (newImages: any) => {
+    form.setValue('images', newImages, { shouldDirty: true })
   }
 
   return (
@@ -287,9 +255,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             </CardHeader>
             <CardContent>
               <ImageUpload
-                showExamples={false}
-                urlImage={form.getValues('cover_image_url')}
-                onImageChange={onImageChange}
+                eventId={eventData.id}
+                images={form.watch('images')}
+                onImagesChange={onImagesChange}
               />
             </CardContent>
           </Card>
@@ -431,8 +399,8 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                               eventData?.id
                                 ? undefined
                                 : formatDate(new Date(), 'yyyy-MM-dd', {
-                                    locale: es
-                                  })
+                                  locale: es
+                                })
                             }
                           />
                         </FormControl>
@@ -845,13 +813,10 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
           </Card>
 
           {/* Botones de acción */}
-          <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t bg-primary-foreground/50 backdrop-blur-md">
-            {/* Contenedor principal con limitador de ancho para pantallas grandes */}
+          <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t  backdrop-blur-md">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between">
-                {/* Lado Izquierdo (Logo o vacío, según la mancha roja de tu imagen) */}
                 <div className="shrink-0">
-                  {/* Si necesitas el logo rojo de la izquierda, iría aquí */}
                   <div className="w-8 h-8 rounded-full bg-red-500/20 md:hidden"></div>
                 </div>
 
@@ -877,7 +842,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
                   <Button
                     type="submit"
                     disabled={isSubmitting || !isDirty}
-                    className="bg-[#D64518] hover:bg-[#b53a14] text-white font-semibold shadow-sm px-6"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-xs font-bold uppercase tracking-wider transition-all"
                   >
                     {isSubmitting ? (
                       <>

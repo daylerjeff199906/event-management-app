@@ -61,20 +61,21 @@ export default function ImageUploadSimple({
         type: 'image/jpeg'
       })
 
-      const uploadResponse = await fetch(
-        `/api/images/upload?filename=${file.name}&override=true`,
-        {
-          method: 'POST',
-          body: file
-        }
-      )
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'events')
+
+      const uploadResponse = await fetch('/api/r2/upload', {
+        method: 'POST',
+        body: formData
+      })
 
       if (!uploadResponse.ok) {
         throw new Error('Error en la subida')
       }
 
-      const newBlob = await uploadResponse.json()
-      onImageChange(newBlob.url)
+      const { url } = await uploadResponse.json()
+      onImageChange(url)
 
       onClose()
       setSelectedImage(null)

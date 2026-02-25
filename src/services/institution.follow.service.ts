@@ -108,6 +108,5 @@ export async function getInstitutionFollowStatus(institutionId: string) {
     .eq('user_id', user.id)
     .eq('institution_id', institutionId)
     .single()
-
   return { isFollowing: !!data && !error }
 }

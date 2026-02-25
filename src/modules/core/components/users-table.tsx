@@ -97,8 +97,8 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant={getRoleBadgeVariant(userRole?.role)}>
-                  {userRole?.role}
+                <Badge variant={getRoleBadgeVariant(userRole?.role_type)}>
+                  {userRole?.role_type}
                 </Badge>
               </TableCell>
               <TableCell>
@@ -110,12 +110,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                       userEmail={userRole?.user?.email || ''}
                       userId={userRole?.user_id}
                       userName={userRole?.user?.first_name || ''}
-                      role={
-                        userRole?.role as
-                          | 'institution_owner'
-                          | 'member'
-                          | 'editor'
-                      }
+                      role={userRole?.role_type}
                       accessEnabled={userRole?.access_enabled || false}
                     />
                   )}
@@ -123,7 +118,7 @@ export function UsersTable({ users, currentUserId, isOwner }: UsersTableProps) {
                     <EditRoleUserModal
                       key={userRole.id}
                       idRole={userRole.id}
-                      value={userRole?.role}
+                      value={userRole?.role_type}
                       userId={userRole?.user_id}
                       institutionId={userRole?.institution_id?.toString() || ''}
                     />

@@ -1,3 +1,4 @@
+import { LayoutWrapper } from '@/components/layout-wrapper'
 import {
   ActionCardSection,
   EventCards,
@@ -15,12 +16,14 @@ export default async function HomePage() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <ActionCardSection withInstitution={responseData.length > 0} />
-        <QuickFilters categories={categories || []} />
-        <EventCards />
-        {/* <EventInspiration /> */}
-      </div>
+      <LayoutWrapper sectionTitle='Dashboard'>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <ActionCardSection withInstitution={responseData.length > 0} />
+          <QuickFilters categories={categories || []} />
+          <EventCards />
+          {/* <EventInspiration /> */}
+        </div>
+      </LayoutWrapper>
     </>
   )
 }

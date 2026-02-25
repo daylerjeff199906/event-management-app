@@ -1,8 +1,10 @@
-import AdminPanelLayout from '@/components/app/panel-admin/admin-panel-layout'
+import { SidebarProvider } from '@/components/ui/sidebar'
+import { AppSidebar } from '@/components/app-sidebar'
+import { adminPanelNavMain } from '../dashboard/const'
 import { APP_URL } from '@/data/config-app-url'
 import { redirect } from 'next/navigation'
 import { getSupabase } from '@/services/core.supabase'
-import { adminMenu } from '../dashboard/const'
+import { checkOnboardingCompleted, getUserInstitutions } from '@/services/user.services'
 
 interface IProps {
   children: React.ReactNode
@@ -11,57 +13,71 @@ interface IProps {
 export default async function Layout(props: IProps) {
   const { children } = props
   const supabase = await getSupabase()
-  const { data: user } = await supabase.auth.getUser()
+  const { data: authUser } = await supabase.auth.getUser()
 
-  if (!user) {
-    // Si no hay usuario, redirigir a la página de login
+  if (!authUser.user) {
     redirect(APP_URL.AUTH.LOGIN)
   }
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.user?.id)
-    .maybeSingle()
+  const userId = authUser.user.id
 
-  // Si hay sesión, continuar con el flujo normal
-  const isAdmin =
-    profile?.role && profile.role?.length > 0 && profile.role.includes('ADMIN')
-      ? true
-      : false
+  const onboardingCompleted = await checkOnboardingCompleted(userId)
 
-  if (!profile?.email) {
-    // Si el perfil no tiene email, redirigir a la página de onboarding
+  if (!onboardingCompleted) {
     redirect(APP_URL.PORTAL.ONBOARDING)
   }
 
-  if (!isAdmin) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  const isSuperAdmin = profile?.global_role === 'super_admin'
+
+  if (!isSuperAdmin) {
     redirect(APP_URL.NOT_FOUND)
   }
 
-  const profileData = (await profile) as {
+  const profileData = profile as {
     first_name: string | null
     email: string
     profile_image: string | null
   }
 
-  const { data: institutions } = await supabase
-    .from('user_roles')
-    .select('institution_id')
-    .eq('user_id', user.user?.id)
+  const userData = {
+    name: profileData?.first_name || 'Usuario',
+    email: profileData.email,
+    avatar: profileData?.profile_image || ''
+  }
 
-  const hasInstitution = institutions && institutions.length > 0 ? true : false
+  const institutions = await getUserInstitutions(userId)
+
+  const teamSwitcherData = [
+    {
+      name: 'Plataforma de Eventos',
+      logo: 'https://cdn-icons-png.flaticon.com/512/1000/1000946.png',
+      plan: 'Mi Cuenta',
+      url: APP_URL.DASHBOARD.BASE
+    },
+    ...(institutions?.map((inst: any) => ({
+      name: inst.institution?.name || inst.institution_id,
+      logo: inst.institution?.logo_url || 'Command',
+      plan: 'Organización',
+      url: APP_URL.ORGANIZATION.INSTITUTION.DETAIL(inst.institution_id)
+    })) || [])
+  ]
 
   return (
-    <AdminPanelLayout
-      userName={profileData?.first_name || 'Usuario'}
-      email={profile.email}
-      urlPhoto={profileData?.profile_image || undefined}
-      menuItems={adminMenu}
-      isAdmin={isAdmin}
-      isInstitutional={hasInstitution}
-    >
+    <SidebarProvider>
+      <AppSidebar
+        userData={userData}
+        menuTeamSwitcher={teamSwitcherData}
+        menuNavBar={{
+          navMain: adminPanelNavMain
+        }}
+      />
       {children}
-    </AdminPanelLayout>
+    </SidebarProvider>
   )
 }
