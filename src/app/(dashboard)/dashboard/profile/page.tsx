@@ -1,7 +1,6 @@
 import { ProfileEditor } from '@/modules/dashboard'
 import { getSupabase } from '@/services/core.supabase'
 import { IProfile } from '@/types'
-import { LayoutWrapper } from '@/components/layout-wrapper'
 
 export default async function Page() {
   const supabase = await getSupabase()
@@ -22,25 +21,23 @@ export default async function Page() {
     .single()
 
   return (
-    <LayoutWrapper sectionTitle="Perfil">
-      <ProfileEditor
-        userId={dataProfile.id}
-        email={dataProfile.email || ''}
-        initialData={{
-          birth_date: dataProfile.birth_date?.toString() || undefined,
-          first_name: dataProfile.first_name,
-          last_name: dataProfile.last_name,
-          phone: dataProfile.phone || undefined,
-          profile_image: dataProfile.profile_image || undefined,
-          country: dataProfile.country || undefined,
-          gender: dataProfile.gender as 'male' | 'female' | 'other' | undefined,
-          username: dataProfile.username || undefined
-        }}
-        interestsData={{
-          interests: interests?.interests || [],
-          eventTypes: interests?.event_types || []
-        }}
-      />
-    </LayoutWrapper>
+    <ProfileEditor
+      userId={dataProfile.id}
+      email={dataProfile.email || ''}
+      initialData={{
+        birth_date: dataProfile.birth_date?.toString() || undefined,
+        first_name: dataProfile.first_name,
+        last_name: dataProfile.last_name,
+        phone: dataProfile.phone || undefined,
+        profile_image: dataProfile.profile_image || undefined,
+        country: dataProfile.country || undefined,
+        gender: dataProfile.gender as 'male' | 'female' | 'other' | undefined,
+        username: dataProfile.username || undefined
+      }}
+      interestsData={{
+        interests: interests?.interests || [],
+        eventTypes: interests?.event_types || []
+      }}
+    />
   )
 }
