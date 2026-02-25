@@ -15,7 +15,7 @@ import { Upload, X, ImageIcon, Check, Star, Trash2, CloudUpload, GripVertical } 
 import { useState, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { addEventImage } from '@/services/events.services'
+import { addEventImage, deleteEventImage } from '@/services/events.services'
 import { toast } from 'react-toastify'
 
 interface EventImage {
@@ -205,6 +205,42 @@ export default function ImageUpload({
     onImagesChange?.(newImages)
   }
 
+  const handleDelete = async (index: number) => {
+    const imageToDelete = images[index]
+
+    // 1. Delete from R2 Storage
+    try {
+      await fetch('/api/r2/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: imageToDelete.image_url })
+      })
+    } catch (error) {
+      console.error('Error deleting from R2:', error)
+    }
+
+    // 2. Delete from Database
+    if (imageToDelete.id) {
+      const { error } = await deleteEventImage(imageToDelete.id)
+      if (error) {
+        toast.error('Error al borrar de la base de datos')
+        return
+      }
+    }
+
+    // 3. Update UI state
+    const newImages = [...images]
+    const wasMain = newImages[index].is_main
+    newImages.splice(index, 1)
+
+    if (wasMain && newImages.length > 0) {
+      newImages[0].is_main = true
+    }
+
+    onImagesChange?.(newImages)
+    toast.success('Imagen eliminada')
+  }
+
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setSelectedImage(null)
@@ -248,6 +284,15 @@ export default function ImageUpload({
             <div className="absolute top-2 left-2 z-10 p-1 rounded-md bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
               <GripVertical className="h-4 w-4" />
             </div>
+
+            {/* Delete Button */}
+            <button
+              type="button"
+              onClick={() => handleDelete(index)}
+              className="absolute top-2 right-2 z-10 p-1.5 rounded-md bg-red-500/80 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
 
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
