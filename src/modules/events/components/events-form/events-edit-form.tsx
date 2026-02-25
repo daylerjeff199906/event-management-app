@@ -255,6 +255,7 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
             </CardHeader>
             <CardContent>
               <ImageUpload
+                eventId={eventData.id}
                 images={form.watch('images')}
                 onImagesChange={onImagesChange}
               />
@@ -813,12 +814,9 @@ export const EventsEditForm = (props: EventsCreateFormProps) => {
 
           {/* Botones de acción */}
           <aside className="fixed bottom-0 z-50 right-0 left-0 w-full border-t  backdrop-blur-md">
-            {/* Contenedor principal con limitador de ancho para pantallas grandes */}
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between">
-                {/* Lado Izquierdo (Logo o vacío, según la mancha roja de tu imagen) */}
                 <div className="shrink-0">
-                  {/* Si necesitas el logo rojo de la izquierda, iría aquí */}
                   <div className="w-8 h-8 rounded-full bg-red-500/20 md:hidden"></div>
                 </div>
 
